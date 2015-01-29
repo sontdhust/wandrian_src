@@ -1,43 +1,3 @@
-/*
- * Copyright (c) 2012, Yujin Robot.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of Yujin Robot nor the names of its
- *       contributors may be used to endorse or promote products derived from
- *       this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
-
-/**
- * @file /wandrian_keyop/src/keyop_core.cpp
- *
- * @brief Creates a node for remote controlling parts of robot_core.
- *
- **/
-
-/*****************************************************************************
- ** Includes
- *****************************************************************************/
-
 #include <ros/ros.h>
 #include <ecl/time.hpp>
 #include <ecl/exceptions.hpp>
@@ -45,19 +5,8 @@
 #include <kobuki_msgs/MotorPower.h>
 #include "../include/keyop_core/keyop_core.hpp"
 
-/*****************************************************************************
- ** Namespaces
- *****************************************************************************/
-
 namespace keyop_core {
 
-/*****************************************************************************
- ** Implementation
- *****************************************************************************/
-
-/**
- * @brief Default constructor, needs initialisation.
- */
 KeyOpCore::KeyOpCore() :
 		last_zero_vel_sent(true), // avoid zero-vel messages from the beginning
 		accept_incoming(true), power_status(false), wait_for_connection_(true), cmd(
@@ -72,17 +21,11 @@ KeyOpCore::~KeyOpCore() {
 	tcsetattr(key_file_descriptor, TCSANOW, &original_terminal_state);
 }
 
-/**
- * @brief Initialises the node.
- */
 bool KeyOpCore::init() {
 	ros::NodeHandle nh("~");
 
 	name = nh.getUnresolvedNamespace();
 
-	/*********************
-	 ** Parameters
-	 **********************/
 	nh.getParam("linear_vel_step", linear_vel_step);
 	nh.getParam("linear_vel_max", linear_vel_max);
 	nh.getParam("angular_vel_step", angular_vel_step);
@@ -98,22 +41,13 @@ bool KeyOpCore::init() {
 	ROS_INFO_STREAM(
 			"KeyOpCore : using angular vel max  [" << angular_vel_max << "].");
 
-	/*********************
-	 ** Subscribers
-	 **********************/
 	keyinput_subscriber = nh.subscribe("teleop", 1,
 			&KeyOpCore::remoteKeyInputReceived, this);
 
-	/*********************
-	 ** Publishers
-	 **********************/
 	velocity_publisher_ = nh.advertise<geometry_msgs::Twist>("cmd_vel", 1);
 	motor_power_publisher_ = nh.advertise<kobuki_msgs::MotorPower>(
 			"motor_power", 1);
 
-	/*********************
-	 ** Velocities
-	 **********************/
 	cmd->linear.x = 0.0;
 	cmd->linear.y = 0.0;
 	cmd->linear.z = 0.0;
@@ -121,9 +55,6 @@ bool KeyOpCore::init() {
 	cmd->angular.y = 0.0;
 	cmd->angular.z = 0.0;
 
-	/*********************
-	 ** Wait for connection
-	 **********************/
 	if (!wait_for_connection_) {
 		return true;
 	}
@@ -167,15 +98,6 @@ bool KeyOpCore::init() {
 	return true;
 }
 
-/*****************************************************************************
- ** Implementation [Spin]
- *****************************************************************************/
-
-/**
- * @brief Worker thread loop; sends current velocity command at a fixed rate.
- *
- * It also process ros functions as well as aborting when requested.
- */
 void KeyOpCore::spin() {
 	ros::Rate loop_rate(10);
 
@@ -204,16 +126,6 @@ void KeyOpCore::spin() {
 	thread.join();
 }
 
-/*****************************************************************************
- ** Implementation [Keyboard]
- *****************************************************************************/
-
-/**
- * @brief The worker thread function that accepts input keyboard commands.
- *
- * This is ok here - but later it might be a good idea to make a node which
- * posts keyboard events to a topic. Recycle common code if used by many!
- */
 void KeyOpCore::keyboardInputLoop() {
 	struct termios raw;
 	memcpy(&raw, &original_terminal_state, sizeof(struct termios));
@@ -242,26 +154,12 @@ void KeyOpCore::keyboardInputLoop() {
 	}
 }
 
-/**
- * @brief Callback function for remote keyboard inputs subscriber.
- */
 void KeyOpCore::remoteKeyInputReceived(const kobuki_msgs::KeyboardInput& key) {
 	processKeyboardInput(key.pressedKey);
 }
 
-/**
- * @brief Process individual keyboard inputs.
- *
- * @param c keyboard input.
- */
 void KeyOpCore::processKeyboardInput(char c) {
-	/*
-	 * Arrow keys are a bit special, they are escape characters - meaning they
-	 * trigger a sequence of keycodes. In this case, 'esc-[-Keycode_xxx'. We
-	 * ignore the esc-[ and just parse the last one. So long as we avoid using
-	 * the last one for its actual purpose (e.g. left arrow corresponds to
-	 * esc-[-D) we can keep the parsing simple.
-	 */
+
 	switch (c) {
 	case kobuki_msgs::KeyboardInput::KeyCode_Left: {
 		incrementAngularVelocity();
@@ -301,17 +199,6 @@ void KeyOpCore::processKeyboardInput(char c) {
 	}
 }
 
-/*****************************************************************************
- ** Implementation [Commands]
- *****************************************************************************/
-/**
- * @brief Disables commands to the navigation system.
- *
- * This does the following things:
- *
- * - Disables power to the navigation motors (via device_manager).
- * @param msg
- */
 void KeyOpCore::disable() {
 	cmd->linear.x = 0.0;
 	cmd->angular.z = 0.0;
@@ -330,12 +217,6 @@ void KeyOpCore::disable() {
 	}
 }
 
-/**
- * @brief Reset/re-enable the navigation system.
- *
- * - resets the command velocities.
- * - reenable power if not enabled.
- */
 void KeyOpCore::enable() {
 	accept_incoming = false;
 
@@ -354,9 +235,6 @@ void KeyOpCore::enable() {
 	}
 }
 
-/**
- * @brief If not already maxxed, increment the command velocities..
- */
 void KeyOpCore::incrementLinearVelocity() {
 	if (power_status) {
 		if (cmd->linear.x <= linear_vel_max) {
@@ -369,9 +247,6 @@ void KeyOpCore::incrementLinearVelocity() {
 	}
 }
 
-/**
- * @brief If not already minned, decrement the linear velocities..
- */
 void KeyOpCore::decrementLinearVelocity() {
 	if (power_status) {
 		if (cmd->linear.x >= -linear_vel_max) {
@@ -384,9 +259,6 @@ void KeyOpCore::decrementLinearVelocity() {
 	}
 }
 
-/**
- * @brief If not already maxxed, increment the angular velocities..
- */
 void KeyOpCore::incrementAngularVelocity() {
 	if (power_status) {
 		if (cmd->angular.z <= angular_vel_max) {
@@ -399,9 +271,6 @@ void KeyOpCore::incrementAngularVelocity() {
 	}
 }
 
-/**
- * @brief If not already mined, decrement the angular velocities..
- */
 void KeyOpCore::decrementAngularVelocity() {
 	if (power_status) {
 		if (cmd->angular.z >= -angular_vel_max) {
@@ -424,4 +293,4 @@ void KeyOpCore::resetVelocity() {
 	}
 }
 
-} // namespace keyop_core
+}
