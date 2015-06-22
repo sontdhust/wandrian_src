@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
 	if (keyop.init()) {
 		keyop.spin();
 	} else {
-		ROS_ERROR_STREAM("Couldn't initialise KeyOpCore!");
+		ROS_ERROR_STREAM("Couldn't initialize KeyOpCore!");
 	}
 
 	ROS_INFO_STREAM("Program exiting");

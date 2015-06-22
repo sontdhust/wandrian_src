@@ -1,1 +1,6 @@
 /CMakeLists.txt
+
+# Eclipse project files
+.cproject
+.project
+.settings
