@@ -26,6 +26,10 @@ inline bool operator <(const Point &a, const Point &b) {
 		return a.x < b.x;
 }
 
+inline bool operator !=(const Point &a, const Point &b) {
+	return a < b || b < a;
+}
+
 struct PointComp {
 	bool operator()(const Point* a, const Point* b) const {
 		return *a < *b;

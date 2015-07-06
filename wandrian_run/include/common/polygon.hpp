@@ -18,15 +18,16 @@ namespace shapes {
 class Polygon {
 
 public:
-	Polygon(std::set<Point*> points);
+	Polygon(std::set<Point*, PointComp> points);
 	~Polygon();
 	void add(Point* point);
 	std::set<Point*> upper_vertices(); // list of points
 	std::set<Point*> lower_vertices(); // list of points
+	std::map<Point*, std::set<Point*, PointComp>, PointComp > get_graph();
 
 private:
-	std::set<Point*> points;
-	std::map<Point*, std::set<Point*> > graph;
+	std::set<Point*, PointComp> points;
+	std::map<Point*, std::set<Point*, PointComp>, PointComp > graph;
 	void build();
 };
 }
