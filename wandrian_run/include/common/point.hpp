@@ -16,6 +16,7 @@ struct Point {
 	Point(double x, double y);
 
 	double x, y;
+
 };
 
 inline bool operator <(const Point &a, const Point &b) {
@@ -24,6 +25,12 @@ inline bool operator <(const Point &a, const Point &b) {
 	else
 		return a.x < b.x;
 }
+
+struct PointComp {
+	bool operator()(const Point* a, const Point* b) const {
+		return *a < *b;
+	}
+};
 
 }
 }
