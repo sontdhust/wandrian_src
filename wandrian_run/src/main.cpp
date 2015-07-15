@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <set>
+#include <boost/next_prior.hpp>
 #include "../include/common/polygon.hpp"
 #include "../include/common/segment.hpp"
 
@@ -30,6 +31,32 @@ int main(int argc, char **argv) {
 	 std::cout << (*p) << "\n";
 	 }
 
+	 std::set<Point*> ps;
+	 ps.insert(new Point(0, 0));
+	 ps.insert(new Point(2, 0));
+	 ps.insert(new Point(0, 2));
+	 ps.insert(new Point(-2, 4));
+	 Polygon *p = new Polygon(ps);
+	 std::set<Point*> s;
+	 s.insert(new Point(1, 2));
+	 s.insert(new Point(3, 4));
+	 std::map<Point*, std::set<Point*, PointComp>, PointComp> m;
+
+	 std::set<Point*>::iterator b = s.begin();
+	 std::set<Point*>::iterator e = boost::next(b);
+	 m.insert(
+	 std::pair<Point*, std::set<Point*, PointComp> >(*b,
+	 std::set<Point*, PointComp>()));
+	 m.insert(
+	 std::pair<Point*, std::set<Point*, PointComp> >(*e,
+	 std::set<Point*, PointComp>()));
+	 (*m.find(*b)).second.insert(*e);
+	 (*m.find(*e)).second.insert(*b);
+
+	 (*m.find(*b)).second.erase(*e);
+	 for (std::set<Point*>::iterator c = s.begin(); c != s.end(); c++) {
+	 std::cout << (*c)->x << " " << (*c)->y << "\n";
+	 }
 	 std::set<Point*, PointComp> points;
 	 points.insert(new Point(1, 2));
 	 points.insert(new Point(2, 5));
@@ -40,12 +67,17 @@ int main(int argc, char **argv) {
 	 std::cout << (*p)->x << " " << (*p)->y << "\n";
 	 }*/
 
-	std::set<Point*, PointComp> ps;
+	std::set<Point*> ps;
 	ps.insert(new Point(0, 0));
 	ps.insert(new Point(2, 0));
 	ps.insert(new Point(0, 2));
-	ps.insert(new Point(0, -2));
+	ps.insert(new Point(0, 4));
 	Polygon *p = new Polygon(ps);
+//	Polygon *p = new Polygon();
+//	p->add(new Point(0, 0));
+//	p->add(new Point(2, 0));
+//	p->add(new Point(2, 2));
+//	p->add(new Point(0, 2));
 	std::map<Point*, std::set<Point*, PointComp>, PointComp> g = p->get_graph();
 	for (std::map<Point*, std::set<Point*, PointComp> >::iterator current =
 			g.begin(); current != g.end(); current++) {

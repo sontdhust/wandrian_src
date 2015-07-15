@@ -20,10 +20,10 @@ struct Point {
 };
 
 inline bool operator <(const Point &a, const Point &b) {
-	if (a.y != b.y)
-		return a.y < b.y;
-	else
+	if (a.x != b.x)
 		return a.x < b.x;
+	else
+		return a.y < b.y;
 }
 
 inline bool operator !=(const Point &a, const Point &b) {

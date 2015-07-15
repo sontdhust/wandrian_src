@@ -12,8 +12,12 @@
 namespace common {
 namespace shapes {
 
-Polygon::Polygon(std::set<Point*, PointComp> points) :
-		points(points) {
+Polygon::Polygon() :
+		points(), graph() {
+}
+
+Polygon::Polygon(std::set<Point*> points) :
+		points(points), graph() {
 	build();
 }
 
@@ -33,6 +37,13 @@ Polygon::~Polygon() {
 }
 
 void Polygon::add(Point* point) {
+	if (points.size() > 1) {
+		std::set<Point*>::iterator begin = points.begin();
+		std::set<Point*>::iterator end = points.end();
+		end = boost::prior(end);
+		(*graph.find(*begin)).second.erase(*end);
+		(*graph.find(*end)).second.erase(*begin);
+	}
 	points.insert(point);
 	build();
 }
@@ -61,21 +72,22 @@ void Polygon::build() {
 			graph.insert(
 					std::pair<Point*, std::set<Point*, PointComp> >(*current,
 							std::set<Point*, PointComp>()));
-
 		// Find next point
-		std::set<Point*, PointComp>::iterator next;
+		std::set<Point*>::iterator next;
 		if (boost::next(current) != points.end())
 			next = boost::next(current);
 		else
 			next = points.begin();
-
 		// Insert next point into graph if not yet
 		if (graph.find(*next) == graph.end())
 			graph.insert(
 					std::pair<Point*, std::set<Point*, PointComp> >(*next,
 							std::set<Point*, PointComp>()));
-		graph.find(*current)->second.insert(*next);
-		graph.find(*next)->second.insert(*current);
+		// Create edge
+		if (current != next) {
+			graph.find(*current)->second.insert(*next);
+			graph.find(*next)->second.insert(*current);
+		}
 	}
 	// Find all intersects
 	for (std::map<Point*, std::set<Point*, PointComp> >::iterator current =
@@ -103,20 +115,20 @@ void Polygon::build() {
 						 * TODO correctly insert new edge to graph
 						 */
 						if (*intersect != *(*current).first
-								&& *intersect != **current_adjacent
-								&& *intersect != *(*another).first
-								&& *intersect != **another_adjacent) {
+								&& *intersect != **current_adjacent) {
 							(*current).second.insert(intersect);
 							(*graph.find(*current_adjacent)).second.insert(
 									intersect);
-							(*another).second.insert(intersect);
-							(*graph.find(*another_adjacent)).second.insert(
-									intersect);
-
 							(*graph.find(intersect)).second.insert(
 									(*current).first);
 							(*graph.find(intersect)).second.insert(
 									*current_adjacent);
+						}
+						if (*intersect != *(*another).first
+								&& *intersect != **another_adjacent) {
+							(*another).second.insert(intersect);
+							(*graph.find(*another_adjacent)).second.insert(
+									intersect);
 							(*graph.find(intersect)).second.insert(
 									(*another).first);
 							(*graph.find(intersect)).second.insert(
