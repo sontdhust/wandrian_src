@@ -5,6 +5,8 @@
  *      Author: sontd
  */
 
+#include <iostream>
+#include <cmath>
 #include <boost/next_prior.hpp>
 #include "../../include/common/segment.hpp"
 #include "../../include/common/polygon.hpp"
@@ -49,15 +51,11 @@ void Polygon::add(Point* point) {
 }
 
 std::set<Point*> Polygon::upper_vertices() {
-	std::set<Point*> vertices;
-
-	return vertices;
+	return get_vertices(true);
 }
 
 std::set<Point*> Polygon::lower_vertices() {
-	std::set<Point*> vertices;
-
-	return vertices;
+	return get_vertices(false);
 }
 
 std::map<Point*, std::set<Point*, PointComp>, PointComp> Polygon::get_graph() {
@@ -139,6 +137,66 @@ void Polygon::build() {
 			}
 		}
 	}
+}
+
+Point* Polygon::get_leftmost() {
+	Point* leftmost = *(points.begin());
+	for (std::set<Point*>::iterator current = boost::next(points.begin());
+			current != points.end(); current++) {
+		if (**current < *leftmost)
+			leftmost = *current;
+	}
+	return leftmost;
+}
+
+Point* Polygon::get_rightmost() {
+	Point* rightmost = *(points.begin());
+	for (std::set<Point*>::iterator current = boost::next(points.begin());
+			current != points.end(); current++) {
+		if (**current > *rightmost)
+			rightmost = *current;
+	}
+	return rightmost;
+}
+
+std::set<Point*> Polygon::get_vertices(bool getUpper) {
+	std::set<Point*> vertices;
+	Point *leftmost = get_leftmost();
+	Point *rightmost = get_rightmost();
+	vertices.insert(leftmost);
+
+	Point *current = leftmost;
+	Point *previous = new Point(current->x - 1, current->y);
+	while (*current != *rightmost) {
+		std::cout << "c:" << current->x << " " << current->y << "\n";
+		Point *next = new Point(**(graph.find(current)->second.begin()));
+		double angle = atan2(previous->y - current->y, previous->x - current->x)
+				- atan2(next->y - current->y, next->x - current->x);
+		for (std::set<Point*>::iterator adjacent = boost::next(
+				graph.find(current)->second.begin());
+				adjacent != graph.find(current)->second.end(); adjacent++) {
+
+			std::cout << "  >>" << next->x << " " << next->y << "," << (*adjacent)->x << " " << (*adjacent)->y << "\n";
+			double a = atan2(previous->y - current->y, previous->x - current->x)
+					- atan2((*adjacent)->y - current->y,
+							(*adjacent)->x - current->x);
+			if (getUpper) {
+				if ((a > 0 ? a : 2 * M_PI + a)
+						< (angle > 0 ? angle : 2 * M_PI + angle))
+					next = new Point(**adjacent);
+			} else {
+				if ((a >= 0 ? a : 2 * M_PI + a)
+						> (angle >= 0 ? angle : 2 * M_PI + angle))
+					next = new Point(**adjacent);
+			}
+
+			std::cout << "    " << next->x << " " << next->y << "\n";
+		}
+		previous = new Point(*current);
+		current = new Point(*next);
+		vertices.insert(current);
+	}
+	return vertices;
 }
 
 }

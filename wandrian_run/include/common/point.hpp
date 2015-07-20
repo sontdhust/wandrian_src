@@ -14,6 +14,7 @@ namespace shapes {
 struct Point {
 
 	Point(double x, double y);
+	Point(const Point &point);
 
 	double x, y;
 
@@ -28,6 +29,10 @@ inline bool operator <(const Point &a, const Point &b) {
 
 inline bool operator !=(const Point &a, const Point &b) {
 	return a < b || b < a;
+}
+
+inline bool operator >(const Point &a, const Point &b) {
+	return a != b && !(a < b);
 }
 
 struct PointComp {

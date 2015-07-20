@@ -30,6 +30,9 @@ private:
 	std::set<Point*> points;
 	std::map<Point*, std::set<Point*, PointComp>, PointComp > graph;
 	void build();
+	Point* get_leftmost();
+	Point* get_rightmost();
+	std::set<Point*> get_vertices(bool); // list of points
 };
 }
 }
