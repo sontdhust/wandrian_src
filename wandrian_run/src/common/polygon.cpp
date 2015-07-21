@@ -5,7 +5,6 @@
  *      Author: sontd
  */
 
-#include <iostream>
 #include <cmath>
 #include <boost/next_prior.hpp>
 #include "../../include/common/segment.hpp"
@@ -103,12 +102,13 @@ void Polygon::build() {
 							*current_adjacent))
 							% *(new Segment(another->first, *another_adjacent));
 					if (intersect != NULL) {
-						if (graph.find(intersect) == graph.end())
+						if (graph.find(intersect) == graph.end()) {
 							graph.insert(
 									std::pair<Point*,
 											std::set<Point*, PointComp> >(
 											intersect,
 											std::set<Point*, PointComp>()));
+						}
 						/*
 						 * TODO correctly insert new edge to graph
 						 */
@@ -168,15 +168,12 @@ std::set<Point*> Polygon::get_vertices(bool getUpper) {
 	Point *current = leftmost;
 	Point *previous = new Point(current->x - 1, current->y);
 	while (*current != *rightmost) {
-		std::cout << "c:" << current->x << " " << current->y << "\n";
 		Point *next = new Point(**(graph.find(current)->second.begin()));
 		double angle = atan2(previous->y - current->y, previous->x - current->x)
 				- atan2(next->y - current->y, next->x - current->x);
 		for (std::set<Point*>::iterator adjacent = boost::next(
 				graph.find(current)->second.begin());
 				adjacent != graph.find(current)->second.end(); adjacent++) {
-
-			std::cout << "  >>" << next->x << " " << next->y << "," << (*adjacent)->x << " " << (*adjacent)->y << "\n";
 			double a = atan2(previous->y - current->y, previous->x - current->x)
 					- atan2((*adjacent)->y - current->y,
 							(*adjacent)->x - current->x);
@@ -189,8 +186,6 @@ std::set<Point*> Polygon::get_vertices(bool getUpper) {
 						> (angle >= 0 ? angle : 2 * M_PI + angle))
 					next = new Point(**adjacent);
 			}
-
-			std::cout << "    " << next->x << " " << next->y << "\n";
 		}
 		previous = new Point(*current);
 		current = new Point(*next);

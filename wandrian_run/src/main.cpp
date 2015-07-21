@@ -86,14 +86,45 @@ int main(int argc, char **argv) {
 //	bool b = false;
 //	if(*p1 != *p2) b = true;
 //	if(b) std::cout << p2->x << "\n";
+
+//	Point *p1 = new Point(1, 1);
+//	Point *p2 = new Point(1, 2);
+//	if(*p1 < *p2)
+//		std::cout << "<\n";
+//
+//	std::set<Point*, PointComp> ts;
+//	ts.insert(new Point(0, 0));
+//	ts.insert(new Point(2, 1));
+//	ts.insert(new Point(1, 2));
+//	ts.insert(new Point(4, 0));
+//	if (ts.find(p1) == ts.end())
+//		std::cout << "s NOT FOUND\n";
+//
+//	std::map<Point*, std::set<Point*, PointComp>, PointComp> tm;
+//	tm.insert(
+//			std::pair<Point*, std::set<Point*, PointComp> >(new Point(0, 0),
+//					std::set<Point*, PointComp>()));
+//	tm.insert(
+//			std::pair<Point*, std::set<Point*, PointComp> >(new Point(2, 1),
+//					std::set<Point*, PointComp>()));
+//	tm.insert(
+//			std::pair<Point*, std::set<Point*, PointComp> >(new Point(1, 2),
+//					std::set<Point*, PointComp>()));
+//	tm.insert(
+//			std::pair<Point*, std::set<Point*, PointComp> >(new Point(4, 0),
+//					std::set<Point*, PointComp>()));
+//	if (tm.find(p1) == tm.end())
+//		std::cout << "m NOT FOUND\n";
+
 	Polygon *polygon = new Polygon();
 	polygon->add(new Point(0, 0));
+	polygon->add(new Point(2, 1));
 	polygon->add(new Point(1, 2));
-	polygon->add(new Point(3, 2));
 	polygon->add(new Point(4, 0));
-	polygon->add(new Point(1, -2));
-	polygon->add(new Point(0, -1));
-	std::map<Point*, std::set<Point*, PointComp>, PointComp> g = polygon->get_graph();
+//	polygon->add(new Point(1, -2));
+//	polygon->add(new Point(2, -1));
+	std::map<Point*, std::set<Point*, PointComp>, PointComp> g =
+			polygon->get_graph();
 	for (std::map<Point*, std::set<Point*, PointComp> >::iterator current =
 			g.begin(); current != g.end(); current++) {
 		std::cout << (*current).first->x << " " << (*current).first->y << ": ";
@@ -126,5 +157,23 @@ int main(int argc, char **argv) {
 	}
 	std::cout << "\n";
 
+//	if (Point(1, -2) < Point(1, -2))
+//		std::cout << "NO\n";
+
+//	std::map<Point*, char, PointComp> m;
+//	m.insert(std::pair<Point*, char>(new Point(0, 0), 'c'));
+//	m.insert(std::pair<Point*, char>(new Point(1, 2), 'a'));
+//	m.insert(std::pair<Point*, char>(new Point(3, 2), 'b'));
+//	m.insert(std::pair<Point*, char>(new Point(4, 0), 'e'));
+//	m.insert(std::pair<Point*, char>(new Point(1, -2), 'f'));
+//	m.insert(std::pair<Point*, char>(new Point(2, -1), 'd'));
+//	std::cout << "::" << m.find(new Point(1, -2))->second << "\n";
+//
+//	for (std::map<Point*, char>::iterator current = m.begin();
+//			current != m.end(); current++) {
+//		std::cout << (*current).first->x << " " << (*current).first->y << ": ";
+//		std::cout << (*current).second;
+//		std::cout << "\n";
+//	}
 	return 0;
 }
