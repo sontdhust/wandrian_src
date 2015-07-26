@@ -5,7 +5,10 @@
  *      Author: sontd
  */
 
+#include <stdio.h>
+#include <iostream>
 #include <cmath>
+#include <limits>
 #include <boost/next_prior.hpp>
 #include "../../include/common/segment.hpp"
 #include "../../include/common/polygon.hpp"
@@ -38,6 +41,7 @@ Polygon::~Polygon() {
 }
 
 void Polygon::add(Point* point) {
+	// TODO Need improvement
 	if (points.size() > 1) {
 		std::set<Point*>::iterator begin = points.begin();
 		std::set<Point*>::iterator end = points.end();
@@ -103,6 +107,37 @@ void Polygon::build() {
 							% *(new Segment(another->first, *another_adjacent));
 					if (intersect != NULL) {
 						if (graph.find(intersect) == graph.end()) {
+
+//							for (std::map<Point*, std::set<Point*, PointComp> >::iterator i =
+//									graph.begin(); i != graph.end();
+//									i++) {
+//								std::cout << "__" << i->first->x << " "
+//										<< i->first->y << "\n";
+//								if (*(i->first) == *intersect)
+//									std::cout << ":D\n";
+//							}
+
+//							std::map<Point*, std::set<Point*, PointComp>,
+//									PointComp>::key_compare kc =
+//									graph.key_comp();
+//							std::cout << "kc: "
+//									<< kc(new Point(-1, 4), intersect)
+//									<< kc(intersect, new Point(-1, 4)) << "\n";
+//							if (graph.find(new Point(-1, 4)) == graph.end())
+//								std::cout << ":-?\n";
+//							if (graph.find(intersect) == graph.end())
+//								std::cout << ":O\n";
+							std::cout << "c: " << current->first->x << " "
+									<< current->first->y << ", "
+									<< (*current_adjacent)->x << " "
+									<< (*current_adjacent)->y << "; ";
+							std::cout << "a: " << another->first->x << " "
+									<< another->first->y << ", "
+									<< (*another_adjacent)->x << " "
+									<< (*another_adjacent)->y << "\n";
+							std::cout << "  i: " << intersect->x << " "
+									<< intersect->y << "\n";
+							// Insert intersect into graph if this is new vertex
 							graph.insert(
 									std::pair<Point*,
 											std::set<Point*, PointComp> >(
@@ -110,7 +145,7 @@ void Polygon::build() {
 											std::set<Point*, PointComp>()));
 						}
 						/*
-						 * TODO correctly insert new edge to graph
+						 * TODO Correctly insert new edge to graph
 						 */
 						if (*intersect != *(*current).first
 								&& *intersect != **current_adjacent) {
@@ -165,31 +200,56 @@ std::set<Point*> Polygon::get_vertices(bool getUpper) {
 	Point *rightmost = get_rightmost();
 	vertices.insert(leftmost);
 
+	double EPS = std::numeric_limits<double>::epsilon();
+
 	Point *current = leftmost;
 	Point *previous = new Point(current->x - 1, current->y);
 	while (*current != *rightmost) {
-		Point *next = new Point(**(graph.find(current)->second.begin()));
-		double angle = atan2(previous->y - current->y, previous->x - current->x)
-				- atan2(next->y - current->y, next->x - current->x);
-		for (std::set<Point*>::iterator adjacent = boost::next(
-				graph.find(current)->second.begin());
+		double angle;
+		double distance = std::numeric_limits<double>::infinity();
+		if (getUpper)
+			angle = 2 * M_PI;
+		else
+			angle = 0;
+		Point *next;
+		std::cout << "p: " << previous->x << " " << previous->y << ", c: "
+				<< current->x << " " << current->y << "\n";
+		for (std::set<Point*>::iterator adjacent =
+				graph.find(current)->second.begin();
 				adjacent != graph.find(current)->second.end(); adjacent++) {
 			double a = atan2(previous->y - current->y, previous->x - current->x)
 					- atan2((*adjacent)->y - current->y,
 							(*adjacent)->x - current->x);
+			double d = sqrt(
+					pow(current->x - (*adjacent)->x, 2)
+							+ pow(current->y - (*adjacent)->y, 2));
+			// TODO get next vertex with minimum distance from current
 			if (getUpper) {
-				if ((a > 0 ? a : 2 * M_PI + a)
-						< (angle > 0 ? angle : 2 * M_PI + angle))
+				a = a > 0 ? a : 2 * M_PI + a;
+				std::cout << "  (U)a: " << (*adjacent)->x << " "
+						<< (*adjacent)->y << ", " << a << ", " << angle << "; "
+						<< d << ", " << distance << "\n";
+				if (a - angle < -EPS || (a == angle && d < distance)) {
+					angle = a;
+					distance = d;
 					next = new Point(**adjacent);
+				}
 			} else {
-				if ((a >= 0 ? a : 2 * M_PI + a)
-						> (angle >= 0 ? angle : 2 * M_PI + angle))
+				a = a >= 0 ? a : 2 * M_PI + a;
+				std::cout << "  (L)a: " << (*adjacent)->x << " "
+						<< (*adjacent)->y << ", " << a << ", " << angle << "; "
+						<< d << ", " << distance << "\n";
+				if (a - angle > EPS || (a == angle && d < distance)) {
+					angle = a;
+					distance = d;
 					next = new Point(**adjacent);
+				}
 			}
 		}
 		previous = new Point(*current);
 		current = new Point(*next);
 		vertices.insert(current);
+		getchar();
 	}
 	return vertices;
 }

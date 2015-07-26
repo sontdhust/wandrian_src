@@ -7,10 +7,12 @@
 
 #include "../../include/common/segment.hpp"
 
+#include <assert.h>
+
 namespace common {
 namespace shapes {
 
-Segment::Segment(Point* p1, Point* p2) {
+Segment::Segment(const Point* p1, const Point* p2) {
 	construct(*p1, *p2);
 }
 
@@ -25,19 +27,15 @@ Segment::~Segment() {
 	delete p2;
 }
 
-void Segment::construct(Point& p1, Point& p2) {
-	this->p1 = &p1;
-	this->p2 = &p2;
-	if (p1.y > p2.y) {
-		this->p2 = &p1;
-		this->p1 = &p2;
-	} else if (p1.y == p2.y) {
-		if (p1.x > p2.x) {
-			this->p2 = &p1;
-			this->p1 = &p2;
-		} else if (p1.x == p2.x) {
-			assert(false);
-		}
+void Segment::construct(const Point& p1, const Point& p2) {
+	if (p1 == p2)
+		assert(false);
+	else if (p1 < p2) {
+		this->p1 = new Point(p1);
+		this->p2 = new Point(p2);
+	} else {
+		this->p1 = new Point(p2);
+		this->p2 = new Point(p1);
 	}
 }
 

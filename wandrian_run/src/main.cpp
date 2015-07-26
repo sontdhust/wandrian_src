@@ -6,6 +6,8 @@
  */
 
 #include <iostream>
+#include <limits>
+#include <GL/glut.h>
 #include <set>
 #include <boost/next_prior.hpp>
 #include "../include/common/polygon.hpp"
@@ -13,167 +15,128 @@
 
 using namespace common::shapes;
 
-int main(int argc, char **argv) {
-	/*
-	 Segment *l1 = new Segment(0, 0, 2, 0);
-	 Segment *l2 = new Segment(new Point(1, 1), new Point(1, -1));
-	 Point *p = *l1 % *l2;
-	 if (p != NULL)
-	 std::cout << p->x << " " << p->y << "\n";
-	 /*
-	 std::set<int> numbers;
-	 numbers.insert(1);
-	 numbers.insert(5);
-	 numbers.insert(2);
-	 numbers.insert(4);
-	 numbers.insert(2);
-	 for (std::set<int>::iterator p = numbers.begin(); p != numbers.end(); p++) {
-	 std::cout << (*p) << "\n";
-	 }
+Polygon *polygon;
 
-	 std::set<Point*> ps;
-	 ps.insert(new Point(0, 0));
-	 ps.insert(new Point(2, 0));
-	 ps.insert(new Point(0, 2));
-	 ps.insert(new Point(-2, 4));
-	 Polygon *p = new Polygon(ps);
-	 std::set<Point*> s;
-	 s.insert(new Point(1, 2));
-	 s.insert(new Point(3, 4));
-	 std::map<Point*, std::set<Point*, PointComp>, PointComp> m;
+/**
+ * Linked libraries to compile: -lglut -lGL (g++)
+ */
 
-	 std::set<Point*>::iterator b = s.begin();
-	 std::set<Point*>::iterator e = boost::next(b);
-	 m.insert(
-	 std::pair<Point*, std::set<Point*, PointComp> >(*b,
-	 std::set<Point*, PointComp>()));
-	 m.insert(
-	 std::pair<Point*, std::set<Point*, PointComp> >(*e,
-	 std::set<Point*, PointComp>()));
-	 (*m.find(*b)).second.insert(*e);
-	 (*m.find(*e)).second.insert(*b);
+void display() {
+	glClear( GL_COLOR_BUFFER_BIT);
 
-	 (*m.find(*b)).second.erase(*e);
-	 for (std::set<Point*>::iterator c = s.begin(); c != s.end(); c++) {
-	 std::cout << (*c)->x << " " << (*c)->y << "\n";
-	 }
-	 std::set<Point*, PointComp> points;
-	 points.insert(new Point(1, 2));
-	 points.insert(new Point(2, 5));
-	 points.insert(new Point(3, 4));
-	 points.insert(new Point(2, 4));
-	 for (std::set<Point*>::iterator p = points.begin(); p != points.end();
-	 p++) {
-	 std::cout << (*p)->x << " " << (*p)->y << "\n";
-	 }
-	 Point *p1 = new Point(1, 2);
-	 Point *p2 = new Point(3, 4);
-	 bool b = false;
-	 if (*p1 < *p2)
-	 b = true;
-	 if (b)
-	 std::cout << "true\n";*/
-//	std::set<Point*> ps;
-//	ps.insert(new Point(0, 0));
-//	ps.insert(new Point(2, 0));
-//	ps.insert(new Point(0, 2));
-//	ps.insert(new Point(0, 4));
-//	Polygon *p = new Polygon(ps);
-//	Point *p1 = new Point(1, 2);
-//	Point *p2;
-//	*p2 = *p1;
-//	p1->x = 3;
-//	bool b = false;
-//	if(*p1 != *p2) b = true;
-//	if(b) std::cout << p2->x << "\n";
+	glMatrixMode( GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(-6, 6, -6, 6, -1, 1);
 
-//	Point *p1 = new Point(1, 1);
-//	Point *p2 = new Point(1, 2);
-//	if(*p1 < *p2)
-//		std::cout << "<\n";
-//
-//	std::set<Point*, PointComp> ts;
-//	ts.insert(new Point(0, 0));
-//	ts.insert(new Point(2, 1));
-//	ts.insert(new Point(1, 2));
-//	ts.insert(new Point(4, 0));
-//	if (ts.find(p1) == ts.end())
-//		std::cout << "s NOT FOUND\n";
-//
-//	std::map<Point*, std::set<Point*, PointComp>, PointComp> tm;
-//	tm.insert(
-//			std::pair<Point*, std::set<Point*, PointComp> >(new Point(0, 0),
-//					std::set<Point*, PointComp>()));
-//	tm.insert(
-//			std::pair<Point*, std::set<Point*, PointComp> >(new Point(2, 1),
-//					std::set<Point*, PointComp>()));
-//	tm.insert(
-//			std::pair<Point*, std::set<Point*, PointComp> >(new Point(1, 2),
-//					std::set<Point*, PointComp>()));
-//	tm.insert(
-//			std::pair<Point*, std::set<Point*, PointComp> >(new Point(4, 0),
-//					std::set<Point*, PointComp>()));
-//	if (tm.find(p1) == tm.end())
-//		std::cout << "m NOT FOUND\n";
+	glMatrixMode( GL_MODELVIEW);
+	glLoadIdentity();
 
-	Polygon *polygon = new Polygon();
-	polygon->add(new Point(0, 0));
-	polygon->add(new Point(2, 1));
-	polygon->add(new Point(1, 2));
-	polygon->add(new Point(4, 0));
-//	polygon->add(new Point(1, -2));
-//	polygon->add(new Point(2, -1));
-	std::map<Point*, std::set<Point*, PointComp>, PointComp> g =
-			polygon->get_graph();
+	glScalef(0.5, 0.5, 0);
+
+	// TODO draw primitives here
+
+	//std::cout.precision(0);
+
+	glPointSize(4);
+	glColor3ub(255, 255, 0);
+	glBegin(GL_POINTS);
+	glVertex2i(0, 0);
+	glEnd();
+
+	glPointSize(1);
+	glColor3ub(255, 255, 255);
+	glBegin(GL_POINTS);
+	for (int i = -10; i <= 10; i++) {
+		for (int j = -10; j <= 10; j++) {
+			if (i != 0 || j != 0)
+				glVertex2i(i, j);
+		}
+	}
+	glEnd();
+
+	std::map<Point*, std::set<Point*, PointComp>, PointComp> graph;
+	std::set<Point*> upper_vertices;
+	std::set<Point*> lower_vertices;
+
+	graph = polygon->get_graph();
+	glColor3ub(255, 255, 255);
 	for (std::map<Point*, std::set<Point*, PointComp> >::iterator current =
-			g.begin(); current != g.end(); current++) {
+			graph.begin(); current != graph.end(); current++) {
 		std::cout << (*current).first->x << " " << (*current).first->y << ": ";
-		for (std::set<Point*>::iterator p = (*current).second.begin();
-				p != (*current).second.end(); p++) {
-			std::cout << (*p)->x << " " << (*p)->y << ", ";
+		for (std::set<Point*>::iterator adjacent = (*current).second.begin();
+				adjacent != (*current).second.end(); adjacent++) {
+			glBegin(GL_LINE_STRIP);
+			glVertex2d((*current).first->x, (*current).first->y);
+			glVertex2d((*adjacent)->x, (*adjacent)->y);
+			glEnd();
+			std::cout << (*adjacent)->x << " " << (*adjacent)->y << ", ";
 		}
 		std::cout << "\n";
 	}
-
-//	Point *p1 = new Point(2, 2);
-//	for (std::set<Point*>::iterator p = g.find(p1)->second.begin();
-//			p != g.find(p1)->second.end(); p++) {
-//		std::cout << (*p)->x << " " << (*p)->y << ", ";
-//	}
-//	std::cout << "\n";
-//	Point *p2 = new Point;
-//	std::cout << (**(g.find(p1)->second.begin())).y << "\n";
-//	*p2 = **(g.find(p1)->second.begin());
-
-	std::set<Point*> u = polygon->upper_vertices();
-	for (std::set<Point*>::iterator p = u.begin(); p != u.end(); p++) {
-		std::cout << (*p)->x << " " << (*p)->y << "; ";
-	}
 	std::cout << "\n";
 
-	std::set<Point*> l = polygon->lower_vertices();
-	for (std::set<Point*>::iterator p = l.begin(); p != l.end(); p++) {
-		std::cout << (*p)->x << " " << (*p)->y << "; ";
-	}
-	std::cout << "\n";
-
-//	if (Point(1, -2) < Point(1, -2))
-//		std::cout << "NO\n";
-
-//	std::map<Point*, char, PointComp> m;
-//	m.insert(std::pair<Point*, char>(new Point(0, 0), 'c'));
-//	m.insert(std::pair<Point*, char>(new Point(1, 2), 'a'));
-//	m.insert(std::pair<Point*, char>(new Point(3, 2), 'b'));
-//	m.insert(std::pair<Point*, char>(new Point(4, 0), 'e'));
-//	m.insert(std::pair<Point*, char>(new Point(1, -2), 'f'));
-//	m.insert(std::pair<Point*, char>(new Point(2, -1), 'd'));
-//	std::cout << "::" << m.find(new Point(1, -2))->second << "\n";
-//
-//	for (std::map<Point*, char>::iterator current = m.begin();
-//			current != m.end(); current++) {
-//		std::cout << (*current).first->x << " " << (*current).first->y << ": ";
-//		std::cout << (*current).second;
-//		std::cout << "\n";
+//	upper_vertices = polygon->upper_vertices();
+//	glColor3ub(255, 0, 0);
+//	for (std::set<Point*>::iterator current = upper_vertices.begin();
+//			boost::next(current) != upper_vertices.end(); current++) {
+//		glBegin(GL_LINE_STRIP);
+//		glVertex2d((*current)->x, (*current)->y);
+//		glVertex2d((*boost::next(current))->x, (*boost::next(current))->y);
+//		glEnd();
 //	}
+
+//	lower_vertices = polygon->lower_vertices();
+//	glColor3ub(0, 255, 0);
+//	for (std::set<Point*>::iterator current = lower_vertices.begin();
+//			boost::next(current) != lower_vertices.end(); current++) {
+//		glBegin(GL_LINE_STRIP);
+//		glVertex2d((*current)->x, (*current)->y);
+//		glVertex2d((*boost::next(current))->x, (*boost::next(current))->y);
+//		glEnd();
+//	}
+
+	glutSwapBuffers();
+}
+
+int run(int argc, char **argv) {
+	glutInit(&argc, argv);
+	glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE);
+	glutInitWindowSize(600, 600);
+	glutCreateWindow("GLUT");
+	glutDisplayFunc(display);
+	glutMainLoop();
+	return 0;
+}
+
+int main(int argc, char **argv) {
+
+	std::set<Point*> points;
+	points.insert(new Point(0, 1));
+	points.insert(new Point(2, 3));
+	points.insert(new Point(4, 2));
+	points.insert(new Point(5, -1));
+	points.insert(new Point(3, -2));
+	points.insert(new Point(-1, 4));
+//	points.insert(new Point(4, -2));
+//	points.insert(new Point(0, -3));
+//	points.insert(new Point(3, 2));
+	polygon = new Polygon(points);
+
+//	std::cout.precision(18);
+//	Point *p1 = *(new Segment(new Point(-1, 4), new Point(3, -2)))
+//			% *(new Segment(new Point(0, 1), new Point(2, 3)));
+//	Point *p2 = *(new Segment(new Point(0, 1), new Point(-1, 4)))
+//			% *(new Segment(p1, new Point(-1, 4)));
+//	Point *p3 = new Point(-1, 4);
+//	std::cout << "~" << p2->x << " " << p2->y << "\n";
+//	if (*p2 < *p3)
+//		std::cout << "T_T " << p2->y - p3->y + 0.1 //std::numeric_limits<double>::epsilon()
+//		<< "\n";
+//	if (graph.find(p2) == graph.end())
+//		std::cout << "T_T2\n";
+//	if (graph.find(p3) == graph.end())
+//		std::cout << "T_T3\n";
+
+	run(argc, argv);
 	return 0;
 }
