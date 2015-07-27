@@ -9,6 +9,8 @@
 #include <limits>
 #include <GL/glut.h>
 #include <set>
+#include <ctime>
+#include <cstdlib>
 #include <boost/next_prior.hpp>
 #include "../include/common/polygon.hpp"
 #include "../include/common/segment.hpp"
@@ -71,7 +73,7 @@ void display() {
 			glEnd();
 			std::cout << (*adjacent)->x << " " << (*adjacent)->y << ", ";
 		}
-		std::cout << "\n";
+		std::cout << "\n\n";
 	}
 	std::cout << "\n";
 
@@ -109,7 +111,6 @@ int run(int argc, char **argv) {
 }
 
 int main(int argc, char **argv) {
-
 	std::set<Point*> points;
 	points.insert(new Point(0, 1));
 	points.insert(new Point(2, 3));
@@ -119,7 +120,18 @@ int main(int argc, char **argv) {
 	points.insert(new Point(-1, 4));
 	points.insert(new Point(4, -2));
 	points.insert(new Point(0, -3));
-//	points.insert(new Point(3, 2));
+	points.insert(new Point(3, 2));
+	points.insert(new Point(-4, -5));
+	points.insert(new Point(-3, 3));
+//	points.insert(new Point(3, 0));
+//	std::set<Point*> points;
+//	std::srand(std::time(0));
+//	int r = std::rand() % 20;
+//	for (int i = 0; i <= r; i++) {
+//		int x = std::rand() % 16 - 8;
+//		int y = std::rand() % 16 - 8;
+//		points.insert(new Point(x, y));
+//	}
 	polygon = new Polygon(points);
 
 	run(argc, argv);

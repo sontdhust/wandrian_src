@@ -8,7 +8,6 @@
 #ifndef WANDRIAN_RUN_INCLUDE_COMMON_SEGMENT_HPP_
 #define WANDRIAN_RUN_INCLUDE_COMMON_SEGMENT_HPP_
 
-#include <limits>
 #include "point.hpp"
 
 namespace common {
@@ -73,6 +72,12 @@ inline Point* operator %(const Segment &a, const Segment &b) {
 			return NULL;
 	}
 }
+
+struct SegmentComp {
+	bool operator()(const Segment *a, const Segment *b) const {
+		return *(a->p1) != *(b->p1) ? *(a->p1) < *(b->p1) : *(a->p2) < *(b->p2);
+	}
+};
 
 }
 }

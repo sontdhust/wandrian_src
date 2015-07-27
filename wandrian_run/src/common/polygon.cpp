@@ -7,8 +7,6 @@
 
 #include <stdio.h>
 #include <iostream>
-#include <cmath>
-#include <limits>
 #include <boost/next_prior.hpp>
 #include "../../include/common/segment.hpp"
 #include "../../include/common/polygon.hpp"
@@ -91,7 +89,7 @@ void Polygon::build() {
 		}
 	}
 	// Find all intersects
-	std::map<Point*, std::set<Point*, PointComp>, PointComp> intersects;
+	std::map<Segment*, std::set<Point*, PointComp>, SegmentComp> segments;
 	for (std::map<Point*, std::set<Point*, PointComp> >::iterator current =
 			graph.begin(); current != graph.end(); current++) {
 		for (std::set<Point*>::iterator current_adjacent =
@@ -103,45 +101,80 @@ void Polygon::build() {
 						another->second.begin();
 						another_adjacent != another->second.end();
 						another_adjacent++) {
-					Point *intersect = *(new Segment(current->first,
-							*current_adjacent))
-							% *(new Segment(another->first, *another_adjacent));
+					Segment *current_segment = new Segment(current->first,
+							*current_adjacent);
+					Segment *another_segment = new Segment(another->first,
+							*another_adjacent);
+					Point *intersect = *(current_segment) % *(another_segment);
 					if (intersect != NULL) {
-						// Insert intersect into list intersects if this is new vertex
-						std::set<Point*, PointComp> intersect_adjacents;
-						if (*intersect != *(*current).first
-								&& *intersect != **current_adjacent) {
-							intersect_adjacents.insert((*current).first);
-							intersect_adjacents.insert(*current_adjacent);
-						}
-						if (*intersect != *(*another).first
-								&& *intersect != **another_adjacent) {
-							intersect_adjacents.insert((*another).first);
-							intersect_adjacents.insert(*another_adjacent);
-						}
-						intersects.insert(
-								std::pair<Point*, std::set<Point*, PointComp> >(
-										intersect, intersect_adjacents));
+//						std::cout << "  i: " << intersect->x << " "
+//								<< intersect->y << "\n";
+//						std::cout << "    cs: " << current_segment->p1->x << " "
+//								<< current_segment->p1->y << ", "
+//								<< current_segment->p2->x << " "
+//								<< current_segment->p2->y << "\n";
+//						std::cout << "        "
+//								<< (*intersect != *(current->first)) << " "
+//								<< (*intersect != **current_adjacent) << "\n";
+//						std::cout << "    as: " << another_segment->p1->x << " "
+//								<< another_segment->p1->y << ", "
+//								<< another_segment->p2->x << " "
+//								<< another_segment->p2->y << "\n";
+//						std::cout << "        "
+//								<< (*intersect != *(another->first)) << " "
+//								<< (*intersect != **another_adjacent) << "\n";
+						if (segments.find(current_segment) == segments.end())
+							segments.insert(
+									std::pair<Segment*,
+											std::set<Point*, PointComp> >(
+											current_segment,
+											std::set<Point*, PointComp>()));
+						if (segments.find(another_segment) == segments.end())
+							segments.insert(
+									std::pair<Segment*,
+											std::set<Point*, PointComp> >(
+											another_segment,
+											std::set<Point*, PointComp>()));
+
+						if (*intersect != *(current->first)
+								&& *intersect != **current_adjacent)
+							segments.find(current_segment)->second.insert(
+									intersect);
+						if (*intersect != *(another->first)
+								&& *intersect != **another_adjacent)
+							segments.find(another_segment)->second.insert(
+									intersect);
 					}
 				}
 			}
 		}
 	}
 	// Insert intersects and new edges into graph
-	for (std::map<Point*, std::set<Point*, PointComp> >::iterator intersect =
-			intersects.begin(); intersect != intersects.end(); intersect++) {
-		if (graph.find((*intersect).first) == graph.end()) {
-			graph.insert(
-					std::pair<Point*, std::set<Point*, PointComp> >(
-							(*intersect).first, std::set<Point*, PointComp>()));
+	for (std::map<Segment*, std::set<Point*, PointComp> >::iterator segment =
+			segments.begin(); segment != segments.end(); segment++) {
+		std::cout << segment->first->p1->x << " " << segment->first->p1->y
+				<< ", " << segment->first->p2->x << " " << segment->first->p2->y
+				<< ": ";
+		for (std::set<Point*>::iterator intersect = segment->second.begin();
+				intersect != segment->second.end(); intersect++) {
+			std::cout << (*intersect)->x << " " << (*intersect)->y << ", ";
+			graph.find(segment->first->p1)->second.insert(*intersect);
+			graph.find(segment->first->p2)->second.insert(*intersect);
+			if (graph.find(*intersect) == graph.end())
+				graph.insert(
+						std::pair<Point*, std::set<Point*, PointComp> >(
+								*intersect, std::set<Point*, PointComp>()));
+			graph.find(*intersect)->second.insert(segment->first->p1);
+			graph.find(*intersect)->second.insert(segment->first->p2);
+			for (std::set<Point*>::iterator another = segment->second.begin();
+					another != segment->second.end(); another++) {
+				if (**intersect != **another)
+					graph.find(*intersect)->second.insert(*another);
+			}
 		}
-
-		for (std::set<Point*>::iterator adjacent = intersect->second.begin();
-				adjacent != intersect->second.end(); adjacent++) {
-			graph.find((*intersect).first)->second.insert(*adjacent);
-			graph.find(*adjacent)->second.insert((*intersect).first);
-		}
+		std::cout << "\n";
 	}
+	std::cout << "\n";
 	// TODO Remove redundant edges
 }
 
@@ -171,7 +204,8 @@ std::set<Point*> Polygon::get_vertices(bool getUpper) {
 	Point *rightmost = get_rightmost();
 	vertices.insert(leftmost);
 
-	double EPS = std::numeric_limits<double>::epsilon();
+// TODO Choose relevant epsilon value
+	double EPS = 4 * std::numeric_limits<double>::epsilon();
 
 	Point *current = leftmost;
 	Point *previous = new Point(current->x - 1, current->y);
