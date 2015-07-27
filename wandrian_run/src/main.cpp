@@ -5,10 +5,10 @@
  *      Author: sontd
  */
 
+#include <GL/glut.h>
 #include <stdio.h>
 #include <iostream>
 #include <limits>
-#include <GL/glut.h>
 #include <set>
 #include <ctime>
 #include <cstdlib>
@@ -37,8 +37,6 @@ void display() {
 	glScalef(0.5, 0.5, 0);
 
 	// TODO draw primitives here
-
-	//std::cout.precision(0);
 
 	glPointSize(4);
 	glColor3ub(255, 255, 0);
