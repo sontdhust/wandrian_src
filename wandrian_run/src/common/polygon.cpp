@@ -204,8 +204,8 @@ std::set<Point*> Polygon::get_vertices(bool getUpper) {
 	Point *rightmost = get_rightmost();
 	vertices.insert(leftmost);
 
-// TODO Choose relevant epsilon value
-	double EPS = 4 * std::numeric_limits<double>::epsilon();
+	// TODO Choose relevant epsilon value
+	double EPS = 20 * std::numeric_limits<double>::epsilon();
 
 	Point *current = leftmost;
 	Point *previous = new Point(current->x - 1, current->y);
@@ -232,9 +232,10 @@ std::set<Point*> Polygon::get_vertices(bool getUpper) {
 //				std::cout << "    " << a << "\n";
 				a = std::abs(a) <= EPS ? 2 * M_PI : a > 0 ? a : 2 * M_PI + a;
 				std::cout << "  (U)a: " << (*adjacent)->x << " "
-						<< (*adjacent)->y << ", " << a << ", " << angle << "; "
+						<< (*adjacent)->y << "; " << a << ", " << angle << "; "
 						<< d << ", " << distance << "\n";
-				if (a - angle < -EPS || (a == angle && d < distance)) {
+				if (a - angle < -EPS
+						|| (std::abs(a - angle) < EPS && d < distance)) {
 					angle = a;
 					distance = d;
 					next = new Point(**adjacent);
@@ -245,7 +246,8 @@ std::set<Point*> Polygon::get_vertices(bool getUpper) {
 				std::cout << "  (L)a: " << (*adjacent)->x << " "
 						<< (*adjacent)->y << "; " << a << ", " << angle << "; "
 						<< d << ", " << distance << "\n";
-				if (a - angle > EPS || (a == angle && d < distance)) {
+				if (a - angle > EPS
+						|| (std::abs(a - angle) < EPS && d < distance)) {
 					angle = a;
 					distance = d;
 					next = new Point(**adjacent);

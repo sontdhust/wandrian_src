@@ -26,7 +26,7 @@ struct Point {
 
 inline bool operator <(const Point &a, const Point &b) {
 	// TODO Choose relevant epsilon value
-	double EPS = 4 * std::numeric_limits<double>::epsilon();
+	double EPS = 20 * std::numeric_limits<double>::epsilon();
 	return std::abs(a.x - b.x) > EPS ? a.x - b.x < -EPS : a.y - b.y < -EPS;
 }
 
