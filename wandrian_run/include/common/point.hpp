@@ -8,8 +8,8 @@
 #ifndef WANDRIAN_RUN_INCLUDE_COMMON_POINT_HPP_
 #define WANDRIAN_RUN_INCLUDE_COMMON_POINT_HPP_
 
-#include <iostream>
 #include <stdlib.h>
+#include <cmath>
 #include <limits>
 
 namespace common {
@@ -26,8 +26,8 @@ struct Point {
 
 inline bool operator <(const Point &a, const Point &b) {
 	// TODO Choose relevant epsilon value
-	double EPS = 2 * std::numeric_limits<double>::epsilon();
-	if (abs(a.x - b.x) > EPS) {
+	double EPS = 4 * std::numeric_limits<double>::epsilon();
+	if (std::abs(a.x - b.x) > EPS) {
 		return a.x - b.x < -EPS;
 	} else
 		return a.y - b.y < -EPS;

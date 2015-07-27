@@ -5,9 +5,8 @@
  *      Author: sontd
  */
 
-#include "../../include/common/segment.hpp"
-
 #include <assert.h>
+#include "../../include/common/segment.hpp"
 
 namespace common {
 namespace shapes {

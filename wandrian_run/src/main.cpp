@@ -75,25 +75,25 @@ void display() {
 	}
 	std::cout << "\n";
 
-//	upper_vertices = polygon->upper_vertices();
-//	glColor3ub(255, 0, 0);
-//	for (std::set<Point*>::iterator current = upper_vertices.begin();
-//			boost::next(current) != upper_vertices.end(); current++) {
-//		glBegin(GL_LINE_STRIP);
-//		glVertex2d((*current)->x, (*current)->y);
-//		glVertex2d((*boost::next(current))->x, (*boost::next(current))->y);
-//		glEnd();
-//	}
+	upper_vertices = polygon->upper_vertices();
+	glColor3ub(255, 0, 0);
+	for (std::set<Point*>::iterator current = upper_vertices.begin();
+			boost::next(current) != upper_vertices.end(); current++) {
+		glBegin(GL_LINE_STRIP);
+		glVertex2d((*current)->x, (*current)->y);
+		glVertex2d((*boost::next(current))->x, (*boost::next(current))->y);
+		glEnd();
+	}
 
-//	lower_vertices = polygon->lower_vertices();
-//	glColor3ub(0, 255, 0);
-//	for (std::set<Point*>::iterator current = lower_vertices.begin();
-//			boost::next(current) != lower_vertices.end(); current++) {
-//		glBegin(GL_LINE_STRIP);
-//		glVertex2d((*current)->x, (*current)->y);
-//		glVertex2d((*boost::next(current))->x, (*boost::next(current))->y);
-//		glEnd();
-//	}
+	lower_vertices = polygon->lower_vertices();
+	glColor3ub(0, 255, 0);
+	for (std::set<Point*>::iterator current = lower_vertices.begin();
+			boost::next(current) != lower_vertices.end(); current++) {
+		glBegin(GL_LINE_STRIP);
+		glVertex2d((*current)->x, (*current)->y);
+		glVertex2d((*boost::next(current))->x, (*boost::next(current))->y);
+		glEnd();
+	}
 
 	glutSwapBuffers();
 }
@@ -117,25 +117,10 @@ int main(int argc, char **argv) {
 	points.insert(new Point(5, -1));
 	points.insert(new Point(3, -2));
 	points.insert(new Point(-1, 4));
-//	points.insert(new Point(4, -2));
-//	points.insert(new Point(0, -3));
+	points.insert(new Point(4, -2));
+	points.insert(new Point(0, -3));
 //	points.insert(new Point(3, 2));
 	polygon = new Polygon(points);
-
-//	std::cout.precision(18);
-//	Point *p1 = *(new Segment(new Point(-1, 4), new Point(3, -2)))
-//			% *(new Segment(new Point(0, 1), new Point(2, 3)));
-//	Point *p2 = *(new Segment(new Point(0, 1), new Point(-1, 4)))
-//			% *(new Segment(p1, new Point(-1, 4)));
-//	Point *p3 = new Point(-1, 4);
-//	std::cout << "~" << p2->x << " " << p2->y << "\n";
-//	if (*p2 < *p3)
-//		std::cout << "T_T " << p2->y - p3->y + 0.1 //std::numeric_limits<double>::epsilon()
-//		<< "\n";
-//	if (graph.find(p2) == graph.end())
-//		std::cout << "T_T2\n";
-//	if (graph.find(p3) == graph.end())
-//		std::cout << "T_T3\n";
 
 	run(argc, argv);
 	return 0;

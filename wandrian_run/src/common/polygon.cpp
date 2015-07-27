@@ -91,6 +91,7 @@ void Polygon::build() {
 		}
 	}
 	// Find all intersects
+	std::map<Point*, std::set<Point*, PointComp>, PointComp> intersects;
 	for (std::map<Point*, std::set<Point*, PointComp> >::iterator current =
 			graph.begin(); current != graph.end(); current++) {
 		for (std::set<Point*>::iterator current_adjacent =
@@ -106,72 +107,42 @@ void Polygon::build() {
 							*current_adjacent))
 							% *(new Segment(another->first, *another_adjacent));
 					if (intersect != NULL) {
-						if (graph.find(intersect) == graph.end()) {
-
-//							for (std::map<Point*, std::set<Point*, PointComp> >::iterator i =
-//									graph.begin(); i != graph.end();
-//									i++) {
-//								std::cout << "__" << i->first->x << " "
-//										<< i->first->y << "\n";
-//								if (*(i->first) == *intersect)
-//									std::cout << ":D\n";
-//							}
-
-//							std::map<Point*, std::set<Point*, PointComp>,
-//									PointComp>::key_compare kc =
-//									graph.key_comp();
-//							std::cout << "kc: "
-//									<< kc(new Point(-1, 4), intersect)
-//									<< kc(intersect, new Point(-1, 4)) << "\n";
-//							if (graph.find(new Point(-1, 4)) == graph.end())
-//								std::cout << ":-?\n";
-//							if (graph.find(intersect) == graph.end())
-//								std::cout << ":O\n";
-							std::cout << "c: " << current->first->x << " "
-									<< current->first->y << ", "
-									<< (*current_adjacent)->x << " "
-									<< (*current_adjacent)->y << "; ";
-							std::cout << "a: " << another->first->x << " "
-									<< another->first->y << ", "
-									<< (*another_adjacent)->x << " "
-									<< (*another_adjacent)->y << "\n";
-							std::cout << "  i: " << intersect->x << " "
-									<< intersect->y << "\n";
-							// Insert intersect into graph if this is new vertex
-							graph.insert(
-									std::pair<Point*,
-											std::set<Point*, PointComp> >(
-											intersect,
-											std::set<Point*, PointComp>()));
-						}
-						/*
-						 * TODO Correctly insert new edge to graph
-						 */
+						// Insert intersect into list intersects if this is new vertex
+						std::set<Point*, PointComp> intersect_adjacents;
 						if (*intersect != *(*current).first
 								&& *intersect != **current_adjacent) {
-							(*current).second.insert(intersect);
-							(*graph.find(*current_adjacent)).second.insert(
-									intersect);
-							(*graph.find(intersect)).second.insert(
-									(*current).first);
-							(*graph.find(intersect)).second.insert(
-									*current_adjacent);
+							intersect_adjacents.insert((*current).first);
+							intersect_adjacents.insert(*current_adjacent);
 						}
 						if (*intersect != *(*another).first
 								&& *intersect != **another_adjacent) {
-							(*another).second.insert(intersect);
-							(*graph.find(*another_adjacent)).second.insert(
-									intersect);
-							(*graph.find(intersect)).second.insert(
-									(*another).first);
-							(*graph.find(intersect)).second.insert(
-									*another_adjacent);
+							intersect_adjacents.insert((*another).first);
+							intersect_adjacents.insert(*another_adjacent);
 						}
+						intersects.insert(
+								std::pair<Point*, std::set<Point*, PointComp> >(
+										intersect, intersect_adjacents));
 					}
 				}
 			}
 		}
 	}
+	// Insert intersects and new edges into graph
+	for (std::map<Point*, std::set<Point*, PointComp> >::iterator intersect =
+			intersects.begin(); intersect != intersects.end(); intersect++) {
+		if (graph.find((*intersect).first) == graph.end()) {
+			graph.insert(
+					std::pair<Point*, std::set<Point*, PointComp> >(
+							(*intersect).first, std::set<Point*, PointComp>()));
+		}
+
+		for (std::set<Point*>::iterator adjacent = intersect->second.begin();
+				adjacent != intersect->second.end(); adjacent++) {
+			graph.find((*intersect).first)->second.insert(*adjacent);
+			graph.find(*adjacent)->second.insert((*intersect).first);
+		}
+	}
+	// TODO Remove redundant edges
 }
 
 Point* Polygon::get_leftmost() {
@@ -223,9 +194,9 @@ std::set<Point*> Polygon::get_vertices(bool getUpper) {
 			double d = sqrt(
 					pow(current->x - (*adjacent)->x, 2)
 							+ pow(current->y - (*adjacent)->y, 2));
-			// TODO get next vertex with minimum distance from current
 			if (getUpper) {
-				a = a > 0 ? a : 2 * M_PI + a;
+//				std::cout << "    " << a << "\n";
+				a = std::abs(a) <= EPS ? 2 * M_PI : a > 0 ? a : 2 * M_PI + a;
 				std::cout << "  (U)a: " << (*adjacent)->x << " "
 						<< (*adjacent)->y << ", " << a << ", " << angle << "; "
 						<< d << ", " << distance << "\n";
@@ -235,9 +206,10 @@ std::set<Point*> Polygon::get_vertices(bool getUpper) {
 					next = new Point(**adjacent);
 				}
 			} else {
-				a = a >= 0 ? a : 2 * M_PI + a;
+//				std::cout << "    " << a << "\n";
+				a = std::abs(a) <= EPS ? 0 : a > 0 ? a : 2 * M_PI + a;
 				std::cout << "  (L)a: " << (*adjacent)->x << " "
-						<< (*adjacent)->y << ", " << a << ", " << angle << "; "
+						<< (*adjacent)->y << "; " << a << ", " << angle << "; "
 						<< d << ", " << distance << "\n";
 				if (a - angle > EPS || (a == angle && d < distance)) {
 					angle = a;
@@ -249,7 +221,7 @@ std::set<Point*> Polygon::get_vertices(bool getUpper) {
 		previous = new Point(*current);
 		current = new Point(*next);
 		vertices.insert(current);
-		getchar();
+//		getchar();
 	}
 	return vertices;
 }

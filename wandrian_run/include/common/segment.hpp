@@ -8,7 +8,6 @@
 #ifndef WANDRIAN_RUN_INCLUDE_COMMON_SEGMENT_HPP_
 #define WANDRIAN_RUN_INCLUDE_COMMON_SEGMENT_HPP_
 
-#include <iostream>
 #include <limits>
 #include "point.hpp"
 
@@ -48,7 +47,8 @@ inline Point* operator %(const Segment &a, const Segment &b) {
 
 	double EPS = std::numeric_limits<double>::epsilon();
 	double INF = std::numeric_limits<double>::infinity();
-	if ((am == INF && bm == INF) || abs(am - bm) < EPS) // Line a is parallel to line b
+
+	if ((am == INF && bm == INF) || std::abs(am - bm) < EPS) // Line a is parallel to line b
 		return NULL;
 	else {
 		double xi;
@@ -63,8 +63,11 @@ inline Point* operator %(const Segment &a, const Segment &b) {
 			xi = (bc - ac) / (am - bm);
 			yi = am * xi + ac; // = bm * xi + bc
 		}
-//		std::cout << "  i: " << xi << " " << yi << "\n";
-		if (a.p1->x <= xi && xi <= a.p2->x && b.p1->x <= xi && xi <= b.p2->x)
+		if (a.p1->x <= xi && xi <= a.p2->x && b.p1->x <= xi && xi <= b.p2->x
+				&& ((a.p1->y <= yi && yi <= a.p2->y)
+						|| (a.p2->y <= yi && yi <= a.p1->y))
+				&& ((b.p1->y <= yi && yi <= b.p2->y)
+						|| (b.p2->y <= yi && yi <= b.p1->y)))
 			return new Point(xi, yi);
 		else
 			return NULL;
