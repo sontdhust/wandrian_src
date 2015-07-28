@@ -22,8 +22,7 @@ Polygon::Polygon(std::set<Point*> points) :
 }
 
 Polygon::~Polygon() {
-	for (std::set<Point*>::iterator p = points.begin(); p != points.end();
-			p++) {
+	for (std::set<Point*>::iterator p = points.begin(); p != points.end(); p++) {
 		delete *p;
 	}
 	for (std::map<Point*, std::set<Point*, PointComp> >::iterator n =
@@ -90,14 +89,12 @@ void Polygon::build() {
 	std::map<Segment*, std::set<Point*, PointComp>, SegmentComp> segments;
 	for (std::map<Point*, std::set<Point*, PointComp> >::iterator current =
 			graph.begin(); current != graph.end(); current++) {
-		for (std::set<Point*>::iterator current_adjacent =
-				current->second.begin();
+		for (std::set<Point*>::iterator current_adjacent = current->second.begin();
 				current_adjacent != current->second.end(); current_adjacent++) {
 			for (std::map<Point*, std::set<Point*, PointComp> >::iterator another =
 					boost::next(current); another != graph.end(); another++) {
 				for (std::set<Point*>::iterator another_adjacent =
-						another->second.begin();
-						another_adjacent != another->second.end();
+						another->second.begin(); another_adjacent != another->second.end();
 						another_adjacent++) {
 					Segment *current_segment = new Segment(current->first,
 							*current_adjacent);
@@ -107,25 +104,19 @@ void Polygon::build() {
 					if (intersect != NULL) {
 						if (segments.find(current_segment) == segments.end())
 							segments.insert(
-									std::pair<Segment*,
-											std::set<Point*, PointComp> >(
-											current_segment,
-											std::set<Point*, PointComp>()));
+									std::pair<Segment*, std::set<Point*, PointComp> >(
+											current_segment, std::set<Point*, PointComp>()));
 						if (segments.find(another_segment) == segments.end())
 							segments.insert(
-									std::pair<Segment*,
-											std::set<Point*, PointComp> >(
-											another_segment,
-											std::set<Point*, PointComp>()));
+									std::pair<Segment*, std::set<Point*, PointComp> >(
+											another_segment, std::set<Point*, PointComp>()));
 
 						if (*intersect != *(current->first)
 								&& *intersect != **current_adjacent)
-							segments.find(current_segment)->second.insert(
-									intersect);
+							segments.find(current_segment)->second.insert(intersect);
 						if (*intersect != *(another->first)
 								&& *intersect != **another_adjacent)
-							segments.find(another_segment)->second.insert(
-									intersect);
+							segments.find(another_segment)->second.insert(intersect);
 					}
 				}
 			}
@@ -140,8 +131,8 @@ void Polygon::build() {
 			graph.find(segment->first->p2)->second.insert(*intersect);
 			if (graph.find(*intersect) == graph.end())
 				graph.insert(
-						std::pair<Point*, std::set<Point*, PointComp> >(
-								*intersect, std::set<Point*, PointComp>()));
+						std::pair<Point*, std::set<Point*, PointComp> >(*intersect,
+								std::set<Point*, PointComp>()));
 			graph.find(*intersect)->second.insert(segment->first->p1);
 			graph.find(*intersect)->second.insert(segment->first->p2);
 			for (std::set<Point*>::iterator another = segment->second.begin();
@@ -197,23 +188,20 @@ std::set<Point*> Polygon::get_vertices(bool getUpper) {
 				graph.find(current)->second.begin();
 				adjacent != graph.find(current)->second.end(); adjacent++) {
 			double a = atan2(previous->y - current->y, previous->x - current->x)
-					- atan2((*adjacent)->y - current->y,
-							(*adjacent)->x - current->x);
+					- atan2((*adjacent)->y - current->y, (*adjacent)->x - current->x);
 			double d = sqrt(
 					pow(current->x - (*adjacent)->x, 2)
 							+ pow(current->y - (*adjacent)->y, 2));
 			if (getUpper) {
 				a = std::abs(a) <= EPS ? 2 * M_PI : a > 0 ? a : 2 * M_PI + a;
-				if (a - angle < -EPS
-						|| (std::abs(a - angle) < EPS && d < distance)) {
+				if (a - angle < -EPS || (std::abs(a - angle) < EPS && d < distance)) {
 					angle = a;
 					distance = d;
 					next = new Point(**adjacent);
 				}
 			} else {
 				a = std::abs(a) <= EPS ? 0 : a > 0 ? a : 2 * M_PI + a;
-				if (a - angle > EPS
-						|| (std::abs(a - angle) < EPS && d < distance)) {
+				if (a - angle > EPS || (std::abs(a - angle) < EPS && d < distance)) {
 					angle = a;
 					distance = d;
 					next = new Point(**adjacent);

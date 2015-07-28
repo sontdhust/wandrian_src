@@ -20,6 +20,10 @@ using namespace common::shapes;
 
 Polygon *polygon;
 
+std::map<Point*, std::set<Point*, PointComp>, PointComp> graph;
+std::set<Point*> upper_vertices;
+std::set<Point*> lower_vertices;
+
 /**
  * Linked libraries to compile: -lglut -lGL (g++)
  */
@@ -55,11 +59,6 @@ void display() {
 	}
 	glEnd();
 
-	std::map<Point*, std::set<Point*, PointComp>, PointComp> graph;
-	std::set<Point*> upper_vertices;
-	std::set<Point*> lower_vertices;
-
-	graph = polygon->get_graph();
 	glColor3ub(255, 255, 255);
 	for (std::map<Point*, std::set<Point*, PointComp> >::iterator current =
 			graph.begin(); current != graph.end(); current++) {
@@ -118,25 +117,29 @@ void display() {
 //		}
 //	}
 
-	upper_vertices = polygon->upper_vertices();
-	glColor3ub(255, 0, 0);
+	glColor3ub(0, 255, 0);
+	std::cout << "\033[1;32m";
 	for (std::set<Point*>::iterator current = upper_vertices.begin();
 			boost::next(current) != upper_vertices.end(); current++) {
+		std::cout << (*current)->x << " " << (*current)->y << ", ";
 		glBegin(GL_LINE_STRIP);
 		glVertex2d((*current)->x, (*current)->y);
 		glVertex2d((*boost::next(current))->x, (*boost::next(current))->y);
 		glEnd();
 	}
+	std::cout << "\033[1;0m\n";
 
-	lower_vertices = polygon->lower_vertices();
-	glColor3ub(0, 255, 0);
+	glColor3ub(0, 0, 255);
+	std::cout << "\033[1;34m";
 	for (std::set<Point*>::iterator current = lower_vertices.begin();
 			boost::next(current) != lower_vertices.end(); current++) {
+		std::cout << (*current)->x << " " << (*current)->y << ", ";
 		glBegin(GL_LINE_STRIP);
 		glVertex2d((*current)->x, (*current)->y);
 		glVertex2d((*boost::next(current))->x, (*boost::next(current))->y);
 		glEnd();
 	}
+	std::cout << "\033[1;0m\n";
 
 	glutSwapBuffers();
 }
@@ -155,14 +158,17 @@ int main(int argc, char **argv) {
 	std::set<Point*> points;
 
 	std::srand(std::time(0));
-	int r = std::rand() % 15;
+	int r = std::rand() % 45;
 	for (int i = 0; i <= r; i++) {
-		int x = std::rand() % 16 - 8;
-		int y = std::rand() % 16 - 8;
-		std::cout << "    ~" << x << " " << y << "\n";
+		int x = std::rand() % 21 - 10;
+		int y = std::rand() % 21 - 10;
+		std::cout << x << " " << y << "\n";
 		points.insert(new Point(x, y));
 	}
 	polygon = new Polygon(points);
+	graph = polygon->get_graph();
+	upper_vertices = polygon->upper_vertices();
+	lower_vertices = polygon->lower_vertices();
 
 	run(argc, argv);
 	return 0;
