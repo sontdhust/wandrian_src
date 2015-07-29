@@ -28,7 +28,7 @@ Segment::~Segment() {
 
 void Segment::construct(const Point& p1, const Point& p2) {
 	if (p1 == p2)
-		assert(false);
+		assert(false); // TODO Should throw an exception here
 	else if (p1 < p2) {
 		this->p1 = new Point(p1);
 		this->p2 = new Point(p2);

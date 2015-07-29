@@ -12,10 +12,6 @@
 namespace common {
 namespace shapes {
 
-Polygon::Polygon() :
-		points(), graph() {
-}
-
 Polygon::Polygon(std::set<Point*> points) :
 		points(points), graph() {
 	build();
@@ -33,19 +29,6 @@ Polygon::~Polygon() {
 			delete *p;
 		}
 	}
-}
-
-void Polygon::add(Point* point) {
-	// TODO Need improvement
-	if (points.size() > 1) {
-		std::set<Point*>::iterator begin = points.begin();
-		std::set<Point*>::iterator end = points.end();
-		end = boost::prior(end);
-		(*graph.find(*begin)).second.erase(*end);
-		(*graph.find(*end)).second.erase(*begin);
-	}
-	points.insert(point);
-	build();
 }
 
 std::set<Point*> Polygon::upper_vertices() {
