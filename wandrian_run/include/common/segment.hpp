@@ -14,14 +14,14 @@ namespace common {
 
 struct Segment {
 
-	Segment(const Point* p1, const Point* p2);
-	Segment(double x1, double y1, double x2, double y2);
+	Segment(const Point*, const Point*);
+	Segment(double, double, double, double);
 	~Segment();
 
 	Point *p1, *p2;
 
 private:
-	void construct(const Point& p1, const Point& p2);
+	void construct(const Point&, const Point&);
 };
 
 /**

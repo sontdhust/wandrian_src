@@ -16,8 +16,8 @@ namespace common {
 
 struct Point {
 
-	Point(double x, double y);
-	Point(const Point &point);
+	Point(double, double);
+	Point(const Point&);
 
 	double x, y;
 

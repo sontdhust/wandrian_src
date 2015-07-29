@@ -17,7 +17,7 @@ namespace common {
 class Polygon {
 
 public:
-	Polygon(std::set<Point*> points);
+	Polygon(std::set<Point*>);
 	~Polygon();
 	std::set<Point*> upper_vertices(); // list of points
 	std::set<Point*> lower_vertices(); // list of points
