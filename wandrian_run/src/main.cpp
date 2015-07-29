@@ -93,7 +93,6 @@ int main(int argc, char **argv) {
 	Polygon *space;
 	{
 		std::set<Point*> points;
-		points.clear();
 		std::srand(std::time(0));
 		for (int i = 0; i <= std::rand() % 10; i++) {
 			int x = std::rand() % 2 == 0 ? std::rand() % 4 - 10 : std::rand() % 4 + 7;

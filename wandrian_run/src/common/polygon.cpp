@@ -14,6 +14,19 @@ namespace shapes {
 
 Polygon::Polygon(std::set<Point*> points) :
 		points(points), graph() {
+	std::set<Point*>::iterator point = this->points.begin();
+	while (point != this->points.end()) {
+		std::set<Point*>::iterator next =
+				boost::next(point) != this->points.end() ?
+						boost::next(point) : this->points.begin();
+		if (**next == **point) {
+			if (point != this->points.end())
+				this->points.erase(next);
+			else
+				this->points.erase(point);
+		} else
+			point++;
+	}
 	build();
 }
 
