@@ -5,7 +5,7 @@
  *      Author: sontd
  */
 
-#include <assert.h>
+#include <stdexcept>
 #include "../../include/common/segment.hpp"
 
 namespace common {
@@ -28,7 +28,7 @@ Segment::~Segment() {
 
 void Segment::construct(const Point& p1, const Point& p2) {
 	if (p1 == p2)
-		assert(false);
+		throw std::invalid_argument("Two end points of segment are coincident");
 	else if (p1 < p2) {
 		this->p1 = new Point(p1);
 		this->p2 = new Point(p2);

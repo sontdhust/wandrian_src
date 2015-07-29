@@ -18,13 +18,11 @@ namespace shapes {
 class Polygon {
 
 public:
-	Polygon();
 	Polygon(std::set<Point*> points);
 	~Polygon();
-	__attribute__ ((deprecated)) void add(Point* point);
 	std::set<Point*> upper_vertices(); // list of points
 	std::set<Point*> lower_vertices(); // list of points
-	std::map<Point*, std::set<Point*, PointComp>, PointComp> get_graph();
+	__attribute__ ((will_be_removed)) std::map<Point*, std::set<Point*, PointComp>, PointComp> get_graph();
 
 private:
 	std::set<Point*> points;
@@ -34,6 +32,7 @@ private:
 	Point* get_rightmost();
 	std::set<Point*> get_vertices(bool); // list of points
 };
+
 }
 }
 

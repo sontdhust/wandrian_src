@@ -63,10 +63,8 @@ inline Point* operator %(const Segment &a, const Segment &b) {
 			yi = am * xi + ac; // = bm * xi + bc
 		}
 		if (a.p1->x <= xi && xi <= a.p2->x && b.p1->x <= xi && xi <= b.p2->x
-				&& ((a.p1->y <= yi && yi <= a.p2->y)
-						|| (a.p2->y <= yi && yi <= a.p1->y))
-				&& ((b.p1->y <= yi && yi <= b.p2->y)
-						|| (b.p2->y <= yi && yi <= b.p1->y)))
+				&& ((a.p1->y <= yi && yi <= a.p2->y) || (a.p2->y <= yi && yi <= a.p1->y))
+				&& ((b.p1->y <= yi && yi <= b.p2->y) || (b.p2->y <= yi && yi <= b.p1->y)))
 			return new Point(xi, yi);
 		else
 			return NULL;
