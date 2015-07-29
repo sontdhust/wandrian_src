@@ -8,7 +8,6 @@
 #include "../../include/common/point.hpp"
 
 namespace common {
-namespace shapes {
 
 Point::Point(double x, double y) :
 		x(x), y(y) {
@@ -18,5 +17,4 @@ Point::Point(const Point &point) :
 		x(point.x), y(point.y) {
 }
 
-}
 }

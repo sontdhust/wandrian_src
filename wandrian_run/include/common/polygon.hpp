@@ -13,7 +13,6 @@
 #include "point.hpp"
 
 namespace common {
-namespace shapes {
 
 class Polygon {
 
@@ -22,7 +21,8 @@ public:
 	~Polygon();
 	std::set<Point*> upper_vertices(); // list of points
 	std::set<Point*> lower_vertices(); // list of points
-	__attribute__ ((will_be_removed)) std::map<Point*, std::set<Point*, PointComp>, PointComp> get_graph();
+	__attribute__ ((will_be_removed)) std::map<Point*,
+			std::set<Point*, PointComp>, PointComp> get_graph();
 
 private:
 	std::set<Point*> points;
@@ -33,7 +33,6 @@ private:
 	std::set<Point*> get_vertices(bool); // list of points
 };
 
-}
 }
 
 #endif /* WANDRIAN_RUN_INCLUDE_COMMON_POLYGON_HPP_ */

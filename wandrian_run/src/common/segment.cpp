@@ -9,7 +9,6 @@
 #include "../../include/common/segment.hpp"
 
 namespace common {
-namespace shapes {
 
 Segment::Segment(const Point* p1, const Point* p2) {
 	construct(*p1, *p2);
@@ -39,5 +38,3 @@ void Segment::construct(const Point& p1, const Point& p2) {
 }
 
 }
-}
-

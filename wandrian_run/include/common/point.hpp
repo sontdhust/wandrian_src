@@ -13,7 +13,6 @@
 #include <limits>
 
 namespace common {
-namespace shapes {
 
 struct Point {
 
@@ -48,7 +47,6 @@ struct PointComp {
 	}
 };
 
-}
 }
 
 #endif /* WANDRIAN_RUN_INCLUDE_COMMON_POINT_HPP_ */

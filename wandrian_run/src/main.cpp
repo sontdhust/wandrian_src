@@ -15,7 +15,7 @@
 #include <boost/next_prior.hpp>
 #include "../include/common/environment.hpp"
 
-using namespace common::shapes;
+using namespace common;
 
 std::set<std::map<Point*, std::set<Point*, PointComp>, PointComp> > graphs;
 
@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
 	{
 		std::set<Point*> points;
 		std::srand(std::time(0));
-		for (int i = 0; i <= std::rand() % 10; i++) {
+		for (int i = 0; i <= std::rand() % 5 + 2; i++) {
 			int x = std::rand() % 2 == 0 ? std::rand() % 4 - 10 : std::rand() % 4 + 7;
 			int y = std::rand() % 2 == 0 ? std::rand() % 4 - 10 : std::rand() % 4 + 7;
 			std::cout << x << " " << y << "\n";
@@ -122,8 +122,8 @@ int main(int argc, char **argv) {
 	}
 
 	Environment *environment = new Environment(space, obstacles);
-	graphs.insert(environment->get_space()->get_graph());
-	std::set<Polygon*> os = environment->get_obstacles();
+	graphs.insert(environment->space->get_graph());
+	std::set<Polygon*> os = environment->obstacles;
 	for (std::set<Polygon*>::iterator obstacle = os.begin(); obstacle != os.end();
 			obstacle++) {
 		graphs.insert((*obstacle)->get_graph());

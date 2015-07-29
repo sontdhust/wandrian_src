@@ -11,7 +11,6 @@
 #include "point.hpp"
 
 namespace common {
-namespace shapes {
 
 struct Segment {
 
@@ -77,7 +76,6 @@ struct SegmentComp {
 	}
 };
 
-}
 }
 
 #endif /* WANDRIAN_RUN_INCLUDE_COMMON_SEGMENT_HPP_ */

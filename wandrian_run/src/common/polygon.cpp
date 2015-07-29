@@ -10,7 +10,6 @@
 #include "../../include/common/polygon.hpp"
 
 namespace common {
-namespace shapes {
 
 Polygon::Polygon(std::set<Point*> points) :
 		points(points), graph() {
@@ -212,5 +211,3 @@ std::set<Point*> Polygon::get_vertices(bool getUpper) {
 }
 
 }
-}
-
