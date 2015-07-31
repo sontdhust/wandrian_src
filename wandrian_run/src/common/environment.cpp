@@ -7,10 +7,12 @@
 
 #include "../../include/common/environment.hpp"
 
+namespace wandrian {
 namespace common {
 
 Environment::Environment(Polygon* space, std::set<Polygon*> obstacles) :
 		space(space), obstacles(obstacles) {
 }
 
+}
 }

@@ -14,6 +14,8 @@
 #include <geometry_msgs/Twist.h> // for velocity commands
 #include <kobuki_msgs/KeyboardInput.h> // keycodes from remote teleops.
 
+namespace wandrian {
+
 class Core {
 
 public:
@@ -39,5 +41,7 @@ private:
 	void processKeyboardInput(char);
 	void disable();
 };
+
+}
 
 #endif /* WANDRIAN_RUN_INCLUDE_COMMON_CORE_HPP_ */

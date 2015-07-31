@@ -9,6 +9,8 @@
 #include <kobuki_msgs/MotorPower.h>
 #include <ecl/time.hpp>
 
+namespace wandrian {
+
 Core::Core() :
 		last_zero_vel_sent(true), accept_incoming(true), power_status(false), cmd(
 				new geometry_msgs::Twist()), quit_requested(false), key_file_descriptor(
@@ -29,7 +31,7 @@ bool Core::init() {
 	motor_power_publisher = nh.advertise<kobuki_msgs::MotorPower>("motor_power",
 			1);
 
-	cmd->linear.x = 6.0;
+	cmd->linear.x = 1.0;
 	cmd->linear.y = 0.0;
 	cmd->linear.z = 0.0;
 	cmd->angular.x = 0.0;
@@ -158,4 +160,6 @@ void Core::disable() {
 	} else {
 		ROS_WARN("KeyOp: Motor system has already been powered down.");
 	}
+}
+
 }

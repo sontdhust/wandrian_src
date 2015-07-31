@@ -10,6 +10,7 @@
 
 #include "polygon.hpp"
 
+namespace wandrian {
 namespace common {
 
 struct Environment {
@@ -21,6 +22,7 @@ struct Environment {
 
 };
 
+}
 }
 
 #endif /* WANDRIAN_RUN_INCLUDE_COMMON_ENVIRONMENT_HPP_ */

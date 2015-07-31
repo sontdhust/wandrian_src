@@ -1,4 +1,13 @@
+/*
+ * main.cpp
+ *
+ *  Created on: Jul 31, 2015
+ *      Author: sontd
+ */
+
 #include "../include/core.hpp"
+
+using namespace wandrian;
 
 int main(int argc, char **argv) {
 	ros::init(argc, argv, "run");
