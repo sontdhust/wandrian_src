@@ -12,7 +12,6 @@
 #include <ros/ros.h>
 #include <ecl/threads.hpp>
 #include <geometry_msgs/Twist.h> // for velocity commands
-#include <kobuki_msgs/KeyboardInput.h> // keycodes from remote teleops.
 
 namespace wandrian {
 
@@ -26,19 +25,21 @@ public:
 
 private:
 	bool last_zero_vel_sent; // avoid zero-vel messages from the beginning
-	bool accept_incoming;
 	bool power_status;
-	geometry_msgs::TwistPtr cmd;
 	bool quit_requested;
 	int key_file_descriptor;
-	struct termios original_terminal_state;
+	double linear_vel, angular_vel;
 
-	ecl::Thread thread;
-	ros::Publisher velocity_publisher;
+	struct termios original_terminal_state;
+	geometry_msgs::TwistPtr cmd;
 	ros::Publisher motor_power_publisher;
+	ros::Publisher velocity_publisher;
+	ecl::Thread thread;
+
 	void keyboardInputLoop();
-	void remoteKeyInputReceived(const kobuki_msgs::KeyboardInput&);
 	void processKeyboardInput(char);
+
+	void enable();
 	void disable();
 };
 

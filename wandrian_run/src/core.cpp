@@ -12,9 +12,8 @@
 namespace wandrian {
 
 Core::Core() :
-		last_zero_vel_sent(true), accept_incoming(true), power_status(false), cmd(
-				new geometry_msgs::Twist()), quit_requested(false), key_file_descriptor(
-				0) {
+		last_zero_vel_sent(true), power_status(false), quit_requested(false), key_file_descriptor(
+				0), linear_vel(0), angular_vel(0), cmd(new geometry_msgs::Twist()) {
 	tcgetattr(key_file_descriptor, &original_terminal_state); // get terminal properties
 }
 
@@ -25,18 +24,22 @@ Core::~Core() {
 bool Core::init() {
 	ros::NodeHandle nh("~");
 
-	ROS_INFO_STREAM("Core: ");
+	nh.getParam("linear_vel", linear_vel);
+	nh.getParam("angular_vel", angular_vel);
 
-	velocity_publisher = nh.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+	ROS_INFO_STREAM("[Launch]: Using param 'linear vel': " << linear_vel);
+	ROS_INFO_STREAM("[Launch]: Using param 'angular vel': " << angular_vel);
+
 	motor_power_publisher = nh.advertise<kobuki_msgs::MotorPower>("motor_power",
 			1);
+	velocity_publisher = nh.advertise<geometry_msgs::Twist>("velocity", 1);
 
-	cmd->linear.x = 1.0;
+	cmd->linear.x = linear_vel;
 	cmd->linear.y = 0.0;
 	cmd->linear.z = 0.0;
 	cmd->angular.x = 0.0;
 	cmd->angular.y = 0.0;
-	cmd->angular.z = 0.0;
+	cmd->angular.z = angular_vel;
 
 	ecl::MilliSleep millisleep;
 	int count = 0;
@@ -50,7 +53,8 @@ bool Core::init() {
 			connected = false;
 			break;
 		} else {
-			ROS_WARN_STREAM("KeyOp: could not connect, trying again after 500ms...");
+			ROS_WARN_STREAM(
+					"[Connection]: Could not connect, trying again after 500ms...");
 			try {
 				millisleep(500);
 			} catch (ecl::StandardException &e) {
@@ -62,13 +66,12 @@ bool Core::init() {
 		}
 	}
 	if (!connected) {
-		ROS_ERROR("KeyOp: could not connect.");
-		ROS_ERROR("KeyOp: check remappings for enable/disable topics).");
+		ROS_ERROR("[Connection]: Could not connect.");
 	} else {
 		kobuki_msgs::MotorPower power_cmd;
 		power_cmd.state = kobuki_msgs::MotorPower::ON;
 		motor_power_publisher.publish(power_cmd);
-		ROS_INFO("KeyOp: connected.");
+		ROS_INFO("[Connection]: Connected.");
 		power_status = true;
 	}
 
@@ -87,11 +90,10 @@ void Core::spin() {
 				|| (cmd->angular.y != 0.0) || (cmd->angular.z != 0.0)) {
 			velocity_publisher.publish(cmd);
 			last_zero_vel_sent = false;
-		} else if (last_zero_vel_sent == false) {
+		} else if (!last_zero_vel_sent) {
 			velocity_publisher.publish(cmd);
 			last_zero_vel_sent = true;
 		}
-		accept_incoming = true;
 		ros::spinOnce();
 		loop_rate.sleep();
 	}
@@ -117,30 +119,48 @@ void Core::keyboardInputLoop() {
 
 	puts("Reading from keyboard");
 	puts("---------------------------");
-	puts("q : quit.");
+	puts("e: Enable motor power.");
+	puts("d: Disable motor power.");
+	puts("q: Quit.");
 	char c;
 	while (!quit_requested) {
 		if (read(key_file_descriptor, &c, 1) < 0) {
-			perror("read char failed():");
+			perror("Read char failed():");
 			exit(-1);
 		}
 		processKeyboardInput(c);
 	}
 }
 
-void Core::remoteKeyInputReceived(const kobuki_msgs::KeyboardInput& key) {
-	processKeyboardInput(key.pressedKey);
-}
-
 void Core::processKeyboardInput(char c) {
 	switch (c) {
-	case 'q': {
+	case 'q':
 		quit_requested = true;
 		break;
-	}
-	default: {
+	case 'd':
+		disable();
+		break;
+	case 'e':
+		enable();
+		break;
+	default:
 		break;
 	}
+}
+
+void Core::enable() {
+	cmd->linear.x = linear_vel;
+	cmd->angular.z = angular_vel;
+	velocity_publisher.publish(cmd);
+
+	if (!power_status) {
+		ROS_INFO("[Power]: Enabling power to the device subsystem.");
+		kobuki_msgs::MotorPower power_cmd;
+		power_cmd.state = kobuki_msgs::MotorPower::ON;
+		motor_power_publisher.publish(power_cmd);
+		power_status = true;
+	} else {
+		ROS_WARN("[Power]: Device has already been powered up.");
 	}
 }
 
@@ -148,17 +168,15 @@ void Core::disable() {
 	cmd->linear.x = 0.0;
 	cmd->angular.z = 0.0;
 	velocity_publisher.publish(cmd);
-	accept_incoming = false;
 
 	if (power_status) {
-		ROS_INFO(
-				"KeyOp: die, die, die (disabling power to the device's motor system).");
+		ROS_INFO("[Power]: Disabling power to the device's motor system.");
 		kobuki_msgs::MotorPower power_cmd;
 		power_cmd.state = kobuki_msgs::MotorPower::OFF;
 		motor_power_publisher.publish(power_cmd);
 		power_status = false;
 	} else {
-		ROS_WARN("KeyOp: Motor system has already been powered down.");
+		ROS_WARN("[Power]: Motor system has already been powered down.");
 	}
 }
 
