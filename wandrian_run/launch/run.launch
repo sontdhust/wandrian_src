@@ -1,0 +1,6 @@
+<launch>
+  <node pkg="wandrian_run" type="run" name="run" output="screen">
+    <remap from="run/motor_power" to="mobile_base/commands/motor_power"/>
+    <remap from="run/cmd_vel" to="mobile_base/commands/velocity"/>
+  </node>
+</launch>

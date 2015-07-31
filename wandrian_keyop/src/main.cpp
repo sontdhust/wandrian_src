@@ -3,7 +3,7 @@
 using keyop_core::KeyOpCore;
 
 int main(int argc, char **argv) {
-	ros::init(argc, argv, "kobuki_keyop");
+	ros::init(argc, argv, "keyop");
 	KeyOpCore keyop;
 	if (keyop.init()) {
 		keyop.spin();
