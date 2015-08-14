@@ -25,6 +25,7 @@
 
   <!-- Kobuki -->
   <build_depend>kobuki_msgs</build_depend>
+  <build_depend>kobuki_driver</build_depend>
 
 
   <!-- Ros -->
@@ -40,6 +41,7 @@
 
   <!-- Kobuki -->
   <run_depend>kobuki_msgs</run_depend>
+  <run_depend>kobuki_driver</run_depend>
   
   <!-- Yujin ocs -->
   <run_depend>yocs_cmd_vel_mux</run_depend>

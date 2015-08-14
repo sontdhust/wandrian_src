@@ -1,14 +1,18 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(wandrian_run)
-find_package(catkin REQUIRED COMPONENTS geometry_msgs std_srvs std_msgs roscpp ecl_exceptions ecl_threads ecl_time kobuki_msgs)
+
+find_package(cmake_modules REQUIRED)
+find_package(catkin REQUIRED COMPONENTS geometry_msgs std_srvs std_msgs roscpp ecl_exceptions ecl_threads ecl_time kobuki_msgs kobuki_driver)
+find_package(Eigen REQUIRED)
 
 catkin_package(
    INCLUDE_DIRS include
    LIBRARIES kobuki
-   CATKIN_DEPENDS geometry_msgs std_srvs std_msgs roscpp ecl_exceptions ecl_threads ecl_time kobuki_msgs
+   CATKIN_DEPENDS geometry_msgs std_srvs std_msgs roscpp ecl_exceptions ecl_threads ecl_time kobuki_msgs kobuki_driver
 )
 
 include_directories(include ${catkin_INCLUDE_DIRS})
+include_directories(${EIGEN_INCLUDE_DIRS})
 
 add_subdirectory(src)
 

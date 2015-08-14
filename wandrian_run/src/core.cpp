@@ -6,19 +6,36 @@
  */
 
 #include "../include/core.hpp"
+#include <kobuki_driver/kobuki.hpp>
 #include <kobuki_msgs/MotorPower.h>
 #include <ecl/time.hpp>
+#include <ecl/sigslots.hpp>
+#include <ecl/linear_algebra.hpp>
 
 namespace wandrian {
 
 Core::Core() :
 		last_zero_vel_sent(true), power_status(false), quit_requested(false), key_file_descriptor(
-				0), linear_vel(0), angular_vel(0), cmd(new geometry_msgs::Twist()) {
+				0), linear_vel(0), angular_vel(0), cmd(new geometry_msgs::Twist()), slot_stream_data(
+				&Core::processStreamData, *this), dx(0), dth(0) {
 	tcgetattr(key_file_descriptor, &original_terminal_state); // get terminal properties
+
+	kobuki::Parameters parameters;
+	parameters.sigslots_namespace = "/kobuki";
+	parameters.device_port = "/dev/kobuki";
+	parameters.enable_acceleration_limiter = false;
+	kobuki.init(parameters);
+	if (kobuki.enable())
+		ROS_INFO_STREAM("[Power]: Enable power to the motors");
+	else
+		ROS_WARN_STREAM("[Power]: Could not enable power");
+	slot_stream_data.connect("/kobuki/stream_data");
 }
 
 Core::~Core() {
 	tcsetattr(key_file_descriptor, TCSANOW, &original_terminal_state);
+	kobuki.setBaseControl(0, 0); //linear_velocity, angular_velocity in (m/s), (rad/s)
+	kobuki.disable();
 }
 
 bool Core::init() {
@@ -107,6 +124,10 @@ void Core::spin() {
 	thread.join();
 }
 
+ecl::Pose2D<double> Core::getPose() {
+	return pose;
+}
+
 void Core::keyboardInputLoop() {
 	struct termios raw;
 	memcpy(&raw, &original_terminal_state, sizeof(struct termios));
@@ -121,6 +142,7 @@ void Core::keyboardInputLoop() {
 	puts("---------------------------");
 	puts("e: Enable motor power.");
 	puts("d: Disable motor power.");
+	puts("i: Display information.");
 	puts("q: Quit.");
 	char c;
 	while (!quit_requested) {
@@ -134,14 +156,17 @@ void Core::keyboardInputLoop() {
 
 void Core::processKeyboardInput(char c) {
 	switch (c) {
-	case 'q':
-		quit_requested = true;
+	case 'e':
+		enable();
 		break;
 	case 'd':
 		disable();
 		break;
-	case 'e':
-		enable();
+	case 'i':
+		displayInformation();
+		break;
+	case 'q':
+		quit_requested = true;
 		break;
 	default:
 		break;
@@ -178,6 +203,37 @@ void Core::disable() {
 	} else {
 		ROS_WARN("[Power]: Motor system has already been powered down.");
 	}
+}
+
+void Core::processStreamData() {
+	ecl::Pose2D<double> pose_update;
+	ecl::linear_algebra::Vector3d pose_update_rates;
+	kobuki.updateOdometry(pose_update, pose_update_rates);
+	pose *= pose_update;
+	dx += pose_update.x();
+	dth += pose_update.heading();
+	processMotion();
+}
+
+void Core::processMotion() {
+	if (dx >= 1.0 && dth >= ecl::pi / 2.0) {
+		dx = 0.0;
+		dth = 0.0;
+		kobuki.setBaseControl(0.0, 0.0);
+		return;
+	} else if (dx >= 1.0) {
+		kobuki.setBaseControl(0.0, 3.3);
+		return;
+	} else {
+		kobuki.setBaseControl(0.3, 0.0);
+		return;
+	}
+}
+
+void Core::displayInformation() {
+	processStreamData();
+	ROS_INFO_STREAM(
+			"[Info]: pose(" << pose.x() << ", " << pose.y() << ", " << pose.heading() << "); " << "dx(" << dx << "); dth(" << dth << ")");
 }
 
 }

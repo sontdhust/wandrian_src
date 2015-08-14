@@ -12,6 +12,8 @@
 #include <ros/ros.h>
 #include <ecl/threads.hpp>
 #include <geometry_msgs/Twist.h> // for velocity commands
+#include <kobuki_driver/kobuki.hpp>
+#include <ecl/geometry/pose2d.hpp>
 
 namespace wandrian {
 
@@ -22,6 +24,7 @@ public:
 	~Core();
 	bool init();
 	void spin();
+	ecl::Pose2D<double> getPose();
 
 private:
 	bool last_zero_vel_sent; // avoid zero-vel messages from the beginning
@@ -35,12 +38,21 @@ private:
 	ros::Publisher motor_power_publisher;
 	ros::Publisher velocity_publisher;
 	ecl::Thread thread;
+	ecl::Slot<> slot_stream_data;
+	kobuki::Kobuki kobuki;
+
+	ecl::Pose2D<double> pose;
+	double dx, dth;
 
 	void keyboardInputLoop();
 	void processKeyboardInput(char);
 
 	void enable();
 	void disable();
+
+	void processStreamData();
+	void processMotion();
+	void displayInformation();
 };
 
 }
