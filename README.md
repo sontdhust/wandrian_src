@@ -5,5 +5,3 @@
  Add:
 
  `/opt/ros/ROS_distro/include`
-
- `/usr/include/eigen3`
