@@ -12,6 +12,7 @@
 #include <ros/ros.h>
 #include <ecl/threads.hpp>
 #include <geometry_msgs/Twist.h> // for velocity commands
+#include <nav_msgs/Odometry.h>
 
 namespace wandrian {
 
@@ -24,23 +25,27 @@ public:
 	void spin();
 
 private:
-	bool last_zero_vel_sent; // avoid zero-vel messages from the beginning
-	bool power_status;
-	bool quit_requested;
-	int key_file_descriptor;
+	bool is_quitting;
+	bool is_powered;
+	bool is_zero_vel; // avoid zero-vel messages from the beginning
+	bool is_logging;
+	int file_descriptor;
 	double linear_vel, angular_vel;
 
-	struct termios original_terminal_state;
-	geometry_msgs::TwistPtr cmd;
+	struct termios terminal;
+	ecl::Thread thread;
+
+	geometry_msgs::TwistPtr twist;
 	ros::Publisher motor_power_publisher;
 	ros::Publisher velocity_publisher;
-	ecl::Thread thread;
+	ros::Subscriber odom_subscriber;
 
 	void keyboardInputLoop();
 	void processKeyboardInput(char);
 
-	void enable();
-	void disable();
+	void enablePower();
+	void disablePower();
+	void getOdometry(const nav_msgs::Odometry::ConstPtr&);
 };
 
 }

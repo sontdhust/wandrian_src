@@ -2,6 +2,7 @@
   <node pkg="wandrian_run" type="run" name="run" output="screen">
     <remap from="run/motor_power" to="mobile_base/commands/motor_power"/>
     <remap from="run/velocity" to="mobile_base/commands/velocity"/>
+    <remap from="run/odom" to="odom"/>
     <param name="linear_vel" value="2" type="double"/>
     <param name="angular_vel" value="1" type="double"/>
   </node>

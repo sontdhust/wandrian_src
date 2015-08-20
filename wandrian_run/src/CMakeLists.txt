@@ -8,6 +8,8 @@ file(GLOB SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 # Targets
 ##############################################################################
 
+list(REMOVE_ITEM SOURCES test.cpp)
+
 add_executable(run ${SOURCES})
 add_dependencies(run kobuki_msgs_gencpp)
 target_link_libraries(run ${catkin_LIBRARIES})
