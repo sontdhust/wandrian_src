@@ -7,13 +7,15 @@
 
 #include "../include/core.hpp"
 #include <kobuki_msgs/MotorPower.h>
+#include <kobuki_msgs/KeyboardInput.h>
 #include <ecl/time.hpp>
 
 namespace wandrian {
 
 Core::Core() :
-		is_quitting(false), is_powered(false), is_zero_vel(true), is_logging(false), file_descriptor(
-				0), linear_vel(0), angular_vel(0), twist(new geometry_msgs::Twist()) {
+		is_verbose(false), is_quitting(false), is_powered(false), is_zero_vel(true), is_logging(
+				false), file_descriptor(0), linear_vel_step(0), linear_vel_max(0), angular_vel_step(
+				0), angular_vel_max(0), twist(new geometry_msgs::Twist()) {
 	tcgetattr(file_descriptor, &terminal); // get terminal properties
 }
 
@@ -24,24 +26,36 @@ Core::~Core() {
 bool Core::init() {
 	ros::NodeHandle nh("~");
 
-	nh.getParam("linear_vel", linear_vel);
-	nh.getParam("angular_vel", angular_vel);
+	nh.getParam("is_verbose", is_verbose);
+	nh.getParam("linear_vel_step", linear_vel_step);
+	nh.getParam("linear_vel_max", linear_vel_max);
+	nh.getParam("angular_vel_step", angular_vel_step);
+	nh.getParam("angular_vel_max", angular_vel_max);
 
-	ROS_INFO_STREAM("[Launch]: Using param 'linear vel'(" << linear_vel << ")");
-	ROS_INFO_STREAM("[Launch]: Using param 'angular vel'(" << angular_vel << ")");
+	ROS_INFO_STREAM("[Launch]: Using arg is_verbose(" << is_verbose << ")");
+	ROS_INFO_STREAM(
+			"[Launch]: Using param linear_vel_step(" << linear_vel_step << ")");
+	ROS_INFO_STREAM(
+			"[Launch]: Using param linear_vel_max(" << linear_vel_max << ")");
+	ROS_INFO_STREAM(
+			"[Launch]: Using param angular_vel_step(" << angular_vel_step << ")");
+	ROS_INFO_STREAM(
+			"[Launch]: Using param angular_vel_max(" << angular_vel_max << ")");
 
 	motor_power_publisher = nh.advertise<kobuki_msgs::MotorPower>("motor_power",
 			1);
 	velocity_publisher = nh.advertise<geometry_msgs::Twist>("velocity", 1);
 	odom_subscriber = nh.subscribe<nav_msgs::Odometry>("odom", 1,
-			&Core::getOdometry, this);
+			&Core::subscribeOdometry, this);
+	bumper_subscriber = nh.subscribe<kobuki_msgs::BumperEvent>("bumper", 1,
+			&Core::subscribeBumper, this);
 
-	twist->linear.x = linear_vel;
+	twist->linear.x = 0.0;
 	twist->linear.y = 0.0;
 	twist->linear.z = 0.0;
 	twist->angular.x = 0.0;
 	twist->angular.y = 0.0;
-	twist->angular.z = angular_vel;
+	twist->angular.z = 0.0;
 
 	ecl::MilliSleep millisleep;
 	int count = 0;
@@ -136,6 +150,30 @@ void Core::keyboardInputLoop() {
 
 void Core::processKeyboardInput(char c) {
 	switch (c) {
+	case kobuki_msgs::KeyboardInput::KeyCode_Down:
+	case kobuki_msgs::KeyboardInput::KeyCode_Up:
+	case kobuki_msgs::KeyboardInput::KeyCode_Left:
+	case kobuki_msgs::KeyboardInput::KeyCode_Right:
+		if (is_powered) {
+			if (c == kobuki_msgs::KeyboardInput::KeyCode_Down
+					&& twist->linear.x >= -linear_vel_max) { // decrease linear vel
+				twist->linear.x -= linear_vel_step;
+			} else if (c == kobuki_msgs::KeyboardInput::KeyCode_Up
+					&& twist->linear.x <= linear_vel_max) { // increase linear vel
+				twist->linear.x += linear_vel_step;
+			} else if (c == kobuki_msgs::KeyboardInput::KeyCode_Left
+					&& twist->angular.z >= -angular_vel_max) { // decrease angular vel
+				twist->angular.z -= angular_vel_step;
+			} else if (c == kobuki_msgs::KeyboardInput::KeyCode_Right
+					&& twist->angular.z <= angular_vel_max) { // increase angular vel
+				twist->angular.z += angular_vel_step;
+			}
+			ROS_INFO_STREAM(
+					"[Vel]: (" << twist->linear.x << ", " << twist->angular.z << ")");
+		} else {
+			ROS_WARN_STREAM("[Power]: Disabled");
+		}
+		break;
 	case 'p':
 		if (is_powered)
 			disablePower();
@@ -144,6 +182,7 @@ void Core::processKeyboardInput(char c) {
 		break;
 	case 'l':
 		is_logging = !is_logging;
+		ROS_INFO_STREAM("[Logging]: " << (is_logging ? "On" : "Off"));
 		break;
 	case 'q':
 		is_quitting = true;
@@ -154,10 +193,10 @@ void Core::processKeyboardInput(char c) {
 }
 
 void Core::enablePower() {
-	twist->linear.x = linear_vel;
-	twist->angular.z = angular_vel;
+	twist->linear.x = 0.0;
+	twist->angular.z = 0.0;
 	velocity_publisher.publish(twist);
-	ROS_INFO("[Power]: Enabling power to the device subsystem.");
+	ROS_INFO("[Power]: Enabled");
 	kobuki_msgs::MotorPower power;
 	power.state = kobuki_msgs::MotorPower::ON;
 	motor_power_publisher.publish(power);
@@ -168,14 +207,14 @@ void Core::disablePower() {
 	twist->linear.x = 0.0;
 	twist->angular.z = 0.0;
 	velocity_publisher.publish(twist);
-	ROS_INFO("[Power]: Disabling power to the device's motor system.");
+	ROS_INFO("[Power]: Disabled");
 	kobuki_msgs::MotorPower power;
 	power.state = kobuki_msgs::MotorPower::OFF;
 	motor_power_publisher.publish(power);
 	is_powered = false;
 }
 
-void Core::getOdometry(const nav_msgs::Odometry::ConstPtr& odom) {
+void Core::subscribeOdometry(const nav_msgs::Odometry::ConstPtr& odom) {
 	double px = odom->pose.pose.position.x;
 	double py = odom->pose.pose.position.y;
 	double ow = odom->pose.pose.orientation.w;
@@ -184,9 +223,27 @@ void Core::getOdometry(const nav_msgs::Odometry::ConstPtr& odom) {
 	double oz = odom->pose.pose.orientation.w;
 	double angle = atan2(2 * (oy * ox + ow * oz),
 			ow * ow + ox * ox - oy * oy - oz * oz);
-	if (is_logging)
+	if (is_logging && is_verbose)
 		ROS_INFO_STREAM(
-				"[Odom]: pos(" << px << "," << py << "); angle(" << angle << ")");
+				"[Odom]: Pos(" << px << "," << py << "); Angle(" << angle << ")");
+}
+
+void Core::subscribeBumper(const kobuki_msgs::BumperEvent::ConstPtr& bumper) {
+	if (is_logging) {
+		std::string state;
+		switch (bumper->state) {
+		case kobuki_msgs::BumperEvent::PRESSED:
+			state = "Pressed";
+			break;
+		case kobuki_msgs::BumperEvent::RELEASED:
+			state = "Released";
+			break;
+		default:
+			state = "Unknown";
+			break;
+		}
+		ROS_INFO_STREAM("[Bumper]: State(" << state << ")");
+	}
 }
 
 }

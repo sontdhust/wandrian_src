@@ -253,7 +253,7 @@ void KeyOpCore::decrementLinearVelocity() {
 			cmd->linear.x -= linear_vel_step;
 		}
 		ROS_INFO_STREAM(
-				"KeyOp: linear  velocity decremented [" << cmd->linear.x << "|" << cmd->angular.z << "]");
+				"KeyOp: linear velocity decremented [" << cmd->linear.x << "|" << cmd->angular.z << "]");
 	} else {
 		ROS_WARN_STREAM("KeyOp: motors are not yet powered up.");
 	}
