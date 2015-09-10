@@ -12,6 +12,7 @@
 #include <set>
 #include "point.hpp"
 
+namespace wandrian {
 namespace common {
 
 class Polygon {
@@ -33,6 +34,7 @@ private:
 	std::set<Point*> get_vertices(bool); // list of points
 };
 
+}
 }
 
 #endif /* WANDRIAN_RUN_INCLUDE_COMMON_POLYGON_HPP_ */

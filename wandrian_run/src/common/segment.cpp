@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include "../../include/common/segment.hpp"
 
+namespace wandrian {
 namespace common {
 
 Segment::Segment(const Point* p1, const Point* p2) {
@@ -37,4 +38,5 @@ void Segment::construct(const Point& p1, const Point& p2) {
 	}
 }
 
+}
 }

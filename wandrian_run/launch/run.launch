@@ -1,0 +1,15 @@
+<launch>
+  <arg name="is_verbose"/>
+  <node pkg="wandrian_run" type="run" name="run" output="screen">
+    <remap from="run/motor_power" to="mobile_base/commands/motor_power"/>
+    <remap from="run/velocity" to="mobile_base/commands/velocity"/>
+    <remap from="run/odom" to="odom"/>
+    <remap from="run/bumper" to="mobile_base/events/bumper"/>
+
+	<param name="is_verbose" value="$(arg is_verbose)"/>
+    <param name="linear_vel_step" value="0.2" type="double"/>
+    <param name="linear_vel_max" value="2" type="double"/>
+    <param name="angular_vel_step" value="0.4" type="double"/>
+    <param name="angular_vel_max" value="1" type="double"/>
+  </node>
+</launch>

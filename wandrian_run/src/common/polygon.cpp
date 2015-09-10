@@ -9,6 +9,7 @@
 #include "../../include/common/segment.hpp"
 #include "../../include/common/polygon.hpp"
 
+namespace wandrian {
 namespace common {
 
 Polygon::Polygon(std::set<Point*> points) :
@@ -210,4 +211,5 @@ std::set<Point*> Polygon::get_vertices(bool getUpper) {
 	return vertices;
 }
 
+}
 }

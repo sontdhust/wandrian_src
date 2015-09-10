@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package>
-  <name>wandrian_keyop</name>
+  <name>wandrian_run</name>
   <version>0.0.0</version>
   <description>
-    Keyboard teleoperation for Kobuki: relays commands from a keyboard to Kobuki.
+    Wandrian Run
   </description>
   <author email="wandrian.pinut@gmail.com">Wandrian Pinut</author>
   <maintainer email="sontd.hust@gmail.com">Tran Duc Son</maintainer>

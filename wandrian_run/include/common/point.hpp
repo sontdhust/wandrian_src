@@ -12,6 +12,7 @@
 #include <cmath>
 #include <limits>
 
+namespace wandrian {
 namespace common {
 
 struct Point {
@@ -47,6 +48,7 @@ struct PointComp {
 	}
 };
 
+}
 }
 
 #endif /* WANDRIAN_RUN_INCLUDE_COMMON_POINT_HPP_ */

@@ -10,6 +10,7 @@
 
 #include "point.hpp"
 
+namespace wandrian {
 namespace common {
 
 struct Segment {
@@ -76,6 +77,7 @@ struct SegmentComp {
 	}
 };
 
+}
 }
 
 #endif /* WANDRIAN_RUN_INCLUDE_COMMON_SEGMENT_HPP_ */
