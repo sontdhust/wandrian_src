@@ -12,11 +12,11 @@
 namespace wandrian {
 namespace common {
 
-Polygon::Polygon(std::set<Point*> points) :
+Polygon::Polygon(std::set<PointPtr> points) :
 		points(points), graph() {
-	std::set<Point*>::iterator point = this->points.begin();
+	std::set<PointPtr>::iterator point = this->points.begin();
 	while (point != this->points.end()) {
-		std::set<Point*>::iterator next =
+		std::set<PointPtr>::iterator next =
 				boost::next(point) != this->points.end() ?
 						boost::next(point) : this->points.begin();
 		if (**next == **point) {
@@ -31,41 +31,42 @@ Polygon::Polygon(std::set<Point*> points) :
 }
 
 Polygon::~Polygon() {
-	for (std::set<Point*>::iterator p = points.begin(); p != points.end(); p++) {
-		delete *p;
+	for (std::set<PointPtr>::iterator p = points.begin(); p != points.end();
+			p++) {
+		points.erase(p);
 	}
-	for (std::map<Point*, std::set<Point*, PointComp> >::iterator n =
+	for (std::map<PointPtr, std::set<PointPtr, PointComp> >::iterator n =
 			graph.begin(); n != graph.end(); n++) {
-		delete (*n).first;
-		for (std::set<Point*>::iterator p = (*n).second.begin();
+		for (std::set<PointPtr>::iterator p = n->second.begin();
 				p != (*n).second.end(); p++) {
-			delete *p;
+			n->second.erase(p);
 		}
+		graph.erase(n);
 	}
 }
 
-std::set<Point*> Polygon::upper_vertices() {
+std::set<PointPtr> Polygon::upper_vertices() {
 	return get_vertices(true);
 }
 
-std::set<Point*> Polygon::lower_vertices() {
+std::set<PointPtr> Polygon::lower_vertices() {
 	return get_vertices(false);
 }
 
-std::map<Point*, std::set<Point*, PointComp>, PointComp> Polygon::get_graph() {
+std::map<PointPtr, std::set<PointPtr, PointComp>, PointComp> Polygon::get_graph() {
 	return graph;
 }
 
 void Polygon::build() {
-	for (std::set<Point*>::iterator current = points.begin();
+	for (std::set<PointPtr>::iterator current = points.begin();
 			current != points.end(); current++) {
 		// Insert current point into graph if not yet
 		if (graph.find(*current) == graph.end())
 			graph.insert(
-					std::pair<Point*, std::set<Point*, PointComp> >(*current,
-							std::set<Point*, PointComp>()));
+					std::pair<PointPtr, std::set<PointPtr, PointComp> >(*current,
+							std::set<PointPtr, PointComp>()));
 		// Find next point
-		std::set<Point*>::iterator next;
+		std::set<PointPtr>::iterator next;
 		if (boost::next(current) != points.end())
 			next = boost::next(current);
 		else
@@ -73,8 +74,8 @@ void Polygon::build() {
 		// Insert next point into graph if not yet
 		if (graph.find(*next) == graph.end())
 			graph.insert(
-					std::pair<Point*, std::set<Point*, PointComp> >(*next,
-							std::set<Point*, PointComp>()));
+					std::pair<PointPtr, std::set<PointPtr, PointComp> >(*next,
+							std::set<PointPtr, PointComp>()));
 		// Create edge
 		if (current != next) {
 			graph.find(*current)->second.insert(*next);
@@ -82,30 +83,31 @@ void Polygon::build() {
 		}
 	}
 	// Find all intersects
-	std::map<Segment*, std::set<Point*, PointComp>, SegmentComp> segments;
-	for (std::map<Point*, std::set<Point*, PointComp> >::iterator current =
+	std::map<SegmentPtr, std::set<PointPtr, PointComp>, SegmentComp> segments;
+	for (std::map<PointPtr, std::set<PointPtr, PointComp> >::iterator current =
 			graph.begin(); current != graph.end(); current++) {
-		for (std::set<Point*>::iterator current_adjacent = current->second.begin();
-				current_adjacent != current->second.end(); current_adjacent++) {
-			for (std::map<Point*, std::set<Point*, PointComp> >::iterator another =
+		for (std::set<PointPtr>::iterator current_adjacent =
+				current->second.begin(); current_adjacent != current->second.end();
+				current_adjacent++) {
+			for (std::map<PointPtr, std::set<PointPtr, PointComp> >::iterator another =
 					boost::next(current); another != graph.end(); another++) {
-				for (std::set<Point*>::iterator another_adjacent =
+				for (std::set<PointPtr>::iterator another_adjacent =
 						another->second.begin(); another_adjacent != another->second.end();
 						another_adjacent++) {
-					Segment *current_segment = new Segment(current->first,
-							*current_adjacent);
-					Segment *another_segment = new Segment(another->first,
-							*another_adjacent);
-					Point *intersect = *(current_segment) % *(another_segment);
-					if (intersect != NULL) {
+					SegmentPtr current_segment = boost::shared_ptr<Segment>(
+							new Segment(current->first, *current_adjacent));
+					SegmentPtr another_segment = boost::shared_ptr<Segment>(
+							new Segment(another->first, *another_adjacent));
+					PointPtr intersect = *(current_segment) % *(another_segment);
+					if (intersect) {
 						if (segments.find(current_segment) == segments.end())
 							segments.insert(
-									std::pair<Segment*, std::set<Point*, PointComp> >(
-											current_segment, std::set<Point*, PointComp>()));
+									std::pair<SegmentPtr, std::set<PointPtr, PointComp> >(
+											current_segment, std::set<PointPtr, PointComp>()));
 						if (segments.find(another_segment) == segments.end())
 							segments.insert(
-									std::pair<Segment*, std::set<Point*, PointComp> >(
-											another_segment, std::set<Point*, PointComp>()));
+									std::pair<SegmentPtr, std::set<PointPtr, PointComp> >(
+											another_segment, std::set<PointPtr, PointComp>()));
 
 						if (*intersect != *(current->first)
 								&& *intersect != **current_adjacent)
@@ -119,19 +121,19 @@ void Polygon::build() {
 		}
 	}
 	// Insert intersects and new edges into graph
-	for (std::map<Segment*, std::set<Point*, PointComp> >::iterator segment =
+	for (std::map<SegmentPtr, std::set<PointPtr, PointComp> >::iterator segment =
 			segments.begin(); segment != segments.end(); segment++) {
-		for (std::set<Point*>::iterator intersect = segment->second.begin();
+		for (std::set<PointPtr>::iterator intersect = segment->second.begin();
 				intersect != segment->second.end(); intersect++) {
 			graph.find(segment->first->p1)->second.insert(*intersect);
 			graph.find(segment->first->p2)->second.insert(*intersect);
 			if (graph.find(*intersect) == graph.end())
 				graph.insert(
-						std::pair<Point*, std::set<Point*, PointComp> >(*intersect,
-								std::set<Point*, PointComp>()));
+						std::pair<PointPtr, std::set<PointPtr, PointComp> >(*intersect,
+								std::set<PointPtr, PointComp>()));
 			graph.find(*intersect)->second.insert(segment->first->p1);
 			graph.find(*intersect)->second.insert(segment->first->p2);
-			for (std::set<Point*>::iterator another = segment->second.begin();
+			for (std::set<PointPtr>::iterator another = segment->second.begin();
 					another != segment->second.end(); another++) {
 				if (**intersect != **another)
 					graph.find(*intersect)->second.insert(*another);
@@ -141,9 +143,9 @@ void Polygon::build() {
 	// TODO Remove redundant edges
 }
 
-Point* Polygon::get_leftmost() {
-	Point* leftmost = *(points.begin());
-	for (std::set<Point*>::iterator current = boost::next(points.begin());
+PointPtr Polygon::get_leftmost() {
+	PointPtr leftmost = *(points.begin());
+	for (std::set<PointPtr>::iterator current = boost::next(points.begin());
 			current != points.end(); current++) {
 		if (**current < *leftmost)
 			leftmost = *current;
@@ -151,9 +153,9 @@ Point* Polygon::get_leftmost() {
 	return leftmost;
 }
 
-Point* Polygon::get_rightmost() {
-	Point* rightmost = *(points.begin());
-	for (std::set<Point*>::iterator current = boost::next(points.begin());
+PointPtr Polygon::get_rightmost() {
+	PointPtr rightmost = *(points.begin());
+	for (std::set<PointPtr>::iterator current = boost::next(points.begin());
 			current != points.end(); current++) {
 		if (**current > *rightmost)
 			rightmost = *current;
@@ -161,17 +163,18 @@ Point* Polygon::get_rightmost() {
 	return rightmost;
 }
 
-std::set<Point*> Polygon::get_vertices(bool getUpper) {
-	std::set<Point*> vertices;
-	Point *leftmost = get_leftmost();
-	Point *rightmost = get_rightmost();
+std::set<PointPtr> Polygon::get_vertices(bool getUpper) {
+	std::set<PointPtr> vertices;
+	PointPtr leftmost = get_leftmost();
+	PointPtr rightmost = get_rightmost();
 	vertices.insert(leftmost);
 
 	// TODO Choose relevant epsilon value
 	double EPS = 20 * std::numeric_limits<double>::epsilon();
 
-	Point *current = leftmost;
-	Point *previous = new Point(current->x - 1, current->y);
+	PointPtr current = leftmost;
+	PointPtr previous = boost::shared_ptr<Point>(
+			new Point(current->x - 1, current->y));
 	while (*current != *rightmost) {
 		double angle;
 		double distance = std::numeric_limits<double>::infinity();
@@ -179,8 +182,8 @@ std::set<Point*> Polygon::get_vertices(bool getUpper) {
 			angle = 2 * M_PI;
 		else
 			angle = 0;
-		Point *next;
-		for (std::set<Point*>::iterator adjacent =
+		PointPtr next;
+		for (std::set<PointPtr>::iterator adjacent =
 				graph.find(current)->second.begin();
 				adjacent != graph.find(current)->second.end(); adjacent++) {
 			double a = atan2(previous->y - current->y, previous->x - current->x)
@@ -193,19 +196,19 @@ std::set<Point*> Polygon::get_vertices(bool getUpper) {
 				if (a - angle < -EPS || (std::abs(a - angle) < EPS && d < distance)) {
 					angle = a;
 					distance = d;
-					next = new Point(**adjacent);
+					next = boost::shared_ptr<Point>(new Point(**adjacent));
 				}
 			} else {
 				a = std::abs(a) <= EPS ? 0 : a > 0 ? a : 2 * M_PI + a;
 				if (a - angle > EPS || (std::abs(a - angle) < EPS && d < distance)) {
 					angle = a;
 					distance = d;
-					next = new Point(**adjacent);
+					next = boost::shared_ptr<Point>(new Point(**adjacent));
 				}
 			}
 		}
-		previous = new Point(*current);
-		current = new Point(*next);
+		previous = boost::shared_ptr<Point>(new Point(*current));
+		current = boost::shared_ptr<Point>(new Point(*next));
 		vertices.insert(current);
 	}
 	return vertices;

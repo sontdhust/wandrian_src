@@ -15,20 +15,23 @@ namespace common {
 
 struct Segment {
 
-	Segment(const Point*, const Point*);
+	Segment(PointConstPtr, PointConstPtr);
 	Segment(double, double, double, double);
 	~Segment();
 
-	Point *p1, *p2;
+	PointPtr p1, p2;
 
 private:
 	void construct(const Point&, const Point&);
 };
 
+typedef boost::shared_ptr<Segment> SegmentPtr;
+typedef boost::shared_ptr<Segment const> SegmentConstPtr;
+
 /**
  * Find intersect between 2 segments
  */
-inline Point* operator %(const Segment &a, const Segment &b) {
+inline PointPtr operator %(const Segment &a, const Segment &b) {
 	double dx;
 	double dy;
 
@@ -48,7 +51,7 @@ inline Point* operator %(const Segment &a, const Segment &b) {
 	double INF = std::numeric_limits<double>::infinity();
 
 	if ((am == INF && bm == INF) || std::abs(am - bm) < EPS) // Line a is parallel to line b
-		return NULL;
+		return boost::shared_ptr<Point>();
 	else {
 		double xi;
 		double yi;
@@ -65,14 +68,14 @@ inline Point* operator %(const Segment &a, const Segment &b) {
 		if (a.p1->x <= xi && xi <= a.p2->x && b.p1->x <= xi && xi <= b.p2->x
 				&& ((a.p1->y <= yi && yi <= a.p2->y) || (a.p2->y <= yi && yi <= a.p1->y))
 				&& ((b.p1->y <= yi && yi <= b.p2->y) || (b.p2->y <= yi && yi <= b.p1->y)))
-			return new Point(xi, yi);
+			return boost::shared_ptr<Point>(new Point(xi, yi));
 		else
-			return NULL;
+			return boost::shared_ptr<Point>();
 	}
 }
 
 struct SegmentComp {
-	bool operator()(const Segment *a, const Segment *b) const {
+	bool operator()(SegmentConstPtr a, SegmentConstPtr b) const {
 		return *(a->p1) != *(b->p1) ? *(a->p1) < *(b->p1) : *(a->p2) < *(b->p2);
 	}
 };

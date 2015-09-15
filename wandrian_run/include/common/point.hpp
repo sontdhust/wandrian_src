@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <cmath>
 #include <limits>
+#include <boost/shared_ptr.hpp>
 
 namespace wandrian {
 namespace common {
@@ -23,6 +24,9 @@ struct Point {
 	double x, y;
 
 };
+
+typedef boost::shared_ptr<Point const> PointConstPtr;
+typedef boost::shared_ptr<Point> PointPtr;
 
 inline bool operator <(const Point &a, const Point &b) {
 	// TODO Choose relevant epsilon value
@@ -43,7 +47,7 @@ inline bool operator >(const Point &a, const Point &b) {
 }
 
 struct PointComp {
-	bool operator()(const Point *a, const Point *b) const {
+	bool operator()(PointConstPtr a, PointConstPtr b) const {
 		return *a < *b;
 	}
 };

@@ -18,21 +18,23 @@ namespace common {
 class Polygon {
 
 public:
-	Polygon(std::set<Point*>);
+	Polygon(std::set<PointPtr>);
 	~Polygon();
-	std::set<Point*> upper_vertices(); // list of points
-	std::set<Point*> lower_vertices(); // list of points
-	__attribute__ ((will_be_removed)) std::map<Point*,
-			std::set<Point*, PointComp>, PointComp> get_graph();
+	std::set<PointPtr> upper_vertices(); // list of points
+	std::set<PointPtr> lower_vertices(); // list of points
+	__attribute__ ((will_be_removed)) std::map<PointPtr,
+			std::set<PointPtr, PointComp>, PointComp> get_graph();
 
 private:
-	std::set<Point*> points;
-	std::map<Point*, std::set<Point*, PointComp>, PointComp> graph;
+	std::set<PointPtr> points;
+	std::map<PointPtr, std::set<PointPtr, PointComp>, PointComp> graph;
 	void build();
-	Point* get_leftmost();
-	Point* get_rightmost();
-	std::set<Point*> get_vertices(bool); // list of points
+	PointPtr get_leftmost();
+	PointPtr get_rightmost();
+	std::set<PointPtr> get_vertices(bool); // list of points
 };
+
+typedef boost::shared_ptr<Polygon> PolygonPtr;
 
 }
 }
