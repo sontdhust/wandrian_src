@@ -18,6 +18,7 @@ namespace common {
 class Polygon {
 
 public:
+	Polygon();
 	Polygon(std::set<Point*>);
 	~Polygon();
 	std::set<Point*> upper_vertices(); // list of points
@@ -25,10 +26,12 @@ public:
 	__attribute__ ((will_be_removed)) std::map<Point*,
 			std::set<Point*, PointComp>, PointComp> get_graph();
 
-private:
+protected:
 	std::set<Point*> points;
-	std::map<Point*, std::set<Point*, PointComp>, PointComp> graph;
 	void build();
+
+private:
+	std::map<Point*, std::set<Point*, PointComp>, PointComp> graph;
 	Point* get_leftmost();
 	Point* get_rightmost();
 	std::set<Point*> get_vertices(bool); // list of points

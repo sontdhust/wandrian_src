@@ -12,6 +12,10 @@
 namespace wandrian {
 namespace common {
 
+Polygon::Polygon() {
+
+}
+
 Polygon::Polygon(std::set<Point*> points) :
 		points(points), graph() {
 	std::set<Point*>::iterator point = this->points.begin();

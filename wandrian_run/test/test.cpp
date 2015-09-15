@@ -13,16 +13,14 @@
 #include <ctime>
 #include <cstdlib>
 #include <boost/next_prior.hpp>
-#include "tmp/include/common/polygon.hpp"
-#include "tmp/include/common/segment.hpp"
+#include "../include/plans/spiral_stc/spiral_stc.hpp"
 
-using namespace wandrian::common;
+#define CELL_SIZE 2
 
-Polygon *polygon;
+using namespace wandrian::plans::spiral_stc;
 
-std::map<Point*, std::set<Point*, PointComp>, PointComp> graph;
-std::set<Point*> upper_vertices;
-std::set<Point*> lower_vertices;
+Environment *environment;
+SpiralStc *spiral_stc;
 
 /**
  * Linked libraries to compile: -lglut -lGL (g++)
@@ -61,44 +59,32 @@ void display() {
 
 	glColor3ub(255, 255, 255);
 	for (std::map<Point*, std::set<Point*, PointComp> >::iterator current =
-			graph.begin(); current != graph.end(); current++) {
-		std::cout << "\033[1;31m" << (*current).first->x << " "
-				<< (*current).first->y << "\033[1;0m: ";
+			environment->space->get_graph().begin();
+			current != environment->space->get_graph().end(); current++) {
 		for (std::set<Point*>::iterator adjacent = (*current).second.begin();
 				adjacent != (*current).second.end(); adjacent++) {
 			glBegin(GL_LINE_STRIP);
 			glVertex2d((*current).first->x, (*current).first->y);
 			glVertex2d((*adjacent)->x, (*adjacent)->y);
 			glEnd();
-			std::cout << (*adjacent)->x << " " << (*adjacent)->y << ", ";
 		}
-		std::cout << "\n";
 	}
-	std::cout << "\n";
 
-	glColor3ub(0, 255, 0);
-	std::cout << "\033[1;32m";
-	for (std::set<Point*>::iterator current = upper_vertices.begin();
-			boost::next(current) != upper_vertices.end(); current++) {
-		std::cout << (*current)->x << " " << (*current)->y << ", ";
-		glBegin(GL_LINE_STRIP);
-		glVertex2d((*current)->x, (*current)->y);
-		glVertex2d((*boost::next(current))->x, (*boost::next(current))->y);
-		glEnd();
+	std::cout << "[Obstacles]: " << environment->obstacles.size() << "\n";
+	for (std::set<Polygon*>::iterator obstacle = environment->obstacles.begin();
+			obstacle != environment->obstacles.end(); obstacle++) {
+		for (std::map<Point*, std::set<Point*, PointComp> >::iterator current =
+				(*obstacle)->get_graph().begin();
+				current != (*obstacle)->get_graph().end(); current++) {
+			for (std::set<Point*>::iterator adjacent = (*current).second.begin();
+					adjacent != (*current).second.end(); adjacent++) {
+				glBegin(GL_LINE_STRIP);
+				glVertex2d((*current).first->x, (*current).first->y);
+				glVertex2d((*adjacent)->x, (*adjacent)->y);
+				glEnd();
+			}
+		}
 	}
-	std::cout << "\033[1;0m\n";
-
-	glColor3ub(0, 0, 255);
-	std::cout << "\033[1;34m";
-	for (std::set<Point*>::iterator current = lower_vertices.begin();
-			boost::next(current) != lower_vertices.end(); current++) {
-		std::cout << (*current)->x << " " << (*current)->y << ", ";
-		glBegin(GL_LINE_STRIP);
-		glVertex2d((*current)->x, (*current)->y);
-		glVertex2d((*boost::next(current))->x, (*boost::next(current))->y);
-		glEnd();
-	}
-	std::cout << "\033[1;0m\n";
 
 	glutSwapBuffers();
 }
@@ -107,27 +93,24 @@ int run(int argc, char **argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	glutInitWindowSize(600, 600);
-	glutCreateWindow("GLUT");
+	glutCreateWindow("Environment");
 	glutDisplayFunc(display);
 	glutMainLoop();
 	return 0;
 }
 
 int main(int argc, char **argv) {
-	std::set<Point*> points;
+	Cell *space = new Cell(new Point(0, 0), 20);
+	std::set<Polygon*> obstacles;
 
 	std::srand(std::time(0));
-	int r = std::rand() % 45;
+	int r = std::rand() % 5;
 	for (int i = 0; i <= r; i++) {
-		int x = std::rand() % 21 - 10;
-		int y = std::rand() % 21 - 10;
-		std::cout << x << " " << y << "\n";
-		points.insert(new Point(x, y));
+		obstacles.insert(
+				new Cell(new Point(std::rand() % 19 - 9, std::rand() % 19 - 9), 2));
 	}
-	polygon = new Polygon(points);
-	graph = polygon->get_graph();
-	upper_vertices = polygon->upper_vertices();
-	lower_vertices = polygon->lower_vertices();
+	environment = new Environment(space, obstacles);
+	spiral_stc = new SpiralStc(environment, new Cell(new Point(0, 0), 2));
 
 	run(argc, argv);
 	return 0;
