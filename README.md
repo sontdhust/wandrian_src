@@ -5,3 +5,8 @@
  Add:
 
  `/opt/ros/ROS_distro/include`
+
+####Build for testing:
+
+	cd wandrian_run/test/
+	./test.sh

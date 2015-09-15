@@ -5,8 +5,8 @@
  *      Author: sontd
  */
 
-#ifndef WANDRIAN_RUN_INCLUDE_COMMON_CORE_HPP_
-#define WANDRIAN_RUN_INCLUDE_COMMON_CORE_HPP_
+#ifndef WANDRIAN_RUN_INCLUDE_CORE_HPP_
+#define WANDRIAN_RUN_INCLUDE_CORE_HPP_
 
 #include <termios.h> // for keyboard input
 #include <ros/ros.h>

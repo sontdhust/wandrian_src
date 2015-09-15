@@ -13,8 +13,8 @@
 #include <ctime>
 #include <cstdlib>
 #include <boost/next_prior.hpp>
-#include "../include/common/polygon.hpp"
-#include "../include/common/segment.hpp"
+#include "tmp/include/common/polygon.hpp"
+#include "tmp/include/common/segment.hpp"
 
 using namespace wandrian::common;
 
