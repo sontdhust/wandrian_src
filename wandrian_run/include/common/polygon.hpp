@@ -21,10 +21,9 @@ public:
 	Polygon();
 	Polygon(std::set<Point*>);
 	~Polygon();
-	std::set<Point*> upper_vertices(); // list of points
-	std::set<Point*> lower_vertices(); // list of points
-	__attribute__ ((will_be_removed)) std::map<Point*,
-			std::set<Point*, PointComp>, PointComp> get_graph();
+	std::set<Point*> get_bound();
+	/* __attribute__ ((will_be_removed)) */
+	std::set<Point*> get_points();
 
 protected:
 	std::set<Point*> points;
@@ -34,7 +33,9 @@ private:
 	std::map<Point*, std::set<Point*, PointComp>, PointComp> graph;
 	Point* get_leftmost();
 	Point* get_rightmost();
-	std::set<Point*> get_vertices(bool); // list of points
+	std::set<Point*> get_upper_bound(); // list of points
+	std::set<Point*> get_lower_bound(); // list of points
+	std::set<Point*> get_partial_bound(bool); // list of points
 };
 
 }

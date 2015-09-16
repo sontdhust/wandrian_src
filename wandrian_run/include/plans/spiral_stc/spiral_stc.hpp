@@ -18,9 +18,11 @@ namespace plans {
 namespace spiral_stc {
 
 class SpiralStc {
+
 public:
 	SpiralStc(Environment*, Cell*);
 	void cover();
+
 private:
 	Environment *environment;
 	Cell *starting_cell;

@@ -20,11 +20,15 @@ namespace spiral_stc {
 #define NEW_CELL true
 
 class Cell: public Polygon {
+
 public:
 	Cell(Point*, double);
+	Point* get_center();
 	void set_state(bool);
 	bool get_state();
+
 private:
+	Point* center;
 	bool state;
 };
 

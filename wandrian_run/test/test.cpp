@@ -27,7 +27,8 @@ SpiralStc *spiral_stc;
  */
 
 void display() {
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -36,9 +37,9 @@ void display() {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	glScalef(0.5, 0.5, 0);
+	glScalef(0.25, 0.25, 0);
 
-	// TODO draw primitives here
+	// TODO draw environment here
 
 	glPointSize(4);
 	glColor3ub(255, 255, 0);
@@ -49,41 +50,34 @@ void display() {
 	glPointSize(1);
 	glColor3ub(255, 255, 255);
 	glBegin(GL_POINTS);
-	for (int i = -10; i <= 10; i++) {
-		for (int j = -10; j <= 10; j++) {
-			if (i != 0 || j != 0)
+	for (int i = -20; i <= 20; i++) {
+		for (int j = -20; j <= 20; j++) {
+			if ((i != 0 || j != 0) && i % 2 == 0 && j % 2 == 0)
 				glVertex2i(i, j);
 		}
 	}
 	glEnd();
 
-	glColor3ub(255, 255, 255);
-	for (std::map<Point*, std::set<Point*, PointComp> >::iterator current =
-			environment->space->get_graph().begin();
-			current != environment->space->get_graph().end(); current++) {
-		for (std::set<Point*>::iterator adjacent = (*current).second.begin();
-				adjacent != (*current).second.end(); adjacent++) {
-			glBegin(GL_LINE_STRIP);
-			glVertex2d((*current).first->x, (*current).first->y);
-			glVertex2d((*adjacent)->x, (*adjacent)->y);
-			glEnd();
-		}
+	glColor3ub(255, 0, 0);
+
+	std::set<Point*> ps = environment->space->get_points();
+	glBegin(GL_LINE_STRIP);
+	for (std::set<Point*>::iterator p = ps.begin(); p != ps.end(); p++) {
+		glVertex2d((*p)->x, (*p)->y);
 	}
+	glVertex2d((*ps.begin())->x, (*ps.begin())->y);
+	glEnd();
 
 	std::cout << "[Obstacles]: " << environment->obstacles.size() << "\n";
 	for (std::set<Polygon*>::iterator obstacle = environment->obstacles.begin();
 			obstacle != environment->obstacles.end(); obstacle++) {
-		for (std::map<Point*, std::set<Point*, PointComp> >::iterator current =
-				(*obstacle)->get_graph().begin();
-				current != (*obstacle)->get_graph().end(); current++) {
-			for (std::set<Point*>::iterator adjacent = (*current).second.begin();
-					adjacent != (*current).second.end(); adjacent++) {
-				glBegin(GL_LINE_STRIP);
-				glVertex2d((*current).first->x, (*current).first->y);
-				glVertex2d((*adjacent)->x, (*adjacent)->y);
-				glEnd();
-			}
+		std::set<Point*> ps = (*obstacle)->get_points();
+		glBegin(GL_POLYGON);
+		for (std::set<Point*>::iterator p = ps.begin(); p != ps.end(); p++) {
+			glVertex2d((*p)->x, (*p)->y);
 		}
+		glVertex2d((*ps.begin())->x, (*ps.begin())->y);
+		glEnd();
 	}
 
 	glutSwapBuffers();
@@ -100,15 +94,25 @@ int run(int argc, char **argv) {
 }
 
 int main(int argc, char **argv) {
-	Cell *space = new Cell(new Point(0, 0), 20);
+	Cell *space = new Cell(new Point(0, 0), 40);
 	std::set<Polygon*> obstacles;
 
 	std::srand(std::time(0));
-	int r = std::rand() % 5;
+	int r = std::rand() % 19 + 20;
 	for (int i = 0; i <= r; i++) {
-		obstacles.insert(
-				new Cell(new Point(std::rand() % 19 - 9, std::rand() % 19 - 9), 2));
+		Point *center = new Point((std::rand() % 19 - 9) * 2 + 1,
+				(std::rand() % 19 - 9) * 2 + 1);
+		bool valid = true;
+		for (std::set<Polygon*>::iterator p = obstacles.begin();
+				p != obstacles.end(); p++)
+			if (*(((Cell*) *p)->get_center()) == *center) {
+				valid = false;
+				break;
+			};
+		if (valid)
+			obstacles.insert(new Cell(center, 2));
 	}
+
 	environment = new Environment(space, obstacles);
 	spiral_stc = new SpiralStc(environment, new Cell(new Point(0, 0), 2));
 

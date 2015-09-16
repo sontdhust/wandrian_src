@@ -48,16 +48,25 @@ Polygon::~Polygon() {
 	}
 }
 
-std::set<Point*> Polygon::upper_vertices() {
-	return get_vertices(true);
+std::set<Point*> Polygon::get_bound() {
+	std::set<Point*> bound;
+	std::set<Point*> upper_bound = get_upper_bound();
+	std::set<Point*> lower_bound = get_lower_bound();
+
+	for (std::set<Point*>::iterator u = upper_bound.begin();
+			u != upper_bound.end(); u++) {
+		bound.insert(new Point(**u));
+	}
+
+	for (std::set<Point*>::reverse_iterator l = boost::next(lower_bound.rbegin());
+			boost::next(l) != lower_bound.rend(); l++) {
+		bound.insert(new Point(**l));
+	}
+	return bound;
 }
 
-std::set<Point*> Polygon::lower_vertices() {
-	return get_vertices(false);
-}
-
-std::map<Point*, std::set<Point*, PointComp>, PointComp> Polygon::get_graph() {
-	return graph;
+std::set<Point*> Polygon::get_points() {
+	return points;
 }
 
 void Polygon::build() {
@@ -165,11 +174,19 @@ Point* Polygon::get_rightmost() {
 	return rightmost;
 }
 
-std::set<Point*> Polygon::get_vertices(bool getUpper) {
-	std::set<Point*> vertices;
+std::set<Point*> Polygon::get_upper_bound() {
+	return get_partial_bound(true);
+}
+
+std::set<Point*> Polygon::get_lower_bound() {
+	return get_partial_bound(false);
+}
+
+std::set<Point*> Polygon::get_partial_bound(bool is_upper) {
+	std::set<Point*> partial_bound;
 	Point *leftmost = get_leftmost();
 	Point *rightmost = get_rightmost();
-	vertices.insert(leftmost);
+	partial_bound.insert(leftmost);
 
 	// TODO Choose relevant epsilon value
 	double EPS = 20 * std::numeric_limits<double>::epsilon();
@@ -179,7 +196,7 @@ std::set<Point*> Polygon::get_vertices(bool getUpper) {
 	while (*current != *rightmost) {
 		double angle;
 		double distance = std::numeric_limits<double>::infinity();
-		if (getUpper)
+		if (is_upper)
 			angle = 2 * M_PI;
 		else
 			angle = 0;
@@ -192,7 +209,7 @@ std::set<Point*> Polygon::get_vertices(bool getUpper) {
 			double d = sqrt(
 					pow(current->x - (*adjacent)->x, 2)
 							+ pow(current->y - (*adjacent)->y, 2));
-			if (getUpper) {
+			if (is_upper) {
 				a = std::abs(a) <= EPS ? 2 * M_PI : a > 0 ? a : 2 * M_PI + a;
 				if (a - angle < -EPS || (std::abs(a - angle) < EPS && d < distance)) {
 					angle = a;
@@ -210,9 +227,9 @@ std::set<Point*> Polygon::get_vertices(bool getUpper) {
 		}
 		previous = new Point(*current);
 		current = new Point(*next);
-		vertices.insert(current);
+		partial_bound.insert(current);
 	}
-	return vertices;
+	return partial_bound;
 }
 
 }
