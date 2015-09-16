@@ -43,7 +43,7 @@ inline bool operator >(const Point &a, const Point &b) {
 }
 
 struct PointComp {
-	bool operator()(const Point *a, const Point *b) const {
+	bool operator ()(const Point *a, const Point *b) const {
 		return *a < *b;
 	}
 };

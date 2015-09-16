@@ -26,10 +26,13 @@ public:
 	Point* get_center();
 	void set_state(bool);
 	bool get_state();
+	void set_parent(Cell*);
+	Cell* get_parent();
 
 private:
-	Point* center;
+	Point *center;
 	bool state;
+	Cell *parent;
 };
 
 }

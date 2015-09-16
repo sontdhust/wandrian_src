@@ -12,7 +12,7 @@ namespace plans {
 namespace spiral_stc {
 
 Cell::Cell(Point *center, double size) :
-		center(center), state(NEW_CELL) {
+		center(center), state(NEW_CELL), parent(NULL) {
 	points.insert(new Point(center->x - size / 2, center->y + size / 2));
 	points.insert(new Point(center->x + size / 2, center->y + size / 2));
 	points.insert(new Point(center->x + size / 2, center->y - size / 2));
@@ -30,6 +30,14 @@ void Cell::set_state(bool state) {
 
 bool Cell::get_state() {
 	return state;
+}
+
+void Cell::set_parent(Cell *parent) {
+	this->parent = parent;
+}
+
+Cell* Cell::get_parent() {
+	return parent;
 }
 
 }

@@ -26,6 +26,15 @@ SpiralStc *spiral_stc;
  * Linked libraries to compile: -lglut -lGL (g++)
  */
 
+void draw(std::set<Point*> points, int type) {
+	glBegin(type);
+	for (std::set<Point*>::iterator p = points.begin(); p != points.end(); p++) {
+		glVertex2d((*p)->x, (*p)->y);
+	}
+	glVertex2d((*points.begin())->x, (*points.begin())->y);
+	glEnd();
+}
+
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
@@ -39,14 +48,14 @@ void display() {
 
 	glScalef(0.25, 0.25, 0);
 
-	// TODO draw environment here
-
+	// Center point
 	glPointSize(4);
 	glColor3ub(255, 255, 0);
 	glBegin(GL_POINTS);
 	glVertex2i(0, 0);
 	glEnd();
 
+	// Coordinate
 	glPointSize(1);
 	glColor3ub(255, 255, 255);
 	glBegin(GL_POINTS);
@@ -58,27 +67,18 @@ void display() {
 	}
 	glEnd();
 
+	// Environment
 	glColor3ub(255, 0, 0);
-
-	std::set<Point*> ps = environment->space->get_points();
-	glBegin(GL_LINE_STRIP);
-	for (std::set<Point*>::iterator p = ps.begin(); p != ps.end(); p++) {
-		glVertex2d((*p)->x, (*p)->y);
-	}
-	glVertex2d((*ps.begin())->x, (*ps.begin())->y);
-	glEnd();
-
+	draw(environment->space->get_points(), GL_LINE_STRIP);
 	std::cout << "[Obstacles]: " << environment->obstacles.size() << "\n";
 	for (std::set<Polygon*>::iterator obstacle = environment->obstacles.begin();
 			obstacle != environment->obstacles.end(); obstacle++) {
-		std::set<Point*> ps = (*obstacle)->get_points();
-		glBegin(GL_POLYGON);
-		for (std::set<Point*>::iterator p = ps.begin(); p != ps.end(); p++) {
-			glVertex2d((*p)->x, (*p)->y);
-		}
-		glVertex2d((*ps.begin())->x, (*ps.begin())->y);
-		glEnd();
+		draw((*obstacle)->get_points(), GL_POLYGON);
 	}
+
+	// Spiral STC covering path
+	glColor3ub(0, 255, 0);
+	draw(spiral_stc->get_path(), GL_LINE_STRIP);
 
 	glutSwapBuffers();
 }
@@ -105,7 +105,8 @@ int main(int argc, char **argv) {
 		bool valid = true;
 		for (std::set<Polygon*>::iterator p = obstacles.begin();
 				p != obstacles.end(); p++)
-			if (*(((Cell*) *p)->get_center()) == *center) {
+			if (*(((Cell*) *p)->get_center()) == *center
+					|| (center->x == 1 && center->y == 1)) {
 				valid = false;
 				break;
 			};
@@ -114,7 +115,8 @@ int main(int argc, char **argv) {
 	}
 
 	environment = new Environment(space, obstacles);
-	spiral_stc = new SpiralStc(environment, new Cell(new Point(0, 0), 2));
+	spiral_stc = new SpiralStc(environment, new Point(1.5, 0.5), 1);
+	spiral_stc->cover();
 
 	run(argc, argv);
 	return 0;
