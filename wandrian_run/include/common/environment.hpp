@@ -15,10 +15,10 @@ namespace common {
 
 struct Environment {
 
-	Environment(Polygon*, std::set<Polygon*>);
-
 	Polygon *space;
 	std::set<Polygon*> obstacles;
+
+	Environment(Polygon*, std::set<Polygon*>);
 
 };
 

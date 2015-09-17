@@ -22,8 +22,11 @@ namespace spiral_stc {
 class Cell: public Polygon {
 
 public:
+	std::set<Cell*> neighbors;
+
 	Cell(Point*, double);
 	Point* get_center();
+	double get_size();
 	void set_state(bool);
 	bool get_state();
 	void set_parent(Cell*);
@@ -31,6 +34,7 @@ public:
 
 private:
 	Point *center;
+	double size;
 	bool state;
 	Cell *parent;
 };

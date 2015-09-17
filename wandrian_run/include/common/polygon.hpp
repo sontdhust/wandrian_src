@@ -21,6 +21,7 @@ public:
 	Polygon();
 	Polygon(std::set<Point*>);
 	~Polygon();
+	/* __attribute__ ((undone)) */
 	std::set<Point*> get_bound();
 	/* __attribute__ ((will_be_removed)) */
 	std::set<Point*> get_points();

@@ -15,11 +15,11 @@ namespace common {
 
 struct Segment {
 
+	Point *p1, *p2;
+
 	Segment(const Point*, const Point*);
 	Segment(double, double, double, double);
 	~Segment();
-
-	Point *p1, *p2;
 
 private:
 	void construct(const Point&, const Point&);

@@ -15,7 +15,8 @@
 #include <boost/next_prior.hpp>
 #include "../include/plans/spiral_stc/spiral_stc.hpp"
 
-#define CELL_SIZE 2
+#define SUB_CELL_SIZE 1
+#define STARTING_POINT new Point(1.5, 0.5)
 
 using namespace wandrian::plans::spiral_stc;
 
@@ -70,7 +71,6 @@ void display() {
 	// Environment
 	glColor3ub(255, 0, 0);
 	draw(environment->space->get_points(), GL_LINE_STRIP);
-	std::cout << "[Obstacles]: " << environment->obstacles.size() << "\n";
 	for (std::set<Polygon*>::iterator obstacle = environment->obstacles.begin();
 			obstacle != environment->obstacles.end(); obstacle++) {
 		draw((*obstacle)->get_points(), GL_POLYGON);
@@ -94,28 +94,62 @@ int run(int argc, char **argv) {
 }
 
 int main(int argc, char **argv) {
-	Cell *space = new Cell(new Point(0, 0), 40);
+	Cell *space = new Cell(new Point(0, 0), 8);
+//	Cell *space = new Cell(new Point(0, 0), 40);
 	std::set<Polygon*> obstacles;
 
-	std::srand(std::time(0));
-	int r = std::rand() % 19 + 20;
-	for (int i = 0; i <= r; i++) {
-		Point *center = new Point((std::rand() % 19 - 9) * 2 + 1,
-				(std::rand() % 19 - 9) * 2 + 1);
-		bool valid = true;
-		for (std::set<Polygon*>::iterator p = obstacles.begin();
-				p != obstacles.end(); p++)
-			if (*(((Cell*) *p)->get_center()) == *center
-					|| (center->x == 1 && center->y == 1)) {
-				valid = false;
-				break;
-			};
-		if (valid)
-			obstacles.insert(new Cell(center, 2));
-	}
+//	std::cout << "[Obstacles]: ";
+//	std::srand(std::time(0));
+//	int r = std::rand() % 21 + 30;
+//	for (int i = 0; i <= r; i++) {
+//		Point *center = new Point((std::rand() % 19 - 9) * 2 + 1,
+//				(std::rand() % 19 - 9) * 2 + 1);
+//		bool valid = true;
+//		for (std::set<Polygon*>::iterator p = obstacles.begin();
+//				p != obstacles.end(); p++)
+//			if (*(((Cell*) *p)->get_center()) == *center
+//					|| (center->x == 1 && center->y == 1)) {
+//				valid = false;
+//				break;
+//			};
+//		if (valid) {
+//			obstacles.insert(new Cell(center, 2));
+//			std::cout << " " << center->x << "," << center->y << "\n";
+//		}
+//	}
+//	std::cout << "\n";
+	obstacles.insert(new Cell(new Point(19, 3), 2));
+	obstacles.insert(new Cell(new Point(5, 1), 2));
+	obstacles.insert(new Cell(new Point(9, 15), 2));
+	obstacles.insert(new Cell(new Point(15, 15), 2));
+	obstacles.insert(new Cell(new Point(9, -5), 2));
+	obstacles.insert(new Cell(new Point(17, 11), 2));
+	obstacles.insert(new Cell(new Point(1, -13), 2));
+	obstacles.insert(new Cell(new Point(-15, -11), 2));
+	obstacles.insert(new Cell(new Point(7, -3), 2));
+	obstacles.insert(new Cell(new Point(-11, 17), 2));
+	obstacles.insert(new Cell(new Point(-5, 7), 2));
+	obstacles.insert(new Cell(new Point(-11, 5), 2));
+	obstacles.insert(new Cell(new Point(3, -7), 2));
+	obstacles.insert(new Cell(new Point(15, -7), 2));
+	obstacles.insert(new Cell(new Point(-9, -1), 2));
+	obstacles.insert(new Cell(new Point(-3, -17), 2));
+	obstacles.insert(new Cell(new Point(-17, 13), 2));
+	obstacles.insert(new Cell(new Point(-3, 3), 2));
+	obstacles.insert(new Cell(new Point(3, -9), 2));
+	obstacles.insert(new Cell(new Point(-1, -9), 2));
+	obstacles.insert(new Cell(new Point(3, -11), 2));
+	obstacles.insert(new Cell(new Point(13, 15), 2));
+	obstacles.insert(new Cell(new Point(-7, 9), 2));
+	obstacles.insert(new Cell(new Point(15, 13), 2));
+	obstacles.insert(new Cell(new Point(-15, 15), 2));
+	obstacles.insert(new Cell(new Point(9, -7), 2));
+	obstacles.insert(new Cell(new Point(1, 15), 2));
+	obstacles.insert(new Cell(new Point(9, -15), 2));
+	obstacles.insert(new Cell(new Point(-5, -17), 2));
 
 	environment = new Environment(space, obstacles);
-	spiral_stc = new SpiralStc(environment, new Point(1.5, 0.5), 1);
+	spiral_stc = new SpiralStc(environment, STARTING_POINT, SUB_CELL_SIZE);
 	spiral_stc->cover();
 
 	run(argc, argv);

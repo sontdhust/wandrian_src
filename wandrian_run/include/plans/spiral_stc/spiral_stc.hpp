@@ -29,11 +29,13 @@ private:
 	Environment *environment;
 	const double sub_cell_size; // = 'robot size' = 'cell size' / 2
 	const double step_size;
-	Cell *current_cell;
-	Vector2d *current_direction_vector;
+	bool is_bumper_pressing;
+	Cell *starting_cell;
 	std::set<Point*> path;
 
+	void go(Vector2d*, int);
 	void spiral_stc(Cell*);
+	bool check(Cell*);
 };
 
 }
