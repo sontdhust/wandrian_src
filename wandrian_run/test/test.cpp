@@ -76,6 +76,13 @@ void display() {
 		draw((*obstacle)->get_points(), GL_POLYGON);
 	}
 
+	// Starting point
+	glPointSize(4);
+	glColor3ub(0, 255, 0);
+	glBegin(GL_POINTS);
+	glVertex2d((STARTING_POINT)->x, (STARTING_POINT)->y);
+	glEnd();
+
 	// Spiral STC covering path
 	glColor3ub(0, 255, 0);
 	draw(spiral_stc->get_path(), GL_LINE_STRIP);
@@ -94,8 +101,7 @@ int run(int argc, char **argv) {
 }
 
 int main(int argc, char **argv) {
-	Cell *space = new Cell(new Point(0, 0), 8);
-//	Cell *space = new Cell(new Point(0, 0), 40);
+	Cell *space = new Cell(new Point(0, 0), 32);
 	std::set<Polygon*> obstacles;
 
 //	std::cout << "[Obstacles]: ";
@@ -118,6 +124,7 @@ int main(int argc, char **argv) {
 //		}
 //	}
 //	std::cout << "\n";
+
 	obstacles.insert(new Cell(new Point(19, 3), 2));
 	obstacles.insert(new Cell(new Point(5, 1), 2));
 	obstacles.insert(new Cell(new Point(9, 15), 2));

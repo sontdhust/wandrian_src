@@ -44,7 +44,7 @@ void SpiralStc::go(Vector2d *direction, int step) {
 	Point *new_position = new Point(
 			*last_position + *direction * step * step_size);
 	path.insert(new_position);
-	std::cout << "p: " << new_position->x << "," << new_position->y << "\n";
+	std::cout << "  p: " << new_position->x << "," << new_position->y << "\n";
 //	getchar();
 
 // Bumper event here
@@ -74,11 +74,12 @@ void SpiralStc::go(Vector2d *direction, int step) {
 }
 
 void SpiralStc::spiral_stc(Cell *current) {
-	Vector2d *direction =
-			new Vector2d(
-					(*(current->get_parent()->get_center()) - *(current->get_center()))
-							/ (*(current->get_parent()->get_center())
-									% *(current->get_center())));
+	std::cout << "current-BEGIN: " << current->get_center()->x << ","
+			<< current->get_center()->y << "\n";
+	// TODO: correctly compute starting direction
+	Vector2d *direction = new Vector2d(
+			(*(current->get_parent()->get_center()) - *(current->get_center())) / 2
+					/ sub_cell_size);
 	int neighbors_count = 0;
 	// While current cell has a new obstacle-free neighboring cell
 	while (neighbors_count < 3) {
@@ -87,11 +88,14 @@ void SpiralStc::spiral_stc(Cell *current) {
 		Cell *neighbor = new Cell(
 				new Point(*(current->get_center()) + *direction * 2 * sub_cell_size),
 				2 * sub_cell_size);
-		std::cout << "new_neighbor: " << neighbor->get_center()->x << ","
+		std::cout << "  neighbor: " << neighbor->get_center()->x << ","
 				<< neighbor->get_center()->y << "\n";
 		neighbors_count++;
-		if (check(neighbor) == OLD_CELL)
+		if (check(neighbor) == OLD_CELL) {
+			// Go to next sub-cell
+			go(direction->rotate_counterclockwise(), sub_cell_size / step_size);
 			continue;
+		}
 		go(direction, sub_cell_size / 2 / step_size);
 		if (is_bumper_pressing) {
 			// Go back
@@ -101,12 +105,19 @@ void SpiralStc::spiral_stc(Cell *current) {
 			go(direction->rotate_counterclockwise(), sub_cell_size / step_size);
 		} else {
 			neighbor->set_parent(current);
+			// Construct a spanning-tree edge
 			current->neighbors.insert(neighbor);
 			go(direction, sub_cell_size / 2 / step_size);
 			spiral_stc(neighbor);
 		}
-
 	}
+	// Back to sub-cell of parent
+	if (*(current->get_center()) != *(starting_cell->get_center())) {
+		direction = direction->rotate_counterclockwise();
+		go(direction, sub_cell_size / step_size);
+	}
+	std::cout << "current-END: " << current->get_center()->x << ","
+			<< current->get_center()->y << "\n";
 }
 
 bool SpiralStc::check(Cell *cell_to_check) {
