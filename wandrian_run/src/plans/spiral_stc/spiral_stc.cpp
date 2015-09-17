@@ -5,7 +5,6 @@
  *      Author: sontd
  */
 
-#include <boost/next_prior.hpp>
 #include "../../../include/plans/spiral_stc/spiral_stc.hpp"
 
 #include <stdio.h>
@@ -28,23 +27,30 @@ SpiralStc::SpiralStc(Environment *environment, Point *starting_point,
 					new Point(starting_cell->get_center()->x,
 							starting_cell->get_center()->y - 2 * sub_cell_size),
 					2 * sub_cell_size));
-	path.insert(starting_point);
+	path.insert(path.end(), starting_point);
 }
 
 void SpiralStc::cover() {
 	spiral_stc(starting_cell);
 }
 
-std::set<Point*> SpiralStc::get_path() {
+std::list<Point*> SpiralStc::get_path() {
 	return path;
 }
 
 void SpiralStc::go(Vector2d *direction, int step) {
-	Point *last_position = *(boost::prior(path.end()));
+//	for (std::set<Point*>::iterator p = path.begin(); p != path.end(); p++) {
+//		std::cout << (*p)->x << "," << (*p)->y << "; ";
+//	}
+//	std::cout << "\n";
+
+	Point *last_position = *(--path.end());
 	Point *new_position = new Point(
 			*last_position + *direction * step * step_size);
-	path.insert(new_position);
-	std::cout << "  p: " << new_position->x << "," << new_position->y << "\n";
+	path.insert(path.end(), new_position);
+	std::cout << "  p: " << new_position->x << "," << new_position->y << "; ("
+			<< last_position->x << "," << last_position->y << "; " << direction->x
+			<< "," << direction->y << "; " << step << ")\n";
 //	getchar();
 
 // Bumper event here
@@ -76,6 +82,8 @@ void SpiralStc::go(Vector2d *direction, int step) {
 void SpiralStc::spiral_stc(Cell *current) {
 	std::cout << "current-BEGIN: " << current->get_center()->x << ","
 			<< current->get_center()->y << "\n";
+//	if (current->get_center()->x == -15)
+//		getchar();
 	// TODO: correctly compute starting direction
 	Vector2d *direction = new Vector2d(
 			(*(current->get_parent()->get_center()) - *(current->get_center())) / 2
@@ -89,15 +97,19 @@ void SpiralStc::spiral_stc(Cell *current) {
 				new Point(*(current->get_center()) + *direction * 2 * sub_cell_size),
 				2 * sub_cell_size);
 		std::cout << "  neighbor: " << neighbor->get_center()->x << ","
-				<< neighbor->get_center()->y << "\n";
+				<< neighbor->get_center()->y;
 		neighbors_count++;
 		if (check(neighbor) == OLD_CELL) {
+			std::cout << " (OLD)\n";
 			// Go to next sub-cell
 			go(direction->rotate_counterclockwise(), sub_cell_size / step_size);
 			continue;
+		} else {
+			std::cout << "\n";
 		}
 		go(direction, sub_cell_size / 2 / step_size);
 		if (is_bumper_pressing) {
+			std::cout << "    (BUMP)\n";
 			// Go back
 			path.erase(--path.end());
 			is_bumper_pressing = false;

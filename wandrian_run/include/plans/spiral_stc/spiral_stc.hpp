@@ -8,6 +8,7 @@
 #ifndef WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_SPIRAL_STC_HPP_
 #define WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_SPIRAL_STC_HPP_
 
+#include <list>
 #include "../../common/vector2d.hpp"
 #include "../../common/environment.hpp"
 #include "cell.hpp"
@@ -23,7 +24,7 @@ class SpiralStc {
 public:
 	SpiralStc(Environment*, Point*, const double);
 	void cover();
-	std::set<Point*> get_path();
+	std::list<Point*> get_path();
 
 private:
 	Environment *environment;
@@ -31,7 +32,7 @@ private:
 	const double step_size;
 	bool is_bumper_pressing;
 	Cell *starting_cell;
-	std::set<Point*> path;
+	std::list<Point*> path;
 
 	void go(Vector2d*, int);
 	void spiral_stc(Cell*);
