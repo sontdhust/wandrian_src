@@ -53,12 +53,12 @@ std::list<PointPtr> Polygon::get_bound() {
 
 	for (std::list<PointPtr>::iterator u = upper_bound.begin();
 			u != upper_bound.end(); u++) {
-		bound.insert(bound.end(), boost::shared_ptr<Point>(new Point(**u)));
+		bound.insert(bound.end(), PointPtr(new Point(**u)));
 	}
 
 	for (std::list<PointPtr>::reverse_iterator l = boost::next(
 			lower_bound.rbegin()); boost::next(l) != lower_bound.rend(); l++) {
-		bound.insert(bound.end(), boost::shared_ptr<Point>(new Point(**l)));
+		bound.insert(bound.end(), PointPtr(new Point(**l)));
 	}
 	return bound;
 }
@@ -100,9 +100,9 @@ void Polygon::build() {
 				for (std::set<PointPtr>::iterator another_adjacent =
 						another->second.begin(); another_adjacent != another->second.end();
 						another_adjacent++) {
-					SegmentPtr current_segment = boost::shared_ptr<Segment>(
+					SegmentPtr current_segment = SegmentPtr(
 							new Segment(current->first, *current_adjacent));
-					SegmentPtr another_segment = boost::shared_ptr<Segment>(
+					SegmentPtr another_segment = SegmentPtr(
 							new Segment(another->first, *another_adjacent));
 					PointPtr intersect = *(current_segment) % *(another_segment);
 					if (intersect) {
@@ -187,8 +187,7 @@ std::list<PointPtr> Polygon::get_partial_bound(bool is_upper) {
 	double EPS = 20 * std::numeric_limits<double>::epsilon();
 
 	PointPtr current = leftmost;
-	PointPtr previous = boost::shared_ptr<Point>(
-			new Point(current->x - 1, current->y));
+	PointPtr previous = PointPtr(new Point(current->x - 1, current->y));
 	while (*current != *rightmost) {
 		double angle;
 		double distance = std::numeric_limits<double>::infinity();
@@ -210,19 +209,19 @@ std::list<PointPtr> Polygon::get_partial_bound(bool is_upper) {
 				if (a - angle < -EPS || (std::abs(a - angle) < EPS && d < distance)) {
 					angle = a;
 					distance = d;
-					next = boost::shared_ptr<Point>(new Point(**adjacent));
+					next = PointPtr(new Point(**adjacent));
 				}
 			} else {
 				a = std::abs(a) <= EPS ? 0 : a > 0 ? a : 2 * M_PI + a;
 				if (a - angle > EPS || (std::abs(a - angle) < EPS && d < distance)) {
 					angle = a;
 					distance = d;
-					next = boost::shared_ptr<Point>(new Point(**adjacent));
+					next = PointPtr(new Point(**adjacent));
 				}
 			}
 		}
-		previous = boost::shared_ptr<Point>(new Point(*current));
-		current = boost::shared_ptr<Point>(new Point(*next));
+		previous = PointPtr(new Point(*current));
+		current = PointPtr(new Point(*next));
 		partial_bound.insert(partial_bound.end(), current);
 	}
 	return partial_bound;

@@ -16,7 +16,7 @@
 #include "../include/plans/spiral_stc/spiral_stc.hpp"
 
 #define SUB_CELL_SIZE 1
-#define STARTING_POINT boost::shared_ptr<Point>(new Point(1.5, 0.5))
+#define STARTING_POINT PointPtr(new Point(1.5, 0.5))
 
 using namespace wandrian::plans::spiral_stc;
 
@@ -103,15 +103,14 @@ int run(int argc, char **argv) {
 }
 
 int main(int argc, char **argv) {
-	CellPtr space = boost::shared_ptr<Cell>(
-			new Cell(boost::shared_ptr<Point>(new Point(0, 0)), 40));
+	CellPtr space = CellPtr(new Cell(PointPtr(new Point(0, 0)), 40));
 	std::list<PolygonPtr> obstacles;
 
 	std::cout << "[Obstacles]: ";
 	std::srand(std::time(0));
 	int r = std::rand() % 31 + 40;
 	for (int i = 0; i <= r; i++) {
-		PointPtr center = boost::shared_ptr<Point>(
+		PointPtr center = PointPtr(
 				new Point((std::rand() % 19 - 9) * 2 + 1,
 						(std::rand() % 19 - 9) * 2 + 1));
 		bool valid = true;
@@ -123,17 +122,15 @@ int main(int argc, char **argv) {
 				break;
 			};
 		if (valid) {
-			obstacles.insert(obstacles.end(),
-					boost::shared_ptr<Cell>(new Cell(center, 2)));
+			obstacles.insert(obstacles.end(), CellPtr(new Cell(center, 2)));
 			std::cout << "  obstacles.insert(new Cell(new Point(" << center->x << ", "
 					<< center->y << "), 2));\n";
 		}
 	}
 	std::cout << "\n";
 
-	environment = boost::shared_ptr<Environment>(
-			new Environment(space, obstacles));
-	spiral_stc = boost::shared_ptr<SpiralStc>(
+	environment = EnvironmentPtr(new Environment(space, obstacles));
+	spiral_stc = SpiralStcPtr(
 			new SpiralStc(environment, STARTING_POINT, SUB_CELL_SIZE));
 	spiral_stc->cover();
 

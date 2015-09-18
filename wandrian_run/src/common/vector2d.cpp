@@ -16,11 +16,10 @@ Vector2d::Vector2d(double x, double y) :
 
 Vector2d::Vector2d(const Vector2d &vector) :
 		x(vector.x), y(vector.y) {
-
 }
 
 Vector2dPtr Vector2d::rotate_counterclockwise() {
-	return boost::shared_ptr<Vector2d>(new Vector2d(-y, x));
+	return Vector2dPtr(new Vector2d(-y, x));
 }
 
 }

@@ -22,7 +22,6 @@ public:
 	Polygon();
 	Polygon(std::list<PointPtr>);
 	~Polygon();
-	/* __attribute__ ((undone)) */
 	std::list<PointPtr> get_bound();
 
 protected:
