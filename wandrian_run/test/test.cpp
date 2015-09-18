@@ -21,8 +21,8 @@ using namespace wandrian::common;
 PolygonPtr polygon;
 
 std::map<PointPtr, std::set<PointPtr, PointComp>, PointComp> graph;
-std::set<PointPtr> upper_vertices;
-std::set<PointPtr> lower_vertices;
+std::list<PointPtr> upper_vertices;
+std::list<PointPtr> lower_vertices;
 
 /**
  * Linked libraries to compile: -lglut -lGL (g++)
@@ -78,7 +78,7 @@ void display() {
 
 	glColor3ub(0, 255, 0);
 	std::cout << "\033[1;32m";
-	for (std::set<PointPtr>::iterator current = upper_vertices.begin();
+	for (std::list<PointPtr>::iterator current = upper_vertices.begin();
 			boost::next(current) != upper_vertices.end(); current++) {
 		std::cout << (*current)->x << " " << (*current)->y << ", ";
 		glBegin(GL_LINE_STRIP);
@@ -90,7 +90,7 @@ void display() {
 
 	glColor3ub(0, 0, 255);
 	std::cout << "\033[1;34m";
-	for (std::set<PointPtr>::iterator current = lower_vertices.begin();
+	for (std::list<PointPtr>::iterator current = lower_vertices.begin();
 			boost::next(current) != lower_vertices.end(); current++) {
 		std::cout << (*current)->x << " " << (*current)->y << ", ";
 		glBegin(GL_LINE_STRIP);
@@ -114,7 +114,7 @@ int run(int argc, char **argv) {
 }
 
 int main(int argc, char **argv) {
-	std::set<PointPtr> points;
+	std::list<PointPtr> points;
 
 	std::srand(std::time(0));
 	int r = std::rand() % 45;
@@ -122,12 +122,12 @@ int main(int argc, char **argv) {
 		int x = std::rand() % 21 - 10;
 		int y = std::rand() % 21 - 10;
 		std::cout << x << " " << y << "\n";
-		points.insert(boost::shared_ptr<Point>(new Point(x, y)));
+		points.insert(points.end(), boost::shared_ptr<Point>(new Point(x, y)));
 	}
 	polygon = boost::shared_ptr<Polygon>(new Polygon(points));
 	graph = polygon->get_graph();
-	upper_vertices = polygon->upper_vertices();
-	lower_vertices = polygon->lower_vertices();
+	upper_vertices = polygon->get_upper_bound();
+	lower_vertices = polygon->get_lower_bound();
 
 	run(argc, argv);
 	return 0;

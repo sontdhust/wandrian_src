@@ -12,11 +12,11 @@
 namespace wandrian {
 namespace common {
 
-Polygon::Polygon(std::set<PointPtr> points) :
+Polygon::Polygon(std::list<PointPtr> points) :
 		points(points), graph() {
-	std::set<PointPtr>::iterator point = this->points.begin();
+	std::list<PointPtr>::iterator point = this->points.begin();
 	while (point != this->points.end()) {
-		std::set<PointPtr>::iterator next =
+		std::list<PointPtr>::iterator next =
 				boost::next(point) != this->points.end() ?
 						boost::next(point) : this->points.begin();
 		if (**next == **point) {
@@ -31,10 +31,7 @@ Polygon::Polygon(std::set<PointPtr> points) :
 }
 
 Polygon::~Polygon() {
-	for (std::set<PointPtr>::iterator p = points.begin(); p != points.end();
-			p++) {
-		points.erase(p);
-	}
+	points.clear();
 	for (std::map<PointPtr, std::set<PointPtr, PointComp> >::iterator n =
 			graph.begin(); n != graph.end(); n++) {
 		for (std::set<PointPtr>::iterator p = n->second.begin();
@@ -45,12 +42,12 @@ Polygon::~Polygon() {
 	}
 }
 
-std::set<PointPtr> Polygon::upper_vertices() {
-	return get_vertices(true);
+std::list<PointPtr> Polygon::get_upper_bound() {
+	return get_partial_bound(true);
 }
 
-std::set<PointPtr> Polygon::lower_vertices() {
-	return get_vertices(false);
+std::list<PointPtr> Polygon::get_lower_bound() {
+	return get_partial_bound(false);
 }
 
 std::map<PointPtr, std::set<PointPtr, PointComp>, PointComp> Polygon::get_graph() {
@@ -58,7 +55,7 @@ std::map<PointPtr, std::set<PointPtr, PointComp>, PointComp> Polygon::get_graph(
 }
 
 void Polygon::build() {
-	for (std::set<PointPtr>::iterator current = points.begin();
+	for (std::list<PointPtr>::iterator current = points.begin();
 			current != points.end(); current++) {
 		// Insert current point into graph if not yet
 		if (graph.find(*current) == graph.end())
@@ -66,7 +63,7 @@ void Polygon::build() {
 					std::pair<PointPtr, std::set<PointPtr, PointComp> >(*current,
 							std::set<PointPtr, PointComp>()));
 		// Find next point
-		std::set<PointPtr>::iterator next;
+		std::list<PointPtr>::iterator next;
 		if (boost::next(current) != points.end())
 			next = boost::next(current);
 		else
@@ -145,7 +142,7 @@ void Polygon::build() {
 
 PointPtr Polygon::get_leftmost() {
 	PointPtr leftmost = *(points.begin());
-	for (std::set<PointPtr>::iterator current = boost::next(points.begin());
+	for (std::list<PointPtr>::iterator current = boost::next(points.begin());
 			current != points.end(); current++) {
 		if (**current < *leftmost)
 			leftmost = *current;
@@ -155,7 +152,7 @@ PointPtr Polygon::get_leftmost() {
 
 PointPtr Polygon::get_rightmost() {
 	PointPtr rightmost = *(points.begin());
-	for (std::set<PointPtr>::iterator current = boost::next(points.begin());
+	for (std::list<PointPtr>::iterator current = boost::next(points.begin());
 			current != points.end(); current++) {
 		if (**current > *rightmost)
 			rightmost = *current;
@@ -163,11 +160,11 @@ PointPtr Polygon::get_rightmost() {
 	return rightmost;
 }
 
-std::set<PointPtr> Polygon::get_vertices(bool getUpper) {
-	std::set<PointPtr> vertices;
+std::list<PointPtr> Polygon::get_partial_bound(bool getUpper) {
+	std::list<PointPtr> vertices;
 	PointPtr leftmost = get_leftmost();
 	PointPtr rightmost = get_rightmost();
-	vertices.insert(leftmost);
+	vertices.insert(vertices.end(), leftmost);
 
 	// TODO Choose relevant epsilon value
 	double EPS = 20 * std::numeric_limits<double>::epsilon();
@@ -209,7 +206,7 @@ std::set<PointPtr> Polygon::get_vertices(bool getUpper) {
 		}
 		previous = boost::shared_ptr<Point>(new Point(*current));
 		current = boost::shared_ptr<Point>(new Point(*next));
-		vertices.insert(current);
+		vertices.insert(vertices.end(), current);
 	}
 	return vertices;
 }
