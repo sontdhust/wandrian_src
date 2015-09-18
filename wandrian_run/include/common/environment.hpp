@@ -15,10 +15,10 @@ namespace common {
 
 struct Environment {
 
-	Environment(PolygonPtr, std::list<PolygonPtr>);
-
 	PolygonPtr space;
 	std::list<PolygonPtr> obstacles;
+
+	Environment(PolygonPtr, std::list<PolygonPtr>);
 
 };
 

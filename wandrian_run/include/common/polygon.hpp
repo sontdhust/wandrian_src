@@ -19,19 +19,22 @@ namespace common {
 class Polygon {
 
 public:
+	Polygon();
 	Polygon(std::list<PointPtr>);
 	~Polygon();
-	std::list<PointPtr> get_upper_bound(); // list of points
-	std::list<PointPtr> get_lower_bound(); // list of points
-	__attribute__ ((will_be_removed)) std::map<PointPtr,
-			std::set<PointPtr, PointComp>, PointComp> get_graph();
+	/* __attribute__ ((undone)) */
+	std::list<PointPtr> get_bound();
+
+protected:
+	std::list<PointPtr> points;
+	void build();
 
 private:
-	std::list<PointPtr> points;
 	std::map<PointPtr, std::set<PointPtr, PointComp>, PointComp> graph;
-	void build();
 	PointPtr get_leftmost();
 	PointPtr get_rightmost();
+	std::list<PointPtr> get_upper_bound(); // list of points
+	std::list<PointPtr> get_lower_bound(); // list of points
 	std::list<PointPtr> get_partial_bound(bool); // list of points
 };
 

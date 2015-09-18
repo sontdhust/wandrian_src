@@ -12,6 +12,10 @@
 namespace wandrian {
 namespace common {
 
+Polygon::Polygon() {
+
+}
+
 Polygon::Polygon(std::list<PointPtr> points) :
 		points(points), graph() {
 	std::list<PointPtr>::iterator point = this->points.begin();
@@ -42,16 +46,21 @@ Polygon::~Polygon() {
 	}
 }
 
-std::list<PointPtr> Polygon::get_upper_bound() {
-	return get_partial_bound(true);
-}
+std::list<PointPtr> Polygon::get_bound() {
+	std::list<PointPtr> bound;
+	std::list<PointPtr> upper_bound = get_upper_bound();
+	std::list<PointPtr> lower_bound = get_lower_bound();
 
-std::list<PointPtr> Polygon::get_lower_bound() {
-	return get_partial_bound(false);
-}
+	for (std::list<PointPtr>::iterator u = upper_bound.begin();
+			u != upper_bound.end(); u++) {
+		bound.insert(bound.end(), boost::shared_ptr<Point>(new Point(**u)));
+	}
 
-std::map<PointPtr, std::set<PointPtr, PointComp>, PointComp> Polygon::get_graph() {
-	return graph;
+	for (std::list<PointPtr>::reverse_iterator l = boost::next(
+			lower_bound.rbegin()); boost::next(l) != lower_bound.rend(); l++) {
+		bound.insert(bound.end(), boost::shared_ptr<Point>(new Point(**l)));
+	}
+	return bound;
 }
 
 void Polygon::build() {
@@ -79,7 +88,7 @@ void Polygon::build() {
 			graph.find(*next)->second.insert(*current);
 		}
 	}
-	// Find all intersects
+// Find all intersects
 	std::map<SegmentPtr, std::set<PointPtr, PointComp>, SegmentComp> segments;
 	for (std::map<PointPtr, std::set<PointPtr, PointComp> >::iterator current =
 			graph.begin(); current != graph.end(); current++) {
@@ -117,7 +126,7 @@ void Polygon::build() {
 			}
 		}
 	}
-	// Insert intersects and new edges into graph
+// Insert intersects and new edges into graph
 	for (std::map<SegmentPtr, std::set<PointPtr, PointComp> >::iterator segment =
 			segments.begin(); segment != segments.end(); segment++) {
 		for (std::set<PointPtr>::iterator intersect = segment->second.begin();
@@ -137,7 +146,7 @@ void Polygon::build() {
 			}
 		}
 	}
-	// TODO Remove redundant edges
+// TODO Remove redundant edges
 }
 
 PointPtr Polygon::get_leftmost() {
@@ -160,11 +169,19 @@ PointPtr Polygon::get_rightmost() {
 	return rightmost;
 }
 
-std::list<PointPtr> Polygon::get_partial_bound(bool getUpper) {
-	std::list<PointPtr> vertices;
+std::list<PointPtr> Polygon::get_upper_bound() {
+	return get_partial_bound(true);
+}
+
+std::list<PointPtr> Polygon::get_lower_bound() {
+	return get_partial_bound(false);
+}
+
+std::list<PointPtr> Polygon::get_partial_bound(bool is_upper) {
+	std::list<PointPtr> partial_bound;
 	PointPtr leftmost = get_leftmost();
 	PointPtr rightmost = get_rightmost();
-	vertices.insert(vertices.end(), leftmost);
+	partial_bound.insert(partial_bound.end(), leftmost);
 
 	// TODO Choose relevant epsilon value
 	double EPS = 20 * std::numeric_limits<double>::epsilon();
@@ -175,7 +192,7 @@ std::list<PointPtr> Polygon::get_partial_bound(bool getUpper) {
 	while (*current != *rightmost) {
 		double angle;
 		double distance = std::numeric_limits<double>::infinity();
-		if (getUpper)
+		if (is_upper)
 			angle = 2 * M_PI;
 		else
 			angle = 0;
@@ -188,7 +205,7 @@ std::list<PointPtr> Polygon::get_partial_bound(bool getUpper) {
 			double d = sqrt(
 					pow(current->x - (*adjacent)->x, 2)
 							+ pow(current->y - (*adjacent)->y, 2));
-			if (getUpper) {
+			if (is_upper) {
 				a = std::abs(a) <= EPS ? 2 * M_PI : a > 0 ? a : 2 * M_PI + a;
 				if (a - angle < -EPS || (std::abs(a - angle) < EPS && d < distance)) {
 					angle = a;
@@ -206,9 +223,9 @@ std::list<PointPtr> Polygon::get_partial_bound(bool getUpper) {
 		}
 		previous = boost::shared_ptr<Point>(new Point(*current));
 		current = boost::shared_ptr<Point>(new Point(*next));
-		vertices.insert(vertices.end(), current);
+		partial_bound.insert(partial_bound.end(), current);
 	}
-	return vertices;
+	return partial_bound;
 }
 
 }

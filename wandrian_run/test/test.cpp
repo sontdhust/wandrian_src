@@ -13,23 +13,33 @@
 #include <ctime>
 #include <cstdlib>
 #include <boost/next_prior.hpp>
-#include "tmp/include/common/polygon.hpp"
-#include "tmp/include/common/segment.hpp"
+#include "../include/plans/spiral_stc/spiral_stc.hpp"
 
-using namespace wandrian::common;
+#define SUB_CELL_SIZE 1
+#define STARTING_POINT boost::shared_ptr<Point>(new Point(1.5, 0.5))
 
-PolygonPtr polygon;
+using namespace wandrian::plans::spiral_stc;
 
-std::map<PointPtr, std::set<PointPtr, PointComp>, PointComp> graph;
-std::list<PointPtr> upper_vertices;
-std::list<PointPtr> lower_vertices;
+EnvironmentPtr environment;
+SpiralStcPtr spiral_stc;
 
 /**
  * Linked libraries to compile: -lglut -lGL (g++)
  */
 
+void draw(std::list<PointPtr> points, int type) {
+	glBegin(type);
+	for (std::list<PointPtr>::iterator p = points.begin(); p != points.end();
+			p++) {
+		glVertex2d((*p)->x, (*p)->y);
+	}
+	glVertex2d((*points.begin())->x, (*points.begin())->y);
+	glEnd();
+}
+
 void display() {
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -38,67 +48,46 @@ void display() {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	glScalef(0.5, 0.5, 0);
+	glScalef(0.25, 0.25, 0);
 
-	// TODO draw primitives here
-
+	// Center point
 	glPointSize(4);
 	glColor3ub(255, 255, 0);
 	glBegin(GL_POINTS);
 	glVertex2i(0, 0);
 	glEnd();
 
+	// Coordinate
 	glPointSize(1);
 	glColor3ub(255, 255, 255);
 	glBegin(GL_POINTS);
-	for (int i = -10; i <= 10; i++) {
-		for (int j = -10; j <= 10; j++) {
-			if (i != 0 || j != 0)
+	for (int i = -20; i <= 20; i++) {
+		for (int j = -20; j <= 20; j++) {
+			if ((i != 0 || j != 0) && i % 2 == 0 && j % 2 == 0)
 				glVertex2i(i, j);
 		}
 	}
 	glEnd();
 
-	glColor3ub(255, 255, 255);
-	for (std::map<PointPtr, std::set<PointPtr, PointComp> >::iterator current =
-			graph.begin(); current != graph.end(); current++) {
-		std::cout << "\033[1;31m" << (*current).first->x << " "
-				<< (*current).first->y << "\033[1;0m: ";
-		for (std::set<PointPtr>::iterator adjacent = (*current).second.begin();
-				adjacent != (*current).second.end(); adjacent++) {
-			glBegin(GL_LINE_STRIP);
-			glVertex2d((*current).first->x, (*current).first->y);
-			glVertex2d((*adjacent)->x, (*adjacent)->y);
-			glEnd();
-			std::cout << (*adjacent)->x << " " << (*adjacent)->y << ", ";
-		}
-		std::cout << "\n";
+	// Environment
+	glColor3ub(255, 0, 0);
+	draw(environment->space->get_bound(), GL_LINE_STRIP);
+	for (std::list<PolygonPtr>::iterator obstacle =
+			environment->obstacles.begin(); obstacle != environment->obstacles.end();
+			obstacle++) {
+		draw((*obstacle)->get_bound(), GL_POLYGON);
 	}
-	std::cout << "\n";
 
+	// Starting point
+	glPointSize(4);
 	glColor3ub(0, 255, 0);
-	std::cout << "\033[1;32m";
-	for (std::list<PointPtr>::iterator current = upper_vertices.begin();
-			boost::next(current) != upper_vertices.end(); current++) {
-		std::cout << (*current)->x << " " << (*current)->y << ", ";
-		glBegin(GL_LINE_STRIP);
-		glVertex2d((*current)->x, (*current)->y);
-		glVertex2d((*boost::next(current))->x, (*boost::next(current))->y);
-		glEnd();
-	}
-	std::cout << "\033[1;0m\n";
+	glBegin(GL_POINTS);
+	glVertex2d((STARTING_POINT)->x, (STARTING_POINT)->y);
+	glEnd();
 
-	glColor3ub(0, 0, 255);
-	std::cout << "\033[1;34m";
-	for (std::list<PointPtr>::iterator current = lower_vertices.begin();
-			boost::next(current) != lower_vertices.end(); current++) {
-		std::cout << (*current)->x << " " << (*current)->y << ", ";
-		glBegin(GL_LINE_STRIP);
-		glVertex2d((*current)->x, (*current)->y);
-		glVertex2d((*boost::next(current))->x, (*boost::next(current))->y);
-		glEnd();
-	}
-	std::cout << "\033[1;0m\n";
+	// Spiral STC covering path
+	glColor3ub(0, 255, 0);
+	draw(spiral_stc->get_path(), GL_LINE_STRIP);
 
 	glutSwapBuffers();
 }
@@ -107,27 +96,46 @@ int run(int argc, char **argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	glutInitWindowSize(600, 600);
-	glutCreateWindow("GLUT");
+	glutCreateWindow("Environment");
 	glutDisplayFunc(display);
 	glutMainLoop();
 	return 0;
 }
 
 int main(int argc, char **argv) {
-	std::list<PointPtr> points;
+	CellPtr space = boost::shared_ptr<Cell>(
+			new Cell(boost::shared_ptr<Point>(new Point(0, 0)), 40));
+	std::list<PolygonPtr> obstacles;
 
+	std::cout << "[Obstacles]: ";
 	std::srand(std::time(0));
-	int r = std::rand() % 45;
+	int r = std::rand() % 31 + 40;
 	for (int i = 0; i <= r; i++) {
-		int x = std::rand() % 21 - 10;
-		int y = std::rand() % 21 - 10;
-		std::cout << x << " " << y << "\n";
-		points.insert(points.end(), boost::shared_ptr<Point>(new Point(x, y)));
+		PointPtr center = boost::shared_ptr<Point>(
+				new Point((std::rand() % 19 - 9) * 2 + 1,
+						(std::rand() % 19 - 9) * 2 + 1));
+		bool valid = true;
+		for (std::list<PolygonPtr>::iterator p = obstacles.begin();
+				p != obstacles.end(); p++)
+			if (*((boost::static_pointer_cast<Cell>(*p))->get_center()) == *center
+					|| (center->x == 1 && center->y == 1)) {
+				valid = false;
+				break;
+			};
+		if (valid) {
+			obstacles.insert(obstacles.end(),
+					boost::shared_ptr<Cell>(new Cell(center, 2)));
+			std::cout << "  obstacles.insert(new Cell(new Point(" << center->x << ", "
+					<< center->y << "), 2));\n";
+		}
 	}
-	polygon = boost::shared_ptr<Polygon>(new Polygon(points));
-	graph = polygon->get_graph();
-	upper_vertices = polygon->get_upper_bound();
-	lower_vertices = polygon->get_lower_bound();
+	std::cout << "\n";
+
+	environment = boost::shared_ptr<Environment>(
+			new Environment(space, obstacles));
+	spiral_stc = boost::shared_ptr<SpiralStc>(
+			new SpiralStc(environment, STARTING_POINT, SUB_CELL_SIZE));
+	spiral_stc->cover();
 
 	run(argc, argv);
 	return 0;

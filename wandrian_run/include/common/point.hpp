@@ -18,15 +18,19 @@ namespace common {
 
 struct Point {
 
+	double x, y;
+
 	Point(double, double);
 	Point(const Point&);
-
-	double x, y;
 
 };
 
 typedef boost::shared_ptr<Point const> PointConstPtr;
 typedef boost::shared_ptr<Point> PointPtr;
+
+inline double operator %(const Point &a, const Point &b) {
+	return std::sqrt(std::pow(a.x - b.x, 2) + std::pow(a.y - b.y, 2));
+}
 
 inline bool operator <(const Point &a, const Point &b) {
 	// TODO Choose relevant epsilon value
