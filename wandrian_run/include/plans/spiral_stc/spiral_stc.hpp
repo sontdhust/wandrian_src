@@ -8,8 +8,8 @@
 #ifndef WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_SPIRAL_STC_HPP_
 #define WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_SPIRAL_STC_HPP_
 
-#include "../../common/vector2d.hpp"
 #include "../../common/environment.hpp"
+#include "../../common/vector.hpp"
 #include "cell.hpp"
 
 using namespace wandrian::common;
@@ -33,7 +33,7 @@ private:
 	CellPtr starting_cell;
 	std::list<PointPtr> path;
 
-	void go(Vector2dPtr, int);
+	void go(VectorPtr, int);
 	void spiral_stc(CellPtr);
 	bool check(CellPtr);
 };

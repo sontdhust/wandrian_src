@@ -16,11 +16,11 @@
 #include "../include/plans/spiral_stc/spiral_stc.hpp"
 
 #define SUB_CELL_SIZE 1
-#define STARTING_POINT PointPtr(new Point(1.5, 0.5))
 
 using namespace wandrian::plans::spiral_stc;
 
 EnvironmentPtr environment;
+PointPtr starting_point;
 SpiralStcPtr spiral_stc;
 
 /**
@@ -82,7 +82,7 @@ void display() {
 	glPointSize(4);
 	glColor3ub(0, 255, 0);
 	glBegin(GL_POINTS);
-	glVertex2d((STARTING_POINT)->x, (STARTING_POINT)->y);
+	glVertex2d(starting_point->x, starting_point->y);
 	glEnd();
 
 	// Spiral STC covering path
@@ -106,13 +106,18 @@ int main(int argc, char **argv) {
 	CellPtr space = CellPtr(new Cell(PointPtr(new Point(0, 0)), 40));
 	std::list<PolygonPtr> obstacles;
 
-	std::cout << "[Obstacles]: ";
+	std::cout << "[Obstacles]:\n";
 	std::srand(std::time(0));
+
+	starting_point = PointPtr(
+			new Point((std::rand() % 20 - 10) * 2 + 1 + 0.5,
+					(std::rand() % 20 - 10) * 2 + 1 - 0.5));
+
 	int r = std::rand() % 31 + 40;
 	for (int i = 0; i <= r; i++) {
 		PointPtr center = PointPtr(
-				new Point((std::rand() % 19 - 9) * 2 + 1,
-						(std::rand() % 19 - 9) * 2 + 1));
+				new Point((std::rand() % 20 - 10) * 2 + 1,
+						(std::rand() % 20 - 10) * 2 + 1));
 		bool valid = true;
 		for (std::list<PolygonPtr>::iterator p = obstacles.begin();
 				p != obstacles.end(); p++)
@@ -131,7 +136,7 @@ int main(int argc, char **argv) {
 
 	environment = EnvironmentPtr(new Environment(space, obstacles));
 	spiral_stc = SpiralStcPtr(
-			new SpiralStc(environment, STARTING_POINT, SUB_CELL_SIZE));
+			new SpiralStc(environment, starting_point, SUB_CELL_SIZE));
 	spiral_stc->cover();
 
 	run(argc, argv);

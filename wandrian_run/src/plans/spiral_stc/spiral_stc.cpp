@@ -42,7 +42,7 @@ std::list<PointPtr> SpiralStc::get_path() {
 	return path;
 }
 
-void SpiralStc::go(Vector2dPtr direction, int step) {
+void SpiralStc::go(VectorPtr direction, int step) {
 //	for (std::set<Point*>::iterator p = path.begin(); p != path.end(); p++) {
 //		std::cout << (*p)->x << "," << (*p)->y << "; ";
 //	}
@@ -89,8 +89,8 @@ void SpiralStc::spiral_stc(CellPtr current) {
 //	if (current->get_center()->x == -15)
 //		getchar();
 	// TODO: correctly compute starting direction
-	Vector2dPtr direction = Vector2dPtr(
-			new Vector2d(
+	VectorPtr direction = VectorPtr(
+			new Vector(
 					(*(current->get_parent()->get_center()) - *(current->get_center()))
 							/ 2 / sub_cell_size));
 	int neighbors_count = 0;

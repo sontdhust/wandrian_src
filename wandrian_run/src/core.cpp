@@ -92,11 +92,11 @@ bool Core::init() {
 	}
 
 	// start keyboard input thread
-	thread.start(&Core::keyboardInputLoop, *this);
+	threadKeyboard.start(&Core::startThreadKeyboard, *this);
 	return true;
 }
 
-void Core::spin() {
+void Core::run() {
 	ros::Rate loop_rate(10);
 
 	while (!is_quitting && ros::ok()) {
@@ -118,12 +118,12 @@ void Core::spin() {
 	} else {
 		// just in case we got here not via a keyboard quit request
 		is_quitting = true;
-		thread.cancel();
+		threadKeyboard.cancel();
 	}
-	thread.join();
+	threadKeyboard.join();
 }
 
-void Core::keyboardInputLoop() {
+void Core::startThreadKeyboard() {
 	struct termios raw;
 	memcpy(&raw, &terminal, sizeof(struct termios));
 
@@ -192,6 +192,10 @@ void Core::processKeyboardInput(char c) {
 	}
 }
 
+bool Core::go(PointPtr destination) {
+	return true;
+}
+
 void Core::enablePower() {
 	twist->linear.x = 0.0;
 	twist->angular.z = 0.0;
@@ -214,7 +218,7 @@ void Core::disablePower() {
 	is_powered = false;
 }
 
-void Core::subscribeOdometry(const nav_msgs::Odometry::ConstPtr& odom) {
+void Core::subscribeOdometry(const nav_msgs::OdometryConstPtr& odom) {
 	double px = odom->pose.pose.position.x;
 	double py = odom->pose.pose.position.y;
 	double ow = odom->pose.pose.orientation.w;
@@ -228,7 +232,7 @@ void Core::subscribeOdometry(const nav_msgs::Odometry::ConstPtr& odom) {
 				"[Odom]: Pos(" << px << "," << py << "); Angle(" << angle << ")");
 }
 
-void Core::subscribeBumper(const kobuki_msgs::BumperEvent::ConstPtr& bumper) {
+void Core::subscribeBumper(const kobuki_msgs::BumperEventConstPtr& bumper) {
 	if (is_logging) {
 		std::string state;
 		switch (bumper->state) {

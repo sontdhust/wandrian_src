@@ -6,7 +6,7 @@ cp -r ../src ./tmp
 cd tmp/src/common
 g++ -c point.cpp
 g++ -c segment.cpp
-g++ -c vector2d.cpp
+g++ -c vector.cpp
 g++ -c polygon.cpp
 g++ -c environment.cpp
 
@@ -15,6 +15,6 @@ g++ -c cell.cpp
 g++ -c spiral_stc.cpp
 
 cd ../..
-g++ -o ../wandrian_run ../../test.cpp common/point.o common/vector2d.o common/segment.o common/polygon.o common/environment.o plans/spiral_stc/cell.o plans/spiral_stc/spiral_stc.o -lglut -lGL
+g++ -o ../wandrian_run ../../test.cpp common/point.o common/vector.o common/segment.o common/polygon.o common/environment.o plans/spiral_stc/cell.o plans/spiral_stc/spiral_stc.o -lglut -lGL
 cd ..
 ./wandrian_run

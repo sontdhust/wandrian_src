@@ -15,6 +15,9 @@
 #include <nav_msgs/Odometry.h>
 #include <kobuki_msgs/BumperEvent.h>
 #include <yocs_controllers/default_controller.hpp> // not use but need for bumper event subscriber
+#include "../include/common/point.hpp"
+
+using namespace wandrian::common;
 
 namespace wandrian {
 
@@ -24,7 +27,7 @@ public:
 	Core();
 	~Core();
 	bool init();
-	void spin();
+	void run();
 
 private:
 	bool is_verbose;
@@ -37,23 +40,26 @@ private:
 	double linear_vel_step, linear_vel_max, angular_vel_step, angular_vel_max;
 
 	struct termios terminal;
-	ecl::Thread thread;
-
+	ecl::Thread threadKeyboard;
 	geometry_msgs::TwistPtr twist;
+
 	ros::Publisher motor_power_publisher;
 	ros::Publisher velocity_publisher;
 	ros::Subscriber odom_subscriber;
 	ros::Subscriber bumper_subscriber;
 
-	void keyboardInputLoop();
+	// Thread handlers
+	void startThreadKeyboard();
 	void processKeyboardInput(char);
 
+	// Helpers
+	bool go(PointPtr);
 	void enablePower();
 	void disablePower();
-	void subscribeOdometry(const nav_msgs::Odometry::ConstPtr&);
-	void subscribeBumper(const kobuki_msgs::BumperEvent::ConstPtr&);
+	void subscribeOdometry(const nav_msgs::OdometryConstPtr&);
+	void subscribeBumper(const kobuki_msgs::BumperEventConstPtr&);
 };
 
 }
 
-#endif /* WANDRIAN_RUN_INCLUDE_COMMON_CORE_HPP_ */
+#endif /* WANDRIAN_RUN_INCLUDE_CORE_HPP_ */

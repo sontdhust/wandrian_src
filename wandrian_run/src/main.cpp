@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
 	ros::init(argc, argv, "run");
 	Core core;
 	if (core.init()) {
-		core.spin();
+		core.run();
 	} else {
 		ROS_ERROR_STREAM("Couldn't initialize Core!");
 	}
