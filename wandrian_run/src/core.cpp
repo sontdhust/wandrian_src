@@ -5,17 +5,18 @@
  *      Author: sontd
  */
 
-#include "../include/core.hpp"
 #include <kobuki_msgs/MotorPower.h>
 #include <kobuki_msgs/KeyboardInput.h>
 #include <ecl/time.hpp>
+#include "../include/core.hpp"
 
 namespace wandrian {
 
 Core::Core() :
-		is_verbose(false), is_quitting(false), is_powered(false), is_zero_vel(true), is_logging(
-				false), file_descriptor(0), linear_vel_step(0), linear_vel_max(0), angular_vel_step(
-				0), angular_vel_max(0), twist(new geometry_msgs::Twist()) {
+		current_position(new Point(0, 0)), is_verbose(false), is_quitting(false), is_powered(
+				false), is_zero_vel(true), is_logging(false), file_descriptor(0), linear_vel_step(
+				0), linear_vel_max(0), angular_vel_step(0), angular_vel_max(0), twist(
+				new geometry_msgs::Twist()) {
 	tcgetattr(file_descriptor, &terminal); // get terminal properties
 }
 
@@ -27,12 +28,14 @@ bool Core::init() {
 	ros::NodeHandle nh("~");
 
 	nh.getParam("is_verbose", is_verbose);
+	nh.getParam("plan", plan);
 	nh.getParam("linear_vel_step", linear_vel_step);
 	nh.getParam("linear_vel_max", linear_vel_max);
 	nh.getParam("angular_vel_step", angular_vel_step);
 	nh.getParam("angular_vel_max", angular_vel_max);
 
 	ROS_INFO_STREAM("[Launch]: Using arg is_verbose(" << is_verbose << ")");
+	ROS_INFO_STREAM("[Launch]: Using arg plan(" << plan << ")");
 	ROS_INFO_STREAM(
 			"[Launch]: Using param linear_vel_step(" << linear_vel_step << ")");
 	ROS_INFO_STREAM(
@@ -69,7 +72,7 @@ bool Core::init() {
 			connected = false;
 			break;
 		} else {
-			ROS_WARN_STREAM(
+			ROS_FATAL_STREAM(
 					"[Connection]: Could not connect, trying again after 500ms...");
 			try {
 				millisleep(500);
@@ -123,6 +126,10 @@ void Core::run() {
 	threadKeyboard.join();
 }
 
+void Core::cover() {
+	// Override this method
+}
+
 void Core::startThreadKeyboard() {
 	struct termios raw;
 	memcpy(&raw, &terminal, sizeof(struct termios));
@@ -137,6 +144,7 @@ void Core::startThreadKeyboard() {
 	puts("---------------------------");
 	puts("p: Toggle motor power.");
 	puts("l: Toggle logging.");
+	puts("c: Start covering.");
 	puts("q: Quit.");
 	char c;
 	while (!is_quitting) {
@@ -171,7 +179,7 @@ void Core::processKeyboardInput(char c) {
 			ROS_INFO_STREAM(
 					"[Vel]: (" << twist->linear.x << ", " << twist->angular.z << ")");
 		} else {
-			ROS_WARN_STREAM("[Power]: Disabled");
+			ROS_FATAL_STREAM("[Power]: Disabled");
 		}
 		break;
 	case 'p':
@@ -183,6 +191,10 @@ void Core::processKeyboardInput(char c) {
 	case 'l':
 		is_logging = !is_logging;
 		ROS_INFO_STREAM("[Logging]: " << (is_logging ? "On" : "Off"));
+		break;
+	case 'c':
+		ROS_INFO_STREAM("[Cover]: " << "Start covering");
+		cover();
 		break;
 	case 'q':
 		is_quitting = true;
@@ -223,6 +235,8 @@ void Core::subscribeOdometry(const nav_msgs::OdometryConstPtr& odom) {
 	double oz = odom->pose.pose.orientation.w;
 	double angle = atan2(2 * (oy * ox + ow * oz),
 			ow * ow + ox * ox - oy * oy - oz * oz);
+	current_position->x = px;
+	current_position->y = py;
 	if (is_logging && is_verbose)
 		ROS_INFO_STREAM(
 				"[Odom]: Pos(" << px << "," << py << "); Angle(" << angle << ")");

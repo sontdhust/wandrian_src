@@ -25,11 +25,17 @@ class Core {
 
 public:
 	Core();
-	~Core();
+	virtual ~Core();
 	bool init();
 	void run();
 
+protected:
+	PointPtr current_position;
+	std::string plan;
+	virtual void cover();
+
 private:
+	// arg
 	bool is_verbose;
 
 	bool is_quitting;

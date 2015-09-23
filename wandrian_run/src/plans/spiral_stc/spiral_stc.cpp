@@ -5,10 +5,9 @@
  *      Author: sontd
  */
 
-#include "../../../include/plans/spiral_stc/spiral_stc.hpp"
-
 #include <stdio.h>
 #include <iostream>
+#include "../../../include/plans/spiral_stc/spiral_stc.hpp"
 
 namespace wandrian {
 namespace plans {
@@ -16,7 +15,7 @@ namespace spiral_stc {
 
 SpiralStc::SpiralStc(EnvironmentPtr environment, PointPtr starting_point,
 		const double sub_cell_size) :
-		environment(environment), sub_cell_size(sub_cell_size) {
+		environment(environment), sub_cell_size(sub_cell_size), go_behavior(NULL) {
 	// Initialize starting_cell
 	starting_cell = CellPtr(
 			new Cell(
@@ -33,6 +32,10 @@ SpiralStc::SpiralStc(EnvironmentPtr environment, PointPtr starting_point,
 	path.insert(path.end(), starting_point);
 }
 
+SpiralStc::~SpiralStc() {
+
+}
+
 void SpiralStc::cover() {
 	spiral_stc(starting_cell);
 }
@@ -41,7 +44,15 @@ std::list<PointPtr> SpiralStc::get_path() {
 	return path;
 }
 
+void SpiralStc::set_go_behavior(
+		boost::function<bool(VectorPtr, int)> go_behavior) {
+	this->go_behavior = go_behavior;
+}
+
 bool SpiralStc::go(VectorPtr direction, int step) {
+	if (go_behavior != NULL)
+		return go_behavior(direction, step);
+
 	PointPtr last_position = *(--path.end());
 	PointPtr new_position = PointPtr(
 			new Point(*last_position + *direction * step * sub_cell_size / 2));

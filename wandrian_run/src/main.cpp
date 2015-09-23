@@ -5,15 +5,15 @@
  *      Author: sontd
  */
 
-#include "../include/core.hpp"
+#include "../include/wandrian.hpp"
 
 using namespace wandrian;
 
 int main(int argc, char **argv) {
 	ros::init(argc, argv, "run");
-	Core core;
-	if (core.init()) {
-		core.run();
+	Wandrian wandrian;
+	if (wandrian.init()) {
+		wandrian.run();
 	} else {
 		ROS_ERROR_STREAM("Couldn't initialize Core!");
 	}
