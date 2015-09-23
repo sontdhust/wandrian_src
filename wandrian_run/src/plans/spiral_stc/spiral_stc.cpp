@@ -16,8 +16,7 @@ namespace spiral_stc {
 
 SpiralStc::SpiralStc(EnvironmentPtr environment, PointPtr starting_point,
 		const double sub_cell_size) :
-		environment(environment), is_bumper_pressing(false), sub_cell_size(
-				sub_cell_size), step_size(sub_cell_size / 2) {
+		environment(environment), sub_cell_size(sub_cell_size) {
 	// Initialize starting_cell
 	starting_cell = CellPtr(
 			new Cell(
@@ -42,20 +41,14 @@ std::list<PointPtr> SpiralStc::get_path() {
 	return path;
 }
 
-void SpiralStc::go(VectorPtr direction, int step) {
-//	for (std::set<Point*>::iterator p = path.begin(); p != path.end(); p++) {
-//		std::cout << (*p)->x << "," << (*p)->y << "; ";
-//	}
-//	std::cout << "\n";
-
+bool SpiralStc::go(VectorPtr direction, int step) {
 	PointPtr last_position = *(--path.end());
 	PointPtr new_position = PointPtr(
-			new Point(*last_position + *direction * step * step_size));
+			new Point(*last_position + *direction * step * sub_cell_size / 2));
 	path.insert(path.end(), new_position);
 	std::cout << "  p: " << new_position->x << "," << new_position->y << "; ("
 			<< last_position->x << "," << last_position->y << "; " << direction->x
 			<< "," << direction->y << "; " << step << ")\n";
-//	getchar();
 
 // Bumper event here
 // TODO: correctly check (now temporarily)
@@ -64,8 +57,7 @@ void SpiralStc::go(VectorPtr direction, int step) {
 			|| new_position->x <= space->get_center()->x - space->get_size() / 2
 			|| new_position->y >= space->get_center()->y + space->get_size() / 2
 			|| new_position->y <= space->get_center()->y - space->get_size() / 2) {
-		is_bumper_pressing = true;
-		return;
+		return false;
 	}
 	for (std::list<PolygonPtr>::iterator o = environment->obstacles.begin();
 			o != environment->obstacles.end(); o++) {
@@ -77,17 +69,15 @@ void SpiralStc::go(VectorPtr direction, int step) {
 						<= obstacle->get_center()->y + obstacle->get_size() / 2
 				&& new_position->y
 						>= obstacle->get_center()->y - obstacle->get_size() / 2) {
-			is_bumper_pressing = true;
-			return;
+			return false;
 		}
 	}
+	return true;
 }
 
 void SpiralStc::spiral_stc(CellPtr current) {
 	std::cout << "current-BEGIN: " << current->get_center()->x << ","
 			<< current->get_center()->y << "\n";
-//	if (current->get_center()->x == -15)
-//		getchar();
 	// TODO: correctly compute starting direction
 	VectorPtr direction = VectorPtr(
 			new Vector(
@@ -95,7 +85,9 @@ void SpiralStc::spiral_stc(CellPtr current) {
 							/ 2 / sub_cell_size));
 	int neighbors_count = 0;
 	// While current cell has a new obstacle-free neighboring cell
-	while (neighbors_count < 3) {
+	bool is_starting_cell = *(current->get_center())
+			== *(starting_cell->get_center());
+	while (neighbors_count < (is_starting_cell ? 4 : 3)) {
 		direction = direction->rotate_counterclockwise();
 		// Scan for the first new neighbor of current cell in counterclockwise order
 		CellPtr neighbor = CellPtr(
@@ -110,31 +102,29 @@ void SpiralStc::spiral_stc(CellPtr current) {
 		if (check(neighbor) == OLD_CELL) {
 			std::cout << " (OLD)\n";
 			// Go to next sub-cell
-			go(direction->rotate_counterclockwise(), sub_cell_size / step_size);
+			go(direction->rotate_counterclockwise(), 2);
 			continue;
 		} else {
 			std::cout << "\n";
 		}
-		go(direction, sub_cell_size / 2 / step_size);
-		if (is_bumper_pressing) {
+		if (!go(direction, 1)) { // Obstacle
 			std::cout << "    (BUMP)\n";
 			// Go back
-			path.erase(--path.end());
-			is_bumper_pressing = false;
+			go(direction->rotate_counterclockwise()->rotate_counterclockwise(), 1);
 			// Go to next sub-cell
-			go(direction->rotate_counterclockwise(), sub_cell_size / step_size);
-		} else {
+			go(direction->rotate_counterclockwise(), 2);
+		} else { // New free neighbor
 			neighbor->set_parent(current);
 			// Construct a spanning-tree edge
 			current->neighbors.insert(current->neighbors.end(), neighbor);
-			go(direction, sub_cell_size / 2 / step_size);
+			go(direction, 1);
 			spiral_stc(neighbor);
 		}
 	}
 	// Back to sub-cell of parent
-	if (*(current->get_center()) != *(starting_cell->get_center())) {
+	if (!is_starting_cell) {
 		direction = direction->rotate_counterclockwise();
-		go(direction, sub_cell_size / step_size);
+		go(direction, 2);
 	}
 	std::cout << "current-END: " << current->get_center()->x << ","
 			<< current->get_center()->y << "\n";

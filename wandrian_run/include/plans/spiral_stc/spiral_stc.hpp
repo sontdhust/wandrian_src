@@ -28,12 +28,10 @@ public:
 private:
 	EnvironmentPtr environment;
 	const double sub_cell_size; // = 'robot size' = 'cell size' / 2
-	const double step_size;
-	bool is_bumper_pressing;
 	CellPtr starting_cell;
 	std::list<PointPtr> path;
 
-	void go(VectorPtr, int);
+	bool go(VectorPtr, int);
 	void spiral_stc(CellPtr);
 	bool check(CellPtr);
 };

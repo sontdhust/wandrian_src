@@ -192,10 +192,6 @@ void Core::processKeyboardInput(char c) {
 	}
 }
 
-bool Core::go(PointPtr destination) {
-	return true;
-}
-
 void Core::enablePower() {
 	twist->linear.x = 0.0;
 	twist->angular.z = 0.0;

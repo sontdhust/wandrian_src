@@ -53,7 +53,6 @@ private:
 	void processKeyboardInput(char);
 
 	// Helpers
-	bool go(PointPtr);
 	void enablePower();
 	void disablePower();
 	void subscribeOdometry(const nav_msgs::OdometryConstPtr&);

@@ -122,14 +122,16 @@ int main(int argc, char **argv) {
 		for (std::list<PolygonPtr>::iterator p = obstacles.begin();
 				p != obstacles.end(); p++)
 			if (*((boost::static_pointer_cast<Cell>(*p))->get_center()) == *center
-					|| (center->x == 1 && center->y == 1)) {
+					|| (center->x == starting_point->x - 0.5
+							&& center->y == starting_point->y + 0.5)) {
 				valid = false;
 				break;
 			};
 		if (valid) {
 			obstacles.insert(obstacles.end(), CellPtr(new Cell(center, 2)));
-			std::cout << "  obstacles.insert(new Cell(new Point(" << center->x << ", "
-					<< center->y << "), 2));\n";
+			std::cout
+					<< "  obstacles.insert(obstacles.end(), CellPtr(new Cell(PointPtr(new Point("
+					<< center->x << ", " << center->y << ")), 2)));\n";
 		}
 	}
 	std::cout << "\n";

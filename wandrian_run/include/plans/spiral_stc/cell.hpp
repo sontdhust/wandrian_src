@@ -27,15 +27,12 @@ public:
 	Cell(PointPtr, double);
 	PointPtr get_center();
 	double get_size();
-	void set_state(bool);
-	bool get_state();
 	void set_parent(boost::shared_ptr<Cell>);
 	boost::shared_ptr<Cell> get_parent();
 
 private:
 	PointPtr center;
 	double size;
-	bool state;
 	boost::shared_ptr<Cell> parent;
 };
 
