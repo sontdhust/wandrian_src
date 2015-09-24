@@ -16,6 +16,7 @@
 #include <kobuki_msgs/BumperEvent.h>
 #include <yocs_controllers/default_controller.hpp> // not use but need for bumper event subscriber
 #include "../include/common/point.hpp"
+#include "../include/common/vector.hpp"
 
 using namespace wandrian::common;
 
@@ -26,17 +27,17 @@ class Core {
 public:
 	Core();
 	virtual ~Core();
-	bool init();
-	void run();
+	bool initialize();
+	void spin();
 
 protected:
 	PointPtr current_position;
-	std::string plan;
-	virtual void cover();
+	VectorPtr current_orientation;
+	std::string plan; // arg
+	virtual void run();
 
 private:
-	// arg
-	bool is_verbose;
+	bool is_verbose; // arg
 
 	bool is_quitting;
 	bool is_powered;

@@ -13,10 +13,10 @@
 namespace wandrian {
 
 Core::Core() :
-		current_position(new Point(0, 0)), is_verbose(false), is_quitting(false), is_powered(
-				false), is_zero_vel(true), is_logging(false), file_descriptor(0), linear_vel_step(
-				0), linear_vel_max(0), angular_vel_step(0), angular_vel_max(0), twist(
-				new geometry_msgs::Twist()) {
+		current_position(new Point(0, 0)), current_orientation(new Vector(0, 1)), is_verbose(
+				false), is_quitting(false), is_powered(false), is_zero_vel(true), is_logging(
+				false), file_descriptor(0), linear_vel_step(0), linear_vel_max(0), angular_vel_step(
+				0), angular_vel_max(0), twist(new geometry_msgs::Twist()) {
 	tcgetattr(file_descriptor, &terminal); // get terminal properties
 }
 
@@ -24,7 +24,7 @@ Core::~Core() {
 	tcsetattr(file_descriptor, TCSANOW, &terminal);
 }
 
-bool Core::init() {
+bool Core::initialize() {
 	ros::NodeHandle nh("~");
 
 	nh.getParam("is_verbose", is_verbose);
@@ -99,7 +99,7 @@ bool Core::init() {
 	return true;
 }
 
-void Core::run() {
+void Core::spin() {
 	ros::Rate loop_rate(10);
 
 	while (!is_quitting && ros::ok()) {
@@ -126,7 +126,7 @@ void Core::run() {
 	threadKeyboard.join();
 }
 
-void Core::cover() {
+void Core::run() {
 	// Override this method
 }
 
@@ -160,8 +160,8 @@ void Core::processKeyboardInput(char c) {
 	switch (c) {
 	case kobuki_msgs::KeyboardInput::KeyCode_Down:
 	case kobuki_msgs::KeyboardInput::KeyCode_Up:
-	case kobuki_msgs::KeyboardInput::KeyCode_Left:
 	case kobuki_msgs::KeyboardInput::KeyCode_Right:
+	case kobuki_msgs::KeyboardInput::KeyCode_Left:
 		if (is_powered) {
 			if (c == kobuki_msgs::KeyboardInput::KeyCode_Down
 					&& twist->linear.x >= -linear_vel_max) { // decrease linear vel
@@ -169,10 +169,10 @@ void Core::processKeyboardInput(char c) {
 			} else if (c == kobuki_msgs::KeyboardInput::KeyCode_Up
 					&& twist->linear.x <= linear_vel_max) { // increase linear vel
 				twist->linear.x += linear_vel_step;
-			} else if (c == kobuki_msgs::KeyboardInput::KeyCode_Left
+			} else if (c == kobuki_msgs::KeyboardInput::KeyCode_Right
 					&& twist->angular.z >= -angular_vel_max) { // decrease angular vel
 				twist->angular.z -= angular_vel_step;
-			} else if (c == kobuki_msgs::KeyboardInput::KeyCode_Right
+			} else if (c == kobuki_msgs::KeyboardInput::KeyCode_Left
 					&& twist->angular.z <= angular_vel_max) { // increase angular vel
 				twist->angular.z += angular_vel_step;
 			}
@@ -194,7 +194,7 @@ void Core::processKeyboardInput(char c) {
 		break;
 	case 'c':
 		ROS_INFO_STREAM("[Cover]: " << "Start covering");
-		cover();
+		run();
 		break;
 	case 'q':
 		is_quitting = true;
@@ -230,16 +230,19 @@ void Core::subscribeOdometry(const nav_msgs::OdometryConstPtr& odom) {
 	double px = odom->pose.pose.position.x;
 	double py = odom->pose.pose.position.y;
 	double ow = odom->pose.pose.orientation.w;
-	double ox = odom->pose.pose.orientation.y;
-	double oy = odom->pose.pose.orientation.z;
-	double oz = odom->pose.pose.orientation.w;
+	double ox = odom->pose.pose.orientation.x;
+	double oy = odom->pose.pose.orientation.y;
+	double oz = odom->pose.pose.orientation.z;
 	double angle = atan2(2 * (oy * ox + ow * oz),
 			ow * ow + ox * ox - oy * oy - oz * oz);
 	current_position->x = px;
 	current_position->y = py;
+	// FIXME: [Tmp]: Set initial orientation to (0, 1)
+	current_orientation->x = -2 * oz * ow;
+	current_orientation->y = ow * ow - oz * oz;
 	if (is_logging && is_verbose)
 		ROS_INFO_STREAM(
-				"[Odom]: Pos(" << px << "," << py << "); Angle(" << angle << ")");
+				"[Odom]: Pos(" << current_position->x << "," << current_position->y << "); " << "Ori(" << current_orientation->x << "," << current_orientation->y << ")");
 }
 
 void Core::subscribeBumper(const kobuki_msgs::BumperEventConstPtr& bumper) {

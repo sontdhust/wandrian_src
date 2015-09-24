@@ -14,18 +14,18 @@ using namespace wandrian::plans::spiral_stc;
 
 namespace wandrian {
 
-void Wandrian::cover() {
+void Wandrian::run() {
 	if (plan == "spiral_stc") {
-		SpiralStcPtr spiral_stc = SpiralStcPtr(
-				new SpiralStc(EnvironmentPtr(), current_position, SUB_CELL_SIZE));
-		spiral_stc->set_go_behavior(
-				boost::bind(&Wandrian::go_spiral_stc, this, _1, _2));
-		return spiral_stc->cover();
+		SpiralStc::initialize(current_position, SUB_CELL_SIZE);
+		go_behavior = boost::bind(&Wandrian::go_spiral_stc, this, _1, _2);
+		return SpiralStc::cover();
 	}
 }
 
-bool Wandrian::go_spiral_stc(VectorPtr direction, int step) {
+bool Wandrian::go_spiral_stc(VectorPtr orientation, int step) {
 	ROS_WARN("GO");
+
+	PointPtr last_position = *(--path.end());
 	return true;
 }
 

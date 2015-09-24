@@ -137,8 +137,9 @@ int main(int argc, char **argv) {
 	std::cout << "\n";
 
 	environment = EnvironmentPtr(new Environment(space, obstacles));
-	spiral_stc = SpiralStcPtr(
-			new SpiralStc(environment, starting_point, SUB_CELL_SIZE));
+	spiral_stc = SpiralStcPtr(new SpiralStc());
+	spiral_stc->initialize(starting_point, SUB_CELL_SIZE);
+	spiral_stc->set_environment(environment);
 	spiral_stc->cover();
 
 	run(argc, argv);

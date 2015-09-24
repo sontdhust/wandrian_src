@@ -12,8 +12,8 @@ using namespace wandrian;
 int main(int argc, char **argv) {
 	ros::init(argc, argv, "run");
 	Wandrian wandrian;
-	if (wandrian.init()) {
-		wandrian.run();
+	if (wandrian.initialize()) {
+		wandrian.spin();
 	} else {
 		ROS_ERROR_STREAM("Couldn't initialize Core!");
 	}
