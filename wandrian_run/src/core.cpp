@@ -13,10 +13,11 @@
 namespace wandrian {
 
 Core::Core() :
-		current_position(new Point(0, 0)), current_orientation(new Vector(0, 1)), is_verbose(
+		is_bumper_pressed(false), current_position(new Point(0, 0)), current_orientation(
+				new Vector(0, 1)), twist(new geometry_msgs::Twist()), linear_vel_step(
+				0), linear_vel_max(0), angular_vel_step(0), angular_vel_max(0), is_verbose(
 				false), is_quitting(false), is_powered(false), is_zero_vel(true), is_logging(
-				false), file_descriptor(0), linear_vel_step(0), linear_vel_max(0), angular_vel_step(
-				0), angular_vel_max(0), twist(new geometry_msgs::Twist()) {
+				false), file_descriptor(0) {
 	tcgetattr(file_descriptor, &terminal); // get terminal properties
 }
 
@@ -130,6 +131,12 @@ void Core::run() {
 	// Override this method
 }
 
+void Core::reset_vel() {
+	twist->linear.x = 0.0;
+	twist->angular.z = 0.0;
+	velocity_publisher.publish(twist);
+}
+
 void Core::startThreadKeyboard() {
 	struct termios raw;
 	memcpy(&raw, &terminal, sizeof(struct termios));
@@ -140,11 +147,11 @@ void Core::startThreadKeyboard() {
 	raw.c_cc[VEOF] = 2;
 	tcsetattr(file_descriptor, TCSANOW, &raw);
 
-	puts("Reading from keyboard");
+	puts("Available commands");
 	puts("---------------------------");
 	puts("p: Toggle motor power.");
 	puts("l: Toggle logging.");
-	puts("c: Start covering.");
+	puts("r: Start running.");
 	puts("q: Quit.");
 	char c;
 	while (!is_quitting) {
@@ -192,8 +199,8 @@ void Core::processKeyboardInput(char c) {
 		is_logging = !is_logging;
 		ROS_INFO_STREAM("[Logging]: " << (is_logging ? "On" : "Off"));
 		break;
-	case 'c':
-		ROS_INFO_STREAM("[Cover]: " << "Start covering");
+	case 'r':
+		ROS_INFO_STREAM("[Run]: " << "Start running");
 		run();
 		break;
 	case 'q':
@@ -205,9 +212,7 @@ void Core::processKeyboardInput(char c) {
 }
 
 void Core::enablePower() {
-	twist->linear.x = 0.0;
-	twist->angular.z = 0.0;
-	velocity_publisher.publish(twist);
+	reset_vel();
 	ROS_INFO("[Power]: Enabled");
 	kobuki_msgs::MotorPower power;
 	power.state = kobuki_msgs::MotorPower::ON;
@@ -216,9 +221,7 @@ void Core::enablePower() {
 }
 
 void Core::disablePower() {
-	twist->linear.x = 0.0;
-	twist->angular.z = 0.0;
-	velocity_publisher.publish(twist);
+	reset_vel();
 	ROS_INFO("[Power]: Disabled");
 	kobuki_msgs::MotorPower power;
 	power.state = kobuki_msgs::MotorPower::OFF;
@@ -237,9 +240,9 @@ void Core::subscribeOdometry(const nav_msgs::OdometryConstPtr& odom) {
 			ow * ow + ox * ox - oy * oy - oz * oz);
 	current_position->x = px;
 	current_position->y = py;
-	// FIXME: [Tmp]: Set initial orientation to (0, 1)
-	current_orientation->x = -2 * oz * ow;
-	current_orientation->y = ow * ow - oz * oz;
+	// FIXME: [Tmp]: Set initial orientation to (1, 0)
+	current_orientation->x = ow * ow - oz * oz;
+	current_orientation->y = 2 * oz * ow;
 	if (is_logging && is_verbose)
 		ROS_INFO_STREAM(
 				"[Odom]: Pos(" << current_position->x << "," << current_position->y << "); " << "Ori(" << current_orientation->x << "," << current_orientation->y << ")");
@@ -250,9 +253,11 @@ void Core::subscribeBumper(const kobuki_msgs::BumperEventConstPtr& bumper) {
 		std::string state;
 		switch (bumper->state) {
 		case kobuki_msgs::BumperEvent::PRESSED:
+			is_bumper_pressed = true;
 			state = "Pressed";
 			break;
 		case kobuki_msgs::BumperEvent::RELEASED:
+			is_bumper_pressed = false;
 			state = "Released";
 			break;
 		default:

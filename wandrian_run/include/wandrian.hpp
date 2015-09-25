@@ -16,15 +16,20 @@ using namespace wandrian::plans::spiral_stc;
 
 namespace wandrian {
 
-class Wandrian: public Core, public SpiralStc {
-
-public:
-	using Core::initialize;
+class Wandrian: public Core {
 
 protected:
 	void run();
 
 private:
+	SpiralStcPtr spiral_stc;
+
+	// Helpers
+	bool move(PointPtr);
+	void move_ahead();
+	void rotate(bool);
+
+	// Behavior
 	bool go_spiral_stc(VectorPtr, int);
 };
 

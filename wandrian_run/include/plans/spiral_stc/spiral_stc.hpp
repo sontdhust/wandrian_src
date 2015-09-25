@@ -26,14 +26,14 @@ public:
 	void initialize(PointPtr, double);
 	/* __attribute__((will_be_removed)) */
 	void set_environment(EnvironmentPtr);
+	double get_sub_cell_size();
 	void cover();
 
-protected:
-	double sub_cell_size; // = 'robot size' = 'cell size' / 2
-
 private:
+	/* __attribute__((will_be_removed)) */
 	EnvironmentPtr environment;
 	CellPtr starting_cell;
+	double sub_cell_size; // = 'robot size' = 'cell size' / 2
 
 	bool go(VectorPtr, int);
 	void spiral_stc(CellPtr);

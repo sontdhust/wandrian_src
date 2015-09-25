@@ -5,8 +5,8 @@
  *      Author: sontd
  */
 
-#include <stdio.h>
-#include <iostream>
+//#include <stdio.h>
+//#include <iostream>
 #include "../../../include/plans/spiral_stc/spiral_stc.hpp"
 
 namespace wandrian {
@@ -15,11 +15,9 @@ namespace spiral_stc {
 
 SpiralStc::SpiralStc() :
 		sub_cell_size(0) {
-
 }
 
 SpiralStc::~SpiralStc() {
-
 }
 
 void SpiralStc::initialize(PointPtr starting_point, double sub_cell_size) {
@@ -42,6 +40,10 @@ void SpiralStc::initialize(PointPtr starting_point, double sub_cell_size) {
 
 void SpiralStc::set_environment(EnvironmentPtr environment) {
 	this->environment = environment;
+}
+
+double SpiralStc::get_sub_cell_size() {
+	return sub_cell_size;
 }
 
 void SpiralStc::cover() {
@@ -123,7 +125,7 @@ void SpiralStc::spiral_stc(CellPtr current) {
 		}
 		if (!go(orientation, 1)) { // Obstacle
 			std::cout << "    (BUMP)\n";
-			// Go back
+				// Go back
 			go(orientation->rotate_counterclockwise()->rotate_counterclockwise(), 1);
 			// Go to next sub-cell
 			go(orientation->rotate_counterclockwise(), 2);

@@ -31,10 +31,15 @@ public:
 	void spin();
 
 protected:
+	bool is_bumper_pressed;
 	PointPtr current_position;
 	VectorPtr current_orientation;
+	geometry_msgs::TwistPtr twist;
+	double linear_vel_step, linear_vel_max, angular_vel_step, angular_vel_max;
 	std::string plan; // arg
+
 	virtual void run();
+	void reset_vel();
 
 private:
 	bool is_verbose; // arg
@@ -44,11 +49,9 @@ private:
 	bool is_zero_vel; // avoid zero-vel messages from the beginning
 	bool is_logging;
 	int file_descriptor;
-	double linear_vel_step, linear_vel_max, angular_vel_step, angular_vel_max;
 
 	struct termios terminal;
 	ecl::Thread threadKeyboard;
-	geometry_msgs::TwistPtr twist;
 
 	ros::Publisher motor_power_publisher;
 	ros::Publisher velocity_publisher;

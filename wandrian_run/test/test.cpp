@@ -87,7 +87,7 @@ void display() {
 
 	// Spiral STC covering path
 	glColor3ub(0, 255, 0);
-	draw(spiral_stc->get_path(), GL_LINE_STRIP);
+	draw(spiral_stc->path, GL_LINE_STRIP);
 
 	glutSwapBuffers();
 }
@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
 	CellPtr space = CellPtr(new Cell(PointPtr(new Point(0, 0)), 40));
 	std::list<PolygonPtr> obstacles;
 
-	std::cout << "[Obstacles]:\n";
+//	std::cout << "[Obstacles]:\n";
 	std::srand(std::time(0));
 
 	starting_point = PointPtr(
@@ -129,12 +129,12 @@ int main(int argc, char **argv) {
 			};
 		if (valid) {
 			obstacles.insert(obstacles.end(), CellPtr(new Cell(center, 2)));
-			std::cout
-					<< "  obstacles.insert(obstacles.end(), CellPtr(new Cell(PointPtr(new Point("
-					<< center->x << ", " << center->y << ")), 2)));\n";
+//			std::cout
+//					<< "  obstacles.insert(obstacles.end(), CellPtr(new Cell(PointPtr(new Point("
+//					<< center->x << ", " << center->y << ")), 2)));\n";
 		}
 	}
-	std::cout << "\n";
+//	std::cout << "\n";
 
 	environment = EnvironmentPtr(new Environment(space, obstacles));
 	spiral_stc = SpiralStcPtr(new SpiralStc());

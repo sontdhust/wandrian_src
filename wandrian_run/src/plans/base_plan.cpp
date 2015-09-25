@@ -14,8 +14,9 @@ BasePlan::~BasePlan() {
 	// Override this method
 }
 
-std::list<PointPtr> BasePlan::get_path() {
-	return path;
+void BasePlan::set_go_behavior(
+		boost::function<bool(VectorPtr, int)> go_behavior) {
+	this->go_behavior = go_behavior;
 }
 
 void BasePlan::cover() {

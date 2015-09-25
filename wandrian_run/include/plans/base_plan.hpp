@@ -22,11 +22,11 @@ class BasePlan {
 
 public:
 	virtual ~BasePlan();
-	std::list<PointPtr> get_path();
+	void set_go_behavior(boost::function<bool(VectorPtr, int)>);
 	virtual void cover();
+	std::list<PointPtr> path;
 
 protected:
-	std::list<PointPtr> path;
 	boost::function<bool(VectorPtr, int)> go_behavior;
 };
 
