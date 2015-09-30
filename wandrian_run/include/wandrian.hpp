@@ -27,6 +27,7 @@ private:
 	// Helpers
 	bool move(PointPtr);
 	void move_ahead();
+	void rotate(PointPtr);
 	void rotate(bool);
 
 	// Behavior

@@ -15,9 +15,9 @@ namespace wandrian {
 Core::Core() :
 		is_bumper_pressed(false), current_position(new Point(0, 0)), current_orientation(
 				new Vector(0, 1)), twist(new geometry_msgs::Twist()), linear_vel_step(
-				0), linear_vel_max(0), angular_vel_step(0), angular_vel_max(0), is_verbose(
-				false), is_quitting(false), is_powered(false), is_zero_vel(true), is_logging(
-				false), file_descriptor(0) {
+				0), linear_vel_max(0), angular_vel_step(0), angular_vel_max(0), robot_size(
+				0), is_verbose(false), is_quitting(false), is_powered(false), is_zero_vel(
+				true), is_logging(false), file_descriptor(0) {
 	tcgetattr(file_descriptor, &terminal); // get terminal properties
 }
 
@@ -30,6 +30,7 @@ bool Core::initialize() {
 
 	nh.getParam("is_verbose", is_verbose);
 	nh.getParam("plan", plan);
+	nh.getParam("robot_size", robot_size);
 	nh.getParam("linear_vel_step", linear_vel_step);
 	nh.getParam("linear_vel_max", linear_vel_max);
 	nh.getParam("angular_vel_step", angular_vel_step);
@@ -37,6 +38,7 @@ bool Core::initialize() {
 
 	ROS_INFO_STREAM("[Launch]: Using arg is_verbose(" << is_verbose << ")");
 	ROS_INFO_STREAM("[Launch]: Using arg plan(" << plan << ")");
+	ROS_INFO_STREAM("[Launch]: Using arg robot_size(" << robot_size << ")");
 	ROS_INFO_STREAM(
 			"[Launch]: Using param linear_vel_step(" << linear_vel_step << ")");
 	ROS_INFO_STREAM(
@@ -131,7 +133,7 @@ void Core::run() {
 	// Override this method
 }
 
-void Core::reset_vel() {
+void Core::stop() {
 	twist->linear.x = 0.0;
 	twist->angular.z = 0.0;
 	velocity_publisher.publish(twist);
@@ -212,7 +214,7 @@ void Core::processKeyboardInput(char c) {
 }
 
 void Core::enablePower() {
-	reset_vel();
+	stop();
 	ROS_INFO("[Power]: Enabled");
 	kobuki_msgs::MotorPower power;
 	power.state = kobuki_msgs::MotorPower::ON;
@@ -221,7 +223,7 @@ void Core::enablePower() {
 }
 
 void Core::disablePower() {
-	reset_vel();
+	stop();
 	ROS_INFO("[Power]: Disabled");
 	kobuki_msgs::MotorPower power;
 	power.state = kobuki_msgs::MotorPower::OFF;

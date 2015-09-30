@@ -1,6 +1,7 @@
 <launch>
   <arg name="is_verbose"/>
   <arg name="plan"/>
+  <arg name="robot_size"/>
   
   <node pkg="wandrian_run" type="run" name="run" output="screen">
     <remap from="run/motor_power" to="mobile_base/commands/motor_power"/>
@@ -10,6 +11,7 @@
 
 	<param name="is_verbose" value="$(arg is_verbose)" type="bool"/>
 	<param name="plan" value="$(arg plan)" type="string"/>
+	<param name="robot_size" value="$(arg robot_size)" type="double"/>
 	
     <param name="linear_vel_step" value="0.2" type="double"/>
     <param name="linear_vel_max" value="2" type="double"/>

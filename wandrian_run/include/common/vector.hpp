@@ -24,7 +24,7 @@ struct Vector {
 
 typedef boost::shared_ptr<Vector> VectorPtr;
 
-inline double operator %(const Vector &v1, const Vector &v2) {
+inline double operator ^(const Vector &v1, const Vector &v2) {
 	return atan2(v1.y, v1.x) - atan2(v2.y, v2.x);
 }
 
@@ -36,8 +36,8 @@ inline Vector operator /(const Vector &v, const double &k) {
 	return Vector(v.x / k, v.y / k);
 }
 
-inline Vector operator -(const Point &a, const Point &b) {
-	return Vector(a.x - b.x, a.y - b.y);
+inline Vector operator -(const Point &p1, const Point &p2) {
+	return Vector(p1.x - p2.x, p1.y - p2.y);
 }
 
 inline Point operator +(const Point &p, const Vector &v) {
