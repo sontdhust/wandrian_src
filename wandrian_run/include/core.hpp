@@ -37,13 +37,15 @@ protected:
 	geometry_msgs::TwistPtr twist;
 	double linear_vel_step, linear_vel_max, angular_vel_step, angular_vel_max;
 	std::string plan; // arg
-	double robot_size;
+	double robot_size; // arg
 
 	virtual void run();
 	void stop();
 
 private:
 	bool is_verbose; // arg
+	double starting_point_x; // arg
+	double starting_point_y; // arg
 
 	bool is_quitting;
 	bool is_powered;

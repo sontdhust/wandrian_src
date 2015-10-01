@@ -25,7 +25,9 @@ struct Vector {
 typedef boost::shared_ptr<Vector> VectorPtr;
 
 inline double operator ^(const Vector &v1, const Vector &v2) {
-	return atan2(v1.y, v1.x) - atan2(v2.y, v2.x);
+	double a1 = atan2(v1.y, v1.x) - atan2(v2.y, v2.x);
+	double a2 = (a1 > 0) ? a1 - 2 * M_PI : a1 + 2 * M_PI;
+	return (std::abs(a1) < std::abs(a2)) ? a1 : a2;
 }
 
 inline Vector operator *(const Vector &v, const double &k) {

@@ -16,8 +16,9 @@ Core::Core() :
 		is_bumper_pressed(false), current_position(new Point(0, 0)), current_orientation(
 				new Vector(0, 1)), twist(new geometry_msgs::Twist()), linear_vel_step(
 				0), linear_vel_max(0), angular_vel_step(0), angular_vel_max(0), robot_size(
-				0), is_verbose(false), is_quitting(false), is_powered(false), is_zero_vel(
-				true), is_logging(false), file_descriptor(0) {
+				0), is_verbose(false), starting_point_x(0), starting_point_y(0), is_quitting(
+				false), is_powered(false), is_zero_vel(true), is_logging(false), file_descriptor(
+				0) {
 	tcgetattr(file_descriptor, &terminal); // get terminal properties
 }
 
@@ -31,6 +32,9 @@ bool Core::initialize() {
 	nh.getParam("is_verbose", is_verbose);
 	nh.getParam("plan", plan);
 	nh.getParam("robot_size", robot_size);
+	nh.getParam("starting_point_x", starting_point_x);
+	nh.getParam("starting_point_y", starting_point_y);
+
 	nh.getParam("linear_vel_step", linear_vel_step);
 	nh.getParam("linear_vel_max", linear_vel_max);
 	nh.getParam("angular_vel_step", angular_vel_step);
@@ -39,6 +43,11 @@ bool Core::initialize() {
 	ROS_INFO_STREAM("[Launch]: Using arg is_verbose(" << is_verbose << ")");
 	ROS_INFO_STREAM("[Launch]: Using arg plan(" << plan << ")");
 	ROS_INFO_STREAM("[Launch]: Using arg robot_size(" << robot_size << ")");
+	ROS_INFO_STREAM(
+			"[Launch]: Using arg starting_point_x(" << starting_point_x << ")");
+	ROS_INFO_STREAM(
+			"[Launch]: Using arg starting_point_y(" << starting_point_y << ")");
+
 	ROS_INFO_STREAM(
 			"[Launch]: Using param linear_vel_step(" << linear_vel_step << ")");
 	ROS_INFO_STREAM(
@@ -238,10 +247,8 @@ void Core::subscribeOdometry(const nav_msgs::OdometryConstPtr& odom) {
 	double ox = odom->pose.pose.orientation.x;
 	double oy = odom->pose.pose.orientation.y;
 	double oz = odom->pose.pose.orientation.z;
-	double angle = atan2(2 * (oy * ox + ow * oz),
-			ow * ow + ox * ox - oy * oy - oz * oz);
-	current_position->x = px;
-	current_position->y = py;
+	current_position->x = px + starting_point_x;
+	current_position->y = py + starting_point_y;
 	// FIXME: [Tmp]: Set initial orientation to (1, 0)
 	current_orientation->x = ow * ow - oz * oz;
 	current_orientation->y = 2 * oz * ow;
