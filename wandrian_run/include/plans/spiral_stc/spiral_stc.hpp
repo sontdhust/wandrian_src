@@ -27,15 +27,20 @@ public:
 	/* __attribute__((will_be_removed)) */
 	void set_environment(EnvironmentPtr);
 	double get_sub_cell_size();
+	void set_behavior_go_with(boost::function<bool(VectorPtr, int)>);
 	void cover();
+
+protected:
+	bool go_to(PointPtr);
 
 private:
 	/* __attribute__((will_be_removed)) */
 	EnvironmentPtr environment;
 	CellPtr starting_cell;
 	double sub_cell_size; // = 'robot size' = 'cell size' / 2
+	boost::function<bool(VectorPtr, int)> behavior_go_with;
 
-	bool go(VectorPtr, int);
+	bool go_with(VectorPtr, int);
 	void spiral_stc(CellPtr);
 	bool check(CellPtr);
 };

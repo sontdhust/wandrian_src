@@ -1,67 +1,15 @@
 <?xml version="1.0" ?>
 <sdf version='1.4'>
   <world name='default'>
-    <light name='sun' type='directional'>
-      <cast_shadows>1</cast_shadows>
-      <pose>0 0 10 0 -0 0</pose>
-      <diffuse>0.8 0.8 0.8 1</diffuse>
-      <specular>0.2 0.2 0.2 1</specular>
-      <attenuation>
-        <range>1000</range>
-        <constant>0.9</constant>
-        <linear>0.01</linear>
-        <quadratic>0.001</quadratic>
-      </attenuation>
-      <direction>-0.5 0.1 -0.9</direction>
-    </light>
-    <model name='ground_plane'>
-      <static>1</static>
-      <link name='link'>
-        <collision name='collision'>
-          <geometry>
-            <plane>
-              <normal>0 0 1</normal>
-              <size>100 100</size>
-            </plane>
-          </geometry>
-          <surface>
-            <friction>
-              <ode>
-                <mu>100</mu>
-                <mu2>50</mu2>
-              </ode>
-            </friction>
-            <bounce/>
-            <contact>
-              <ode/>
-            </contact>
-          </surface>
-          <max_contacts>10</max_contacts>
-        </collision>
-        <visual name='visual'>
-          <cast_shadows>0</cast_shadows>
-          <geometry>
-            <plane>
-              <normal>0 0 1</normal>
-              <size>100 100</size>
-            </plane>
-          </geometry>
-          <material>
-            <script>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Grey</name>
-            </script>
-          </material>
-        </visual>
-        <velocity_decay>
-          <linear>0</linear>
-          <angular>0</angular>
-        </velocity_decay>
-        <self_collide>0</self_collide>
-        <kinematic>0</kinematic>
-        <gravity>1</gravity>
-      </link>
-    </model>
+    <!-- A global light source -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+    <!-- A ground plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+    <!-- Own physics settings to speed up simulation -->
     <physics type='ode'>
       <max_step_size>0.01</max_step_size>
       <real_time_factor>1</real_time_factor>
@@ -84,14 +32,14 @@
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -230,20 +178,20 @@
         <gravity>1</gravity>
       </link>
       <pose>1.75 -2.1016 0 0 0 0</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_2'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -382,20 +330,20 @@
         <gravity>1</gravity>
       </link>
       <pose>1.25 -2.1016 0 0 0 0</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_3'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -534,20 +482,20 @@
         <gravity>1</gravity>
       </link>
       <pose>0.75 -2.1016 0 0 0 0</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_4'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -686,20 +634,20 @@
         <gravity>1</gravity>
       </link>
       <pose>0.25 -2.1016 0 0 0 0</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_5'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -838,20 +786,20 @@
         <gravity>1</gravity>
       </link>
       <pose>-0.25 -2.1016 0 0 0 0</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_6'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -990,20 +938,20 @@
         <gravity>1</gravity>
       </link>
       <pose>-0.75 -2.1016 0 0 0 0</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_7'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -1142,20 +1090,20 @@
         <gravity>1</gravity>
       </link>
         <pose>-1.25 -2.1016 0 0 0 0</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_8'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -1294,20 +1242,20 @@
         <gravity>1</gravity>
       </link>
       <pose>-1.75 -2.1016 0 0 0 0</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_9'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -1446,20 +1394,20 @@
         <gravity>1</gravity>
       </link>
       <pose>-2.1016 -1.75 0 0 0 -1.570796</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_10'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -1598,20 +1546,20 @@
         <gravity>1</gravity>
       </link>
       <pose>-2.1016 -1.25 0 0 0 -1.570796</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_11'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -1750,20 +1698,20 @@
         <gravity>1</gravity>
       </link>
       <pose>-2.1016 -0.75 0 0 0 -1.570796</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_12'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -1902,20 +1850,20 @@
         <gravity>1</gravity>
       </link>
       <pose>-2.1016 -0.25 0 0 0 -1.570796</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_13'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -2054,20 +2002,20 @@
         <gravity>1</gravity>
       </link>
       <pose>-2.1016 0.25 0 0 0 -1.570796</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_14'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -2206,20 +2154,20 @@
         <gravity>1</gravity>
       </link>
       <pose>-2.1016 0.75 0 0 0 -1.570796</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_15'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -2358,20 +2306,20 @@
         <gravity>1</gravity>
       </link>
       <pose>-2.1016 1.25 0 0 0 -1.570796</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_16'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -2510,20 +2458,20 @@
         <gravity>1</gravity>
       </link>
       <pose>-2.1016 1.75 0 0 0 -1.570796</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_17'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -2662,20 +2610,20 @@
         <gravity>1</gravity>
       </link>
       <pose>-1.75 2.1016 0 0 0 0</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_18'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -2814,20 +2762,20 @@
         <gravity>1</gravity>
       </link>
       <pose>-1.25 2.1016 0 0 0 0</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_19'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -2966,20 +2914,20 @@
         <gravity>1</gravity>
       </link>
       <pose>-0.75 2.1016 0 0 0 0</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_20'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -3118,20 +3066,20 @@
         <gravity>1</gravity>
       </link>
       <pose>-0.25 2.1016 0 0 0 0</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_21'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -3270,20 +3218,20 @@
         <gravity>1</gravity>
       </link>
       <pose>0.25 2.1016 0 0 0 0</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_22'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -3422,20 +3370,20 @@
         <gravity>1</gravity>
       </link>
       <pose>0.75 2.1016 0 0 0 0</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_23'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -3574,20 +3522,20 @@
         <gravity>1</gravity>
       </link>
       <pose>1.25 2.1016 0 0 0 0</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_24'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -3726,20 +3674,20 @@
         <gravity>1</gravity>
       </link>
       <pose>1.75 2.1016 0 0 0 0</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_25'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -3878,20 +3826,20 @@
         <gravity>1</gravity>
       </link>
       <pose>2.1016 1.75 0 0 0 -1.570796</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_26'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -4030,20 +3978,20 @@
         <gravity>1</gravity>
       </link>
       <pose>2.1016 1.25 0 0 0 -1.570796</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_27'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -4182,20 +4130,20 @@
         <gravity>1</gravity>
       </link>
       <pose>2.1016 0.75 0 0 0 -1.570796</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_28'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -4334,20 +4282,20 @@
         <gravity>1</gravity>
       </link>
       <pose>2.1016 0.25 0 0 0 -1.570796</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_29'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -4486,20 +4434,20 @@
         <gravity>1</gravity>
       </link>
       <pose>2.1016 -0.25 0 0 0 -1.570796</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_30'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -4638,20 +4586,20 @@
         <gravity>1</gravity>
       </link>
       <pose>2.1016 -0.75 0 0 0 -1.570796</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_31'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -4790,20 +4738,20 @@
         <gravity>1</gravity>
       </link>
       <pose>2.1016 -1.25 0 0 0 -1.570796</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <model name='cinder_block_32'>
       <link name='link'>
         <inertial>
           <pose>0 0 0.1016 0 -0 0</pose>
-          <mass>5</mass>
+          <mass>50</mass>
           <inertia>
-            <ixx>0.028705</ixx>
+            <ixx>0</ixx>
             <ixy>0</ixy>
-            <iyy>0.073708</iyy>
+            <iyy>0</iyy>
             <ixz>0</ixz>
             <iyz>0</iyz>
-            <izz>0.06908</izz>
+            <izz>0</izz>
           </inertia>
         </inertial>
         <visual name='visual'>
@@ -4942,7 +4890,7 @@
         <gravity>1</gravity>
       </link>
       <pose>2.1016 -1.75 0 0 0 -1.570796</pose>
-      <static>1</static>
+      <static>0</static>
     </model>
     <gui fullscreen='0'>
       <camera name='user_camera'>

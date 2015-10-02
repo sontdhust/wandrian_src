@@ -16,7 +16,7 @@ Core::Core() :
 		is_bumper_pressed(false), current_position(new Point(0, 0)), current_orientation(
 				new Vector(0, 1)), twist(new geometry_msgs::Twist()), linear_vel_step(
 				0), linear_vel_max(0), angular_vel_step(0), angular_vel_max(0), robot_size(
-				0), is_verbose(false), starting_point_x(0), starting_point_y(0), is_quitting(
+				0), starting_point_x(0), starting_point_y(0), is_verbose(false), is_quitting(
 				false), is_powered(false), is_zero_vel(true), is_logging(false), file_descriptor(
 				0) {
 	tcgetattr(file_descriptor, &terminal); // get terminal properties
@@ -134,6 +134,7 @@ void Core::spin() {
 		// just in case we got here not via a keyboard quit request
 		is_quitting = true;
 		threadKeyboard.cancel();
+		threadRun.cancel();
 	}
 	threadKeyboard.join();
 }
@@ -212,7 +213,7 @@ void Core::processKeyboardInput(char c) {
 		break;
 	case 'r':
 		ROS_INFO_STREAM("[Run]: " << "Start running");
-		run();
+		threadRun.start(&Core::startThreadRun, *this);
 		break;
 	case 'q':
 		is_quitting = true;
@@ -220,6 +221,10 @@ void Core::processKeyboardInput(char c) {
 	default:
 		break;
 	}
+}
+
+void Core::startThreadRun() {
+	run();
 }
 
 void Core::enablePower() {
@@ -273,7 +278,7 @@ void Core::subscribeBumper(const kobuki_msgs::BumperEventConstPtr& bumper) {
 			state = "Unknown";
 			break;
 		}
-		ROS_INFO_STREAM("[Bumper]: State(" << state << ")");
+		ROS_WARN_STREAM("[Bumper]: State(" << state << ")");
 	}
 }
 

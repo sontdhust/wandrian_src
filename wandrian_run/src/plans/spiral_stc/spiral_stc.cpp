@@ -46,13 +46,28 @@ double SpiralStc::get_sub_cell_size() {
 	return sub_cell_size;
 }
 
+void SpiralStc::set_behavior_go_with(
+		boost::function<bool(VectorPtr, int)> behavior_go_with) {
+	this->behavior_go_with = behavior_go_with;
+}
+
 void SpiralStc::cover() {
 	spiral_stc(starting_cell);
 }
 
-bool SpiralStc::go(VectorPtr orientation, int step) {
-	if (go_behavior != NULL)
-		return go_behavior(orientation, step);
+bool SpiralStc::go_to(PointPtr position) {
+	// Override this method
+	if (behavior_go_to != NULL)
+		return behavior_go_to(position);
+
+	path.insert(path.end(), position);
+	// TODO: Need to check bumper here?
+	return true;
+}
+
+bool SpiralStc::go_with(VectorPtr orientation, int step) {
+	if (behavior_go_with != NULL)
+		return behavior_go_with(orientation, step);
 
 	PointPtr last_position = *(--path.end());
 	PointPtr new_position = PointPtr(
@@ -62,8 +77,8 @@ bool SpiralStc::go(VectorPtr orientation, int step) {
 			<< last_position->x << "," << last_position->y << "; " << orientation->x
 			<< "," << orientation->y << "; " << step << ")\n";
 
-// Bumper event here
-// TODO: correctly check (now temporarily)
+	// Bumper event here
+	// TODO: Correctly check (now temporarily)
 	if (environment) {
 		CellPtr space = boost::static_pointer_cast<Cell>(environment->space);
 		if (new_position->x >= space->get_center()->x + space->get_size() / 2
@@ -93,7 +108,7 @@ bool SpiralStc::go(VectorPtr orientation, int step) {
 void SpiralStc::spiral_stc(CellPtr current) {
 	std::cout << "current-BEGIN: " << current->get_center()->x << ","
 			<< current->get_center()->y << "\n";
-	// TODO: correctly compute starting orientation
+	// TODO: Correctly compute starting orientation
 	VectorPtr orientation = VectorPtr(
 			new Vector(
 					(*(current->get_parent()->get_center()) - *(current->get_center()))
@@ -118,29 +133,29 @@ void SpiralStc::spiral_stc(CellPtr current) {
 		if (check(neighbor) == OLD_CELL) {
 			std::cout << " (OLD)\n";
 			// Go to next sub-cell
-			go(orientation->rotate_counterclockwise(), 2);
+			go_with(orientation->rotate_counterclockwise(), 2);
 			continue;
 		} else {
 			std::cout << "\n";
 		}
-		if (!go(orientation, 1)) { // Obstacle
+		if (!go_with(orientation, 1)) { // Obstacle
 			std::cout << "    (BUMP)\n";
-				// Go back
-			go(orientation->rotate_counterclockwise()->rotate_counterclockwise(), 1);
+			// Go back
+			go_to(*(----path.end()));
 			// Go to next sub-cell
-			go(orientation->rotate_counterclockwise(), 2);
+			go_with(orientation->rotate_counterclockwise(), 2);
 		} else { // New free neighbor
 			neighbor->set_parent(current);
 			// Construct a spanning-tree edge
 			current->neighbors.insert(current->neighbors.end(), neighbor);
-			go(orientation, 1);
+			go_with(orientation, 1);
 			spiral_stc(neighbor);
 		}
 	}
 	// Back to sub-cell of parent
 	if (!is_starting_cell) {
 		orientation = orientation->rotate_counterclockwise();
-		go(orientation, 2);
+		go_with(orientation, 2);
 	}
 	std::cout << "current-END: " << current->get_center()->x << ","
 			<< current->get_center()->y << "\n";

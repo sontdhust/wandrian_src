@@ -21,13 +21,16 @@ namespace plans {
 class BasePlan {
 
 public:
-	virtual ~BasePlan();
-	void set_go_behavior(boost::function<bool(VectorPtr, int)>);
-	virtual void cover();
 	std::list<PointPtr> path;
 
+	virtual ~BasePlan();
+	void set_behavior_go_to(boost::function<bool(PointPtr)>);
+	virtual void cover();
+
 protected:
-	boost::function<bool(VectorPtr, int)> go_behavior;
+	boost::function<bool(PointPtr)> behavior_go_to;
+
+	virtual bool go_to(PointPtr);
 };
 
 }

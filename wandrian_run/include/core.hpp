@@ -38,14 +38,14 @@ protected:
 	double linear_vel_step, linear_vel_max, angular_vel_step, angular_vel_max;
 	std::string plan; // arg
 	double robot_size; // arg
+	double starting_point_x; // arg
+	double starting_point_y; // arg
 
 	virtual void run();
 	void stop();
 
 private:
 	bool is_verbose; // arg
-	double starting_point_x; // arg
-	double starting_point_y; // arg
 
 	bool is_quitting;
 	bool is_powered;
@@ -55,6 +55,7 @@ private:
 
 	struct termios terminal;
 	ecl::Thread threadKeyboard;
+	ecl::Thread threadRun;
 
 	ros::Publisher motor_power_publisher;
 	ros::Publisher velocity_publisher;
@@ -64,6 +65,7 @@ private:
 	// Thread handlers
 	void startThreadKeyboard();
 	void processKeyboardInput(char);
+	void startThreadRun();
 
 	// Helpers
 	void enablePower();

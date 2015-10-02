@@ -14,13 +14,20 @@ BasePlan::~BasePlan() {
 	// Override this method
 }
 
-void BasePlan::set_go_behavior(
-		boost::function<bool(VectorPtr, int)> go_behavior) {
-	this->go_behavior = go_behavior;
+void BasePlan::set_behavior_go_to(
+		boost::function<bool(PointPtr)> behavior_go_to) {
+	this->behavior_go_to = behavior_go_to;
 }
 
 void BasePlan::cover() {
 	// Override this method
+}
+
+bool BasePlan::go_to(PointPtr position) {
+	// Override this method
+	if (behavior_go_to != NULL)
+		return behavior_go_to(position);
+	return true;
 }
 
 }

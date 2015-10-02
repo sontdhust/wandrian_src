@@ -4,9 +4,9 @@
   <arg name="robot_size"/>
   <arg name="starting_point_x"/>
   <arg name="starting_point_y"/>
+  <arg name="robot_name" value="mobile_base"/>
 
   <!-- Spawns Kobuki inside a Gazebo simulation -->
-  <arg name="robot_name" value="mobile_base"/>
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find kobuki_description)/urdf/kobuki_standalone.urdf.xacro'"/>
   <node pkg="gazebo_ros" type="spawn_model" name="spawn_$(arg robot_name)" args="-x $(arg starting_point_x) -y $(arg starting_point_y) -z 0 -unpause -urdf -param robot_description -model $(arg robot_name)" respawn="false">
   </node>

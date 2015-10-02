@@ -19,18 +19,21 @@
 namespace wandrian {
 
 void Wandrian::run() {
+	go_to(PointPtr(new Point(starting_point_x, starting_point_y)));
 	if (plan == "spiral_stc") {
 		spiral_stc = SpiralStcPtr(new SpiralStc());
 		spiral_stc->initialize(current_position, robot_size);
-		spiral_stc->set_go_behavior(
-				boost::bind(&Wandrian::go_spiral_stc, this, _1, _2));
+		spiral_stc->set_behavior_go_with(
+				boost::bind(&Wandrian::spiral_stc_go_with, this, _1, _2));
+		spiral_stc->set_behavior_go_to(
+				boost::bind(&Wandrian::spiral_stc_go_to, this, _1));
 		return spiral_stc->cover();
 	}
 }
 
-bool Wandrian::move(PointPtr new_position) {
+bool Wandrian::go_to(PointPtr new_position) {
 	rotate(new_position);
-	move_ahead();
+	move_forward();
 	while (true) {
 		// Check current_position + k * current_orientation == new_position
 		Vector direction_vector = (*new_position - *current_position)
@@ -41,7 +44,7 @@ bool Wandrian::move(PointPtr new_position) {
 						< EPS_ORI_TO_MOVE)) {
 			stop();
 			rotate(new_position);
-			move_ahead();
+			move_forward();
 		}
 
 		if (!is_bumper_pressed) {
@@ -50,13 +53,15 @@ bool Wandrian::move(PointPtr new_position) {
 				stop();
 				break;
 			}
-		} else
+		} else {
+			stop();
 			return false;
+		}
 	}
 	return true;
 }
 
-void Wandrian::move_ahead() {
+void Wandrian::move_forward() {
 	twist->linear.x = linear_vel_step;
 }
 
@@ -65,12 +70,15 @@ void Wandrian::rotate(PointPtr new_position) {
 			new Vector(
 					(*new_position - *current_position)
 							/ (*new_position % *current_position)));
+	double a1 = atan2(new_orientation->y, new_orientation->x)
+			- atan2(current_orientation->y, current_orientation->x);
+	double a2 = (a1 > 0) ? a1 - 2 * M_PI : a1 + 2 * M_PI;
+	double angle = (std::abs(a1) < std::abs(a2)) ? a1 : a2;
 	std::cout << "      new_ori: " << new_orientation->x << ","
-			<< new_orientation->y << " (" << (*new_orientation ^ *current_orientation)
-			<< ")" << "\n";
-	if ((*new_orientation ^ *current_orientation) > EPS_ORI_TO_ROTATE)
+			<< new_orientation->y << " (" << angle << ")" << "\n";
+	if (angle > EPS_ORI_TO_ROTATE)
 		rotate(COUNTERCLOCKWISE);
-	else if ((*new_orientation ^ *current_orientation) < -EPS_ORI_TO_ROTATE)
+	else if (angle < -EPS_ORI_TO_ROTATE)
 		rotate(CLOCKWISE);
 	while (true) {
 		if (std::abs(
@@ -90,7 +98,12 @@ void Wandrian::rotate(bool clockwise) {
 		twist->angular.z = angular_vel_step;
 }
 
-bool Wandrian::go_spiral_stc(VectorPtr orientation, int step) {
+bool Wandrian::spiral_stc_go_to(PointPtr position) {
+	spiral_stc->path.insert(spiral_stc->path.end(), position);
+	return go_to(position);
+}
+
+bool Wandrian::spiral_stc_go_with(VectorPtr orientation, int step) {
 	PointPtr last_position = *(--(spiral_stc->path.end()));
 	std::cout << "    pos: " << last_position->x << "," << last_position->y
 			<< "; ori: " << orientation->x << "," << orientation->y << "\n";
@@ -99,7 +112,7 @@ bool Wandrian::go_spiral_stc(VectorPtr orientation, int step) {
 					*last_position
 							+ *orientation * step * spiral_stc->get_sub_cell_size() / 2));
 	spiral_stc->path.insert(spiral_stc->path.end(), new_position);
-	return move(new_position);
+	return go_to(new_position);
 }
 
 }
