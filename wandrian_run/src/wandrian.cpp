@@ -19,32 +19,38 @@
 namespace wandrian {
 
 void Wandrian::run() {
-	go_to(PointPtr(new Point(starting_point_x, starting_point_y)));
 	if (plan == "spiral_stc") {
 		spiral_stc = SpiralStcPtr(new SpiralStc());
-		spiral_stc->initialize(current_position, robot_size);
+		spiral_stc->initialize(
+				PointPtr(new Point(starting_point_x, starting_point_y)), robot_size);
 		spiral_stc->set_behavior_go_with(
 				boost::bind(&Wandrian::spiral_stc_go_with, this, _1, _2));
 		spiral_stc->set_behavior_go_to(
-				boost::bind(&Wandrian::spiral_stc_go_to, this, _1));
+				boost::bind(&Wandrian::spiral_stc_go_to, this, _1, _2));
 		return spiral_stc->cover();
 	}
 }
 
-bool Wandrian::go_to(PointPtr new_position) {
-	rotate(new_position);
-	move_forward();
+bool Wandrian::go_to(PointPtr new_position, bool flexibly) {
+	bool forward;
+	forward = rotate(new_position, flexibly);
+	move(forward);
 	while (true) {
 		// Check current_position + k * current_orientation == new_position
 		Vector direction_vector = (*new_position - *current_position)
 				/ (*new_position % *current_position);
-		if (!(std::abs(direction_vector.x - current_orientation->x)
-				< EPS_ORI_TO_MOVE
-				&& std::abs(direction_vector.y - current_orientation->y)
-						< EPS_ORI_TO_MOVE)) {
+		if (forward ?
+				(!(std::abs(direction_vector.x - current_orientation->x)
+						< EPS_ORI_TO_MOVE
+						&& std::abs(direction_vector.y - current_orientation->y)
+								< EPS_ORI_TO_MOVE)) :
+				(!(std::abs(direction_vector.x + current_orientation->x)
+						< EPS_ORI_TO_MOVE
+						&& std::abs(direction_vector.y + current_orientation->y)
+								< EPS_ORI_TO_MOVE))) {
 			stop();
-			rotate(new_position);
-			move_forward();
+			forward = rotate(new_position, flexibly);
+			move(forward);
 		}
 
 		if (!is_bumper_pressed) {
@@ -61,11 +67,7 @@ bool Wandrian::go_to(PointPtr new_position) {
 	return true;
 }
 
-void Wandrian::move_forward() {
-	twist->linear.x = linear_vel_step;
-}
-
-void Wandrian::rotate(PointPtr new_position) {
+bool Wandrian::rotate(PointPtr new_position, bool flexibly) {
 	VectorPtr new_orientation = VectorPtr(
 			new Vector(
 					(*new_position - *current_position)
@@ -76,19 +78,27 @@ void Wandrian::rotate(PointPtr new_position) {
 	double angle = (std::abs(a1) < std::abs(a2)) ? a1 : a2;
 	std::cout << "      new_ori: " << new_orientation->x << ","
 			<< new_orientation->y << " (" << angle << ")" << "\n";
+
+	bool will_move_forward = !flexibly ? true : std::abs(angle) < M_PI_2;
 	if (angle > EPS_ORI_TO_ROTATE)
-		rotate(COUNTERCLOCKWISE);
+		rotate(will_move_forward ? COUNTERCLOCKWISE : CLOCKWISE);
 	else if (angle < -EPS_ORI_TO_ROTATE)
-		rotate(CLOCKWISE);
+		rotate(will_move_forward ? CLOCKWISE : COUNTERCLOCKWISE);
 	while (true) {
-		if (std::abs(
-				new_orientation->x - current_orientation->x) < EPS_ORI_TO_ROTATE
-				&& std::abs(new_orientation->y - current_orientation->y)
-				< EPS_ORI_TO_ROTATE) {
+		if (will_move_forward ?
+				(std::abs(new_orientation->x - current_orientation->x)
+						< EPS_ORI_TO_ROTATE
+						&& std::abs(new_orientation->y - current_orientation->y)
+								< EPS_ORI_TO_ROTATE) :
+				(std::abs(new_orientation->x + current_orientation->x)
+						< EPS_ORI_TO_ROTATE
+						&& std::abs(new_orientation->y + current_orientation->y)
+								< EPS_ORI_TO_ROTATE)) {
 			stop();
 			break;
 		}
 	}
+	return will_move_forward;
 }
 
 void Wandrian::rotate(bool clockwise) {
@@ -98,21 +108,29 @@ void Wandrian::rotate(bool clockwise) {
 		twist->angular.z = angular_vel_step;
 }
 
-bool Wandrian::spiral_stc_go_to(PointPtr position) {
+void Wandrian::move(bool forward) {
+	if (forward)
+		twist->linear.x = linear_vel_step;
+	else
+		twist->linear.x = -linear_vel_step;
+}
+
+bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibly) {
 	spiral_stc->path.insert(spiral_stc->path.end(), position);
-	return go_to(position);
+	return go_to(position, flexibly);
 }
 
 bool Wandrian::spiral_stc_go_with(VectorPtr orientation, int step) {
 	PointPtr last_position = *(--(spiral_stc->path.end()));
-	std::cout << "    pos: " << last_position->x << "," << last_position->y
-			<< "; ori: " << orientation->x << "," << orientation->y << "\n";
 	PointPtr new_position = PointPtr(
 			new Point(
 					*last_position
 							+ *orientation * step * spiral_stc->get_sub_cell_size() / 2));
 	spiral_stc->path.insert(spiral_stc->path.end(), new_position);
-	return go_to(new_position);
+	std::cout << "  p: " << new_position->x << "," << new_position->y << "; ("
+			<< last_position->x << "," << last_position->y << "; " << orientation->x
+			<< "," << orientation->y << "; " << step << ")\n";
+	return go_to(new_position, STRICTLY);
 }
 
 }

@@ -6,8 +6,6 @@
  */
 
 #include <GL/glut.h>
-#include <stdio.h>
-#include <iostream>
 #include <limits>
 #include <set>
 #include <ctime>

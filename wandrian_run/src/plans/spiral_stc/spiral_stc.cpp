@@ -5,8 +5,6 @@
  *      Author: sontd
  */
 
-//#include <stdio.h>
-//#include <iostream>
 #include "../../../include/plans/spiral_stc/spiral_stc.hpp"
 
 namespace wandrian {
@@ -55,10 +53,10 @@ void SpiralStc::cover() {
 	spiral_stc(starting_cell);
 }
 
-bool SpiralStc::go_to(PointPtr position) {
+bool SpiralStc::go_to(PointPtr position, bool flexibly) {
 	// Override this method
 	if (behavior_go_to != NULL)
-		return behavior_go_to(position);
+		return behavior_go_to(position, flexibly);
 
 	path.insert(path.end(), position);
 	// TODO: Need to check bumper here?
@@ -141,7 +139,7 @@ void SpiralStc::spiral_stc(CellPtr current) {
 		if (!go_with(orientation, 1)) { // Obstacle
 			std::cout << "    (BUMP)\n";
 			// Go back
-			go_to(*(----path.end()));
+			go_to(*(----path.end()), FLEXIBLY);
 			// Go to next sub-cell
 			go_with(orientation->rotate_counterclockwise(), 2);
 		} else { // New free neighbor

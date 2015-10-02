@@ -278,7 +278,7 @@ void Core::subscribeBumper(const kobuki_msgs::BumperEventConstPtr& bumper) {
 			state = "Unknown";
 			break;
 		}
-		ROS_WARN_STREAM("[Bumper]: State(" << state << ")");
+		ROS_WARN_STREAM("[Bumper]: state(" << state << ")");
 	}
 }
 

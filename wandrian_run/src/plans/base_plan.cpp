@@ -15,7 +15,7 @@ BasePlan::~BasePlan() {
 }
 
 void BasePlan::set_behavior_go_to(
-		boost::function<bool(PointPtr)> behavior_go_to) {
+		boost::function<bool(PointPtr, bool)> behavior_go_to) {
 	this->behavior_go_to = behavior_go_to;
 }
 
@@ -23,10 +23,10 @@ void BasePlan::cover() {
 	// Override this method
 }
 
-bool BasePlan::go_to(PointPtr position) {
+bool BasePlan::go_to(PointPtr position, bool flexibly) {
 	// Override this method
 	if (behavior_go_to != NULL)
-		return behavior_go_to(position);
+		return behavior_go_to(position, flexibly);
 	return true;
 }
 

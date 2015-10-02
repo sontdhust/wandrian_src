@@ -13,6 +13,9 @@
 #include "../common/point.hpp"
 #include "../common/vector.hpp"
 
+#define FLEXIBLY true
+#define STRICTLY false
+
 using namespace wandrian::common;
 
 namespace wandrian {
@@ -24,13 +27,13 @@ public:
 	std::list<PointPtr> path;
 
 	virtual ~BasePlan();
-	void set_behavior_go_to(boost::function<bool(PointPtr)>);
+	void set_behavior_go_to(boost::function<bool(PointPtr, bool)>);
 	virtual void cover();
 
 protected:
-	boost::function<bool(PointPtr)> behavior_go_to;
+	boost::function<bool(PointPtr, bool)> behavior_go_to;
 
-	virtual bool go_to(PointPtr);
+	virtual bool go_to(PointPtr, bool);
 };
 
 }

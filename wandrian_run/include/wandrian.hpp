@@ -25,13 +25,13 @@ private:
 	SpiralStcPtr spiral_stc;
 
 	// Helpers
-	bool go_to(PointPtr);
-	void move_forward();
-	void rotate(PointPtr);
+	bool go_to(PointPtr, bool);
+	bool rotate(PointPtr, bool);
 	void rotate(bool);
+	void move(bool);
 
 	// Behaviors
-	bool spiral_stc_go_to(PointPtr);
+	bool spiral_stc_go_to(PointPtr, bool);
 	bool spiral_stc_go_with(VectorPtr, int);
 };
 

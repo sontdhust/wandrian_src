@@ -31,7 +31,7 @@ public:
 	void cover();
 
 protected:
-	bool go_to(PointPtr);
+	bool go_to(PointPtr, bool);
 
 private:
 	/* __attribute__((will_be_removed)) */
