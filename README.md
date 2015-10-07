@@ -7,6 +7,13 @@ __C/C++ General__ > __Paths and Symbols__ > __Include__ > __GNU C++__
  Add:
 
  `/opt/ros/ROS_distro/include`
+ 
+####Setup:
+
+Change to catkin root directory then run
+
+	. devel/setup.bash
+	. src/wandrian_run/setup.sh
 
 ####Build for testing:
 
