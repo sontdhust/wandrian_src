@@ -32,6 +32,7 @@ void Wandrian::run() {
 }
 
 bool Wandrian::go_to(PointPtr new_position, bool flexibly) {
+	is_bumper_pressed = false;
 	bool forward;
 	forward = rotate(new_position, flexibly);
 	move(forward);
@@ -60,7 +61,6 @@ bool Wandrian::go_to(PointPtr new_position, bool flexibly) {
 				break;
 			}
 		} else {
-			stop();
 			return false;
 		}
 	}

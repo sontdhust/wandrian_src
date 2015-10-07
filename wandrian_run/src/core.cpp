@@ -269,9 +269,9 @@ void Core::subscribeBumper(const kobuki_msgs::BumperEventConstPtr& bumper) {
 		case kobuki_msgs::BumperEvent::PRESSED:
 			is_bumper_pressed = true;
 			state = "Pressed";
+			stop();
 			break;
 		case kobuki_msgs::BumperEvent::RELEASED:
-			is_bumper_pressed = false;
 			state = "Released";
 			break;
 		default:
