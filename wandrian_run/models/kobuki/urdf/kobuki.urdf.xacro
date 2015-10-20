@@ -218,7 +218,10 @@
     </link>
     
     <!-- Kobuki Gazebo simulation details -->
-    <kobuki_sim/>
-    
+    <kobuki_sim />
   </xacro:macro>
+    
+  <xacro:include filename="$(find wandrian_run)/models/hokuyo/urdf/hokuyo.urdf.xacro"/>
+  <sensor_hokuyo parent="base_link"/>
+
 </robot>
