@@ -33,224 +33,224 @@
         <uri>model://cinder_block</uri>
       </include>
       <pose>1.75 -2.1016 0 0 0 0</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_2'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>1.25 -2.1016 0 0 0 0</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_3'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>0.75 -2.1016 0 0 0 0</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_4'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>0.25 -2.1016 0 0 0 0</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_5'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>-0.25 -2.1016 0 0 0 0</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_6'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>-0.75 -2.1016 0 0 0 0</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_7'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
         <pose>-1.25 -2.1016 0 0 0 0</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_8'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>-1.75 -2.1016 0 0 0 0</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_9'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>-2.1016 -1.75 0 0 0 -1.570796</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_10'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>-2.1016 -1.25 0 0 0 -1.570796</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_11'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>-2.1016 -0.75 0 0 0 -1.570796</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_12'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>-2.1016 -0.25 0 0 0 -1.570796</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_13'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>-2.1016 0.25 0 0 0 -1.570796</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_14'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>-2.1016 0.75 0 0 0 -1.570796</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_15'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>-2.1016 1.25 0 0 0 -1.570796</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_16'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>-2.1016 1.75 0 0 0 -1.570796</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_17'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>-1.75 2.1016 0 0 0 0</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_18'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>-1.25 2.1016 0 0 0 0</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_19'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>-0.75 2.1016 0 0 0 0</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_20'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>-0.25 2.1016 0 0 0 0</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_21'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>0.25 2.1016 0 0 0 0</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_22'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>0.75 2.1016 0 0 0 0</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_23'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>1.25 2.1016 0 0 0 0</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_24'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>1.75 2.1016 0 0 0 0</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_25'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>2.1016 1.75 0 0 0 -1.570796</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_26'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>2.1016 1.25 0 0 0 -1.570796</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_27'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>2.1016 0.75 0 0 0 -1.570796</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_28'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>2.1016 0.25 0 0 0 -1.570796</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_29'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>2.1016 -0.25 0 0 0 -1.570796</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_30'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>2.1016 -0.75 0 0 0 -1.570796</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_31'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>2.1016 -1.25 0 0 0 -1.570796</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <model name='cinder_block_32'>
       <include>
         <uri>model://cinder_block</uri>
       </include>
       <pose>2.1016 -1.75 0 0 0 -1.570796</pose>
-      <static>0</static>
+      <static>1</static>
     </model>
     <gui fullscreen='0'>
       <camera name='user_camera'>

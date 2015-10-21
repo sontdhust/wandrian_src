@@ -32,7 +32,7 @@ void Wandrian::run() {
 }
 
 bool Wandrian::go_to(PointPtr new_position, bool flexibly) {
-	is_bumper_pressed = false;
+	is_near_obstacle = false;
 	bool forward;
 	forward = rotate(new_position, flexibly);
 	move(forward);
@@ -54,7 +54,7 @@ bool Wandrian::go_to(PointPtr new_position, bool flexibly) {
 			move(forward);
 		}
 
-		if (!is_bumper_pressed) {
+		if (!is_near_obstacle) {
 			if (std::abs(new_position->x - current_position->x) < EPS_POS
 					&& std::abs(new_position->y - current_position->y) < EPS_POS) {
 				stop();

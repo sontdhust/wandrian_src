@@ -13,12 +13,11 @@
 namespace wandrian {
 
 Core::Core() :
-		current_position(new Point(0, 0)), is_bumper_pressed(false), distance_to_obstalce(
-				0), current_orientation(new Vector(0, 1)), velocity(
-				new geometry_msgs::Twist()), linear_vel_step(0), linear_vel_max(0), angular_vel_step(
-				0), angular_vel_max(0), robot_size(0), starting_point_x(0), starting_point_y(
-				0), is_quitting(false), is_powered(false), is_zero_vel(true), is_logging(
-				false), file_descriptor(0) {
+		current_position(new Point(0, 0)), is_near_obstacle(false), current_orientation(
+				new Vector(0, 1)), velocity(new geometry_msgs::Twist()), linear_vel_step(
+				0), linear_vel_max(0), angular_vel_step(0), angular_vel_max(0), robot_size(
+				0), starting_point_x(0), starting_point_y(0), is_quitting(false), is_powered(
+				false), is_zero_vel(true), is_logging(false), file_descriptor(0) {
 	tcgetattr(file_descriptor, &terminal); // get terminal properties
 }
 
@@ -59,11 +58,9 @@ bool Core::initialize() {
 			1);
 	velocity_publisher = nh.advertise<geometry_msgs::Twist>("velocity", 1);
 	odom_subscriber = nh.subscribe<nav_msgs::Odometry>("odom", 1,
-			&Core::subscribeOdometry, this);
-	bumper_subscriber = nh.subscribe<kobuki_msgs::BumperEvent>("bumper", 1,
-			&Core::subscribeBumper, this);
+			&Core::subscribe_odometry, this);
 	laser_subscriber = nh.subscribe<sensor_msgs::LaserScan>("laser", 1,
-			&Core::subscribeLaser, this);
+			&Core::subscribe_laser, this);
 
 	velocity->linear.x = 0.0;
 	velocity->linear.y = 0.0;
@@ -107,7 +104,7 @@ bool Core::initialize() {
 	}
 
 	// start keyboard input thread
-	threadKeyboard.start(&Core::startThreadKeyboard, *this);
+	thread_keyboard.start(&Core::start_thread_keyboard, *this);
 	return true;
 }
 
@@ -129,14 +126,14 @@ void Core::spin() {
 		loop_rate.sleep();
 	}
 	if (is_quitting) { // ros node is still ok, send a disable command
-		disablePower();
+		disable_power();
 	} else {
 		// just in case we got here not via a keyboard quit request
 		is_quitting = true;
-		threadKeyboard.cancel();
-		threadRun.cancel();
+		thread_keyboard.cancel();
+		thread_run.cancel();
 	}
-	threadKeyboard.join();
+	thread_keyboard.join();
 }
 
 void Core::run() {
@@ -149,7 +146,7 @@ void Core::stop() {
 	velocity_publisher.publish(velocity);
 }
 
-void Core::startThreadKeyboard() {
+void Core::start_thread_keyboard() {
 	struct termios raw;
 	memcpy(&raw, &terminal, sizeof(struct termios));
 
@@ -172,11 +169,11 @@ void Core::startThreadKeyboard() {
 			perror("Read char failed():");
 			exit(-1);
 		}
-		processKeyboardInput(c);
+		process_keyboard_input(c);
 	}
 }
 
-void Core::processKeyboardInput(char c) {
+void Core::process_keyboard_input(char c) {
 	switch (c) {
 	case kobuki_msgs::KeyboardInput::KeyCode_Down:
 	case kobuki_msgs::KeyboardInput::KeyCode_Up:
@@ -204,9 +201,9 @@ void Core::processKeyboardInput(char c) {
 		break;
 	case 'p':
 		if (is_powered)
-			disablePower();
+			disable_power();
 		else
-			enablePower();
+			enable_power();
 		break;
 	case 'l':
 		is_logging = !is_logging;
@@ -214,11 +211,11 @@ void Core::processKeyboardInput(char c) {
 		break;
 	case 'i':
 		ROS_INFO_STREAM(
-				"[Odom]: Pos(" << current_position->x << "," << current_position->y << "); " << "Ori(" << current_orientation->x << "," << current_orientation->y << "). [Laser]: " << distance_to_obstalce);
+				"[Odom]: Pos(" << current_position->x << "," << current_position->y << "); " << "Ori(" << current_orientation->x << "," << current_orientation->y << ")");
 		break;
 	case 'r':
 		ROS_INFO_STREAM("[Run]: " << "Start running");
-		threadRun.start(&Core::startThreadRun, *this);
+		thread_run.start(&Core::start_thread_run, *this);
 		break;
 	case 'q':
 		is_quitting = true;
@@ -228,11 +225,11 @@ void Core::processKeyboardInput(char c) {
 	}
 }
 
-void Core::startThreadRun() {
+void Core::start_thread_run() {
 	run();
 }
 
-void Core::enablePower() {
+void Core::enable_power() {
 	stop();
 	ROS_INFO("[Power]: Enabled");
 	kobuki_msgs::MotorPower power;
@@ -241,7 +238,7 @@ void Core::enablePower() {
 	is_powered = true;
 }
 
-void Core::disablePower() {
+void Core::disable_power() {
 	stop();
 	ROS_INFO("[Power]: Disabled");
 	kobuki_msgs::MotorPower power;
@@ -250,7 +247,7 @@ void Core::disablePower() {
 	is_powered = false;
 }
 
-void Core::subscribeOdometry(const nav_msgs::OdometryConstPtr& odom) {
+void Core::subscribe_odometry(const nav_msgs::OdometryConstPtr& odom) {
 	double px = odom->pose.pose.position.x;
 	double py = odom->pose.pose.position.y;
 	double ow = odom->pose.pose.orientation.w;
@@ -264,31 +261,20 @@ void Core::subscribeOdometry(const nav_msgs::OdometryConstPtr& odom) {
 	current_orientation->y = 2 * oz * ow;
 }
 
-void Core::subscribeBumper(const kobuki_msgs::BumperEventConstPtr& bumper) {
-	if (is_logging) {
-		std::string state;
-		switch (bumper->state) {
-		case kobuki_msgs::BumperEvent::PRESSED:
-			is_bumper_pressed = true;
-			state = "Pressed";
-			stop();
-			break;
-		case kobuki_msgs::BumperEvent::RELEASED:
-			state = "Released";
-			break;
-		default:
-			state = "Unknown";
-			break;
+void Core::subscribe_laser(const sensor_msgs::LaserScanConstPtr& laser) {
+	bool prev_state = is_near_obstacle;
+	for (int i = 0; i < laser->ranges.size(); i++) {
+		if (laser->ranges[i] < laser->range_max) {
+			is_near_obstacle = true;
+			if (prev_state != is_near_obstacle) {
+				stop();
+				if (is_logging)
+					ROS_WARN_STREAM("[Laser]: Obs");
+			}
+			return;
 		}
-		ROS_WARN_STREAM("[Bumper]: state(" << state << ")");
 	}
-}
-
-void Core::subscribeLaser(const sensor_msgs::LaserScanConstPtr& laser) {
-	distance_to_obstalce = 0;
-	for (int i = 0; i < laser->intensities.size(); i++) {
-		distance_to_obstalce += laser->intensities[i];
-	}
+	is_near_obstacle = false;
 }
 
 }

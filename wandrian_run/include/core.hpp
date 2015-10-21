@@ -33,8 +33,7 @@ public:
 
 protected:
 	PointPtr current_position; // odom subscriber
-	bool is_bumper_pressed; // bumper subscriber
-	double distance_to_obstalce; // laser subscriber
+	bool is_near_obstacle; // laser subscriber
 	VectorPtr current_orientation;
 	geometry_msgs::TwistPtr velocity;
 	double linear_vel_step, linear_vel_max, angular_vel_step, angular_vel_max;
@@ -54,26 +53,24 @@ private:
 	int file_descriptor;
 
 	struct termios terminal;
-	ecl::Thread threadKeyboard;
-	ecl::Thread threadRun;
+	ecl::Thread thread_keyboard;
+	ecl::Thread thread_run;
 
 	ros::Publisher motor_power_publisher;
 	ros::Publisher velocity_publisher;
 	ros::Subscriber odom_subscriber;
-	ros::Subscriber bumper_subscriber;
 	ros::Subscriber laser_subscriber;
 
 	// Thread handlers
-	void startThreadKeyboard();
-	void processKeyboardInput(char);
-	void startThreadRun();
+	void start_thread_keyboard();
+	void process_keyboard_input(char);
+	void start_thread_run();
 
 	// Helpers
-	void enablePower();
-	void disablePower();
-	void subscribeOdometry(const nav_msgs::OdometryConstPtr&);
-	void subscribeBumper(const kobuki_msgs::BumperEventConstPtr&);
-	void subscribeLaser(const sensor_msgs::LaserScanConstPtr&);
+	void enable_power();
+	void disable_power();
+	void subscribe_odometry(const nav_msgs::OdometryConstPtr&);
+	void subscribe_laser(const sensor_msgs::LaserScanConstPtr&);
 };
 
 }

@@ -18,7 +18,6 @@
     <remap from="run/motor_power" to="mobile_base/commands/motor_power"/>
     <remap from="run/velocity" to="mobile_base/commands/velocity"/>
     <remap from="run/odom" to="odom"/>
-    <remap from="run/bumper" to="mobile_base/events/bumper"/>
     <remap from="run/laser" to="mobile_base/sensors/laser"/>
 
     <param name="plan" value="$(arg plan)" type="string"/>
