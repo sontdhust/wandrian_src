@@ -13,12 +13,12 @@
 namespace wandrian {
 
 Core::Core() :
-		is_bumper_pressed(false), current_position(new Point(0, 0)), current_orientation(
-				new Vector(0, 1)), twist(new geometry_msgs::Twist()), linear_vel_step(
-				0), linear_vel_max(0), angular_vel_step(0), angular_vel_max(0), robot_size(
-				0), starting_point_x(0), starting_point_y(0), is_verbose(false), is_quitting(
-				false), is_powered(false), is_zero_vel(true), is_logging(false), file_descriptor(
-				0) {
+		current_position(new Point(0, 0)), is_bumper_pressed(false), distance_to_obstalce(
+				0), current_orientation(new Vector(0, 1)), velocity(
+				new geometry_msgs::Twist()), linear_vel_step(0), linear_vel_max(0), angular_vel_step(
+				0), angular_vel_max(0), robot_size(0), starting_point_x(0), starting_point_y(
+				0), is_quitting(false), is_powered(false), is_zero_vel(true), is_logging(
+				false), file_descriptor(0) {
 	tcgetattr(file_descriptor, &terminal); // get terminal properties
 }
 
@@ -29,7 +29,6 @@ Core::~Core() {
 bool Core::initialize() {
 	ros::NodeHandle nh("~");
 
-	nh.getParam("is_verbose", is_verbose);
 	nh.getParam("plan", plan);
 	nh.getParam("robot_size", robot_size);
 	nh.getParam("starting_point_x", starting_point_x);
@@ -40,7 +39,6 @@ bool Core::initialize() {
 	nh.getParam("angular_vel_step", angular_vel_step);
 	nh.getParam("angular_vel_max", angular_vel_max);
 
-	ROS_INFO_STREAM("[Launch]: Using arg is_verbose(" << is_verbose << ")");
 	ROS_INFO_STREAM("[Launch]: Using arg plan(" << plan << ")");
 	ROS_INFO_STREAM("[Launch]: Using arg robot_size(" << robot_size << ")");
 	ROS_INFO_STREAM(
@@ -64,13 +62,15 @@ bool Core::initialize() {
 			&Core::subscribeOdometry, this);
 	bumper_subscriber = nh.subscribe<kobuki_msgs::BumperEvent>("bumper", 1,
 			&Core::subscribeBumper, this);
+	laser_subscriber = nh.subscribe<sensor_msgs::LaserScan>("laser", 1,
+			&Core::subscribeLaser, this);
 
-	twist->linear.x = 0.0;
-	twist->linear.y = 0.0;
-	twist->linear.z = 0.0;
-	twist->angular.x = 0.0;
-	twist->angular.y = 0.0;
-	twist->angular.z = 0.0;
+	velocity->linear.x = 0.0;
+	velocity->linear.y = 0.0;
+	velocity->linear.z = 0.0;
+	velocity->angular.x = 0.0;
+	velocity->angular.y = 0.0;
+	velocity->angular.z = 0.0;
 
 	ecl::MilliSleep millisleep;
 	int count = 0;
@@ -116,13 +116,13 @@ void Core::spin() {
 
 	while (!is_quitting && ros::ok()) {
 		// Avoid spamming robot with continuous zero-velocity messages
-		if ((twist->linear.x != 0.0) || (twist->linear.y != 0.0)
-				|| (twist->linear.z != 0.0) || (twist->angular.x != 0.0)
-				|| (twist->angular.y != 0.0) || (twist->angular.z != 0.0)) {
-			velocity_publisher.publish(twist);
+		if ((velocity->linear.x != 0.0) || (velocity->linear.y != 0.0)
+				|| (velocity->linear.z != 0.0) || (velocity->angular.x != 0.0)
+				|| (velocity->angular.y != 0.0) || (velocity->angular.z != 0.0)) {
+			velocity_publisher.publish(velocity);
 			is_zero_vel = false;
 		} else if (!is_zero_vel) {
-			velocity_publisher.publish(twist);
+			velocity_publisher.publish(velocity);
 			is_zero_vel = true;
 		}
 		ros::spinOnce();
@@ -144,9 +144,9 @@ void Core::run() {
 }
 
 void Core::stop() {
-	twist->linear.x = 0.0;
-	twist->angular.z = 0.0;
-	velocity_publisher.publish(twist);
+	velocity->linear.x = 0.0;
+	velocity->angular.z = 0.0;
+	velocity_publisher.publish(velocity);
 }
 
 void Core::startThreadKeyboard() {
@@ -163,6 +163,7 @@ void Core::startThreadKeyboard() {
 	puts("---------------------------");
 	puts("p: Toggle motor power.");
 	puts("l: Toggle logging.");
+	puts("i: Get information");
 	puts("r: Start running.");
 	puts("q: Quit.");
 	char c;
@@ -183,20 +184,20 @@ void Core::processKeyboardInput(char c) {
 	case kobuki_msgs::KeyboardInput::KeyCode_Left:
 		if (is_powered) {
 			if (c == kobuki_msgs::KeyboardInput::KeyCode_Down
-					&& twist->linear.x >= -linear_vel_max) { // decrease linear vel
-				twist->linear.x -= linear_vel_step;
+					&& velocity->linear.x >= -linear_vel_max) { // decrease linear vel
+				velocity->linear.x -= linear_vel_step;
 			} else if (c == kobuki_msgs::KeyboardInput::KeyCode_Up
-					&& twist->linear.x <= linear_vel_max) { // increase linear vel
-				twist->linear.x += linear_vel_step;
+					&& velocity->linear.x <= linear_vel_max) { // increase linear vel
+				velocity->linear.x += linear_vel_step;
 			} else if (c == kobuki_msgs::KeyboardInput::KeyCode_Right
-					&& twist->angular.z >= -angular_vel_max) { // decrease angular vel
-				twist->angular.z -= angular_vel_step;
+					&& velocity->angular.z >= -angular_vel_max) { // decrease angular vel
+				velocity->angular.z -= angular_vel_step;
 			} else if (c == kobuki_msgs::KeyboardInput::KeyCode_Left
-					&& twist->angular.z <= angular_vel_max) { // increase angular vel
-				twist->angular.z += angular_vel_step;
+					&& velocity->angular.z <= angular_vel_max) { // increase angular vel
+				velocity->angular.z += angular_vel_step;
 			}
 			ROS_INFO_STREAM(
-					"[Vel]: (" << twist->linear.x << ", " << twist->angular.z << ")");
+					"[Vel]: (" << velocity->linear.x << ", " << velocity->angular.z << ")");
 		} else {
 			ROS_FATAL_STREAM("[Power]: Disabled");
 		}
@@ -210,6 +211,10 @@ void Core::processKeyboardInput(char c) {
 	case 'l':
 		is_logging = !is_logging;
 		ROS_INFO_STREAM("[Logging]: " << (is_logging ? "On" : "Off"));
+		break;
+	case 'i':
+		ROS_INFO_STREAM(
+				"[Odom]: Pos(" << current_position->x << "," << current_position->y << "); " << "Ori(" << current_orientation->x << "," << current_orientation->y << "). [Laser]: " << distance_to_obstalce);
 		break;
 	case 'r':
 		ROS_INFO_STREAM("[Run]: " << "Start running");
@@ -257,9 +262,6 @@ void Core::subscribeOdometry(const nav_msgs::OdometryConstPtr& odom) {
 	// FIXME: [Tmp]: Set initial orientation to (1, 0)
 	current_orientation->x = ow * ow - oz * oz;
 	current_orientation->y = 2 * oz * ow;
-	if (is_logging && is_verbose)
-		ROS_INFO_STREAM(
-				"[Odom]: Pos(" << current_position->x << "," << current_position->y << "); " << "Ori(" << current_orientation->x << "," << current_orientation->y << ")");
 }
 
 void Core::subscribeBumper(const kobuki_msgs::BumperEventConstPtr& bumper) {
@@ -279,6 +281,13 @@ void Core::subscribeBumper(const kobuki_msgs::BumperEventConstPtr& bumper) {
 			break;
 		}
 		ROS_WARN_STREAM("[Bumper]: state(" << state << ")");
+	}
+}
+
+void Core::subscribeLaser(const sensor_msgs::LaserScanConstPtr& laser) {
+	distance_to_obstalce = 0;
+	for (int i = 0; i < laser->intensities.size(); i++) {
+		distance_to_obstalce += laser->intensities[i];
 	}
 }
 

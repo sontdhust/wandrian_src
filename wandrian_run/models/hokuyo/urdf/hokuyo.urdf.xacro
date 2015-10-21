@@ -1,25 +1,26 @@
 <?xml version="1.0" ?>
-<robot name="sensor_hokuyo" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot name="model_hokuyo" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find wandrian_run)/models/hokuyo/urdf/hokuyo_gazebo.urdf.xacro"/>
 
   <!-- Hokuyo 2D LIDAR -->
-  <xacro:macro name="sensor_hokuyo" params="parent">
+  <xacro:macro name="model_hokuyo" params="parent">
     <joint name="laser_sensor_joint" type="fixed">
-      <origin xyz="0.0 0.0 0.12" rpy="0.0 0.0 0.0" />
-      <parent link="base_link" />
-      <child link="laser_sensor_link" />
+      <origin xyz="0.0 0.0 0.15" rpy="0.0 0.0 0.0"/>
+      <parent link="${parent}"/>
+      <child link="laser_sensor_link"/>
     </joint>
 
     <link name="laser_sensor_link">
       <visual name="visual">
         <geometry>
-          <mesh filename="package://wandrian_run/models/hokuyo/meshes/hokuyo.dae" />
+          <mesh filename="package://wandrian_run/models/hokuyo/meshes/hokuyo.dae"/>
         </geometry>
       </visual>
 
       <inertial>
-        <mass value="0.000001" />
-        <origin xyz="0 0 0" />
-        <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001" />
+        <mass value="0.000001"/>
+        <origin xyz="0 0 0"/>
+        <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
       </inertial>
 
       <collision name="collision-base">
@@ -32,36 +33,12 @@
       <collision name="collision-top">
         <pose>0 0 0.0205 0 0 0</pose>
         <geometry>
-          <cylinder radius="0.021" length="0.029" />
+          <cylinder radius="0.021" length="0.029"/>
         </geometry>
       </collision>
-
-      <sensor name="laser" type="ray">
-        <pose>0.01 0 0.0175 0 -0 0</pose>
-        <ray>
-          <scan>
-            <horizontal>
-              <samples>640</samples>
-              <resolution>1</resolution>
-              <min_angle>-2.26889</min_angle>
-              <max_angle>2.268899</max_angle>
-            </horizontal>
-          </scan>
-          <range>
-            <min>0.08</min>
-            <max>10</max>
-            <resolution>0.01</resolution>
-          </range>
-        </ray>
-
-        <plugin name="laser" filename="libRayPlugin.so" />
-        <always_on>1</always_on>
-        <update_rate>30</update_rate>
-        <visualize>true</visualize>
-      </sensor>
     </link>
     
-    <!-- Set up laser gazebo details -->
-    <hokuyo_laser />
+    <!-- Set up Hokuyo Gazebo simulation details -->
+    <gazebo_hokuyo/>
   </xacro:macro>
 </robot>

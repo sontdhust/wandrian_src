@@ -103,16 +103,16 @@ bool Wandrian::rotate(PointPtr new_position, bool flexibly) {
 
 void Wandrian::rotate(bool clockwise) {
 	if (clockwise)
-		twist->angular.z = -angular_vel_step;
+		velocity->angular.z = -angular_vel_step;
 	else
-		twist->angular.z = angular_vel_step;
+		velocity->angular.z = angular_vel_step;
 }
 
 void Wandrian::move(bool forward) {
 	if (forward)
-		twist->linear.x = linear_vel_step;
+		velocity->linear.x = linear_vel_step;
 	else
-		twist->linear.x = -linear_vel_step;
+		velocity->linear.x = -linear_vel_step;
 }
 
 bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibly) {

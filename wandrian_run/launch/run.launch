@@ -1,5 +1,4 @@
 <launch>
-  <arg name="is_verbose"/>
   <arg name="plan"/>
   <arg name="robot_size"/>
   <arg name="starting_point_x"/>
@@ -7,7 +6,7 @@
   <arg name="robot_name" value="mobile_base"/>
 
   <!-- Spawns Kobuki inside a Gazebo simulation -->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find wandrian_run)/models/kobuki/urdf/kobuki_standalone.urdf.xacro'"/>
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find wandrian_run)/models/robot/urdf/robot.urdf.xacro'"/>
   <node pkg="gazebo_ros" type="spawn_model" name="spawn_$(arg robot_name)" args="-x $(arg starting_point_x) -y $(arg starting_point_y) -z 0 -unpause -urdf -param robot_description -model $(arg robot_name)" respawn="false">
   </node>
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
@@ -20,8 +19,8 @@
     <remap from="run/velocity" to="mobile_base/commands/velocity"/>
     <remap from="run/odom" to="odom"/>
     <remap from="run/bumper" to="mobile_base/events/bumper"/>
+    <remap from="run/laser" to="mobile_base/sensors/laser"/>
 
-    <param name="is_verbose" value="$(arg is_verbose)" type="bool"/>
     <param name="plan" value="$(arg plan)" type="string"/>
     <param name="robot_size" value="$(arg robot_size)" type="double"/>
     <param name="starting_point_x" value="$(arg starting_point_x)" type="double"/>
