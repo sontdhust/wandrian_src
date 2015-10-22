@@ -270,11 +270,11 @@ void Core::subscribe_laser(const sensor_msgs::LaserScanConstPtr& laser) {
 	distance_to_obstacle[IN_FRONT] = laser->ranges[laser->ranges.size() / 2];
 	distance_to_obstacle[AT_LEFT_SIDE] = laser->ranges[laser->ranges.size() - 1];
 	if (is_logging) {
-		if (distance_to_obstacle[AT_RIGHT_SIDE] < laser->range_max)
+		if (distance_to_obstacle[AT_RIGHT_SIDE] <= robot_size)
 			ROS_WARN_STREAM("[Laser]: Obs(Right)");
-		if (distance_to_obstacle[IN_FRONT] < laser->range_max)
+		if (distance_to_obstacle[IN_FRONT] <= robot_size)
 			ROS_WARN_STREAM("[Laser]: Obs(Ahead)");
-		if (distance_to_obstacle[AT_LEFT_SIDE] < laser->range_max)
+		if (distance_to_obstacle[AT_LEFT_SIDE] <= robot_size)
 			ROS_WARN_STREAM("[Laser]: Obs(Left)");
 	}
 }

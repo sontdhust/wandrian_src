@@ -50,11 +50,11 @@ void SpiralStc::cover() {
 }
 
 bool SpiralStc::go_to(PointPtr position, bool flexibly) {
+	std::cout << "    pos: " << position->x << "," << position->y << "\n";
 	if (behavior_go_to != NULL)
 		return behavior_go_to(position, flexibly);
 
 	path.insert(path.end(), position);
-	std::cout << "    pos: " << position->x << "," << position->y << "\n";
 	return true;
 }
 
@@ -100,8 +100,8 @@ bool SpiralStc::go_with(VectorPtr orientation, double step) {
 }
 
 void SpiralStc::spiral_stc(CellPtr current) {
-	std::cout << "current-BEGIN: " << current->get_center()->x << ","
-			<< current->get_center()->y << "\n";
+	std::cout << "\033[1;34mcurrent-\033[0m\033[1;32mBEGIN:\033[0m "
+			<< current->get_center()->x << "," << current->get_center()->y << "\n";
 	VectorPtr orientation = VectorPtr(
 			new Vector(
 					(*(current->get_parent()->get_center()) - *(current->get_center()))
@@ -119,11 +119,11 @@ void SpiralStc::spiral_stc(CellPtr current) {
 								new Point(
 										*(current->get_center()) + *orientation * 2 * robot_size)),
 						2 * robot_size));
-		std::cout << "  neighbor: " << neighbor->get_center()->x << ","
-				<< neighbor->get_center()->y;
+		std::cout << "  \033[1;33mneighbor\033[0m: " << neighbor->get_center()->x
+				<< "," << neighbor->get_center()->y;
 		neighbors_count++;
 		if (check(neighbor) == OLD_CELL) {
-			std::cout << " (OLD)\n";
+			std::cout << " \033[1;45m(OLD)\033[0m\n";
 			// Go to next sub-cell
 			go_with(orientation->rotate_counterclockwise(), 2);
 			continue;
@@ -131,7 +131,7 @@ void SpiralStc::spiral_stc(CellPtr current) {
 			std::cout << "\n";
 		}
 		if (see_obstacle(orientation, 1)) { // TODO: Check obstacle here
-			std::cout << "    (OBSTACLE)\n";
+			std::cout << "    \033[1;46m(OBSTACLE)\033[0m\n";
 			// Go to next sub-cell
 			go_with(orientation->rotate_counterclockwise(), 2);
 		} else { // New free neighbor
@@ -147,8 +147,8 @@ void SpiralStc::spiral_stc(CellPtr current) {
 		orientation = orientation->rotate_counterclockwise();
 		go_with(orientation, 2);
 	}
-	std::cout << "current-END: " << current->get_center()->x << ","
-			<< current->get_center()->y << "\n";
+	std::cout << "\033[1;34mcurrent-\033[0m\033[1;31mEND\033[0m: "
+			<< current->get_center()->x << "," << current->get_center()->y << "\n";
 }
 
 bool SpiralStc::check(CellPtr cell_to_check) {
