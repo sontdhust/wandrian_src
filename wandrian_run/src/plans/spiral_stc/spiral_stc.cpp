@@ -12,14 +12,14 @@ namespace plans {
 namespace spiral_stc {
 
 SpiralStc::SpiralStc() :
-		sub_cell_size(0) {
+		robot_size(0) {
 }
 
 SpiralStc::~SpiralStc() {
 }
 
 void SpiralStc::initialize(PointPtr starting_point, double sub_cell_size) {
-	this->sub_cell_size = sub_cell_size;
+	this->robot_size = sub_cell_size;
 	// Initialize starting_cell
 	starting_cell = CellPtr(
 			new Cell(
@@ -40,13 +40,9 @@ void SpiralStc::set_environment(EnvironmentPtr environment) {
 	this->environment = environment;
 }
 
-double SpiralStc::get_sub_cell_size() {
-	return sub_cell_size;
-}
-
-void SpiralStc::set_behavior_go_with(
-		boost::function<bool(VectorPtr, int)> behavior_go_with) {
-	this->behavior_go_with = behavior_go_with;
+void SpiralStc::set_behavior_see_obstacle(
+		boost::function<bool(VectorPtr, double)> behavior_see_obstacle) {
+	this->behavior_see_obstacle = behavior_see_obstacle;
 }
 
 void SpiralStc::cover() {
@@ -54,63 +50,62 @@ void SpiralStc::cover() {
 }
 
 bool SpiralStc::go_to(PointPtr position, bool flexibly) {
-	// Override this method
 	if (behavior_go_to != NULL)
 		return behavior_go_to(position, flexibly);
 
 	path.insert(path.end(), position);
-	// TODO: Need to check bumper here?
+	std::cout << "  p: " << position->x << "," << position->y << "\n";
 	return true;
 }
 
-bool SpiralStc::go_with(VectorPtr orientation, int step) {
-	if (behavior_go_with != NULL)
-		return behavior_go_with(orientation, step);
+bool SpiralStc::see_obstacle(VectorPtr orientation, double step) {
+	if (behavior_see_obstacle != NULL)
+		return behavior_see_obstacle(orientation, step);
 
+	// Simulator check obstacle here
 	PointPtr last_position = *(--path.end());
 	PointPtr new_position = PointPtr(
-			new Point(*last_position + *orientation * step * sub_cell_size / 2));
-	path.insert(path.end(), new_position);
-	std::cout << "  p: " << new_position->x << "," << new_position->y << "; ("
-			<< last_position->x << "," << last_position->y << "; " << orientation->x
-			<< "," << orientation->y << "; " << step << ")\n";
-
-	// Bumper event here
-	// TODO: Correctly check (now temporarily)
+			new Point(*last_position + *orientation * step * robot_size / 2));
 	if (environment) {
 		CellPtr space = boost::static_pointer_cast<Cell>(environment->space);
 		if (new_position->x >= space->get_center()->x + space->get_size() / 2
 				|| new_position->x <= space->get_center()->x - space->get_size() / 2
 				|| new_position->y >= space->get_center()->y + space->get_size() / 2
 				|| new_position->y <= space->get_center()->y - space->get_size() / 2) {
-			return false;
+			return true;
 		}
 		for (std::list<PolygonPtr>::iterator o = environment->obstacles.begin();
 				o != environment->obstacles.end(); o++) {
 			CellPtr obstacle = boost::static_pointer_cast<Cell>(*o);
 			if (new_position->x
-					<= obstacle->get_center()->x + obstacle->get_size() / 2
+					>= obstacle->get_center()->x - obstacle->get_size() / 2
 					&& new_position->x
-							>= obstacle->get_center()->x - obstacle->get_size() / 2
+							<= obstacle->get_center()->x + obstacle->get_size() / 2
 					&& new_position->y
-							<= obstacle->get_center()->y + obstacle->get_size() / 2
+							>= obstacle->get_center()->y - obstacle->get_size() / 2
 					&& new_position->y
-							>= obstacle->get_center()->y - obstacle->get_size() / 2) {
-				return false;
+							<= obstacle->get_center()->y + obstacle->get_size() / 2) {
+				return true;
 			}
 		}
 	}
-	return true;
+	return false;
+}
+
+bool SpiralStc::go_with(VectorPtr orientation, double step) {
+	PointPtr last_position = *(--path.end());
+	PointPtr new_position = PointPtr(
+			new Point(*last_position + *orientation * step * robot_size / 2));
+	return go_to(new_position, STRICTLY);
 }
 
 void SpiralStc::spiral_stc(CellPtr current) {
 	std::cout << "current-BEGIN: " << current->get_center()->x << ","
 			<< current->get_center()->y << "\n";
-	// TODO: Correctly compute starting orientation
 	VectorPtr orientation = VectorPtr(
 			new Vector(
 					(*(current->get_parent()->get_center()) - *(current->get_center()))
-							/ 2 / sub_cell_size));
+							/ 2 / robot_size));
 	int neighbors_count = 0;
 	// While current cell has a new obstacle-free neighboring cell
 	bool is_starting_cell = *(current->get_center())
@@ -122,9 +117,8 @@ void SpiralStc::spiral_stc(CellPtr current) {
 				new Cell(
 						PointPtr(
 								new Point(
-										*(current->get_center())
-												+ *orientation * 2 * sub_cell_size)),
-						2 * sub_cell_size));
+										*(current->get_center()) + *orientation * 2 * robot_size)),
+						2 * robot_size));
 		std::cout << "  neighbor: " << neighbor->get_center()->x << ","
 				<< neighbor->get_center()->y;
 		neighbors_count++;
@@ -136,13 +130,12 @@ void SpiralStc::spiral_stc(CellPtr current) {
 		} else {
 			std::cout << "\n";
 		}
-		if (!go_with(orientation, 1)) { // Obstacle
-			std::cout << "    (BUMP)\n";
-			// Go back
-			go_to(*(----path.end()), FLEXIBLY);
+		if (see_obstacle(orientation, 1)) { // TODO: Check obstacle here
+			std::cout << "    (OBSTACLE)\n";
 			// Go to next sub-cell
 			go_with(orientation->rotate_counterclockwise(), 2);
 		} else { // New free neighbor
+			go_with(orientation, 1);
 			neighbor->set_parent(current);
 			// Construct a spanning-tree edge
 			current->neighbors.insert(current->neighbors.end(), neighbor);

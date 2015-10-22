@@ -12,10 +12,8 @@
 #include <ros/ros.h>
 #include <ecl/threads.hpp>
 #include <geometry_msgs/Twist.h> // for velocity commands
-#include <sensor_msgs/LaserScan.h>
 #include <nav_msgs/Odometry.h>
-#include <kobuki_msgs/BumperEvent.h>
-#include <yocs_controllers/default_controller.hpp> // not use but need for bumper event subscriber
+#include <sensor_msgs/LaserScan.h>
 #include "../include/common/point.hpp"
 #include "../include/common/vector.hpp"
 

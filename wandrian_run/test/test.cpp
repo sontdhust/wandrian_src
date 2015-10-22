@@ -13,7 +13,8 @@
 #include <boost/next_prior.hpp>
 #include "../include/plans/spiral_stc/spiral_stc.hpp"
 
-#define SUB_CELL_SIZE 1
+#define R_SIZE 1 // robot size
+#define E_SIZE 40 // environment size
 
 using namespace wandrian::plans::spiral_stc;
 
@@ -101,15 +102,15 @@ int run(int argc, char **argv) {
 }
 
 int main(int argc, char **argv) {
-	CellPtr space = CellPtr(new Cell(PointPtr(new Point(0, 0)), 40));
+	CellPtr space = CellPtr(new Cell(PointPtr(new Point(0, 0)), E_SIZE));
 	std::list<PolygonPtr> obstacles;
 
 //	std::cout << "[Obstacles]:\n";
 	std::srand(std::time(0));
 
 	starting_point = PointPtr(
-			new Point((std::rand() % 20 - 10) * 2 + 1 + 0.5,
-					(std::rand() % 20 - 10) * 2 + 1 - 0.5));
+			new Point((std::rand() % (E_SIZE / 2) - (E_SIZE / 4)) * 2 + 1 + 0.5,
+					(std::rand() % (E_SIZE / 2) - (E_SIZE / 4)) * 2 + 1 - 0.5));
 
 	int r = std::rand() % 31 + 40;
 	for (int i = 0; i <= r; i++) {
@@ -136,7 +137,7 @@ int main(int argc, char **argv) {
 
 	environment = EnvironmentPtr(new Environment(space, obstacles));
 	spiral_stc = SpiralStcPtr(new SpiralStc());
-	spiral_stc->initialize(starting_point, SUB_CELL_SIZE);
+	spiral_stc->initialize(starting_point, R_SIZE);
 	spiral_stc->set_environment(environment);
 	spiral_stc->cover();
 

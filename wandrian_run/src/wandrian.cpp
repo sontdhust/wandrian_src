@@ -23,8 +23,6 @@ void Wandrian::run() {
 		spiral_stc = SpiralStcPtr(new SpiralStc());
 		spiral_stc->initialize(
 				PointPtr(new Point(starting_point_x, starting_point_y)), robot_size);
-		spiral_stc->set_behavior_go_with(
-				boost::bind(&Wandrian::spiral_stc_go_with, this, _1, _2));
 		spiral_stc->set_behavior_go_to(
 				boost::bind(&Wandrian::spiral_stc_go_to, this, _1, _2));
 		return spiral_stc->cover();
@@ -117,20 +115,8 @@ void Wandrian::move(bool forward) {
 
 bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibly) {
 	spiral_stc->path.insert(spiral_stc->path.end(), position);
+	std::cout << "  p: " << position->x << "," << position->y << "\n";
 	return go_to(position, flexibly);
-}
-
-bool Wandrian::spiral_stc_go_with(VectorPtr orientation, int step) {
-	PointPtr last_position = *(--(spiral_stc->path.end()));
-	PointPtr new_position = PointPtr(
-			new Point(
-					*last_position
-							+ *orientation * step * spiral_stc->get_sub_cell_size() / 2));
-	spiral_stc->path.insert(spiral_stc->path.end(), new_position);
-	std::cout << "  p: " << new_position->x << "," << new_position->y << "; ("
-			<< last_position->x << "," << last_position->y << "; " << orientation->x
-			<< "," << orientation->y << "; " << step << ")\n";
-	return go_to(new_position, STRICTLY);
 }
 
 }
