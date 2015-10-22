@@ -9,15 +9,15 @@
         <ray>
           <scan>
             <horizontal>
-              <samples>10</samples>
+              <samples>3</samples>
               <resolution>1</resolution>
-              <min_angle>${-M_PI/4}</min_angle>
-              <max_angle>${M_PI/4}</max_angle>
+              <min_angle>${-M_PI/2}</min_angle>
+              <max_angle>${M_PI/2}</max_angle>
             </horizontal>
           </scan>
           <range>
             <min>0.1</min>
-            <max>0.27</max>
+            <max>0.55</max> <!-- bigger than robot size -->
             <resolution>0.01</resolution>
           </range>
         </ray>

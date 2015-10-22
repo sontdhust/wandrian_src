@@ -14,7 +14,7 @@
 // TODO: Choose relevant epsilon values
 #define EPS_ORI_TO_ROTATE 0.06
 #define EPS_ORI_TO_MOVE 4 * EPS_ORI_TO_ROTATE
-#define EPS_POS 0.04
+#define EPS_POS 0.06
 
 namespace wandrian {
 
@@ -25,12 +25,13 @@ void Wandrian::run() {
 				PointPtr(new Point(starting_point_x, starting_point_y)), robot_size);
 		spiral_stc->set_behavior_go_to(
 				boost::bind(&Wandrian::spiral_stc_go_to, this, _1, _2));
+		spiral_stc->set_behavior_see_obstacle(
+				boost::bind(&Wandrian::spiral_stc_see_obstacle, this, _1, _2));
 		return spiral_stc->cover();
 	}
 }
 
 bool Wandrian::go_to(PointPtr new_position, bool flexibly) {
-	is_near_obstacle = false;
 	bool forward;
 	forward = rotate(new_position, flexibly);
 	move(forward);
@@ -52,13 +53,15 @@ bool Wandrian::go_to(PointPtr new_position, bool flexibly) {
 			move(forward);
 		}
 
-		if (!is_near_obstacle) {
+		if (distance_to_obstacle[1] > robot_size / 2) {
 			if (std::abs(new_position->x - current_position->x) < EPS_POS
 					&& std::abs(new_position->y - current_position->y) < EPS_POS) {
 				stop();
 				break;
 			}
 		} else {
+			// Obstacle
+			stop();
 			return false;
 		}
 	}
@@ -74,8 +77,8 @@ bool Wandrian::rotate(PointPtr new_position, bool flexibly) {
 			- atan2(current_orientation->y, current_orientation->x);
 	double a2 = (a1 > 0) ? a1 - 2 * M_PI : a1 + 2 * M_PI;
 	double angle = (std::abs(a1) < std::abs(a2)) ? a1 : a2;
-	std::cout << "      new_ori: " << new_orientation->x << ","
-			<< new_orientation->y << " (" << angle << ")" << "\n";
+//	std::cout << "      ori: " << new_orientation->x << "," << new_orientation->y
+//			<< " (" << angle << ")" << "\n";
 
 	bool will_move_forward = !flexibly ? true : std::abs(angle) < M_PI_2;
 	if (angle > EPS_ORI_TO_ROTATE)
@@ -115,8 +118,20 @@ void Wandrian::move(bool forward) {
 
 bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibly) {
 	spiral_stc->path.insert(spiral_stc->path.end(), position);
-	std::cout << "  p: " << position->x << "," << position->y << "\n";
+	std::cout << "    pos: " << position->x << "," << position->y << "\n";
 	return go_to(position, flexibly);
+}
+
+bool Wandrian::spiral_stc_see_obstacle(VectorPtr orientation, double step) {
+	// TODO: Correctly check whether obstacle is near or not
+	VectorPtr rel_ori = VectorPtr(
+			new Vector(*orientation - *current_orientation));
+	return
+			(-robot_size / 2 <= rel_ori->x && rel_ori->x <= robot_size / 2) ?
+					distance_to_obstacle[IN_FRONT] <= step * robot_size :
+					(rel_ori->x > robot_size / 2 ?
+							distance_to_obstacle[AT_RIGHT_SIDE] <= step * robot_size :
+							distance_to_obstacle[AT_LEFT_SIDE] <= step * robot_size);
 }
 
 }

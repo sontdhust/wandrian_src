@@ -13,8 +13,9 @@
 #include <boost/next_prior.hpp>
 #include "../include/plans/spiral_stc/spiral_stc.hpp"
 
-#define R_SIZE 1 // robot size
-#define E_SIZE 40 // environment size
+#define R_SIZE 0.5 // robot size
+#define E_SIZE 20.0 // environment size
+//#define E_SIZE 4.0
 
 using namespace wandrian::plans::spiral_stc;
 
@@ -47,7 +48,7 @@ void display() {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	glScalef(0.25, 0.25, 0);
+	glScalef(0.5, 0.5, 0);
 
 	// Center point
 	glPointSize(4);
@@ -60,10 +61,10 @@ void display() {
 	glPointSize(1);
 	glColor3ub(255, 255, 255);
 	glBegin(GL_POINTS);
-	for (int i = -20; i <= 20; i++) {
-		for (int j = -20; j <= 20; j++) {
+	for (int i = -E_SIZE; i <= E_SIZE; i++) {
+		for (int j = -E_SIZE; j <= E_SIZE; j++) {
 			if ((i != 0 || j != 0) && i % 2 == 0 && j % 2 == 0)
-				glVertex2i(i, j);
+				glVertex2i((double) i / 2, (double) j / 2);
 		}
 	}
 	glEnd();
@@ -109,25 +110,33 @@ int main(int argc, char **argv) {
 	std::srand(std::time(0));
 
 	starting_point = PointPtr(
-			new Point((std::rand() % (E_SIZE / 2) - (E_SIZE / 4)) * 2 + 1 + 0.5,
-					(std::rand() % (E_SIZE / 2) - (E_SIZE / 4)) * 2 + 1 - 0.5));
+			new Point(
+					(std::rand() % (int) (E_SIZE / R_SIZE / 2.0)
+							- (int) (E_SIZE / R_SIZE / 4.0)) + R_SIZE + R_SIZE / 2,
+					(std::rand() % (int) (E_SIZE / R_SIZE / 2.0)
+							- (int) (E_SIZE / R_SIZE / 4.0)) + R_SIZE - R_SIZE / 2));
+//	starting_point = PointPtr(new Point(0.75, -0.75));
 
 	int r = std::rand() % 31 + 40;
+//	r = -1;
 	for (int i = 0; i <= r; i++) {
 		PointPtr center = PointPtr(
-				new Point((std::rand() % 20 - 10) * 2 + 1,
-						(std::rand() % 20 - 10) * 2 + 1));
+				new Point(
+						(std::rand() % (int) (E_SIZE / R_SIZE / 2.0)
+								- (int) (E_SIZE / R_SIZE / 4.0)) + R_SIZE,
+						(std::rand() % (int) (E_SIZE / R_SIZE / 2.0)
+								- (int) (E_SIZE / R_SIZE / 4.0)) + R_SIZE));
 		bool valid = true;
 		for (std::list<PolygonPtr>::iterator p = obstacles.begin();
 				p != obstacles.end(); p++)
 			if (*((boost::static_pointer_cast<Cell>(*p))->get_center()) == *center
-					|| (center->x == starting_point->x - 0.5
-							&& center->y == starting_point->y + 0.5)) {
+					|| (center->x == starting_point->x - R_SIZE / 2
+							&& center->y == starting_point->y + R_SIZE / 2)) {
 				valid = false;
 				break;
 			};
 		if (valid) {
-			obstacles.insert(obstacles.end(), CellPtr(new Cell(center, 2)));
+			obstacles.insert(obstacles.end(), CellPtr(new Cell(center, 2 * R_SIZE)));
 //			std::cout
 //					<< "  obstacles.insert(obstacles.end(), CellPtr(new Cell(PointPtr(new Point("
 //					<< center->x << ", " << center->y << ")), 2)));\n";

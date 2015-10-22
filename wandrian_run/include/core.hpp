@@ -17,6 +17,10 @@
 #include "../include/common/point.hpp"
 #include "../include/common/vector.hpp"
 
+#define AT_RIGHT_SIDE 0
+#define IN_FRONT 1
+#define AT_LEFT_SIDE 2
+
 using namespace wandrian::common;
 
 namespace wandrian {
@@ -31,7 +35,7 @@ public:
 
 protected:
 	PointPtr current_position; // odom subscriber
-	bool is_near_obstacle; // laser subscriber
+	double distance_to_obstacle[3]; // laser subscriber
 	VectorPtr current_orientation;
 	geometry_msgs::TwistPtr velocity;
 	double linear_vel_step, linear_vel_max, angular_vel_step, angular_vel_max;

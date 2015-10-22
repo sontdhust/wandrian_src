@@ -13,11 +13,11 @@
 namespace wandrian {
 
 Core::Core() :
-		current_position(new Point(0, 0)), is_near_obstacle(false), current_orientation(
-				new Vector(0, 1)), velocity(new geometry_msgs::Twist()), linear_vel_step(
-				0), linear_vel_max(0), angular_vel_step(0), angular_vel_max(0), robot_size(
-				0), starting_point_x(0), starting_point_y(0), is_quitting(false), is_powered(
-				false), is_zero_vel(true), is_logging(false), file_descriptor(0) {
+		current_position(new Point(0, 0)), current_orientation(new Vector(0, 1)), velocity(
+				new geometry_msgs::Twist()), linear_vel_step(0), linear_vel_max(0), angular_vel_step(
+				0), angular_vel_max(0), robot_size(0), starting_point_x(0), starting_point_y(
+				0), is_quitting(false), is_powered(false), is_zero_vel(true), is_logging(
+				false), file_descriptor(0) {
 	tcgetattr(file_descriptor, &terminal); // get terminal properties
 }
 
@@ -37,6 +37,10 @@ bool Core::initialize() {
 	nh.getParam("linear_vel_max", linear_vel_max);
 	nh.getParam("angular_vel_step", angular_vel_step);
 	nh.getParam("angular_vel_max", angular_vel_max);
+
+	distance_to_obstacle[AT_RIGHT_SIDE] = robot_size;
+	distance_to_obstacle[IN_FRONT] = robot_size;
+	distance_to_obstacle[AT_LEFT_SIDE] = robot_size;
 
 	ROS_INFO_STREAM("[Launch]: Using arg plan(" << plan << ")");
 	ROS_INFO_STREAM("[Launch]: Using arg robot_size(" << robot_size << ")");
@@ -211,7 +215,7 @@ void Core::process_keyboard_input(char c) {
 		break;
 	case 'i':
 		ROS_INFO_STREAM(
-				"[Odom]: Pos(" << current_position->x << "," << current_position->y << "); " << "Ori(" << current_orientation->x << "," << current_orientation->y << ")");
+				"[Odom]: Pos(" << current_position->x << "," << current_position->y << "); " << "Ori(" << current_orientation->x << "," << current_orientation->y << "). [Laser]: Dist(" << distance_to_obstacle[AT_RIGHT_SIDE] << "," << distance_to_obstacle[IN_FRONT] << "," << distance_to_obstacle[AT_LEFT_SIDE] << ")");
 		break;
 	case 'r':
 		ROS_INFO_STREAM("[Run]: " << "Start running");
@@ -262,19 +266,17 @@ void Core::subscribe_odometry(const nav_msgs::OdometryConstPtr& odom) {
 }
 
 void Core::subscribe_laser(const sensor_msgs::LaserScanConstPtr& laser) {
-	bool prev_state = is_near_obstacle;
-	for (int i = 0; i < laser->ranges.size(); i++) {
-		if (laser->ranges[i] < laser->range_max) {
-			is_near_obstacle = true;
-			if (prev_state != is_near_obstacle) {
-				stop();
-				if (is_logging)
-					ROS_WARN_STREAM("[Laser]: Obs");
-			}
-			return;
-		}
+	distance_to_obstacle[AT_RIGHT_SIDE] = laser->ranges[0];
+	distance_to_obstacle[IN_FRONT] = laser->ranges[laser->ranges.size() / 2];
+	distance_to_obstacle[AT_LEFT_SIDE] = laser->ranges[laser->ranges.size() - 1];
+	if (is_logging) {
+		if (distance_to_obstacle[AT_RIGHT_SIDE] < laser->range_max)
+			ROS_WARN_STREAM("[Laser]: Obs(Right)");
+		if (distance_to_obstacle[IN_FRONT] < laser->range_max)
+			ROS_WARN_STREAM("[Laser]: Obs(Ahead)");
+		if (distance_to_obstacle[AT_LEFT_SIDE] < laser->range_max)
+			ROS_WARN_STREAM("[Laser]: Obs(Left)");
 	}
-	is_near_obstacle = false;
 }
 
 }

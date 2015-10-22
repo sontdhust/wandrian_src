@@ -54,7 +54,7 @@ bool SpiralStc::go_to(PointPtr position, bool flexibly) {
 		return behavior_go_to(position, flexibly);
 
 	path.insert(path.end(), position);
-	std::cout << "  p: " << position->x << "," << position->y << "\n";
+	std::cout << "    pos: " << position->x << "," << position->y << "\n";
 	return true;
 }
 
@@ -135,11 +135,10 @@ void SpiralStc::spiral_stc(CellPtr current) {
 			// Go to next sub-cell
 			go_with(orientation->rotate_counterclockwise(), 2);
 		} else { // New free neighbor
-			go_with(orientation, 1);
 			neighbor->set_parent(current);
 			// Construct a spanning-tree edge
 			current->neighbors.insert(current->neighbors.end(), neighbor);
-			go_with(orientation, 1);
+			go_with(orientation, 2);
 			spiral_stc(neighbor);
 		}
 	}

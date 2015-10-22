@@ -32,7 +32,7 @@ private:
 
 	// Behaviors
 	bool spiral_stc_go_to(PointPtr, bool);
-	bool spiral_stc_go_with(VectorPtr, int);
+	bool spiral_stc_see_obstacle(VectorPtr, double);
 };
 
 }
