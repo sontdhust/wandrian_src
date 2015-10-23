@@ -30,7 +30,7 @@ typedef boost::shared_ptr<Segment const> SegmentConstPtr;
 /**
  * Find intersect between 2 segments
  */
-inline PointPtr operator %(const Segment &a, const Segment &b) {
+inline PointPtr operator%(const Segment &a, const Segment &b) {
 	double dx;
 	double dy;
 

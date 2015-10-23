@@ -26,8 +26,7 @@ public:
 	void initialize(PointPtr, double);
 	/* __attribute__((will_be_removed)) */
 	void set_environment(EnvironmentPtr);
-	double get_sub_cell_size();
-	void set_behavior_go_with(boost::function<bool(VectorPtr, int)>);
+	void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
 	void cover();
 
 protected:
@@ -37,10 +36,11 @@ private:
 	/* __attribute__((will_be_removed)) */
 	EnvironmentPtr environment;
 	CellPtr starting_cell;
-	double sub_cell_size; // = 'robot size' = 'cell size' / 2
-	boost::function<bool(VectorPtr, int)> behavior_go_with;
+	double robot_size; // = 'cell size' / 2
+	boost::function<bool(VectorPtr, double)> behavior_see_obstacle;
 
-	bool go_with(VectorPtr, int);
+	bool see_obstacle(VectorPtr, double);
+	bool go_with(VectorPtr, double);
 	void spiral_stc(CellPtr);
 	bool check(CellPtr);
 };
