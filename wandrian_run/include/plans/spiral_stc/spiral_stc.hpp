@@ -21,28 +21,28 @@ namespace spiral_stc {
 class SpiralStc: public BasePlan {
 
 public:
-	SpiralStc();
-	~SpiralStc();
-	void initialize(PointPtr, double);
-	/* __attribute__((will_be_removed)) */
-	void set_environment(EnvironmentPtr);
-	void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
-	void cover();
+  SpiralStc();
+  ~SpiralStc();
+  void initialize(PointPtr, double);
+  /* __attribute__((will_be_removed)) */
+  void set_environment(EnvironmentPtr);
+  void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
+  void cover();
 
 protected:
-	bool go_to(PointPtr, bool);
+  bool go_to(PointPtr, bool);
 
 private:
-	/* __attribute__((will_be_removed)) */
-	EnvironmentPtr environment;
-	CellPtr starting_cell;
-	double robot_size; // = 'cell size' / 2
-	boost::function<bool(VectorPtr, double)> behavior_see_obstacle;
+  /* __attribute__((will_be_removed)) */
+  EnvironmentPtr environment;
+  CellPtr starting_cell;
+  double robot_size; // = 'cell size' / 2
+  boost::function<bool(VectorPtr, double)> behavior_see_obstacle;
 
-	bool see_obstacle(VectorPtr, double);
-	bool go_with(VectorPtr, double);
-	void spiral_stc(CellPtr);
-	bool check(CellPtr);
+  bool see_obstacle(VectorPtr, double);
+  bool go_with(VectorPtr, double);
+  void spiral_stc(CellPtr);
+  bool check(CellPtr);
 };
 
 typedef boost::shared_ptr<SpiralStc> SpiralStcPtr;

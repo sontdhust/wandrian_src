@@ -10,14 +10,14 @@
 using namespace wandrian;
 
 int main(int argc, char **argv) {
-	ros::init(argc, argv, "run");
-	Wandrian wandrian;
-	if (wandrian.initialize()) {
-		wandrian.spin();
-	} else {
-		ROS_ERROR_STREAM("Couldn't initialize Core!");
-	}
+  ros::init(argc, argv, "run");
+  Wandrian wandrian;
+  if (wandrian.initialize()) {
+    wandrian.spin();
+  } else {
+    ROS_ERROR_STREAM("Couldn't initialize Core!");
+  }
 
-	ROS_INFO_STREAM("Program exiting");
-	return 0;
+  ROS_INFO_STREAM("Program exiting");
+  return 0;
 }

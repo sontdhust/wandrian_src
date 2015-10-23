@@ -11,23 +11,27 @@ namespace wandrian {
 namespace plans {
 
 BasePlan::~BasePlan() {
-	// Override this method
+  // Override this method
 }
 
 void BasePlan::set_behavior_go_to(
-		boost::function<bool(PointPtr, bool)> behavior_go_to) {
-	this->behavior_go_to = behavior_go_to;
+    boost::function<bool(PointPtr, bool)> behavior_go_to) {
+  this->behavior_go_to = behavior_go_to;
 }
 
 void BasePlan::cover() {
-	// Override this method
+  // Override this method
 }
 
 bool BasePlan::go_to(PointPtr position, bool flexibly) {
-	// Override this method
-	if (behavior_go_to != NULL)
-		return behavior_go_to(position, flexibly);
-	return true;
+  // Override this method
+  if (behavior_go_to != NULL)
+    return behavior_go_to(position, flexibly);
+  return true;
+}
+
+std::list<PointPtr> BasePlan::get_path() {
+  return path;
 }
 
 }

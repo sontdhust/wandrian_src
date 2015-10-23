@@ -19,20 +19,20 @@ namespace wandrian {
 class Wandrian: public Core {
 
 protected:
-	void run();
+  void run();
 
 private:
-	SpiralStcPtr spiral_stc;
+  SpiralStcPtr spiral_stc;
 
-	// Helpers
-	bool go_to(PointPtr, bool);
-	bool rotate(PointPtr, bool);
-	void rotate(bool);
-	void move(bool);
+  // Helpers
+  bool go_to(PointPtr, bool);
+  bool rotate(PointPtr, bool);
+  void rotate(bool);
+  void move(bool);
 
-	// Behaviors
-	bool spiral_stc_go_to(PointPtr, bool);
-	bool spiral_stc_see_obstacle(VectorPtr, double);
+  // Behaviors
+  bool spiral_stc_go_to(PointPtr, bool);
+  bool spiral_stc_see_obstacle(VectorPtr, double);
 };
 
 }

@@ -18,10 +18,10 @@ namespace common {
 
 struct Point {
 
-	double x, y;
+  double x, y;
 
-	Point(double, double);
-	Point(const Point&);
+  Point(double, double);
+  Point(const Point&);
 
 };
 
@@ -29,31 +29,31 @@ typedef boost::shared_ptr<Point const> PointConstPtr;
 typedef boost::shared_ptr<Point> PointPtr;
 
 inline double operator%(const Point &p1, const Point &p2) {
-	return std::sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2));
+  return std::sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2));
 }
 
 inline bool operator<(const Point &p1, const Point &p2) {
-	// TODO Choose relevant epsilon value
-	double EPS = 20 * std::numeric_limits<double>::epsilon();
-	return std::abs(p1.x - p2.x) > EPS ? p1.x - p2.x < -EPS : p1.y - p2.y < -EPS;
+  // TODO Choose relevant epsilon value
+  double EPS = 20 * std::numeric_limits<double>::epsilon();
+  return std::abs(p1.x - p2.x) > EPS ? p1.x - p2.x < -EPS : p1.y - p2.y < -EPS;
 }
 
 inline bool operator!=(const Point &p1, const Point &p2) {
-	return p1 < p2 || p2 < p1;
+  return p1 < p2 || p2 < p1;
 }
 
 inline bool operator==(const Point &p1, const Point &p2) {
-	return !(p1 != p2);
+  return !(p1 != p2);
 }
 
 inline bool operator>(const Point &p1, const Point &p2) {
-	return p1 != p2 && !(p1 < p2);
+  return p1 != p2 && !(p1 < p2);
 }
 
 struct PointComp {
-	bool operator()(PointConstPtr p1, PointConstPtr p2) const {
-		return *p1 < *p2;
-	}
+  bool operator()(PointConstPtr p1, PointConstPtr p2) const {
+    return *p1 < *p2;
+  }
 };
 
 }

@@ -11,15 +11,15 @@ namespace wandrian {
 namespace common {
 
 Vector::Vector(double x, double y) :
-		x(x), y(y) {
+    x(x), y(y) {
 }
 
 Vector::Vector(const Vector &vector) :
-		x(vector.x), y(vector.y) {
+    x(vector.x), y(vector.y) {
 }
 
 VectorPtr Vector::rotate_counterclockwise() {
-	return VectorPtr(new Vector(-y, x));
+  return VectorPtr(new Vector(-y, x));
 }
 
 }

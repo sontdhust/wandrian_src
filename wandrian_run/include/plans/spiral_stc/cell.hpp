@@ -22,18 +22,18 @@ namespace spiral_stc {
 class Cell: public Polygon {
 
 public:
-	std::list<boost::shared_ptr<Cell> > neighbors;
+  std::list<boost::shared_ptr<Cell> > neighbors;
 
-	Cell(PointPtr, double);
-	PointPtr get_center();
-	double get_size();
-	void set_parent(boost::shared_ptr<Cell>);
-	boost::shared_ptr<Cell> get_parent();
+  Cell(PointPtr, double);
+  PointPtr get_center();
+  double get_size();
+  void set_parent(boost::shared_ptr<Cell>);
+  boost::shared_ptr<Cell> get_parent();
 
 private:
-	PointPtr center;
-	double size;
-	boost::shared_ptr<Cell> parent;
+  PointPtr center;
+  double size;
+  boost::shared_ptr<Cell> parent;
 };
 
 typedef boost::shared_ptr<Cell> CellPtr;
