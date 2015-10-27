@@ -53,7 +53,7 @@ bool Wandrian::go_to(PointPtr new_position, bool flexibly) {
       move(forward);
     }
 
-    if (distance_to_obstacle[1] > robot_size / 2) {
+    if (distance_to_obstacle[IN_FRONT] > robot_size / 2) {
       if (std::abs(new_position->x - current_position->x) < EPS_POS
           && std::abs(new_position->y - current_position->y) < EPS_POS) {
         stop();

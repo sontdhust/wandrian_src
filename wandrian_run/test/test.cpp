@@ -10,14 +10,19 @@
 #include <set>
 #include <ctime>
 #include <cstdlib>
+#include <stdlib.h>
 #include <boost/next_prior.hpp>
+#include <sstream>
+#include <fstream>
 #include "../include/plans/spiral_stc/spiral_stc.hpp"
 
 #define R_SIZE 0.5 // robot size
-#define E_SIZE 20.0 // environment size
-//#define E_SIZE 4.0
+#define E_SIZE 20.0 // default environment size
+#define WORLD_INSERT_OBSTACLE "<!-- INSERT: Bound and Obstacles here -->" // flag at original world file to insert bound and obstacles into
 
 using namespace wandrian::plans::spiral_stc;
+
+double e_size = 0;
 
 EnvironmentPtr environment;
 PointPtr starting_point;
@@ -61,8 +66,8 @@ void display() {
   glPointSize(1);
   glColor3ub(255, 255, 255);
   glBegin(GL_POINTS);
-  for (int i = -E_SIZE; i <= E_SIZE; i++) {
-    for (int j = -E_SIZE; j <= E_SIZE; j++) {
+  for (int i = -e_size; i <= e_size; i++) {
+    for (int j = -e_size; j <= e_size; j++) {
       if ((i != 0 || j != 0) && i % 2 == 0 && j % 2 == 0)
         glVertex2i((double) i / 2, (double) j / 2);
     }
@@ -103,29 +108,33 @@ int run(int argc, char **argv) {
 }
 
 int main(int argc, char **argv) {
-  CellPtr space = CellPtr(new Cell(PointPtr(new Point(0, 0)), E_SIZE));
+  if (argc >= 1) {
+    std::istringstream iss(argv[1]);
+    if (!(iss >> e_size)
+        || !(4 <= e_size && e_size <= E_SIZE && (int) e_size % 4 == 0)) {
+      e_size = E_SIZE;
+    }
+  }
+
+  CellPtr space = CellPtr(new Cell(PointPtr(new Point(0, 0)), e_size));
   std::list<PolygonPtr> obstacles;
 
-//	std::cout << "[Obstacles]:\n";
   std::srand(std::time(0));
-
   starting_point = PointPtr(
       new Point(
-          (std::rand() % (int) (E_SIZE / R_SIZE / 2.0)
-              - (int) (E_SIZE / R_SIZE / 4.0)) + R_SIZE + R_SIZE / 2,
-          (std::rand() % (int) (E_SIZE / R_SIZE / 2.0)
-              - (int) (E_SIZE / R_SIZE / 4.0)) + R_SIZE - R_SIZE / 2));
-//	starting_point = PointPtr(new Point(0.75, -0.75));
+          (std::rand() % (int) (e_size / R_SIZE / 2.0)
+              - (int) (e_size / R_SIZE / 4.0)) + R_SIZE + R_SIZE / 2,
+          (std::rand() % (int) (e_size / R_SIZE / 2.0)
+              - (int) (e_size / R_SIZE / 4.0)) + R_SIZE - R_SIZE / 2));
 
-  int r = std::rand() % 31 + 40;
-//	r = -1;
+  int r = std::rand() % (int) (e_size * e_size / 16) + e_size * e_size / 8;
   for (int i = 0; i <= r; i++) {
     PointPtr center = PointPtr(
         new Point(
-            (std::rand() % (int) (E_SIZE / R_SIZE / 2.0)
-                - (int) (E_SIZE / R_SIZE / 4.0)) + R_SIZE,
-            (std::rand() % (int) (E_SIZE / R_SIZE / 2.0)
-                - (int) (E_SIZE / R_SIZE / 4.0)) + R_SIZE));
+            (std::rand() % (int) (e_size / R_SIZE / 2.0)
+                - (int) (e_size / R_SIZE / 4.0)) + R_SIZE,
+            (std::rand() % (int) (e_size / R_SIZE / 2.0)
+                - (int) (e_size / R_SIZE / 4.0)) + R_SIZE));
     bool valid = true;
     for (std::list<PolygonPtr>::iterator p = obstacles.begin();
         p != obstacles.end(); p++)
@@ -137,12 +146,127 @@ int main(int argc, char **argv) {
       };
     if (valid) {
       obstacles.insert(obstacles.end(), CellPtr(new Cell(center, 2 * R_SIZE)));
-//			std::cout
-//					<< "  obstacles.insert(obstacles.end(), CellPtr(new Cell(PointPtr(new Point("
-//					<< center->x << ", " << center->y << ")), 2)));\n";
     }
   }
-//	std::cout << "\n";
+
+  std::ifstream world_in("../../worlds/empty.world");
+  std::ofstream world_out("../../worlds/tmp.world");
+  std::string line;
+  while (std::getline(world_in, line, '\n')) {
+    world_out << line << '\n';
+    if (line.find(WORLD_INSERT_OBSTACLE) != std::string::npos) {
+      int n;
+      n = 1;
+      // Upper bound
+      for (double i = -e_size / 2 + R_SIZE / 2; i <= e_size / 2 - R_SIZE / 2;
+          i += R_SIZE) {
+        world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
+        world_out << "      <include>\n";
+        world_out << "        <uri>model://cinder_block</uri>\n";
+        world_out << "      </include>\n";
+        world_out << "      <pose>" << i << " " << (e_size / 2 + R_SIZE / 4)
+            << " 0 0 0 0</pose>\n";
+        world_out << "      <static>1</static>\n";
+        world_out << "    </model>\n";
+        n++;
+      }
+
+      // Right bound
+      for (double i = -e_size / 2 + R_SIZE / 2; i <= e_size / 2 - R_SIZE / 2;
+          i += R_SIZE) {
+        world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
+        world_out << "      <include>\n";
+        world_out << "        <uri>model://cinder_block</uri>\n";
+        world_out << "      </include>\n";
+        world_out << "      <pose>" << (e_size / 2 + R_SIZE / 4) << " " << -i
+            << " 0 0 0 " << M_PI_2 << "</pose>\n";
+        world_out << "      <static>1</static>\n";
+        world_out << "    </model>\n";
+        n++;
+      }
+
+      // Lower bound
+      for (double i = -e_size / 2 + R_SIZE / 2; i <= e_size / 2 - R_SIZE / 2;
+          i += R_SIZE) {
+        world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
+        world_out << "      <include>\n";
+        world_out << "        <uri>model://cinder_block</uri>\n";
+        world_out << "      </include>\n";
+        world_out << "      <pose>" << -i << " " << -(e_size / 2 + R_SIZE / 4)
+            << " 0 0 0 0</pose>\n";
+        world_out << "      <static>1</static>\n";
+        world_out << "    </model>\n";
+        n++;
+      }
+
+      // Left bound
+      for (double i = -e_size / 2 + R_SIZE / 2; i <= e_size / 2 - R_SIZE / 2;
+          i += R_SIZE) {
+        world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
+        world_out << "      <include>\n";
+        world_out << "        <uri>model://cinder_block</uri>\n";
+        world_out << "      </include>\n";
+        world_out << "      <pose>" << -(e_size / 2 + R_SIZE / 4) << " " << i
+            << " 0 0 0 " << M_PI_2 << "</pose>\n";
+        world_out << "      <static>1</static>\n";
+        world_out << "    </model>\n";
+        n++;
+      }
+
+      n = 1;
+      // Obstacles
+      for (std::list<PolygonPtr>::iterator o = obstacles.begin();
+          o != obstacles.end(); o++) {
+        PointPtr p = (boost::static_pointer_cast<Cell>(*o))->get_center();
+        int c = 1;
+        for (double i = p->y - R_SIZE * 3 / 4; i <= p->y + R_SIZE * 3 / 4;
+            i += R_SIZE / 2) {
+          world_out << "    <model name='cinder_block_obstacle_" << n << "_"
+              << c << "'>\n";
+          world_out << "      <include>\n";
+          world_out << "        <uri>model://cinder_block</uri>\n";
+          world_out << "      </include>\n";
+          world_out << "      <pose>" << p->x << " " << i
+              << " 0 0 0 0</pose>\n";
+          world_out << "      <static>1</static>\n";
+          world_out << "    </model>\n";
+          c++;
+        }
+
+        for (double i = p->y - R_SIZE / 2; i <= p->y + R_SIZE / 2; i +=
+            R_SIZE) {
+          world_out << "    <model name='cinder_block_obstacle_" << n << "_"
+              << c << "'>\n";
+          world_out << "      <include>\n";
+          world_out << "        <uri>model://cinder_block</uri>\n";
+          world_out << "      </include>\n";
+          world_out << "      <pose>" << p->x - R_SIZE * 3 / 4 << " " << i
+              << " 0 0 0 " << M_PI_2 << "</pose>\n";
+          world_out << "      <static>1</static>\n";
+          world_out << "    </model>\n";
+          c++;
+        }
+
+        for (double i = p->y - R_SIZE / 2; i <= p->y + R_SIZE / 2; i +=
+            R_SIZE) {
+          world_out << "    <model name='cinder_block_obstacle_" << n << "_"
+              << c << "'>\n";
+          world_out << "      <include>\n";
+          world_out << "        <uri>model://cinder_block</uri>\n";
+          world_out << "      </include>\n";
+          world_out << "      <pose>" << p->x + R_SIZE * 3 / 4 << " " << i
+              << " 0 0 0 " << M_PI_2 << "</pose>\n";
+          world_out << "      <static>1</static>\n";
+          world_out << "    </model>\n";
+          c++;
+        }
+
+        n++;
+      }
+    }
+  }
+  world_in.close();
+  world_out.close();
 
   environment = EnvironmentPtr(new Environment(space, obstacles));
   spiral_stc = SpiralStcPtr(new SpiralStc());

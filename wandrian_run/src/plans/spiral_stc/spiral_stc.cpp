@@ -62,7 +62,7 @@ bool SpiralStc::see_obstacle(VectorPtr orientation, double step) {
   if (behavior_see_obstacle != NULL)
     return behavior_see_obstacle(orientation, step);
 
-  // Simulator check obstacle here
+  // Simulator check obstacle
   PointPtr last_position = *(--path.end());
   PointPtr new_position = PointPtr(
       new Point(*last_position + *orientation * step * robot_size / 2));
@@ -127,14 +127,13 @@ void SpiralStc::spiral_stc(CellPtr current) {
       // Go to next sub-cell
       go_with(orientation->rotate_counterclockwise(), 2);
       continue;
-    } else {
-      std::cout << "\n";
     }
     if (see_obstacle(orientation, 1)) { // TODO: Check obstacle here
-      std::cout << "    \033[1;46m(OBSTACLE)\033[0m\n";
+      std::cout << " \033[1;46m(OBSTACLE)\033[0m\n";
       // Go to next sub-cell
       go_with(orientation->rotate_counterclockwise(), 2);
     } else { // New free neighbor
+      std::cout << "\n";
       neighbor->set_parent(current);
       // Construct a spanning-tree edge
       current->neighbors.insert(current->neighbors.end(), neighbor);
