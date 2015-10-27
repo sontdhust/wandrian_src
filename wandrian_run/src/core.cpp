@@ -8,6 +8,7 @@
 #include <kobuki_msgs/MotorPower.h>
 #include <kobuki_msgs/KeyboardInput.h>
 #include <ecl/time.hpp>
+#include <algorithm>
 #include "../include/core.hpp"
 
 namespace wandrian {
@@ -266,9 +267,14 @@ void Core::subscribe_odometry(const nav_msgs::OdometryConstPtr& odom) {
 }
 
 void Core::subscribe_laser(const sensor_msgs::LaserScanConstPtr& laser) {
-  distance_to_obstacle[AT_RIGHT_SIDE] = laser->ranges[0];
-  distance_to_obstacle[IN_FRONT] = laser->ranges[laser->ranges.size() / 2];
-  distance_to_obstacle[AT_LEFT_SIDE] = laser->ranges[laser->ranges.size() - 1];
+  distance_to_obstacle[AT_RIGHT_SIDE] = *std::min_element(&laser->ranges[0],
+      &laser->ranges[0] + laser->ranges.size() / 3);
+  distance_to_obstacle[IN_FRONT] = *std::min_element(
+      &laser->ranges[0] + laser->ranges.size() / 3 + 1,
+      &laser->ranges[0] + laser->ranges.size() * 2 / 3);
+  distance_to_obstacle[AT_LEFT_SIDE] = *std::min_element(
+      &laser->ranges[0] + laser->ranges.size() * 2 / 3 + 1,
+      &laser->ranges[0] + laser->ranges.size());
   if (is_logging) {
     if (distance_to_obstacle[AT_RIGHT_SIDE] <= robot_size)
       ROS_WARN_STREAM("[Laser]: Obs(Right)");

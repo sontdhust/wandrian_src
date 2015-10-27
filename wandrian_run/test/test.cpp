@@ -94,6 +94,12 @@ void display() {
   glColor3ub(0, 255, 0);
   draw(spiral_stc->get_path(), GL_LINE_STRIP);
 
+  glRasterPos2i(0, -11);
+  std::stringstream ss;
+  ss << starting_point->x << ", " << starting_point->y;
+  for (int i = 0; i < ss.str().length(); i++)
+    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ss.str()[i]);
+
   glutSwapBuffers();
 }
 
@@ -226,41 +232,25 @@ int main(int argc, char **argv) {
           world_out << "      <include>\n";
           world_out << "        <uri>model://cinder_block</uri>\n";
           world_out << "      </include>\n";
-          world_out << "      <pose>" << p->x << " " << i
+          world_out << "      <pose>" << p->x - R_SIZE / 2 << " " << i
               << " 0 0 0 0</pose>\n";
           world_out << "      <static>1</static>\n";
           world_out << "    </model>\n";
           c++;
         }
-
-        for (double i = p->y - R_SIZE / 2; i <= p->y + R_SIZE / 2; i +=
-            R_SIZE) {
+        for (double i = p->y - R_SIZE * 3 / 4; i <= p->y + R_SIZE * 3 / 4;
+            i += R_SIZE / 2) {
           world_out << "    <model name='cinder_block_obstacle_" << n << "_"
               << c << "'>\n";
           world_out << "      <include>\n";
           world_out << "        <uri>model://cinder_block</uri>\n";
           world_out << "      </include>\n";
-          world_out << "      <pose>" << p->x - R_SIZE * 3 / 4 << " " << i
-              << " 0 0 0 " << M_PI_2 << "</pose>\n";
+          world_out << "      <pose>" << p->x + R_SIZE / 2 << " " << i
+              << " 0 0 0 0</pose>\n";
           world_out << "      <static>1</static>\n";
           world_out << "    </model>\n";
           c++;
         }
-
-        for (double i = p->y - R_SIZE / 2; i <= p->y + R_SIZE / 2; i +=
-            R_SIZE) {
-          world_out << "    <model name='cinder_block_obstacle_" << n << "_"
-              << c << "'>\n";
-          world_out << "      <include>\n";
-          world_out << "        <uri>model://cinder_block</uri>\n";
-          world_out << "      </include>\n";
-          world_out << "      <pose>" << p->x + R_SIZE * 3 / 4 << " " << i
-              << " 0 0 0 " << M_PI_2 << "</pose>\n";
-          world_out << "      <static>1</static>\n";
-          world_out << "    </model>\n";
-          c++;
-        }
-
         n++;
       }
     }

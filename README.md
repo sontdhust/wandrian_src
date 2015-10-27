@@ -10,7 +10,7 @@ _Add_:
  
 ####Setup:
 
-Change to catkin root directory then run
+Change to catkin root directory then run:
 
     $ catkin_make
     $ . devel/setup.bash

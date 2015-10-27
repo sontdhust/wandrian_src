@@ -118,8 +118,6 @@ bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibly) {
 bool Wandrian::spiral_stc_see_obstacle(VectorPtr orientation, double step) {
   // TODO: Correctly check whether obstacle is near or not
   double angle = *orientation ^ *current_orientation;
-  std::cout << "      ang: " << angle << "; ori: " << orientation->x << ","
-      << orientation->y << "\n";
   return
       (std::abs(angle) <= M_PI_4) ?
           distance_to_obstacle[IN_FRONT] <= step * robot_size :
