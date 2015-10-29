@@ -53,7 +53,7 @@ bool Wandrian::go_to(PointPtr new_position, bool flexibly) {
       move(forward);
     }
 
-    if (distance_to_obstacle[IN_FRONT] > robot_size / 2) {
+    if (!see_obstacle[IN_FRONT]) {
       if (std::abs(new_position->x - current_position->x) < EPS_POS
           && std::abs(new_position->y - current_position->y) < EPS_POS) {
         stop();
@@ -120,10 +120,9 @@ bool Wandrian::spiral_stc_see_obstacle(VectorPtr orientation, double step) {
   double angle = *orientation ^ *current_orientation;
   return
       (std::abs(angle) <= M_PI_4) ?
-          distance_to_obstacle[IN_FRONT] <= step * robot_size :
-          (angle > M_PI_4 ?
-              distance_to_obstacle[AT_LEFT_SIDE] <= step * robot_size :
-              distance_to_obstacle[AT_RIGHT_SIDE] <= step * robot_size);
+          see_obstacle[IN_FRONT] :
+          ((angle > M_PI_4) ?
+              see_obstacle[AT_LEFT_SIDE] : see_obstacle[AT_RIGHT_SIDE]);
 }
 
 }

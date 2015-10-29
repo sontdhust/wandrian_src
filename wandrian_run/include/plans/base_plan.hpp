@@ -24,7 +24,6 @@ namespace plans {
 class BasePlan {
 
 public:
-
   virtual ~BasePlan();
   void set_behavior_go_to(boost::function<bool(PointPtr, bool)>);
   virtual void cover();

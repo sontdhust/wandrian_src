@@ -8,8 +8,11 @@
 #include <kobuki_msgs/MotorPower.h>
 #include <kobuki_msgs/KeyboardInput.h>
 #include <ecl/time.hpp>
-#include <algorithm>
 #include "../include/core.hpp"
+
+// TODO: Choose relevant value
+#define THRESHOLD_COUNT 0.5
+#define THRESHOLD_RANGE 0.9
 
 namespace wandrian {
 
@@ -39,25 +42,9 @@ bool Core::initialize() {
   nh.getParam("angular_vel_step", angular_vel_step);
   nh.getParam("angular_vel_max", angular_vel_max);
 
-  distance_to_obstacle[AT_RIGHT_SIDE] = robot_size;
-  distance_to_obstacle[IN_FRONT] = robot_size;
-  distance_to_obstacle[AT_LEFT_SIDE] = robot_size;
-
-  ROS_INFO_STREAM("[Launch]: Using arg plan(" << plan << ")");
-  ROS_INFO_STREAM("[Launch]: Using arg robot_size(" << robot_size << ")");
-  ROS_INFO_STREAM(
-      "[Launch]: Using arg starting_point_x(" << starting_point_x << ")");
-  ROS_INFO_STREAM(
-      "[Launch]: Using arg starting_point_y(" << starting_point_y << ")");
-
-  ROS_INFO_STREAM(
-      "[Launch]: Using param linear_vel_step(" << linear_vel_step << ")");
-  ROS_INFO_STREAM(
-      "[Launch]: Using param linear_vel_max(" << linear_vel_max << ")");
-  ROS_INFO_STREAM(
-      "[Launch]: Using param angular_vel_step(" << angular_vel_step << ")");
-  ROS_INFO_STREAM(
-      "[Launch]: Using param angular_vel_max(" << angular_vel_max << ")");
+  see_obstacle[AT_RIGHT_SIDE] = false;
+  see_obstacle[IN_FRONT] = false;
+  see_obstacle[AT_LEFT_SIDE] = false;
 
   motor_power_publisher = nh.advertise<kobuki_msgs::MotorPower>("motor_power",
       1);
@@ -216,7 +203,7 @@ void Core::process_keyboard_input(char c) {
     break;
   case 'i':
     ROS_INFO_STREAM(
-        "[Odom]: Pos(" << current_position->x << "," << current_position->y << "); " << "Ori(" << current_orientation->x << "," << current_orientation->y << "). [Laser]: Dist(" << distance_to_obstacle[AT_RIGHT_SIDE] << "," << distance_to_obstacle[IN_FRONT] << "," << distance_to_obstacle[AT_LEFT_SIDE] << ")");
+        "[Odom]: Pos(" << current_position->x << "," << current_position->y << "); " << "Ori(" << current_orientation->x << "," << current_orientation->y << "). [Laser]: Obs(" << see_obstacle[AT_RIGHT_SIDE] << "," << see_obstacle[IN_FRONT] << "," << see_obstacle[AT_LEFT_SIDE] << ")");
     break;
   case 'r':
     ROS_INFO_STREAM("[Run]: " << "Start running");
@@ -267,21 +254,51 @@ void Core::subscribe_odometry(const nav_msgs::OdometryConstPtr& odom) {
 }
 
 void Core::subscribe_laser(const sensor_msgs::LaserScanConstPtr& laser) {
-  distance_to_obstacle[AT_RIGHT_SIDE] = *std::min_element(&laser->ranges[0],
-      &laser->ranges[0] + laser->ranges.size() / 3);
-  distance_to_obstacle[IN_FRONT] = *std::min_element(
-      &laser->ranges[0] + laser->ranges.size() / 3 + 1,
-      &laser->ranges[0] + laser->ranges.size() * 2 / 3);
-  distance_to_obstacle[AT_LEFT_SIDE] = *std::min_element(
-      &laser->ranges[0] + laser->ranges.size() * 2 / 3 + 1,
-      &laser->ranges[0] + laser->ranges.size());
+  int range_size = laser->ranges.size();
+  int range_right_size =
+      -M_PI_2 - laser->angle_min >= 0 ?
+          2 * range_size * (-M_PI_2 - laser->angle_min)
+              / (laser->angle_max - laser->angle_min) :
+          1;
+  int range_left_size =
+      laser->angle_max - M_PI_2 >= 0 ?
+          2 * range_size * (laser->angle_max - M_PI_2)
+              / (laser->angle_max - laser->angle_min) :
+          1;
+
+  int count;
+  count = 0;
+  for (int i = 0; i <= range_right_size - 1; i++) {
+    if (laser->ranges[i] <= robot_size * THRESHOLD_RANGE)
+      count++;
+  }
+  see_obstacle[AT_RIGHT_SIDE] = (count >= range_right_size * THRESHOLD_COUNT);
+
+  count = 0;
+  for (int i = range_right_size; i <= range_size - range_left_size - 1; i++) {
+    if (laser->ranges[i] <= robot_size * THRESHOLD_RANGE)
+      count++;
+  }
+  see_obstacle[IN_FRONT] = (count
+      >= (range_size - range_right_size - range_left_size) * THRESHOLD_COUNT);
+
+  count = 0;
+  for (int i = range_size - range_left_size; i <= range_size - 1; i++) {
+    if (laser->ranges[i] <= robot_size * THRESHOLD_RANGE)
+      count++;
+  }
+  see_obstacle[AT_LEFT_SIDE] = (count >= range_left_size * THRESHOLD_COUNT);
   if (is_logging) {
-    if (distance_to_obstacle[AT_RIGHT_SIDE] <= robot_size)
-      ROS_WARN_STREAM("[Laser]: Obs(Right)");
-    if (distance_to_obstacle[IN_FRONT] <= robot_size)
-      ROS_WARN_STREAM("[Laser]: Obs(Ahead)");
-    if (distance_to_obstacle[AT_LEFT_SIDE] <= robot_size)
-      ROS_WARN_STREAM("[Laser]: Obs(Left)");
+    std::string obs = "";
+    if (see_obstacle[AT_RIGHT_SIDE])
+      obs += "Right,";
+    if (see_obstacle[IN_FRONT])
+      obs += "Ahead,";
+    if (see_obstacle[AT_LEFT_SIDE])
+      obs += "Left,";
+    if (obs.length() > 0)
+      obs = obs.substr(0, obs.length() - 1);
+    ROS_WARN_STREAM("[Laser]: Obs(" << obs << ")");
   }
 }
 

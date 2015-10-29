@@ -114,12 +114,14 @@ int run(int argc, char **argv) {
 }
 
 int main(int argc, char **argv) {
-  if (argc >= 1) {
+  if (argc >= 2) {
     std::istringstream iss(argv[1]);
     if (!(iss >> e_size)
-        || !(4 <= e_size && e_size <= E_SIZE && (int) e_size % 4 == 0)) {
+        || !(4 <= e_size && e_size <= E_SIZE && (int) e_size % 2 == 0)) {
       e_size = E_SIZE;
     }
+  } else {
+    e_size = E_SIZE;
   }
 
   CellPtr space = CellPtr(new Cell(PointPtr(new Point(0, 0)), e_size));

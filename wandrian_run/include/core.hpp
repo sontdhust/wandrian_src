@@ -36,7 +36,7 @@ public:
 protected:
   PointPtr current_position; // odom subscriber
   VectorPtr current_orientation; // odom subscriber
-  double distance_to_obstacle[3]; // laser subscriber
+  bool see_obstacle[3]; // laser subscriber
   geometry_msgs::TwistPtr velocity;
   double linear_vel_step, linear_vel_max, angular_vel_step, angular_vel_max;
   std::string plan; // arg
