@@ -8,8 +8,8 @@
 #ifndef WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_SPIRAL_STC_HPP_
 #define WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_SPIRAL_STC_HPP_
 
-#include "../../common/vector2d.hpp"
 #include "../../common/environment.hpp"
+#include "../base_plan.hpp"
 #include "cell.hpp"
 
 using namespace wandrian::common;
@@ -18,24 +18,32 @@ namespace wandrian {
 namespace plans {
 namespace spiral_stc {
 
-class SpiralStc {
+class SpiralStc: public BasePlan {
 
 public:
-	SpiralStc(EnvironmentPtr, PointPtr, const double);
-	void cover();
-	std::list<PointPtr> get_path();
+  SpiralStc();
+  ~SpiralStc();
+  void initialize(PointPtr, double);
+  /* __attribute__((will_be_removed)) */
+  void set_environment(EnvironmentPtr);
+  void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
+  void cover();
+
+protected:
+  bool go_to(PointPtr, bool);
 
 private:
-	EnvironmentPtr environment;
-	const double sub_cell_size; // = 'robot size' = 'cell size' / 2
-	const double step_size;
-	bool is_bumper_pressing;
-	CellPtr starting_cell;
-	std::list<PointPtr> path;
+  /* __attribute__((will_be_removed)) */
+  EnvironmentPtr environment;
+  CellPtr starting_cell;
+  double robot_size; // = 'cell size' / 2
+  boost::function<bool(VectorPtr, double)> behavior_see_obstacle;
+  std::set<CellPtr, CellComp> old_cells;
 
-	void go(Vector2dPtr, int);
-	void spiral_stc(CellPtr);
-	bool check(CellPtr);
+  bool see_obstacle(VectorPtr, double);
+  bool go_with(VectorPtr, double);
+  void spiral_stc(CellPtr);
+  bool check(CellPtr);
 };
 
 typedef boost::shared_ptr<SpiralStc> SpiralStcPtr;

@@ -19,22 +19,22 @@ namespace common {
 class Polygon {
 
 public:
-	Polygon();
-	Polygon(std::list<PointPtr>);
-	~Polygon();
-	std::list<PointPtr> get_bound();
+  Polygon();
+  Polygon(std::list<PointPtr>);
+  ~Polygon();
+  std::list<PointPtr> get_bound();
 
 protected:
-	std::list<PointPtr> points;
-	void build();
+  std::list<PointPtr> points;
+  void build();
 
 private:
-	std::map<PointPtr, std::set<PointPtr, PointComp>, PointComp> graph;
-	PointPtr get_leftmost();
-	PointPtr get_rightmost();
-	std::list<PointPtr> get_upper_bound(); // list of points
-	std::list<PointPtr> get_lower_bound(); // list of points
-	std::list<PointPtr> get_partial_bound(bool); // list of points
+  std::map<PointPtr, std::set<PointPtr, PointComp>, PointComp> graph;
+  PointPtr get_leftmost();
+  PointPtr get_rightmost();
+  std::list<PointPtr> get_upper_bound(); // list of points
+  std::list<PointPtr> get_lower_bound(); // list of points
+  std::list<PointPtr> get_partial_bound(bool); // list of points
 };
 
 typedef boost::shared_ptr<Polygon> PolygonPtr;
