@@ -19,8 +19,8 @@
 namespace wandrian {
 
 void Wandrian::run() {
-  if (plan == "spiral_stc") {
-    spiral_stc = SpiralStcPtr(new SpiralStc());
+  if (plan_name == "spiral_stc") {
+    SpiralStcPtr spiral_stc = SpiralStcPtr(new SpiralStc());
     spiral_stc->initialize(
         PointPtr(new Point(starting_point_x, starting_point_y)), robot_size);
     spiral_stc->set_behavior_go_to(

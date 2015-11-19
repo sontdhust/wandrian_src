@@ -1,5 +1,5 @@
 <launch>
-  <arg name="plan"/>
+  <arg name="plan_name"/>
   <arg name="robot_size"/>
   <arg name="starting_point_x"/>
   <arg name="starting_point_y"/>
@@ -20,7 +20,7 @@
     <remap from="run/odom" to="odom"/>
     <remap from="run/laser" to="mobile_base/sensors/laser"/>
 
-    <param name="plan" value="$(arg plan)" type="string"/>
+    <param name="plan_name" value="$(arg plan_name)" type="string"/>
     <param name="robot_size" value="$(arg robot_size)" type="double"/>
     <param name="starting_point_x" value="$(arg starting_point_x)" type="double"/>
     <param name="starting_point_y" value="$(arg starting_point_y)" type="double"/>

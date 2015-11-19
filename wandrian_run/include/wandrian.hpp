@@ -22,8 +22,6 @@ protected:
   void run();
 
 private:
-  SpiralStcPtr spiral_stc;
-
   // Helpers
   bool go_to(PointPtr, bool);
   bool rotate(PointPtr, bool);

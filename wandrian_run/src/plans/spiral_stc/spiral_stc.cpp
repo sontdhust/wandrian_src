@@ -18,21 +18,21 @@ SpiralStc::SpiralStc() :
 SpiralStc::~SpiralStc() {
 }
 
-void SpiralStc::initialize(PointPtr starting_point, double sub_cell_size) {
-  this->robot_size = sub_cell_size;
+void SpiralStc::initialize(PointPtr starting_point, double robot_size) {
+  this->robot_size = robot_size;
   // Initialize starting_cell
   starting_cell = CellPtr(
       new Cell(
           PointPtr(
-              new Point(starting_point->x - sub_cell_size / 2,
-                  starting_point->y + sub_cell_size / 2)), 2 * sub_cell_size));
+              new Point(starting_point->x - robot_size / 2,
+                  starting_point->y + robot_size / 2)), 2 * robot_size));
   starting_cell->set_parent(
       CellPtr(
           new Cell(
               PointPtr(
                   new Point(starting_cell->get_center()->x,
-                      starting_cell->get_center()->y - 2 * sub_cell_size)),
-              2 * sub_cell_size)));
+                      starting_cell->get_center()->y - 2 * robot_size)),
+              2 * robot_size)));
   path.insert(path.end(), starting_point);
 }
 
@@ -46,6 +46,7 @@ void SpiralStc::set_behavior_see_obstacle(
 }
 
 void SpiralStc::cover() {
+  old_cells.insert(starting_cell);
   spiral_stc(starting_cell);
 }
 
@@ -137,6 +138,7 @@ void SpiralStc::spiral_stc(CellPtr current) {
       neighbor->set_parent(current);
       // Construct a spanning-tree edge
       current->neighbors.insert(current->neighbors.end(), neighbor);
+      old_cells.insert(neighbor);
       go_with(orientation, 2);
       spiral_stc(neighbor);
     }
@@ -151,18 +153,8 @@ void SpiralStc::spiral_stc(CellPtr current) {
 }
 
 bool SpiralStc::check(CellPtr cell_to_check) {
-  std::list<CellPtr> list;
-  list.insert(list.end(), starting_cell);
-  while (list.size() > 0) {
-    CellPtr cell = *(list.begin());
-    if (*(cell->get_center()) == *(cell_to_check->get_center()))
-      return OLD_CELL;
-    list.erase(list.begin());
-    for (std::list<CellPtr>::iterator c = cell->neighbors.begin();
-        c != cell->neighbors.end(); c++)
-      list.insert(list.end(), *c);
-  }
-  return NEW_CELL;
+  return
+      (old_cells.find(cell_to_check) != old_cells.end()) ? OLD_CELL : NEW_CELL;
 }
 
 }

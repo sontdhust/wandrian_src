@@ -39,7 +39,7 @@ protected:
   bool see_obstacle[3]; // laser subscriber
   geometry_msgs::TwistPtr velocity;
   double linear_vel_step, linear_vel_max, angular_vel_step, angular_vel_max;
-  std::string plan; // arg
+  std::string plan_name; // arg
   double robot_size; // arg
   double starting_point_x; // arg
   double starting_point_y; // arg

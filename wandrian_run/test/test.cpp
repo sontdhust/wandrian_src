@@ -17,7 +17,7 @@
 #include "../include/plans/spiral_stc/spiral_stc.hpp"
 
 #define R_SIZE 0.5 // robot size
-#define E_SIZE 20.0 // default environment size
+#define E_SIZE 4.0 // default environment size
 #define WORLD_INSERT_OBSTACLE "<!-- INSERT: Bound and Obstacles here -->" // flag at original world file to insert bound and obstacles into
 
 using namespace wandrian::plans::spiral_stc;
@@ -117,7 +117,7 @@ int main(int argc, char **argv) {
   if (argc >= 2) {
     std::istringstream iss(argv[1]);
     if (!(iss >> e_size)
-        || !(4 <= e_size && e_size <= E_SIZE && (int) e_size % 2 == 0)) {
+        || !(4 <= e_size && e_size <= 20 && (int) e_size % 2 == 0)) {
       e_size = E_SIZE;
     }
   } else {

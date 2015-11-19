@@ -24,4 +24,4 @@ Change to catkin root directory then run:
 ####Running:
 
     $ roslaunch wandrian_run environment.launch world_file:=tmp
-    $ roslaunch wandrian_run run.launch plan:=spiral_stc robot_size:=0.5 starting_point_x:=0.75 starting_point_y:=-0.75
+    $ roslaunch wandrian_run run.launch plan_name:=spiral_stc robot_size:=0.5 starting_point_x:=0.75 starting_point_y:=-0.75

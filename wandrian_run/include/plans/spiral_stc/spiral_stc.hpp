@@ -38,6 +38,7 @@ private:
   CellPtr starting_cell;
   double robot_size; // = 'cell size' / 2
   boost::function<bool(VectorPtr, double)> behavior_see_obstacle;
+  std::set<CellPtr, CellComp> old_cells;
 
   bool see_obstacle(VectorPtr, double);
   bool go_with(VectorPtr, double);

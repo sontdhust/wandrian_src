@@ -32,7 +32,7 @@ Core::~Core() {
 bool Core::initialize() {
   ros::NodeHandle nh("~");
 
-  nh.getParam("plan", plan);
+  nh.getParam("plan_name", plan_name);
   nh.getParam("robot_size", robot_size);
   nh.getParam("starting_point_x", starting_point_x);
   nh.getParam("starting_point_y", starting_point_y);
