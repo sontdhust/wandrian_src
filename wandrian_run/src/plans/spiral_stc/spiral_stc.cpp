@@ -36,6 +36,11 @@ void SpiralStc::initialize(PointPtr starting_point, double robot_size) {
   path.insert(path.end(), starting_point);
 }
 
+void SpiralStc::cover() {
+  old_cells.insert(starting_cell);
+  spiral_stc(starting_cell);
+}
+
 void SpiralStc::set_environment(EnvironmentPtr environment) {
   this->environment = environment;
 }
@@ -45,22 +50,17 @@ void SpiralStc::set_behavior_see_obstacle(
   this->behavior_see_obstacle = behavior_see_obstacle;
 }
 
-void SpiralStc::cover() {
-  old_cells.insert(starting_cell);
-  spiral_stc(starting_cell);
-}
-
 bool SpiralStc::go_to(PointPtr position, bool flexibly) {
   std::cout << "    pos: " << position->x << "," << position->y << "\n";
   path.insert(path.end(), position);
 
-  if (behavior_go_to != NULL)
+  if (behavior_go_to)
     return behavior_go_to(position, flexibly);
   return true;
 }
 
 bool SpiralStc::see_obstacle(VectorPtr orientation, double step) {
-  if (behavior_see_obstacle != NULL)
+  if (behavior_see_obstacle)
     return behavior_see_obstacle(orientation, step);
 
   // Simulator check obstacle

@@ -29,25 +29,41 @@ class Core {
 
 public:
   Core();
-  virtual ~Core();
+  ~Core();
   bool initialize();
   void spin();
-
-protected:
-  PointPtr current_position; // odom subscriber
-  VectorPtr current_orientation; // odom subscriber
-  bool see_obstacle[3]; // laser subscriber
-  geometry_msgs::TwistPtr velocity;
-  double linear_vel_step, linear_vel_max, angular_vel_step, angular_vel_max;
-  std::string plan_name; // arg
-  double robot_size; // arg
-  double starting_point_x; // arg
-  double starting_point_y; // arg
-
-  virtual void run();
   void stop();
 
+  std::string get_plan_name();
+  double get_starting_point_x();
+  double get_starting_point_y();
+  double get_robot_size();
+  PointPtr get_current_position();
+  VectorPtr get_current_orientation();
+  bool* get_obstacles();
+  double get_linear_velocity_step();
+  double get_angular_velocity_step();
+
+  void set_behavior_run(boost::function<void()>);
+  void set_linear_velocity(double);
+  void set_angular_velocity(double);
+
 private:
+  std::string plan_name; // arg
+  double starting_point_x; // arg
+  double starting_point_y; // arg
+  double robot_size; // arg
+  PointPtr current_position; // odom subscriber
+  VectorPtr current_orientation; // odom subscriber
+  bool obstacles[3]; // laser subscriber
+  double linear_velocity_step; // param
+  double linear_velocity_max; // param
+  double angular_velocity_step; // param
+  double angular_velocity_max; // param
+
+  boost::function<void()> behavior_run;
+  geometry_msgs::TwistPtr velocity;
+
   bool is_quitting;
   bool is_powered;
   bool is_zero_vel; // avoid zero-vel messages from the beginning
@@ -62,6 +78,8 @@ private:
   ros::Publisher velocity_publisher;
   ros::Subscriber odom_subscriber;
   ros::Subscriber laser_subscriber;
+
+  void run();
 
   // Thread handlers
   void start_thread_keyboard();

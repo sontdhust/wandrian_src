@@ -19,7 +19,6 @@ struct Environment {
   std::list<PolygonPtr> obstacles;
 
   Environment(PolygonPtr, std::list<PolygonPtr>);
-
 };
 
 typedef boost::shared_ptr<Environment> EnvironmentPtr;

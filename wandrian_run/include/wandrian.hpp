@@ -16,21 +16,25 @@ using namespace wandrian::plans::spiral_stc;
 
 namespace wandrian {
 
-class Wandrian: public Core {
+class Wandrian {
 
-protected:
-  void run();
+public:
+  bool initialize();
+  void spin();
 
 private:
-  // Helpers
-  bool go_to(PointPtr, bool);
-  bool rotate(PointPtr, bool);
-  void rotate(bool);
-  void move(bool);
+  Core core;
 
   // Behaviors
+  void wandrian_run();
   bool spiral_stc_go_to(PointPtr, bool);
   bool spiral_stc_see_obstacle(VectorPtr, double);
+
+  // Helpers
+  bool go_to(PointPtr, bool);
+  bool rotate_to(PointPtr, bool);
+  void go(bool);
+  void rotate(bool);
 };
 
 }

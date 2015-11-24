@@ -22,7 +22,6 @@ struct Point {
 
   Point(double, double);
   Point(const Point&);
-
 };
 
 typedef boost::shared_ptr<Point const> PointConstPtr;

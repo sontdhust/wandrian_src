@@ -1,8 +1,8 @@
 <launch>
   <arg name="plan_name"/>
-  <arg name="robot_size"/>
   <arg name="starting_point_x"/>
   <arg name="starting_point_y"/>
+  <arg name="robot_size"/>
   <arg name="robot_name" value="mobile_base"/>
 
   <!-- Spawns Kobuki inside a Gazebo simulation -->
@@ -21,13 +21,13 @@
     <remap from="run/laser" to="mobile_base/sensors/laser"/>
 
     <param name="plan_name" value="$(arg plan_name)" type="string"/>
-    <param name="robot_size" value="$(arg robot_size)" type="double"/>
     <param name="starting_point_x" value="$(arg starting_point_x)" type="double"/>
     <param name="starting_point_y" value="$(arg starting_point_y)" type="double"/>
+    <param name="robot_size" value="$(arg robot_size)" type="double"/>
 
-    <param name="linear_vel_step" value="0.2" type="double"/>
-    <param name="linear_vel_max" value="2" type="double"/>
-    <param name="angular_vel_step" value="0.4" type="double"/>
-    <param name="angular_vel_max" value="1" type="double"/>
+    <param name="linear_velocity_step" value="0.2" type="double"/>
+    <param name="linear_velocity_max" value="2" type="double"/>
+    <param name="angular_velocity_step" value="0.4" type="double"/>
+    <param name="angular_velocity_max" value="1" type="double"/>
   </node>
 </launch>

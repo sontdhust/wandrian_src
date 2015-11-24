@@ -25,7 +25,7 @@ void BasePlan::cover() {
 
 bool BasePlan::go_to(PointPtr position, bool flexibly) {
   // Override this method
-  if (behavior_go_to != NULL)
+  if (behavior_go_to)
     return behavior_go_to(position, flexibly);
   return true;
 }

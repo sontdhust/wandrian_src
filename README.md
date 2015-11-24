@@ -19,9 +19,9 @@ Change to catkin root directory then run:
 ####Build for testing:
 
     $ cd src/wandrian_run/test/
-    $ ./test.sh 4
+    $ ./test.sh
 
 ####Running:
 
     $ roslaunch wandrian_run environment.launch world_file:=tmp
-    $ roslaunch wandrian_run run.launch plan_name:=spiral_stc robot_size:=0.5 starting_point_x:=0.75 starting_point_y:=-0.75
+    $ roslaunch wandrian_run run.launch plan_name:=spiral_stc starting_point_x:=0.75 starting_point_y:=-0.75 robot_size:=0.5
