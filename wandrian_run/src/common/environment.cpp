@@ -10,8 +10,8 @@
 namespace wandrian {
 namespace common {
 
-Environment::Environment(Polygon* space, std::set<Polygon*> obstacles) :
-		space(space), obstacles(obstacles) {
+Environment::Environment(PolygonPtr space, std::list<PolygonPtr> obstacles) :
+    space(space), obstacles(obstacles) {
 }
 
 }

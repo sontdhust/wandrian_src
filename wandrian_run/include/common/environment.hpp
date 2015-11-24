@@ -15,12 +15,13 @@ namespace common {
 
 struct Environment {
 
-	Environment(Polygon*, std::set<Polygon*>);
+  PolygonPtr space;
+  std::list<PolygonPtr> obstacles;
 
-	Polygon *space;
-	std::set<Polygon*> obstacles;
-
+  Environment(PolygonPtr, std::list<PolygonPtr>);
 };
+
+typedef boost::shared_ptr<Environment> EnvironmentPtr;
 
 }
 }

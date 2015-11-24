@@ -4,3 +4,7 @@
 .cproject
 .project
 .settings
+
+# Temp files
+tmp/
+tmp.*

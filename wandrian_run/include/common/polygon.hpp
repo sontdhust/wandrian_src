@@ -10,6 +10,7 @@
 
 #include <map>
 #include <set>
+#include <list>
 #include "point.hpp"
 
 namespace wandrian {
@@ -18,21 +19,25 @@ namespace common {
 class Polygon {
 
 public:
-	Polygon(std::set<Point*>);
-	~Polygon();
-	std::set<Point*> upper_vertices(); // list of points
-	std::set<Point*> lower_vertices(); // list of points
-	__attribute__ ((will_be_removed)) std::map<Point*,
-			std::set<Point*, PointComp>, PointComp> get_graph();
+  Polygon();
+  Polygon(std::list<PointPtr>);
+  ~Polygon();
+  std::list<PointPtr> get_bound();
+
+protected:
+  std::list<PointPtr> points;
+  void build();
 
 private:
-	std::set<Point*> points;
-	std::map<Point*, std::set<Point*, PointComp>, PointComp> graph;
-	void build();
-	Point* get_leftmost();
-	Point* get_rightmost();
-	std::set<Point*> get_vertices(bool); // list of points
+  std::map<PointPtr, std::set<PointPtr, PointComp>, PointComp> graph;
+  PointPtr get_leftmost();
+  PointPtr get_rightmost();
+  std::list<PointPtr> get_upper_bound(); // list of points
+  std::list<PointPtr> get_lower_bound(); // list of points
+  std::list<PointPtr> get_partial_bound(bool); // list of points
 };
+
+typedef boost::shared_ptr<Polygon> PolygonPtr;
 
 }
 }
