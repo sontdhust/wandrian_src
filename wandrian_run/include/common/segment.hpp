@@ -16,6 +16,7 @@ namespace common {
 struct Segment {
 
   PointPtr p1, p2;
+
   Segment(PointConstPtr, PointConstPtr);
   Segment(double, double, double, double);
   ~Segment();

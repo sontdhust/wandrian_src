@@ -41,10 +41,6 @@ void SpiralStc::cover() {
   spiral_stc(starting_cell);
 }
 
-void SpiralStc::set_environment(EnvironmentPtr environment) {
-  this->environment = environment;
-}
-
 void SpiralStc::set_behavior_see_obstacle(
     boost::function<bool(VectorPtr, double)> behavior_see_obstacle) {
   this->behavior_see_obstacle = behavior_see_obstacle;
@@ -62,34 +58,6 @@ bool SpiralStc::go_to(PointPtr position, bool flexibly) {
 bool SpiralStc::see_obstacle(VectorPtr orientation, double step) {
   if (behavior_see_obstacle)
     return behavior_see_obstacle(orientation, step);
-
-  // Simulator check obstacle
-  PointPtr last_position = *(--path.end());
-  PointPtr new_position = PointPtr(
-      new Point(*last_position + *orientation * step * robot_size / 2));
-  if (environment) {
-    CellPtr space = boost::static_pointer_cast<Cell>(environment->space);
-    if (new_position->x >= space->get_center()->x + space->get_size() / 2
-        || new_position->x <= space->get_center()->x - space->get_size() / 2
-        || new_position->y >= space->get_center()->y + space->get_size() / 2
-        || new_position->y <= space->get_center()->y - space->get_size() / 2) {
-      return true;
-    }
-    for (std::list<PolygonPtr>::iterator o = environment->obstacles.begin();
-        o != environment->obstacles.end(); o++) {
-      CellPtr obstacle = boost::static_pointer_cast<Cell>(*o);
-      if (new_position->x
-          >= obstacle->get_center()->x - obstacle->get_size() / 2
-          && new_position->x
-              <= obstacle->get_center()->x + obstacle->get_size() / 2
-          && new_position->y
-              >= obstacle->get_center()->y - obstacle->get_size() / 2
-          && new_position->y
-              <= obstacle->get_center()->y + obstacle->get_size() / 2) {
-        return true;
-      }
-    }
-  }
   return false;
 }
 
