@@ -39,7 +39,7 @@ private:
 
   bool see_obstacle(VectorPtr, double);
   bool go_with(VectorPtr, double);
-  void spiral_stc(CellPtr);
+  void scan(CellPtr);
   bool check(CellPtr);
 };
 

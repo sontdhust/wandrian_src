@@ -10,7 +10,7 @@
 #include <ecl/time.hpp>
 #include "../include/core.hpp"
 
-// TODO: Choose relevant value
+// TODO: Choose relevant threshold values
 #define THRESHOLD_COUNT 0.5
 #define THRESHOLD_RANGE 0.9
 

@@ -16,9 +16,6 @@ namespace wandrian {
 namespace plans {
 namespace spiral_stc {
 
-#define OLD_CELL false
-#define NEW_CELL true
-
 class Cell: public Polygon {
 
 public:

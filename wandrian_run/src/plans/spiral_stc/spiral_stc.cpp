@@ -7,6 +7,10 @@
 
 #include "../../../include/plans/spiral_stc/spiral_stc.hpp"
 
+#define STEP_SIZE (robot_size / 2)
+#define OLD_CELL false
+#define NEW_CELL true
+
 namespace wandrian {
 namespace plans {
 namespace spiral_stc {
@@ -38,7 +42,7 @@ void SpiralStc::initialize(PointPtr starting_point, double robot_size) {
 
 void SpiralStc::cover() {
   old_cells.insert(starting_cell);
-  spiral_stc(starting_cell);
+  scan(starting_cell);
 }
 
 void SpiralStc::set_behavior_see_obstacle(
@@ -49,7 +53,6 @@ void SpiralStc::set_behavior_see_obstacle(
 bool SpiralStc::go_to(PointPtr position, bool flexibly) {
   std::cout << "    pos: " << position->x << "," << position->y << "\n";
   path.insert(path.end(), position);
-
   if (behavior_go_to)
     return behavior_go_to(position, flexibly);
   return true;
@@ -64,11 +67,11 @@ bool SpiralStc::see_obstacle(VectorPtr orientation, double step) {
 bool SpiralStc::go_with(VectorPtr orientation, double step) {
   PointPtr last_position = *(--path.end());
   PointPtr new_position = PointPtr(
-      new Point(*last_position + *orientation * step * robot_size / 2));
+      new Point(*last_position + *orientation * step * STEP_SIZE));
   return go_to(new_position, STRICTLY);
 }
 
-void SpiralStc::spiral_stc(CellPtr current) {
+void SpiralStc::scan(CellPtr current) {
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;32mBEGIN:\033[0m "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
   VectorPtr orientation = VectorPtr(
@@ -93,28 +96,27 @@ void SpiralStc::spiral_stc(CellPtr current) {
     neighbors_count++;
     if (check(neighbor) == OLD_CELL) {
       std::cout << " \033[1;45m(OLD)\033[0m\n";
-      // Go to next sub-cell
-      go_with(orientation->rotate_counterclockwise(), 2);
+      // Go to next sub-cell (need to check current cell is partially occupied or not)
+      go_with(orientation->rotate_counterclockwise(), robot_size / STEP_SIZE);
       continue;
     }
-    if (see_obstacle(orientation, 1)) { // TODO: Check obstacle here
+    if (see_obstacle(orientation, (robot_size / 2) / STEP_SIZE)) {
       std::cout << " \033[1;46m(OBSTACLE)\033[0m\n";
-      // Go to next sub-cell
-      go_with(orientation->rotate_counterclockwise(), 2);
+      // Go to next sub-cell (need to check current cell is partially occupied or not)
+      go_with(orientation->rotate_counterclockwise(), robot_size / STEP_SIZE);
     } else { // New free neighbor
       std::cout << "\n";
       neighbor->set_parent(current);
       // Construct a spanning-tree edge
       current->neighbors.insert(current->neighbors.end(), neighbor);
       old_cells.insert(neighbor);
-      go_with(orientation, 2);
-      spiral_stc(neighbor);
+      go_with(orientation, robot_size / STEP_SIZE);
+      scan(neighbor);
     }
   }
-  // Back to sub-cell of parent
+  // Back to sub-cell of parent (need to check parent cell is partially occupied or not)
   if (!is_starting_cell) {
-    orientation = orientation->rotate_counterclockwise();
-    go_with(orientation, 2);
+    go_with(orientation->rotate_counterclockwise(), robot_size / STEP_SIZE);
   }
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;31mEND\033[0m: "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
