@@ -19,7 +19,7 @@ struct Vector {
 
   Vector(double, double);
   Vector(const Vector&);
-  boost::shared_ptr<Vector> rotate_counterclockwise();
+  void rotate_counterclockwise();
 };
 
 typedef boost::shared_ptr<Vector> VectorPtr;
@@ -48,6 +48,17 @@ inline double operator^(const Vector &v1, const Vector &v2) {
   double a1 = atan2(v1.y, v1.x) - atan2(v2.y, v2.x);
   double a2 = (a1 > 0) ? a1 - 2 * M_PI : a1 + 2 * M_PI;
   return (std::abs(a1) < std::abs(a2)) ? a1 : a2;
+}
+
+inline VectorPtr operator++(VectorPtr v) {
+  v->rotate_counterclockwise();
+  return VectorPtr(new Vector(*v));
+}
+
+inline VectorPtr operator++(VectorPtr v, int) {
+  VectorPtr vector = VectorPtr(new Vector(*v));
+  v->rotate_counterclockwise();
+  return vector;
 }
 
 }

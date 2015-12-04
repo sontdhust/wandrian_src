@@ -24,7 +24,7 @@ public:
   SpiralStc();
   ~SpiralStc();
   void initialize(PointPtr, double);
-  void cover();
+  virtual void cover();
 
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
 

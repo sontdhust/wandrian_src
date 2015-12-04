@@ -13,7 +13,6 @@ namespace wandrian {
 namespace common {
 
 Polygon::Polygon() {
-
 }
 
 Polygon::Polygon(std::list<PointPtr> points) :
