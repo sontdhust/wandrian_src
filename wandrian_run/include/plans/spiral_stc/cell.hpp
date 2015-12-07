@@ -10,6 +10,9 @@
 
 #include "../../common/polygon.hpp"
 
+#define OLD false
+#define NEW true
+
 using namespace wandrian::common;
 
 namespace wandrian {
@@ -19,7 +22,10 @@ namespace spiral_stc {
 class Cell: public Polygon {
 
 public:
-  std::list<boost::shared_ptr<Cell> > neighbors;
+  bool quadrant1;
+  bool quadrant2;
+  bool quadrant3;
+  bool quadrant4;
 
   Cell(PointPtr, double);
   PointPtr get_center();

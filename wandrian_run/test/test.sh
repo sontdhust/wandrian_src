@@ -16,9 +16,10 @@ g++ -c base_plan.cpp
 cd spiral_stc
 g++ -c cell.cpp
 g++ -c spiral_stc.cpp
+g++ -c full_spiral_stc.cpp
 
 cd ../..
-g++ -o ../wandrian_run ../../test.cpp common/point.o common/vector.o common/segment.o common/polygon.o common/environment.o plans/base_plan.o plans/spiral_stc/cell.o plans/spiral_stc/spiral_stc.o -lglut -lGL
+g++ -o ../wandrian_run ../../test.cpp common/point.o common/vector.o common/segment.o common/polygon.o common/environment.o plans/base_plan.o plans/spiral_stc/cell.o plans/spiral_stc/spiral_stc.o plans/spiral_stc/full_spiral_stc.o -lglut -lGL
 cd ..
 clear
 clear

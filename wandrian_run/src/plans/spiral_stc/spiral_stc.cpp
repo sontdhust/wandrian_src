@@ -7,10 +7,6 @@
 
 #include "../../../include/plans/spiral_stc/spiral_stc.hpp"
 
-#define STEP_SIZE (robot_size / 2)
-#define OLD_CELL false
-#define NEW_CELL true
-
 namespace wandrian {
 namespace plans {
 namespace spiral_stc {
@@ -71,6 +67,10 @@ bool SpiralStc::go_with(VectorPtr orientation, double step) {
   return go_to(new_position, STRICTLY);
 }
 
+bool SpiralStc::check(CellPtr cell_to_check) {
+  return (old_cells.find(cell_to_check) != old_cells.end()) ? OLD : NEW;
+}
+
 void SpiralStc::scan(CellPtr current) {
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;32mBEGIN:\033[0m "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
@@ -93,7 +93,7 @@ void SpiralStc::scan(CellPtr current) {
     std::cout << "  \033[1;33mneighbor\033[0m: " << neighbor->get_center()->x
         << "," << neighbor->get_center()->y;
     neighbors_count++;
-    if (check(neighbor) == OLD_CELL) {
+    if (check(neighbor) == OLD) {
       std::cout << " \033[1;45m(OLD)\033[0m\n";
       // Go to next sub-cell (need to check current cell is partially occupied or not)
       go_with(++orientation, robot_size / STEP_SIZE);
@@ -105,9 +105,8 @@ void SpiralStc::scan(CellPtr current) {
       go_with(++orientation, robot_size / STEP_SIZE);
     } else { // New free neighbor
       std::cout << "\n";
-      neighbor->set_parent(current);
       // Construct a spanning-tree edge
-      current->neighbors.insert(current->neighbors.end(), neighbor);
+      neighbor->set_parent(current);
       old_cells.insert(neighbor);
       go_with(orientation++, robot_size / STEP_SIZE);
       scan(neighbor);
@@ -119,11 +118,6 @@ void SpiralStc::scan(CellPtr current) {
   }
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;31mEND\033[0m: "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
-}
-
-bool SpiralStc::check(CellPtr cell_to_check) {
-  return
-      (old_cells.find(cell_to_check) != old_cells.end()) ? OLD_CELL : NEW_CELL;
 }
 
 }

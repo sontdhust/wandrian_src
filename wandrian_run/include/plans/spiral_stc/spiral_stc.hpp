@@ -12,6 +12,8 @@
 #include "../base_plan.hpp"
 #include "cell.hpp"
 
+#define STEP_SIZE (robot_size / 2)
+
 using namespace wandrian::common;
 
 namespace wandrian {
@@ -24,23 +26,23 @@ public:
   SpiralStc();
   ~SpiralStc();
   void initialize(PointPtr, double);
-  virtual void cover();
+  void cover();
 
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
 
 protected:
-  bool go_to(PointPtr, bool);
-
-private:
   CellPtr starting_cell;
-  double robot_size; // = 'cell size' / 2
-  boost::function<bool(VectorPtr, double)> behavior_see_obstacle;
   std::set<CellPtr, CellComp> old_cells;
+  double robot_size; // = 'cell size' / 2
 
+  bool go_to(PointPtr, bool);
   bool see_obstacle(VectorPtr, double);
   bool go_with(VectorPtr, double);
-  void scan(CellPtr);
   bool check(CellPtr);
+  virtual void scan(CellPtr);
+
+private:
+  boost::function<bool(VectorPtr, double)> behavior_see_obstacle;
 };
 
 typedef boost::shared_ptr<SpiralStc> SpiralStcPtr;

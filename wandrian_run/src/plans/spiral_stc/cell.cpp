@@ -12,7 +12,8 @@ namespace plans {
 namespace spiral_stc {
 
 Cell::Cell(PointPtr center, double size) :
-    center(center), size(size), parent(CellPtr()) {
+    quadrant1(NEW), quadrant2(NEW), quadrant3(NEW), quadrant4(NEW), center(
+        center), size(size) {
   points.insert(points.end(),
       PointPtr(new Point(center->x - size / 2, center->y + size / 2)));
   points.insert(points.end(),

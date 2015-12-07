@@ -15,7 +15,7 @@
 #include <boost/bind.hpp>
 #include <sstream>
 #include <fstream>
-#include "../include/plans/spiral_stc/spiral_stc.hpp"
+#include "../include/plans/spiral_stc/full_spiral_stc.hpp"
 
 #define R_SIZE 0.5 // Robot size
 #define E_SIZE 4.0 // Default environment size
@@ -28,7 +28,7 @@ double e_size = 0;
 
 EnvironmentPtr environment;
 PointPtr starting_point;
-SpiralStcPtr spiral_stc;
+FullSpiralStcPtr full_spiral_stc;
 std::list<PointPtr> tmp_path;
 
 /**
@@ -300,13 +300,13 @@ int main(int argc, char **argv) {
   world_out.close();
 
   environment = EnvironmentPtr(new Environment(space, obstacles));
-  spiral_stc = SpiralStcPtr(new SpiralStc());
-  spiral_stc->initialize(starting_point, R_SIZE);
+  full_spiral_stc = FullSpiralStcPtr(new FullSpiralStc());
+  full_spiral_stc->initialize(starting_point, R_SIZE);
   tmp_path.insert(tmp_path.end(), starting_point);
-  spiral_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
-  spiral_stc->set_behavior_see_obstacle(
+  full_spiral_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
+  full_spiral_stc->set_behavior_see_obstacle(
       boost::bind(&test_see_obstacle, _1, _2));
-  spiral_stc->cover();
+  full_spiral_stc->cover();
 
   run(argc, argv);
   return 0;

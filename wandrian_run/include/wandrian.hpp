@@ -10,9 +10,6 @@
 
 #include "common/vector.hpp"
 #include "core.hpp"
-#include "plans/spiral_stc/spiral_stc.hpp"
-
-using namespace wandrian::plans::spiral_stc;
 
 namespace wandrian {
 
@@ -29,6 +26,8 @@ private:
   void wandrian_run();
   bool spiral_stc_go_to(PointPtr, bool);
   bool spiral_stc_see_obstacle(VectorPtr, double);
+  bool full_spiral_stc_go_to(PointPtr, bool);
+  bool full_spiral_stc_see_obstacle(VectorPtr, double);
 
   // Helpers
   bool go_to(PointPtr, bool);

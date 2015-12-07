@@ -7,6 +7,7 @@
 
 #include "../include/wandrian.hpp"
 #include "../include/plans/spiral_stc/spiral_stc.hpp"
+#include "../include/plans/spiral_stc/full_spiral_stc.hpp"
 
 #define CLOCKWISE true
 #define COUNTERCLOCKWISE false
@@ -15,6 +16,8 @@
 #define EPS_ORI_TO_ROTATE 0.06
 #define EPS_ORI_TO_MOVE 4 * EPS_ORI_TO_ROTATE
 #define EPS_POS 0.06
+
+using namespace wandrian::plans::spiral_stc;
 
 namespace wandrian {
 
@@ -39,6 +42,17 @@ void Wandrian::wandrian_run() {
     spiral_stc->set_behavior_see_obstacle(
         boost::bind(&Wandrian::spiral_stc_see_obstacle, this, _1, _2));
     spiral_stc->cover();
+  } else if (core.get_plan_name() == "full_spiral_stc") {
+    FullSpiralStcPtr full_spiral_stc = FullSpiralStcPtr(new FullSpiralStc());
+    full_spiral_stc->initialize(
+        PointPtr(
+            new Point(core.get_starting_point_x(),
+                core.get_starting_point_y())), core.get_robot_size());
+    full_spiral_stc->set_behavior_go_to(
+        boost::bind(&Wandrian::full_spiral_stc_go_to, this, _1, _2));
+    full_spiral_stc->set_behavior_see_obstacle(
+        boost::bind(&Wandrian::full_spiral_stc_see_obstacle, this, _1, _2));
+    full_spiral_stc->cover();
   }
 }
 
@@ -55,6 +69,15 @@ bool Wandrian::spiral_stc_see_obstacle(VectorPtr orientation, double step) {
           ((angle > M_PI_4) ?
               core.get_obstacles()[AT_LEFT_SIDE] :
               core.get_obstacles()[AT_RIGHT_SIDE]);
+}
+
+bool Wandrian::full_spiral_stc_go_to(PointPtr position, bool flexibly) {
+  return spiral_stc_go_to(position, flexibly);
+}
+
+bool Wandrian::full_spiral_stc_see_obstacle(VectorPtr orientation,
+    double step) {
+  return spiral_stc_see_obstacle(orientation, step);
 }
 
 bool Wandrian::go_to(PointPtr new_position, bool flexibly) {
