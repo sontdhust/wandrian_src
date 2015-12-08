@@ -8,7 +8,6 @@
 #include "../include/wandrian.hpp"
 #include "../include/plans/spiral_stc/spiral_stc.hpp"
 #include "../include/plans/spiral_stc/full_spiral_stc.hpp"
-#include "../include/common/global.hpp"
 
 #define CLOCKWISE true
 #define COUNTERCLOCKWISE false

@@ -6,14 +6,13 @@
  */
 
 #include "../../../include/plans/spiral_stc/cell.hpp"
-#include "../../../include/common/global.hpp"
 
 namespace wandrian {
 namespace plans {
 namespace spiral_stc {
 
 Cell::Cell(PointPtr center, double size) :
-    center(center), size(size) {
+    current_quadrant(IV), center(center), size(size) {
   for (int i = I; i <= IV; i++)
     quadrants[i] = NEW;
   points.insert(points.end(),
@@ -35,12 +34,12 @@ double Cell::get_size() {
   return size;
 }
 
-void Cell::set_parent(CellPtr parent) {
-  this->parent = parent;
-}
-
 CellPtr Cell::get_parent() {
   return parent;
+}
+
+void Cell::set_parent(CellPtr parent) {
+  this->parent = parent;
 }
 
 }

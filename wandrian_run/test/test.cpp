@@ -29,7 +29,6 @@ double e_size = 0;
 
 EnvironmentPtr environment;
 PointPtr starting_point;
-FullSpiralStcPtr full_spiral_stc;
 std::list<PointPtr> tmp_path;
 
 /**
@@ -301,13 +300,27 @@ int main(int argc, char **argv) {
   world_out.close();
 
   environment = EnvironmentPtr(new Environment(space, obstacles));
-  full_spiral_stc = FullSpiralStcPtr(new FullSpiralStc());
-  full_spiral_stc->initialize(starting_point, R_SIZE);
-  tmp_path.insert(tmp_path.end(), starting_point);
-  full_spiral_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
-  full_spiral_stc->set_behavior_see_obstacle(
-      boost::bind(&test_see_obstacle, _1, _2));
-  full_spiral_stc->cover();
+  if (argc >= 3) {
+    if (std::string(argv[2]) == "spiral_stc") {
+      SpiralStcPtr plan_spiral_stc = SpiralStcPtr(new SpiralStc());
+      plan_spiral_stc->initialize(starting_point, R_SIZE);
+      tmp_path.insert(tmp_path.end(), starting_point);
+      plan_spiral_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
+      plan_spiral_stc->set_behavior_see_obstacle(
+          boost::bind(&test_see_obstacle, _1, _2));
+      plan_spiral_stc->cover();
+    } else if (std::string(argv[2]) == "full_spiral_stc") {
+      FullSpiralStcPtr plan_full_spiral_stc = FullSpiralStcPtr(
+          new FullSpiralStc());
+      plan_full_spiral_stc->initialize(starting_point, R_SIZE);
+      tmp_path.insert(tmp_path.end(), starting_point);
+      plan_full_spiral_stc->set_behavior_go_to(
+          boost::bind(&test_go_to, _1, _2));
+      plan_full_spiral_stc->set_behavior_see_obstacle(
+          boost::bind(&test_see_obstacle, _1, _2));
+      plan_full_spiral_stc->cover();
+    }
+  }
 
   run(argc, argv);
   return 0;

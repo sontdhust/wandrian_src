@@ -26,7 +26,7 @@ public:
   SpiralStc();
   ~SpiralStc();
   void initialize(PointPtr, double);
-  void cover();
+  virtual void cover();
 
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
 
@@ -37,12 +37,13 @@ protected:
 
   bool go_to(PointPtr, bool);
   bool see_obstacle(VectorPtr, double);
-  bool go_with(VectorPtr, double);
-  bool check(CellPtr);
+  virtual bool check(CellPtr);
   virtual void scan(CellPtr);
 
 private:
   boost::function<bool(VectorPtr, double)> behavior_see_obstacle;
+
+  bool go_with(VectorPtr, double);
 };
 
 typedef boost::shared_ptr<SpiralStc> SpiralStcPtr;

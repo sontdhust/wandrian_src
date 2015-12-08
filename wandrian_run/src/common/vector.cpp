@@ -10,6 +10,10 @@
 namespace wandrian {
 namespace common {
 
+Vector::Vector() :
+    x(0), y(-1) {
+}
+
 Vector::Vector(double x, double y) :
     x(x), y(y) {
 }

@@ -13,10 +13,29 @@
 namespace wandrian {
 namespace common {
 
+enum Orientation {
+  //                      IN_FRONT (1)
+  //                           |
+  //                        ___|___
+  //                       |   |   |
+  // AT_LEFT_SIDE (2) _____|___|___|_____ AT_RIGHT_SIDE (0)
+  //                       |   |   |
+  //                       |___|___|
+  //                           |
+  //                           |
+  //                       BEHIND (3)
+
+  AT_RIGHT_SIDE,
+  IN_FRONT,
+  AT_LEFT_SIDE,
+  BEHIND
+};
+
 struct Vector {
 
   double x, y;
 
+  Vector();
   Vector(double, double);
   Vector(const Vector&);
   void rotate_counterclockwise();
@@ -48,6 +67,18 @@ inline double operator^(const Vector &v1, const Vector &v2) {
   double a1 = atan2(v1.y, v1.x) - atan2(v2.y, v2.x);
   double a2 = (a1 > 0) ? a1 - 2 * M_PI : a1 + 2 * M_PI;
   return (std::abs(a1) < std::abs(a2)) ? a1 : a2;
+}
+
+inline Orientation operator%(const Vector &v1, const Vector &v2) {
+  double angle = v1 ^ v2;
+  if (std::abs(angle) >= 3 * M_PI_4)
+    return IN_FRONT;
+  else if (std::abs(angle) <= M_PI_4)
+    return BEHIND;
+  else if (angle > 0)
+    return AT_RIGHT_SIDE;
+  else
+    return AT_LEFT_SIDE;
 }
 
 inline VectorPtr operator++(VectorPtr v) {

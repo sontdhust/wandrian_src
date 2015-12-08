@@ -19,16 +19,33 @@ namespace wandrian {
 namespace plans {
 namespace spiral_stc {
 
+enum Quadrant {
+  //  _____________
+  // |      |      |
+  // |  II  |  I   |
+  // |______|______|
+  // |      |      |
+  // | III  |  IV  |
+  // |______|______|
+
+  I,
+  II,
+  III,
+  IV
+};
+
 class Cell: public Polygon {
 
 public:
   bool quadrants[4];
+  Quadrant current_quadrant;
 
   Cell(PointPtr, double);
   PointPtr get_center();
   double get_size();
-  void set_parent(boost::shared_ptr<Cell>);
   boost::shared_ptr<Cell> get_parent();
+
+  void set_parent(boost::shared_ptr<Cell>);
 
 private:
   PointPtr center;

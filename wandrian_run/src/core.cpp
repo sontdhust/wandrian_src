@@ -9,7 +9,6 @@
 #include <kobuki_msgs/KeyboardInput.h>
 #include <ecl/time.hpp>
 #include "../include/core.hpp"
-#include "../include/common/global.hpp"
 
 // TODO: Choose relevant threshold values
 #define THRESHOLD_COUNT 0.5

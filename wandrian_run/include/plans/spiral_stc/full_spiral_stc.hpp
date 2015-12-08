@@ -19,12 +19,14 @@ class FullSpiralStc: public SpiralStc {
 public:
   FullSpiralStc();
   ~FullSpiralStc();
+  void cover();
 
 protected:
+  bool check(CellPtr);
   void scan(CellPtr);
 
 private:
-  bool flexibly_scan(CellPtr, bool);
+  bool go_across(CellPtr, Orientation);
 };
 
 typedef boost::shared_ptr<FullSpiralStc> FullSpiralStcPtr;
