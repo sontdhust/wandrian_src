@@ -17,10 +17,6 @@
 #include "../include/common/point.hpp"
 #include "../include/common/vector.hpp"
 
-#define AT_RIGHT_SIDE 0
-#define IN_FRONT 1
-#define AT_LEFT_SIDE 2
-
 using namespace wandrian::common;
 
 namespace wandrian {

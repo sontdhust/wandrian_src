@@ -11,7 +11,6 @@
 #include <list>
 #include <boost/function.hpp>
 #include "../common/point.hpp"
-#include "../common/vector.hpp"
 
 #define FLEXIBLY true
 #define STRICTLY false

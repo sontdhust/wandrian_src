@@ -8,7 +8,6 @@
 #ifndef WANDRIAN_RUN_INCLUDE_WANDRIAN_HPP_
 #define WANDRIAN_RUN_INCLUDE_WANDRIAN_HPP_
 
-#include "common/vector.hpp"
 #include "core.hpp"
 
 namespace wandrian {

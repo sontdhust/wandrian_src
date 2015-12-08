@@ -8,9 +8,9 @@
 #ifndef WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_SPIRAL_STC_HPP_
 #define WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_SPIRAL_STC_HPP_
 
-#include "../../common/environment.hpp"
 #include "../base_plan.hpp"
 #include "cell.hpp"
+#include "../../common/vector.hpp"
 
 #define STEP_SIZE (robot_size / 2)
 

@@ -15,6 +15,7 @@
 #include <boost/bind.hpp>
 #include <sstream>
 #include <fstream>
+#include "../include/common/environment.hpp"
 #include "../include/plans/spiral_stc/full_spiral_stc.hpp"
 
 #define R_SIZE 0.5 // Robot size

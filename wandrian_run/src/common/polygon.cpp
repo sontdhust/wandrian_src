@@ -6,8 +6,8 @@
  */
 
 #include <boost/next_prior.hpp>
-#include "../../include/common/segment.hpp"
 #include "../../include/common/polygon.hpp"
+#include "../../include/common/segment.hpp"
 
 namespace wandrian {
 namespace common {

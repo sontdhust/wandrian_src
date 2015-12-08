@@ -6,6 +6,7 @@
  */
 
 #include "../../../include/plans/spiral_stc/spiral_stc.hpp"
+#include "../../../include/common/global.hpp"
 
 namespace wandrian {
 namespace plans {
@@ -38,6 +39,8 @@ void SpiralStc::initialize(PointPtr starting_point, double robot_size) {
 
 void SpiralStc::cover() {
   old_cells.insert(starting_cell);
+  for (int i = I; i <= IV; i++)
+    starting_cell->quadrants[i] = OLD;
   scan(starting_cell);
 }
 
@@ -68,7 +71,11 @@ bool SpiralStc::go_with(VectorPtr orientation, double step) {
 }
 
 bool SpiralStc::check(CellPtr cell_to_check) {
-  return (old_cells.find(cell_to_check) != old_cells.end()) ? OLD : NEW;
+  std::set<CellPtr, CellComp>::iterator cell = old_cells.find(cell_to_check);
+  return
+      (cell != old_cells.end() && (*cell)->quadrants[I] == OLD
+          && (*cell)->quadrants[II] == OLD && (*cell)->quadrants[III] == OLD
+          && (*cell)->quadrants[IV] == OLD) ? OLD : NEW;
 }
 
 void SpiralStc::scan(CellPtr current) {
@@ -78,11 +85,11 @@ void SpiralStc::scan(CellPtr current) {
       new Vector(
           (*(current->get_parent()->get_center()) - *(current->get_center()))
               / 2 / robot_size));
-  int neighbors_count = 0;
+  Orientation current_neighbor = AT_RIGHT_SIDE;
   // While current cell has a new obstacle-free neighboring cell
   bool is_starting_cell = *(current->get_center())
       == *(starting_cell->get_center());
-  while (neighbors_count < (is_starting_cell ? 4 : 3)) {
+  do {
     // Scan for the first new neighbor of current cell in counterclockwise order
     CellPtr neighbor = CellPtr(
         new Cell(
@@ -92,27 +99,28 @@ void SpiralStc::scan(CellPtr current) {
             2 * robot_size));
     std::cout << "  \033[1;33mneighbor\033[0m: " << neighbor->get_center()->x
         << "," << neighbor->get_center()->y;
-    neighbors_count++;
     if (check(neighbor) == OLD) {
       std::cout << " \033[1;45m(OLD)\033[0m\n";
-      // Go to next sub-cell (need to check current cell is partially occupied or not)
+      // Go to next sub-cell (need to check next sub-cell is occupied or not)
       go_with(++orientation, robot_size / STEP_SIZE);
       continue;
     }
     if (see_obstacle(orientation, (robot_size / 2) / STEP_SIZE)) {
       std::cout << " \033[1;46m(OBSTACLE)\033[0m\n";
-      // Go to next sub-cell (need to check current cell is partially occupied or not)
+      // Go to next sub-cell (need to check next sub-cell is occupied or not)
       go_with(++orientation, robot_size / STEP_SIZE);
     } else { // New free neighbor
       std::cout << "\n";
       // Construct a spanning-tree edge
       neighbor->set_parent(current);
-      old_cells.insert(neighbor);
       go_with(orientation++, robot_size / STEP_SIZE);
+      old_cells.insert(neighbor);
+      for (int i = I; i <= IV; i++)
+        neighbor->quadrants[i] = OLD;
       scan(neighbor);
     }
-  }
-  // Back to sub-cell of parent (need to check parent cell is partially occupied or not)
+  } while (current_neighbor++ != (is_starting_cell ? BEHIND : AT_LEFT_SIDE));
+  // Back to sub-cell of parent (need to check sub-cell of parent is occupied or not)
   if (!is_starting_cell) {
     go_with(orientation, robot_size / STEP_SIZE);
   }
