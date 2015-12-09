@@ -54,9 +54,9 @@ bool SpiralStc::go_to(PointPtr position, bool flexibly) {
   return true;
 }
 
-bool SpiralStc::see_obstacle(VectorPtr orientation, double step) {
+bool SpiralStc::see_obstacle(VectorPtr orientation, double distance) {
   if (behavior_see_obstacle)
-    return behavior_see_obstacle(orientation, step);
+    return behavior_see_obstacle(orientation, distance);
   return false;
 }
 
@@ -71,7 +71,7 @@ void SpiralStc::scan(CellPtr current) {
       - current->get_center()) / 2 / robot_size;
   VectorPtr initial_orientation = orientation++;
   // While current cell has a new obstacle-free neighboring cell
-  bool is_starting_cell = current->get_center() == starting_cell->get_center();
+  bool is_starting_cell = current == starting_cell;
   do {
     // Scan for new neighbor of current cell in counterclockwise order
     CellPtr neighbor = CellPtr(
@@ -82,18 +82,18 @@ void SpiralStc::scan(CellPtr current) {
     if (check(neighbor) == OLD) { // Old cell
       std::cout << " \033[1;45m(OLD)\033[0m\n";
       // Go to next sub-cell (need to check next sub-cell is occupied or not)
-      go_with(++orientation, robot_size / STEP_SIZE);
+      go_with(++orientation, robot_size);
       continue;
     }
-    if (see_obstacle(orientation, (robot_size / 2) / STEP_SIZE)) { // Obstacle
+    if (see_obstacle(orientation, robot_size / 2)) { // Obstacle
       std::cout << " \033[1;46m(OBSTACLE)\033[0m\n";
       // Go to next sub-cell (need to check next sub-cell is occupied or not)
-      go_with(++orientation, robot_size / STEP_SIZE);
+      go_with(++orientation, robot_size);
     } else { // New free neighbor
       std::cout << "\n";
       // Construct a spanning-tree edge
       neighbor->set_parent(current);
-      go_with(orientation++, robot_size / STEP_SIZE);
+      go_with(orientation++, robot_size);
       old_cells.insert(neighbor);
       scan(neighbor);
     }
@@ -101,15 +101,15 @@ void SpiralStc::scan(CellPtr current) {
       != (is_starting_cell ? AT_RIGHT_SIDE : BEHIND));
   // Back to sub-cell of parent (need to check sub-cell of parent is occupied or not)
   if (!is_starting_cell) {
-    go_with(orientation, robot_size / STEP_SIZE);
+    go_with(orientation, robot_size);
   }
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;31mEND:\033[0m "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
 }
 
-bool SpiralStc::go_with(VectorPtr orientation, double step) {
+bool SpiralStc::go_with(VectorPtr orientation, double distance) {
   PointPtr last_position = *(--path.end());
-  PointPtr new_position = last_position + orientation * step * STEP_SIZE;
+  PointPtr new_position = last_position + orientation * distance;
   return go_to(new_position, STRICTLY);
 }
 

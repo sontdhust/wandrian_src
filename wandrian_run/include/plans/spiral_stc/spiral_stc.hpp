@@ -12,8 +12,6 @@
 #include "cell.hpp"
 #include "../../common/vector.hpp"
 
-#define STEP_SIZE (robot_size / 2)
-
 using namespace wandrian::common;
 
 namespace wandrian {

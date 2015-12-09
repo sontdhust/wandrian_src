@@ -12,7 +12,7 @@ namespace plans {
 namespace spiral_stc {
 
 Cell::Cell(PointPtr center, double size) :
-    current_quadrant(IV), center(center), size(size) {
+    center(center), size(size), current_quadrant(IV) {
   for (int i = I; i <= IV; i++)
     quadrants[i] = NEW;
   points.insert(points.end(),
@@ -30,7 +30,7 @@ PointPtr Cell::get_center() const {
   return center;
 }
 
-double Cell::get_size() {
+double Cell::get_size() const {
   return size;
 }
 
@@ -53,8 +53,21 @@ PointPtr Cell::get_current_position() {
   }
 }
 
+Quadrant Cell::get_current_quadrant() {
+  return current_quadrant;
+}
+
+bool* Cell::get_quadrants() {
+  return quadrants;
+}
+
 void Cell::set_parent(CellPtr parent) {
   this->parent = parent;
+}
+
+void Cell::set_current_quadrant(Quadrant quadrant) {
+  current_quadrant = quadrant;
+  quadrants[quadrant] = OLD;
 }
 
 }

@@ -34,24 +34,44 @@ enum Quadrant {
   IV
 };
 
+inline Quadrant operator++(Quadrant &q) {
+  switch (q) {
+  case I:
+    q = II;
+    break;
+  case II:
+    q = III;
+    break;
+  case III:
+    q = IV;
+    break;
+  case IV:
+    q = I;
+    break;
+  }
+  return q;
+}
+
 class Cell: public Polygon {
 
 public:
-  bool quadrants[4];
-  Quadrant current_quadrant;
-
   Cell(PointPtr, double);
   PointPtr get_center() const;
-  double get_size();
+  double get_size() const;
   boost::shared_ptr<Cell> get_parent();
   PointPtr get_current_position();
+  Quadrant get_current_quadrant();
+  bool* get_quadrants();
 
   void set_parent(boost::shared_ptr<Cell>);
+  void set_current_quadrant(Quadrant);
 
 private:
   PointPtr center;
   double size;
   boost::shared_ptr<Cell> parent;
+  Quadrant current_quadrant;
+  bool quadrants[4];
 };
 
 typedef boost::shared_ptr<Cell> CellPtr;
@@ -63,7 +83,17 @@ inline bool operator<(CellConstPtr c1, CellConstPtr c2) {
   return
       std::abs(c1->get_center()->x - c2->get_center()->x) > EPS ?
           (c1->get_center()->x < c2->get_center()->x) :
-          (c1->get_center()->y < c2->get_center()->y);
+          (std::abs(c1->get_center()->y - c2->get_center()->y) > EPS ?
+              (c1->get_center()->y < c2->get_center()->y) :
+              c1->get_size() < c2->get_size());
+}
+
+inline bool operator!=(CellPtr c1, CellPtr c2) {
+  return c1 < c2 || c2 < c1 || c1->get_size() != c2->get_size();
+}
+
+inline bool operator==(CellPtr c1, CellPtr c2) {
+  return !(c1 != c2);
 }
 
 struct CellComp {

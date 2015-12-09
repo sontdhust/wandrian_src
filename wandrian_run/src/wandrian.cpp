@@ -60,7 +60,7 @@ bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibly) {
   return go_to(position, flexibly);
 }
 
-bool Wandrian::spiral_stc_see_obstacle(VectorPtr orientation, double step) {
+bool Wandrian::spiral_stc_see_obstacle(VectorPtr orientation, double) {
   // TODO: Correctly check whether obstacle is near or not
   double angle = orientation ^ core.get_current_orientation();
   return

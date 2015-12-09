@@ -28,5 +28,11 @@ void Vector::rotate_counterclockwise() {
   y = tmp;
 }
 
+void Vector::rotate_clockwise() {
+  double tmp = x;
+  x = y;
+  y = -tmp;
+}
+
 }
 }

@@ -26,7 +26,8 @@ protected:
   void scan(CellPtr);
 
 private:
-  bool go_across(CellPtr, Orientation);
+  bool go_across(CellPtr, CellPtr);
+  bool visit(CellPtr, Quadrant, bool);
 };
 
 typedef boost::shared_ptr<FullSpiralStc> FullSpiralStcPtr;

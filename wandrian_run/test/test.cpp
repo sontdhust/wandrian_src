@@ -20,7 +20,6 @@
 
 #define R_SIZE 0.5 // Robot size
 #define E_SIZE 4.0 // Default environment size
-#define S_SIZE (R_SIZE / 2)
 #define WORLD_INSERT_OBSTACLE "<!-- INSERT: Bound and Obstacles here -->" // Flag at original world file to insert bound and obstacles into
 
 using namespace wandrian::plans::spiral_stc;
@@ -121,10 +120,10 @@ bool test_go_to(PointPtr position, bool flexibly) {
   return true;
 }
 
-bool test_see_obstacle(VectorPtr orientation, double step) {
+bool test_see_obstacle(VectorPtr orientation, double distance) {
   // Simulator check obstacle
   PointPtr last_position = *(--tmp_path.end());
-  PointPtr new_position = last_position + orientation * step * S_SIZE;
+  PointPtr new_position = last_position + orientation * distance;
   if (environment) {
     CellPtr space = boost::static_pointer_cast<Cell>(environment->space);
     if (new_position->x >= space->get_center()->x + space->get_size() / 2

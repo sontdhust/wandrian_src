@@ -39,6 +39,7 @@ struct Vector {
   Vector(double, double);
   Vector(const Vector&);
   void rotate_counterclockwise();
+  void rotate_clockwise();
 };
 
 typedef boost::shared_ptr<Vector> VectorPtr;
@@ -79,7 +80,7 @@ inline Orientation operator%(VectorPtr v1, VectorPtr v2) {
 
 inline VectorPtr operator++(VectorPtr v) {
   v->rotate_counterclockwise();
-  return VectorPtr(new Vector(*v));
+  return v;
 }
 
 inline VectorPtr operator++(VectorPtr v, int) {
@@ -88,19 +89,19 @@ inline VectorPtr operator++(VectorPtr v, int) {
   return vector;
 }
 
-inline VectorPtr operator~(Orientation o) {
-  switch (o) {
-  case AT_RIGHT_SIDE:
-    return VectorPtr(new Vector(1, 0));
-  case IN_FRONT:
-    return VectorPtr(new Vector(0, 1));
-  case AT_LEFT_SIDE:
-    return VectorPtr(new Vector(-1, 0));
-  case BEHIND:
-    return VectorPtr(new Vector(0, -1));
-  default:
-    return VectorPtr(new Vector());
-  }
+inline VectorPtr operator--(VectorPtr v) {
+  v->rotate_clockwise();
+  return v;
+}
+
+inline VectorPtr operator--(VectorPtr v, int) {
+  VectorPtr vector = VectorPtr(new Vector(*v));
+  v->rotate_clockwise();
+  return vector;
+}
+
+inline Orientation operator~(VectorPtr o) {
+  return o % VectorPtr(new Vector());
 }
 
 }
