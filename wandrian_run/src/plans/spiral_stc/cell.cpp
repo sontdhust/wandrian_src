@@ -26,7 +26,7 @@ Cell::Cell(PointPtr center, double size) :
   build();
 }
 
-PointPtr Cell::get_center() {
+PointPtr Cell::get_center() const {
   return center;
 }
 
@@ -36,6 +36,21 @@ double Cell::get_size() {
 
 CellPtr Cell::get_parent() {
   return parent;
+}
+
+PointPtr Cell::get_current_position() {
+  switch (current_quadrant) {
+  case I:
+    return PointPtr(new Point(center->x + size / 4, center->y + size / 4));
+  case II:
+    return PointPtr(new Point(center->x - size / 4, center->y + size / 4));
+  case III:
+    return PointPtr(new Point(center->x - size / 4, center->y - size / 4));
+  case IV:
+    return PointPtr(new Point(center->x + size / 4, center->y - size / 4));
+  default:
+    return PointPtr(new Point(center->x, center->y));
+  }
 }
 
 void Cell::set_parent(CellPtr parent) {

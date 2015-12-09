@@ -124,8 +124,7 @@ bool test_go_to(PointPtr position, bool flexibly) {
 bool test_see_obstacle(VectorPtr orientation, double step) {
   // Simulator check obstacle
   PointPtr last_position = *(--tmp_path.end());
-  PointPtr new_position = PointPtr(
-      new Point(*last_position + *orientation * step * S_SIZE));
+  PointPtr new_position = last_position + orientation * step * S_SIZE;
   if (environment) {
     CellPtr space = boost::static_pointer_cast<Cell>(environment->space);
     if (new_position->x >= space->get_center()->x + space->get_size() / 2
@@ -185,7 +184,7 @@ int main(int argc, char **argv) {
     bool valid = true;
     for (std::list<PolygonPtr>::iterator p = obstacles.begin();
         p != obstacles.end(); p++)
-      if (*((boost::static_pointer_cast<Cell>(*p))->get_center()) == *center
+      if ((boost::static_pointer_cast<Cell>(*p))->get_center() == center
           || (center->x == starting_point->x - R_SIZE / 2
               && center->y == starting_point->y + R_SIZE / 2)) {
         valid = false;

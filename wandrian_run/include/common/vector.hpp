@@ -43,33 +43,29 @@ struct Vector {
 
 typedef boost::shared_ptr<Vector> VectorPtr;
 
-inline Vector operator*(const Vector &v, const double &k) {
-  return Vector(v.x * k, v.y * k);
+inline VectorPtr operator*(VectorPtr v, const double &k) {
+  return VectorPtr(new Vector(v->x * k, v->y * k));
 }
 
-inline Vector operator/(const Vector &v, const double &k) {
-  return Vector(v.x / k, v.y / k);
+inline VectorPtr operator/(VectorPtr v, const double &k) {
+  return VectorPtr(new Vector(v->x / k, v->y / k));
 }
 
-inline Vector operator-(const Point &p1, const Point &p2) {
-  return Vector(p1.x - p2.x, p1.y - p2.y);
+inline PointPtr operator+(PointPtr p, VectorPtr v) {
+  return PointPtr(new Point(p->x + v->x, p->y + v->y));
 }
 
-inline Point operator+(const Point &p, const Vector &v) {
-  return Point(p.x + v.x, p.y + v.y);
+inline VectorPtr operator-(PointPtr p1, PointPtr p2) {
+  return VectorPtr(new Vector(p1->x - p2->x, p1->y - p2->y));
 }
 
-inline Vector operator-(const Vector &v1, const Vector &v2) {
-  return Vector(v1.x - v2.x, v1.y - v2.y);
-}
-
-inline double operator^(const Vector &v1, const Vector &v2) {
-  double a1 = atan2(v1.y, v1.x) - atan2(v2.y, v2.x);
+inline double operator^(VectorPtr v1, VectorPtr v2) {
+  double a1 = atan2(v1->y, v1->x) - atan2(v2->y, v2->x);
   double a2 = (a1 > 0) ? a1 - 2 * M_PI : a1 + 2 * M_PI;
   return (std::abs(a1) < std::abs(a2)) ? a1 : a2;
 }
 
-inline Orientation operator%(const Vector &v1, const Vector &v2) {
+inline Orientation operator%(VectorPtr v1, VectorPtr v2) {
   double angle = v1 ^ v2;
   if (std::abs(angle) >= 3 * M_PI_4)
     return IN_FRONT;
@@ -90,6 +86,21 @@ inline VectorPtr operator++(VectorPtr v, int) {
   VectorPtr vector = VectorPtr(new Vector(*v));
   v->rotate_counterclockwise();
   return vector;
+}
+
+inline VectorPtr operator~(Orientation o) {
+  switch (o) {
+  case AT_RIGHT_SIDE:
+    return VectorPtr(new Vector(1, 0));
+  case IN_FRONT:
+    return VectorPtr(new Vector(0, 1));
+  case AT_LEFT_SIDE:
+    return VectorPtr(new Vector(-1, 0));
+  case BEHIND:
+    return VectorPtr(new Vector(0, -1));
+  default:
+    return VectorPtr(new Vector());
+  }
 }
 
 }

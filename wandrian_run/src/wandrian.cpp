@@ -62,7 +62,7 @@ bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibly) {
 
 bool Wandrian::spiral_stc_see_obstacle(VectorPtr orientation, double step) {
   // TODO: Correctly check whether obstacle is near or not
-  double angle = *orientation ^ *core.get_current_orientation();
+  double angle = orientation ^ core.get_current_orientation();
   return
       (std::abs(angle) <= M_PI_4) ?
           core.get_obstacles()[IN_FRONT] :
@@ -86,16 +86,16 @@ bool Wandrian::go_to(PointPtr new_position, bool flexibly) {
   go(forward);
   while (true) {
     // Check current_position + k * current_orientation == new_position
-    Vector direction_vector = (*new_position - *core.get_current_position())
-        / (*new_position % *core.get_current_position());
+    VectorPtr direction_vector = (new_position - core.get_current_position())
+        / (new_position % core.get_current_position());
     if (forward ?
-        (!(std::abs(direction_vector.x - core.get_current_orientation()->x)
+        (!(std::abs(direction_vector->x - core.get_current_orientation()->x)
             < EPS_ORI_TO_MOVE
-            && std::abs(direction_vector.y - core.get_current_orientation()->y)
+            && std::abs(direction_vector->y - core.get_current_orientation()->y)
                 < EPS_ORI_TO_MOVE)) :
-        (!(std::abs(direction_vector.x + core.get_current_orientation()->x)
+        (!(std::abs(direction_vector->x + core.get_current_orientation()->x)
             < EPS_ORI_TO_MOVE
-            && std::abs(direction_vector.y + core.get_current_orientation()->y)
+            && std::abs(direction_vector->y + core.get_current_orientation()->y)
                 < EPS_ORI_TO_MOVE))) {
       core.stop();
       forward = rotate_to(new_position, flexibly);
@@ -119,11 +119,9 @@ bool Wandrian::go_to(PointPtr new_position, bool flexibly) {
 }
 
 bool Wandrian::rotate_to(PointPtr new_position, bool flexibly) {
-  VectorPtr new_orientation = VectorPtr(
-      new Vector(
-          (*new_position - *core.get_current_position())
-              / (*new_position % *core.get_current_position())));
-  double angle = *new_orientation ^ *core.get_current_orientation();
+  VectorPtr new_orientation = (new_position - core.get_current_position())
+      / (new_position % core.get_current_position());
+  double angle = new_orientation ^ core.get_current_orientation();
 
   bool will_move_forward = !flexibly ? true : std::abs(angle) < M_PI_2;
   if (angle > EPS_ORI_TO_ROTATE)
