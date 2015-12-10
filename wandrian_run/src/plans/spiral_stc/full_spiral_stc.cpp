@@ -27,8 +27,7 @@ void FullSpiralStc::cover() {
 }
 
 bool FullSpiralStc::check(CellPtr cell_to_check) {
-  std::set<CellPtr, CellComp>::iterator cell = old_cells.find(cell_to_check);
-  return (cell != old_cells.end()) ? OLD : NEW;
+  return SpiralStc::check(cell_to_check);
 }
 
 void FullSpiralStc::scan(CellPtr current) {
@@ -47,15 +46,17 @@ void FullSpiralStc::scan(CellPtr current) {
     std::cout << "  \033[1;33mneighbor:\033[0m " << neighbor->get_center()->x
         << "," << neighbor->get_center()->y;
     if (check(neighbor) == OLD) { // Old cell
-      std::cout << " \033[1;45m(OLD)\033[0m\n";
+      // Go to next sub-cell
+      if (!see_obstacle(+orientation, robot_size / 2)) {
+        visit(current, +(current->get_current_quadrant()), STRICTLY);
+        std::cout << "\n";
+      }
       continue;
     } else {
       // Go with absolute orientation
       bool succeed = go_across(current, neighbor);
       if (!succeed) { // Obstacle
-        std::cout << " \033[1;46m(OBSTACLE)\033[0m\n";
       } else { // New free neighbor
-        std::cout << "\n";
         // Construct a spanning-tree edge
         neighbor->set_parent(current);
         old_cells.insert(neighbor);
@@ -76,10 +77,10 @@ bool FullSpiralStc::go_across(CellPtr current, CellPtr next) {
   VectorPtr orientation = (next->get_center() - current->get_center())
       / (2 * robot_size);
   Quadrant quadrant = current->get_current_quadrant();
-  Quadrant q4;
   Quadrant q1;
   Quadrant q2;
   Quadrant q3;
+  Quadrant q4;
   Quadrant q;
   switch (~orientation) {
   case AT_RIGHT_SIDE:
@@ -95,36 +96,40 @@ bool FullSpiralStc::go_across(CellPtr current, CellPtr next) {
     q = III;
     break;
   }
-  q4 = q;
-  q1 = ++q;
+  q1 = q;
   q2 = ++q;
   q3 = ++q;
-  if (quadrant == q4 || quadrant == q1) {
+  q4 = ++q;
+  if (quadrant == q1 || quadrant == q2) {
     if (!see_obstacle(orientation, robot_size / 2)) {
-      return visit(next, quadrant == q4 ? q3 : q2, STRICTLY);
+      bool succeed = visit(next, quadrant == q1 ? q4 : q3, STRICTLY);
+      std::cout << "\n";
+      return succeed;
     } else {
-      if (!see_obstacle(quadrant == q4 ? ++orientation : --orientation,
+      if (!see_obstacle(quadrant == q1 ? ++orientation : --orientation,
           robot_size / 2)) {
-        visit(current, quadrant == q4 ? q1 : q4, STRICTLY);
-        if (!see_obstacle(quadrant == q4 ? --orientation : ++orientation,
-            robot_size / 2))
-          return visit(next, quadrant == q4 ? q2 : q3, STRICTLY);
-        else
+        visit(current, quadrant == q1 ? q2 : q1, STRICTLY);
+        if (!see_obstacle(quadrant == q1 ? --orientation : ++orientation,
+            robot_size / 2)) {
+          bool succeed = visit(next, quadrant == q1 ? q3 : q4, STRICTLY);
+          std::cout << "\n";
+          return succeed;
+        } else
           return false;
       } else
         return false;
     }
-  } else if (quadrant == q3 || quadrant == q2) {
+  } else if (quadrant == q4 || quadrant == q3) {
     if (!see_obstacle(orientation, robot_size / 2)) {
-      visit(current, quadrant == q3 ? q4 : q1, STRICTLY);
+      visit(current, quadrant == q4 ? q1 : q2, STRICTLY);
       return go_across(current, next);
     } else {
-      if (!see_obstacle(quadrant == q3 ? ++orientation : --orientation,
+      if (!see_obstacle(quadrant == q4 ? ++orientation : --orientation,
           robot_size / 2)) {
-        visit(current, quadrant == q3 ? q2 : q3, STRICTLY);
-        if (!see_obstacle(quadrant == q3 ? --orientation : ++orientation,
+        visit(current, quadrant == q4 ? q3 : q4, STRICTLY);
+        if (!see_obstacle(quadrant == q4 ? --orientation : ++orientation,
             robot_size / 2)) {
-          visit(current, quadrant == q3 ? q1 : q4, STRICTLY);
+          visit(current, quadrant == q4 ? q2 : q1, STRICTLY);
           return go_across(current, next);
         } else
           return false;

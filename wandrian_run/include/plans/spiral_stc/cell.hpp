@@ -34,21 +34,22 @@ enum Quadrant {
   IV
 };
 
-inline Quadrant operator++(Quadrant &q) {
+inline Quadrant operator+(Quadrant q) {
   switch (q) {
   case I:
-    q = II;
-    break;
+    return II;
   case II:
-    q = III;
-    break;
+    return III;
   case III:
-    q = IV;
-    break;
+    return IV;
   case IV:
-    q = I;
-    break;
+    return I;
   }
+  return q;
+}
+
+inline Quadrant operator++(Quadrant &q) {
+  q = +q;
   return q;
 }
 

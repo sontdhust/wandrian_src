@@ -76,8 +76,8 @@ bool Wandrian::full_spiral_stc_go_to(PointPtr position, bool flexibly) {
 }
 
 bool Wandrian::full_spiral_stc_see_obstacle(VectorPtr orientation,
-    double step) {
-  return spiral_stc_see_obstacle(orientation, step);
+    double distance) {
+  return spiral_stc_see_obstacle(orientation, distance);
 }
 
 bool Wandrian::go_to(PointPtr new_position, bool flexibly) {
