@@ -23,22 +23,22 @@ class SpiralStc: public BasePlan {
 public:
   SpiralStc();
   ~SpiralStc();
-  void initialize(PointPtr, double);
+  virtual void initialize(PointPtr, double);
   virtual void cover();
 
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
 
 protected:
-  CellPtr starting_cell;
   std::set<CellPtr, CellComp> old_cells;
   double robot_size; // = 'cell size' / 2
 
   bool go_to(PointPtr, bool);
   bool see_obstacle(VectorPtr, double);
-  virtual bool check(CellPtr);
+  virtual State state_of(CellPtr);
   virtual void scan(CellPtr);
 
 private:
+  CellPtr starting_cell;
   boost::function<bool(VectorPtr, double)> behavior_see_obstacle;
 
   bool go_with(VectorPtr, double);

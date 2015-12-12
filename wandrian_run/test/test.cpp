@@ -168,18 +168,35 @@ int main(int argc, char **argv) {
   starting_point = PointPtr(
       new Point(
           (std::rand() % (int) (e_size / R_SIZE / 2.0)
-              - (int) (e_size / R_SIZE / 4.0)) + R_SIZE + R_SIZE / 2,
+              - (int) (e_size / R_SIZE / 4.0)) + R_SIZE + R_SIZE / 2.0,
           (std::rand() % (int) (e_size / R_SIZE / 2.0)
-              - (int) (e_size / R_SIZE / 4.0)) + R_SIZE - R_SIZE / 2));
+              - (int) (e_size / R_SIZE / 4.0)) + R_SIZE - R_SIZE / 2.0));
 
-  int r = std::rand() % (int) (e_size * e_size / 16) + e_size * e_size / 8;
+  double o_size;
+  int r;
+  if (argc >= 3) {
+    std::istringstream iss(argv[2]);
+    if (!(iss >> o_size)) {
+      o_size = 2.0 * R_SIZE;
+      r = 0;
+    } else
+      r = std::rand() % (int) (e_size * e_size / (8 * o_size / R_SIZE))
+          + e_size * e_size / (4 * o_size / R_SIZE);
+  } else {
+    o_size = 2.0 * R_SIZE;
+    r = std::rand() % (int) (e_size * e_size / (8 * o_size / R_SIZE))
+        + e_size * e_size / (4 * o_size / R_SIZE);
+  }
+
   for (int i = 0; i <= r; i++) {
     PointPtr center = PointPtr(
         new Point(
-            (std::rand() % (int) (e_size / R_SIZE / 2.0)
-                - (int) (e_size / R_SIZE / 4.0)) + R_SIZE,
-            (std::rand() % (int) (e_size / R_SIZE / 2.0)
-                - (int) (e_size / R_SIZE / 4.0)) + R_SIZE));
+            (std::rand() % (int) (e_size / R_SIZE / (o_size / R_SIZE))
+                - (int) (e_size / R_SIZE / (o_size / R_SIZE) / 2.0) + R_SIZE)
+                * o_size,
+            (std::rand() % (int) (e_size / R_SIZE / (o_size / R_SIZE))
+                - (int) (e_size / R_SIZE / (o_size / R_SIZE) / 2.0) + R_SIZE)
+                * o_size));
     bool valid = true;
     for (std::list<PolygonPtr>::iterator p = obstacles.begin();
         p != obstacles.end(); p++)
@@ -190,7 +207,7 @@ int main(int argc, char **argv) {
         break;
       };
     if (valid) {
-      obstacles.insert(obstacles.end(), CellPtr(new Cell(center, 2 * R_SIZE)));
+      obstacles.insert(obstacles.end(), CellPtr(new Cell(center, o_size)));
     }
   }
 
@@ -298,8 +315,8 @@ int main(int argc, char **argv) {
   world_out.close();
 
   environment = EnvironmentPtr(new Environment(space, obstacles));
-  if (argc >= 3) {
-    if (std::string(argv[2]) == "spiral_stc") {
+  if (argc >= 2) {
+    if (std::string(argv[3]) == "spiral_stc") {
       SpiralStcPtr plan_spiral_stc = SpiralStcPtr(new SpiralStc());
       plan_spiral_stc->initialize(starting_point, R_SIZE);
       tmp_path.insert(tmp_path.end(), starting_point);
@@ -307,7 +324,7 @@ int main(int argc, char **argv) {
       plan_spiral_stc->set_behavior_see_obstacle(
           boost::bind(&test_see_obstacle, _1, _2));
       plan_spiral_stc->cover();
-    } else if (std::string(argv[2]) == "full_spiral_stc") {
+    } else if (std::string(argv[3]) == "full_spiral_stc") {
       FullSpiralStcPtr plan_full_spiral_stc = FullSpiralStcPtr(
           new FullSpiralStc());
       plan_full_spiral_stc->initialize(starting_point, R_SIZE);

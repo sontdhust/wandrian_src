@@ -65,11 +65,11 @@ bool SpiralStc::see_obstacle(VectorPtr orientation, double distance) {
   return get_obstacle;
 }
 
-bool SpiralStc::check(CellPtr cell_to_check) {
-  bool is_old = (old_cells.find(cell_to_check) != old_cells.end()) ? OLD : NEW;
-  if (is_old)
+State SpiralStc::state_of(CellPtr cell) {
+  State state = (old_cells.find(cell) != old_cells.end()) ? OLD : NEW;
+  if (state == OLD)
     std::cout << " \033[1;45m(OLD)\033[0m\n";
-  return is_old;
+  return state;
 }
 
 void SpiralStc::scan(CellPtr current) {
@@ -87,7 +87,7 @@ void SpiralStc::scan(CellPtr current) {
             2 * robot_size));
     std::cout << "  \033[1;33mneighbor:\033[0m " << neighbor->get_center()->x
         << "," << neighbor->get_center()->y;
-    if (check(neighbor) == OLD) { // Old cell
+    if (state_of(neighbor) == OLD) { // Old cell
       // Go to next sub-cell
       go_with(++orientation, robot_size);
       continue;

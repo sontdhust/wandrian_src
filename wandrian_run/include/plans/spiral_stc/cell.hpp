@@ -10,69 +10,33 @@
 
 #include "../../common/polygon.hpp"
 
-#define OLD true
-#define NEW false
-
 using namespace wandrian::common;
 
 namespace wandrian {
 namespace plans {
 namespace spiral_stc {
 
-enum Quadrant {
-  //  _____________
-  // |      |      |
-  // |  II  |  I   |
-  // |______|______|
-  // |      |      |
-  // | III  |  IV  |
-  // |______|______|
-
-  I,
-  II,
-  III,
-  IV
+enum State {
+  NEW, OLD, OBSTACLE
 };
-
-inline Quadrant operator+(Quadrant q) {
-  switch (q) {
-  case I:
-    return II;
-  case II:
-    return III;
-  case III:
-    return IV;
-  case IV:
-    return I;
-  }
-  return q;
-}
-
-inline Quadrant operator++(Quadrant &q) {
-  q = +q;
-  return q;
-}
 
 class Cell: public Polygon {
 
 public:
   Cell(PointPtr, double);
+  virtual ~Cell();
   PointPtr get_center() const;
   double get_size() const;
   boost::shared_ptr<Cell> get_parent();
-  PointPtr get_current_position();
-  Quadrant get_current_quadrant();
-  bool* get_quadrants();
 
   void set_parent(boost::shared_ptr<Cell>);
-  void set_current_quadrant(Quadrant);
 
-private:
+protected:
   PointPtr center;
   double size;
+
+private:
   boost::shared_ptr<Cell> parent;
-  Quadrant current_quadrant;
-  bool quadrants[4];
 };
 
 typedef boost::shared_ptr<Cell> CellPtr;
