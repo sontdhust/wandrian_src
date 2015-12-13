@@ -25,7 +25,6 @@ Cell::Cell(PointPtr center, double size) :
 }
 
 Cell::~Cell() {
-
 }
 
 PointPtr Cell::get_center() const {

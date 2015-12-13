@@ -18,7 +18,6 @@ PartiallyOccupiableCell::PartiallyOccupiableCell(PointPtr center, double size) :
 }
 
 PartiallyOccupiableCell::~PartiallyOccupiableCell() {
-
 }
 
 PointPtr PartiallyOccupiableCell::get_current_position() {
@@ -46,11 +45,12 @@ State* PartiallyOccupiableCell::get_quadrants() {
 
 void PartiallyOccupiableCell::set_current_quadrant(Quadrant quadrant) {
   current_quadrant = quadrant;
-  set_quadrants_old(quadrant);
+  set_quadrants_state(quadrant, OLD);
 }
 
-void PartiallyOccupiableCell::set_quadrants_old(Quadrant quadrant) {
-  quadrants[quadrant] = OLD;
+void PartiallyOccupiableCell::set_quadrants_state(Quadrant quadrant,
+    State state) {
+  quadrants[quadrant] = state;
 }
 
 }

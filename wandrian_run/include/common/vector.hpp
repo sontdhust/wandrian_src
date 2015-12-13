@@ -31,6 +31,25 @@ enum Orientation {
   BEHIND
 };
 
+inline Orientation operator+(Orientation o) {
+  switch (o) {
+  case AT_RIGHT_SIDE:
+    return IN_FRONT;
+  case IN_FRONT:
+    return AT_LEFT_SIDE;
+  case AT_LEFT_SIDE:
+    return BEHIND;
+  case BEHIND:
+    return AT_RIGHT_SIDE;
+  }
+  return o;
+}
+
+inline Orientation& operator++(Orientation &o) {
+  o = +o;
+  return o;
+}
+
 struct Vector {
 
   double x, y;
@@ -112,8 +131,23 @@ inline VectorPtr operator--(VectorPtr v, int) {
   return vector;
 }
 
-inline Orientation operator~(VectorPtr o) {
-  return o % VectorPtr(new Vector());
+inline Orientation operator~(VectorPtr v) {
+  return v % VectorPtr(new Vector());
+}
+
+inline VectorPtr operator~(Orientation o) {
+  switch (o) {
+  case AT_RIGHT_SIDE:
+    return VectorPtr(new Vector(1, 0));
+  case IN_FRONT:
+    return VectorPtr(new Vector(0, 1));
+  case AT_LEFT_SIDE:
+    return VectorPtr(new Vector(-1, 0));
+  case BEHIND:
+    return VectorPtr(new Vector(0, -1));
+  default:
+    return VectorPtr(new Vector());
+  }
 }
 
 }

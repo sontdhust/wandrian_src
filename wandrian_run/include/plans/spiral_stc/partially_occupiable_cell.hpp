@@ -48,6 +48,25 @@ inline Quadrant operator++(Quadrant &q) {
   return q;
 }
 
+inline Quadrant operator-(Quadrant q) {
+  switch (q) {
+  case I:
+    return IV;
+  case IV:
+    return III;
+  case III:
+    return II;
+  case II:
+    return I;
+  }
+  return q;
+}
+
+inline Quadrant operator--(Quadrant &q) {
+  q = -q;
+  return q;
+}
+
 class PartiallyOccupiableCell: public Cell {
 
 public:
@@ -58,7 +77,7 @@ public:
   State* get_quadrants();
 
   void set_current_quadrant(Quadrant);
-  void set_quadrants_old(Quadrant);
+  void set_quadrants_state(Quadrant, State);
 
 private:
   Quadrant current_quadrant;

@@ -26,10 +26,12 @@ public:
 
 protected:
   std::list<PointPtr> points;
+
   void build();
 
 private:
   std::map<PointPtr, std::set<PointPtr, PointComp>, PointComp> graph;
+
   PointPtr get_leftmost();
   PointPtr get_rightmost();
   std::list<PointPtr> get_upper_bound(); // List of points
