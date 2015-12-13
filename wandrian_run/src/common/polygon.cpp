@@ -6,14 +6,13 @@
  */
 
 #include <boost/next_prior.hpp>
-#include "../../include/common/segment.hpp"
 #include "../../include/common/polygon.hpp"
+#include "../../include/common/segment.hpp"
 
 namespace wandrian {
 namespace common {
 
 Polygon::Polygon() {
-
 }
 
 Polygon::Polygon(std::list<PointPtr> points) :
@@ -23,7 +22,7 @@ Polygon::Polygon(std::list<PointPtr> points) :
     std::list<PointPtr>::iterator next =
         boost::next(point) != this->points.end() ?
             boost::next(point) : this->points.begin();
-    if (**next == **point) {
+    if (*next == *point) {
       if (point != this->points.end())
         this->points.erase(next);
       else
@@ -88,7 +87,7 @@ void Polygon::build() {
       graph.find(*next)->second.insert(*current);
     }
   }
-// Find all intersects
+  // Find all intersects
   std::map<SegmentPtr, std::set<PointPtr, PointComp>, SegmentComp> segments;
   for (std::map<PointPtr, std::set<PointPtr, PointComp> >::iterator current =
       graph.begin(); current != graph.end(); current++) {
@@ -104,7 +103,7 @@ void Polygon::build() {
               new Segment(current->first, *current_adjacent));
           SegmentPtr another_segment = SegmentPtr(
               new Segment(another->first, *another_adjacent));
-          PointPtr intersect = *(current_segment) % *(another_segment);
+          PointPtr intersect = current_segment % another_segment;
           if (intersect) {
             if (segments.find(current_segment) == segments.end())
               segments.insert(
@@ -115,18 +114,16 @@ void Polygon::build() {
                   std::pair<SegmentPtr, std::set<PointPtr, PointComp> >(
                       another_segment, std::set<PointPtr, PointComp>()));
 
-            if (*intersect != *(current->first)
-                && *intersect != **current_adjacent)
+            if (intersect != current->first && intersect != *current_adjacent)
               segments.find(current_segment)->second.insert(intersect);
-            if (*intersect != *(another->first)
-                && *intersect != **another_adjacent)
+            if (intersect != another->first && intersect != *another_adjacent)
               segments.find(another_segment)->second.insert(intersect);
           }
         }
       }
     }
   }
-// Insert intersects and new edges into graph
+  // Insert intersects and new edges into graph
   for (std::map<SegmentPtr, std::set<PointPtr, PointComp> >::iterator segment =
       segments.begin(); segment != segments.end(); segment++) {
     for (std::set<PointPtr>::iterator intersect = segment->second.begin();
@@ -141,19 +138,19 @@ void Polygon::build() {
       graph.find(*intersect)->second.insert(segment->first->p2);
       for (std::set<PointPtr>::iterator another = segment->second.begin();
           another != segment->second.end(); another++) {
-        if (**intersect != **another)
+        if (*intersect != *another)
           graph.find(*intersect)->second.insert(*another);
       }
     }
   }
-// TODO Remove redundant edges
+  // TODO: Remove redundant edges
 }
 
 PointPtr Polygon::get_leftmost() {
   PointPtr leftmost = *(points.begin());
   for (std::list<PointPtr>::iterator current = boost::next(points.begin());
       current != points.end(); current++) {
-    if (**current < *leftmost)
+    if (*current < leftmost)
       leftmost = *current;
   }
   return leftmost;
@@ -163,7 +160,7 @@ PointPtr Polygon::get_rightmost() {
   PointPtr rightmost = *(points.begin());
   for (std::list<PointPtr>::iterator current = boost::next(points.begin());
       current != points.end(); current++) {
-    if (**current > *rightmost)
+    if (*current > rightmost)
       rightmost = *current;
   }
   return rightmost;
@@ -183,12 +180,12 @@ std::list<PointPtr> Polygon::get_partial_bound(bool is_upper) {
   PointPtr rightmost = get_rightmost();
   partial_bound.insert(partial_bound.end(), leftmost);
 
-  // TODO Choose relevant epsilon value
+  // TODO: Choose relevant epsilon value
   double EPS = 20 * std::numeric_limits<double>::epsilon();
 
   PointPtr current = leftmost;
   PointPtr previous = PointPtr(new Point(current->x - 1, current->y));
-  while (*current != *rightmost) {
+  while (current != rightmost) {
     double angle;
     double distance = std::numeric_limits<double>::infinity();
     if (is_upper)
@@ -209,19 +206,19 @@ std::list<PointPtr> Polygon::get_partial_bound(bool is_upper) {
         if (a - angle < -EPS || (std::abs(a - angle) < EPS && d < distance)) {
           angle = a;
           distance = d;
-          next = PointPtr(new Point(**adjacent));
+          next = *adjacent;
         }
       } else {
         a = std::abs(a) <= EPS ? 0 : a > 0 ? a : 2 * M_PI + a;
         if (a - angle > EPS || (std::abs(a - angle) < EPS && d < distance)) {
           angle = a;
           distance = d;
-          next = PointPtr(new Point(**adjacent));
+          next = *adjacent;
         }
       }
     }
-    previous = PointPtr(new Point(*current));
-    current = PointPtr(new Point(*next));
+    previous = current;
+    current = next;
     partial_bound.insert(partial_bound.end(), current);
   }
   return partial_bound;

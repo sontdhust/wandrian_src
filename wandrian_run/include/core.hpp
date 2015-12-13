@@ -8,18 +8,14 @@
 #ifndef WANDRIAN_RUN_INCLUDE_CORE_HPP_
 #define WANDRIAN_RUN_INCLUDE_CORE_HPP_
 
-#include <termios.h> // for keyboard input
+#include <termios.h> // For keyboard input
 #include <ros/ros.h>
 #include <ecl/threads.hpp>
-#include <geometry_msgs/Twist.h> // for velocity commands
+#include <geometry_msgs/Twist.h> // For velocity commands
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/LaserScan.h>
 #include "../include/common/point.hpp"
 #include "../include/common/vector.hpp"
-
-#define AT_RIGHT_SIDE 0
-#define IN_FRONT 1
-#define AT_LEFT_SIDE 2
 
 using namespace wandrian::common;
 
@@ -66,7 +62,7 @@ private:
 
   bool is_quitting;
   bool is_powered;
-  bool is_zero_vel; // avoid zero-vel messages from the beginning
+  bool is_zero_vel; // Avoid zero-vel messages from the beginning
   bool is_logging;
   int file_descriptor;
 

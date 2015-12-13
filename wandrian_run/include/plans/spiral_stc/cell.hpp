@@ -16,43 +16,54 @@ namespace wandrian {
 namespace plans {
 namespace spiral_stc {
 
-#define OLD_CELL false
-#define NEW_CELL true
+enum State {
+  NEW, OLD, OBSTACLE
+};
 
 class Cell: public Polygon {
 
 public:
-  std::list<boost::shared_ptr<Cell> > neighbors;
-
   Cell(PointPtr, double);
-  PointPtr get_center();
-  double get_size();
-  void set_parent(boost::shared_ptr<Cell>);
+  virtual ~Cell();
+  PointPtr get_center() const;
+  double get_size() const;
   boost::shared_ptr<Cell> get_parent();
 
-private:
+  void set_parent(boost::shared_ptr<Cell>);
+
+protected:
   PointPtr center;
   double size;
+
+private:
   boost::shared_ptr<Cell> parent;
 };
 
-typedef boost::shared_ptr<Cell const> CellConstPtr;
 typedef boost::shared_ptr<Cell> CellPtr;
+typedef boost::shared_ptr<Cell const> CellConstPtr;
 
-inline bool operator<(const Cell &c1, const Cell &c2) {
-  // TODO Choose relevant epsilon value
+inline bool operator<(CellConstPtr c1, CellConstPtr c2) {
+  // TODO: Choose relevant epsilon value
   double EPS = 20 * std::numeric_limits<double>::epsilon();
-  CellPtr cell1 = CellPtr(new Cell(c1));
-  CellPtr cell2 = CellPtr(new Cell(c2));
   return
-      std::abs(cell1->get_center()->x - cell2->get_center()->x) > EPS ?
-          (cell1->get_center()->x < cell2->get_center()->x) :
-          (cell1->get_center()->y < cell2->get_center()->y);
+      std::abs(c1->get_center()->x - c2->get_center()->x) > EPS ?
+          (c1->get_center()->x < c2->get_center()->x) :
+          (std::abs(c1->get_center()->y - c2->get_center()->y) > EPS ?
+              (c1->get_center()->y < c2->get_center()->y) :
+              c1->get_size() < c2->get_size());
+}
+
+inline bool operator!=(CellPtr c1, CellPtr c2) {
+  return c1 < c2 || c2 < c1 || c1->get_size() != c2->get_size();
+}
+
+inline bool operator==(CellPtr c1, CellPtr c2) {
+  return !(c1 != c2);
 }
 
 struct CellComp {
   bool operator()(CellConstPtr c1, CellConstPtr c2) const {
-    return *c1 < *c2;
+    return c1 < c2;
   }
 };
 

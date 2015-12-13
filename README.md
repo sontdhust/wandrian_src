@@ -22,7 +22,7 @@ Change to catkin root directory then run:
 ####Build for testing (for wandrian_run project):
 
     $ cd src/wandrian_run/test/
-    $ ./test.sh
+    $ ./test.sh 20 1 spiral_stc
 
 ####Running:
 
