@@ -13,12 +13,12 @@ g++ -c environment.cpp
 cd ../plans
 g++ -c base_plan.cpp
 
-cd spiral_stc
+cd online_boustrophedon
 g++ -c cell.cpp
-g++ -c spiral_stc.cpp
+g++ -c online_boustrophedon.cpp
 
 cd ../..
-g++ -o ../wandrian_run ../../test.cpp common/point.o common/vector.o common/segment.o common/polygon.o common/environment.o plans/base_plan.o plans/spiral_stc/cell.o plans/spiral_stc/spiral_stc.o -lglut -lGL
+g++ -o ../wandrian_run ../../test.cpp common/point.o common/vector.o common/segment.o common/polygon.o common/environment.o plans/base_plan.o plans/online_boustrophedon/cell.o plans/online_boustrophedon/online_boustrophedon.o -lglut -lGL
 cd ..
 clear
 clear

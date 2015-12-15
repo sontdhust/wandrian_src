@@ -14,19 +14,19 @@
 #include <boost/next_prior.hpp>
 #include <sstream>
 #include <fstream>
-#include "../include/plans/spiral_stc/spiral_stc.hpp"
+#include "../include/plans/online_boustrophedon/online_boustrophedon.hpp"
 
 #define R_SIZE 0.5 // robot size
 #define E_SIZE 4.0 // default environment size
 #define WORLD_INSERT_OBSTACLE "<!-- INSERT: Bound and Obstacles here -->" // flag at original world file to insert bound and obstacles into
 
-using namespace wandrian::plans::spiral_stc;
+using namespace wandrian::plans::online_boustrophedon;
 
 double e_size = 0;
 
 EnvironmentPtr environment;
 PointPtr starting_point;
-SpiralStcPtr spiral_stc;
+OnlineBoustrophedonPtr online_boustrophedon;
 
 /**
  * Linked libraries to compile: -lglut -lGL (g++)
@@ -92,7 +92,7 @@ void display() {
 
   // Spiral STC covering path
   glColor3ub(0, 255, 0);
-  draw(spiral_stc->get_path(), GL_LINE_STRIP);
+  draw(online_boustrophedon->get_path(), GL_LINE_STRIP);
 
   glRasterPos2i(0, -11);
   std::stringstream ss;
@@ -261,10 +261,10 @@ int main(int argc, char **argv) {
   world_out.close();
 
   environment = EnvironmentPtr(new Environment(space, obstacles));
-  spiral_stc = SpiralStcPtr(new SpiralStc());
-  spiral_stc->initialize(starting_point, R_SIZE);
-  spiral_stc->set_environment(environment);
-  spiral_stc->cover();
+  online_boustrophedon = OnlineBoustrophedonPtr(new OnlineBoustrophedon());
+  online_boustrophedon->initialize(starting_point, R_SIZE);
+  online_boustrophedon->set_environment(environment);
+  online_boustrophedon->cover();
 
   run(argc, argv);
   return 0;

@@ -1,12 +1,12 @@
 /*
- * spiral_stc.hpp
+ * online_boustrophedon.hpp
  *
  *  Created on: Sep 15, 2015
  *      Author: sontd
  */
 
-#ifndef WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_SPIRAL_STC_HPP_
-#define WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_SPIRAL_STC_HPP_
+#ifndef WANDRIAN_RUN_INCLUDE_PLANS_ONLINE_BOUSTROPHEDON_ONLINE_BOUSTROPHEDON_HPP_
+#define WANDRIAN_RUN_INCLUDE_PLANS_ONLINE_BOUSTROPHEDON_ONLINE_BOUSTROPHEDON_HPP_
 
 #include "../../common/environment.hpp"
 #include "../base_plan.hpp"
@@ -16,13 +16,13 @@ using namespace wandrian::common;
 
 namespace wandrian {
 namespace plans {
-namespace spiral_stc {
+namespace online_boustrophedon {
 
-class SpiralStc: public BasePlan {
+class OnlineBoustrophedon: public BasePlan {
 
 public:
-  SpiralStc();
-  ~SpiralStc();
+  OnlineBoustrophedon();
+  ~OnlineBoustrophedon();
   void initialize(PointPtr, double);
   void cover();
 
@@ -43,14 +43,14 @@ private:
 
   bool see_obstacle(VectorPtr, double);
   bool go_with(VectorPtr, double);
-  void spiral_stc(CellPtr);
+  void online_boustrophedon(CellPtr);
   bool check(CellPtr);
 };
 
-typedef boost::shared_ptr<SpiralStc> SpiralStcPtr;
+typedef boost::shared_ptr<OnlineBoustrophedon> OnlineBoustrophedonPtr;
 
 }
 }
 }
 
-#endif /* WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_SPIRAL_STC_HPP_ */
+#endif /* WANDRIAN_RUN_INCLUDE_PLANS_ONLINE_BOUSTROPHEDON_ONLINE_BOUSTROPHEDON_HPP_ */

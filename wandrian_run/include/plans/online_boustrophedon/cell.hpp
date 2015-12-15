@@ -5,8 +5,8 @@
  *      Author: sontd
  */
 
-#ifndef WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_CELL_HPP_
-#define WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_CELL_HPP_
+#ifndef WANDRIAN_RUN_INCLUDE_PLANS_ONLINE_BOUSTROPHEDON_CELL_HPP_
+#define WANDRIAN_RUN_INCLUDE_PLANS_ONLINE_BOUSTROPHEDON_CELL_HPP_
 
 #include "../../common/polygon.hpp"
 
@@ -14,7 +14,7 @@ using namespace wandrian::common;
 
 namespace wandrian {
 namespace plans {
-namespace spiral_stc {
+namespace online_boustrophedon {
 
 #define OLD_CELL false
 #define NEW_CELL true
@@ -60,4 +60,4 @@ struct CellComp {
 }
 }
 
-#endif /* WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_CELL_HPP_ */
+#endif /* WANDRIAN_RUN_INCLUDE_PLANS_ONLINE_BOUSTROPHEDON_CELL_HPP_ */
