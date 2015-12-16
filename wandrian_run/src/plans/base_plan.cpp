@@ -30,10 +30,6 @@ bool BasePlan::go_to(PointPtr position, bool flexibly) {
   return true;
 }
 
-std::list<PointPtr> BasePlan::get_path() {
-  return path;
-}
-
 }
 }
 
