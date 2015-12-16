@@ -14,8 +14,8 @@
 #include <geometry_msgs/Twist.h> // For velocity commands
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/LaserScan.h>
-#include "../include/common/point.hpp"
-#include "../include/common/vector.hpp"
+#include "common/point.hpp"
+#include "common/vector.hpp"
 
 using namespace wandrian::common;
 
@@ -43,6 +43,7 @@ public:
   void set_behavior_run(boost::function<void()>);
   void set_linear_velocity(double);
   void set_angular_velocity(double);
+  void set_laser_range(double);
 
 private:
   std::string plan_name; // arg
@@ -59,6 +60,7 @@ private:
 
   boost::function<void()> behavior_run;
   geometry_msgs::TwistPtr velocity;
+  double laser_range;
 
   bool is_quitting;
   bool is_powered;
@@ -88,6 +90,8 @@ private:
   void subscribe_odometry(const nav_msgs::OdometryConstPtr&);
   void subscribe_laser(const sensor_msgs::LaserScanConstPtr&);
 };
+
+typedef boost::shared_ptr<Core> CorePtr;
 
 }
 

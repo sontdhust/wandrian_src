@@ -12,7 +12,7 @@
 
 // TODO: Choose relevant threshold values
 #define THRESHOLD_COUNT 0.5
-#define THRESHOLD_RANGE 0.9
+#define AUGMENTED 1.0
 
 namespace wandrian {
 
@@ -20,8 +20,9 @@ Core::Core() :
     starting_point_x(0), starting_point_y(0), robot_size(0), current_position(
         new Point(0, 0)), current_orientation(new Vector(0, 1)), linear_velocity_step(
         0), linear_velocity_max(0), angular_velocity_step(0), angular_velocity_max(
-        0), velocity(new geometry_msgs::Twist()), is_quitting(false), is_powered(
-        false), is_zero_vel(true), is_logging(false), file_descriptor(0) {
+        0), velocity(new geometry_msgs::Twist()), laser_range(0), is_quitting(
+        false), is_powered(false), is_zero_vel(true), is_logging(false), file_descriptor(
+        0) {
   tcgetattr(file_descriptor, &terminal); // get terminal properties
 }
 
@@ -60,6 +61,7 @@ bool Core::initialize() {
   velocity->angular.x = 0.0;
   velocity->angular.y = 0.0;
   velocity->angular.z = 0.0;
+  laser_range = robot_size / 2;
 
   ecl::MilliSleep millisleep;
   int count = 0;
@@ -182,6 +184,10 @@ void Core::set_angular_velocity(double angular_velocity) {
   velocity->angular.z = angular_velocity;
 }
 
+void Core::set_laser_range(double laser_range) {
+  this->laser_range = laser_range;
+}
+
 void Core::run() {
   if (behavior_run)
     behavior_run();
@@ -295,46 +301,71 @@ void Core::subscribe_odometry(const nav_msgs::OdometryConstPtr& odom) {
   double oz = odom->pose.pose.orientation.z;
   current_position->x = px + starting_point_x;
   current_position->y = py + starting_point_y;
-  // FIXME: [Tmp]: Set initial orientation to (1, 0)
+  // Set initial orientation to (1, 0)
   current_orientation->x = ow * ow - oz * oz;
   current_orientation->y = 2 * oz * ow;
 }
 
 void Core::subscribe_laser(const sensor_msgs::LaserScanConstPtr& laser) {
-  int range_size = laser->ranges.size();
-  int range_right_size =
-      -M_PI_2 - laser->angle_min >= 0 ?
-          2 * range_size * (-M_PI_2 - laser->angle_min)
-              / (laser->angle_max - laser->angle_min) :
-          1;
-  int range_left_size =
-      laser->angle_max - M_PI_2 >= 0 ?
-          2 * range_size * (laser->angle_max - M_PI_2)
-              / (laser->angle_max - laser->angle_min) :
-          1;
+  const double ANGLE_RIGHT_MIN = -2.0 / 3.0 * M_PI;
+  const double ANGLE_RIGHT_MAX = -1.0 / 3.0 * M_PI;
+  const double ANGLE_IN_FRONT_MIN = -1.0 / 6.0 * M_PI;
+  const double ANGLE_IN_FRONT_MAX = 1.0 / 6.0 * M_PI;
+  const double ANGLE_LEFT_MIN = 1.0 / 3.0 * M_PI;
+  const double ANGLE_LEFT_MAX = 2.0 / 3.0 * M_PI;
 
-  int count;
-  count = 0;
-  for (int i = 0; i <= range_right_size - 1; i++) {
-    if (laser->ranges[i] <= robot_size * THRESHOLD_RANGE)
-      count++;
-  }
-  obstacles[AT_RIGHT_SIDE] = (count >= range_right_size * THRESHOLD_COUNT);
+  double ray = (double) laser->ranges.size()
+      / (laser->angle_max - laser->angle_min);
+  int range_right_min = (ANGLE_RIGHT_MIN - laser->angle_min) * ray;
+  int range_right_max = (ANGLE_RIGHT_MAX - laser->angle_min) * ray;
+  int range_in_front_min = (ANGLE_IN_FRONT_MIN - laser->angle_min) * ray;
+  int range_in_front_max = (ANGLE_IN_FRONT_MAX - laser->angle_min) * ray;
+  int range_left_min = (ANGLE_LEFT_MIN - laser->angle_min) * ray;
+  int range_left_max = (ANGLE_LEFT_MAX - laser->angle_min) * ray;
 
-  count = 0;
-  for (int i = range_right_size; i <= range_size - range_left_size - 1; i++) {
-    if (laser->ranges[i] <= robot_size * THRESHOLD_RANGE)
-      count++;
+  if (laser->angle_min <= ANGLE_RIGHT_MAX
+      && laser->angle_max >= ANGLE_RIGHT_MIN) {
+    int count = 0;
+    range_right_min = range_right_min >= 0 ? range_right_min : 0;
+    range_right_max =
+        range_right_max <= laser->ranges.size() ?
+            range_right_max : laser->ranges.size();
+    for (int i = range_right_min; i <= range_right_max - 1; i++) {
+      if (laser->ranges[i] <= AUGMENTED * laser_range)
+        count++;
+    }
+    obstacles[AT_RIGHT_SIDE] = (count
+        >= (range_right_max - range_right_min) * THRESHOLD_COUNT);
   }
-  obstacles[IN_FRONT] = (count
-      >= (range_size - range_right_size - range_left_size) * THRESHOLD_COUNT);
+  if (laser->angle_min <= ANGLE_IN_FRONT_MAX
+      && laser->angle_max >= ANGLE_IN_FRONT_MIN) {
+    int count = 0;
+    range_in_front_min = range_in_front_min >= 0 ? range_in_front_min : 0;
+    range_in_front_max =
+        range_in_front_max <= laser->ranges.size() ?
+            range_in_front_max : laser->ranges.size();
+    for (int i = range_in_front_min; i <= range_in_front_max - 1; i++) {
+      if (laser->ranges[i] <= AUGMENTED * laser_range)
+        count++;
+    }
+    obstacles[IN_FRONT] = (count
+        >= (range_in_front_max - range_in_front_min) * THRESHOLD_COUNT);
+  }
+  if (laser->angle_min <= ANGLE_LEFT_MAX
+      && laser->angle_max >= ANGLE_LEFT_MIN) {
+    int count = 0;
+    range_left_min = range_left_min >= 0 ? range_left_min : 0;
+    range_left_max =
+        range_left_max <= laser->ranges.size() ?
+            range_left_max : laser->ranges.size();
+    for (int i = range_left_min; i <= range_left_max - 1; i++) {
+      if (laser->ranges[i] <= AUGMENTED * laser_range)
+        count++;
+    }
+    obstacles[AT_LEFT_SIDE] = (count
+        >= (range_left_max - range_left_min) * THRESHOLD_COUNT);
+  }
 
-  count = 0;
-  for (int i = range_size - range_left_size; i <= range_size - 1; i++) {
-    if (laser->ranges[i] <= robot_size * THRESHOLD_RANGE)
-      count++;
-  }
-  obstacles[AT_LEFT_SIDE] = (count >= range_left_size * THRESHOLD_COUNT);
   if (is_logging) {
     std::string obs = "";
     if (obstacles[AT_RIGHT_SIDE])

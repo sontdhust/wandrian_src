@@ -22,32 +22,33 @@ using namespace wandrian::plans::spiral_stc;
 namespace wandrian {
 
 bool Wandrian::initialize() {
-  return core.initialize();
+  core = CorePtr(new Core());
+  return core->initialize();
 }
 
 void Wandrian::spin() {
-  core.set_behavior_run(boost::bind(&Wandrian::wandrian_run, this));
-  core.spin();
+  core->set_behavior_run(boost::bind(&Wandrian::wandrian_run, this));
+  core->spin();
 }
 
 void Wandrian::wandrian_run() {
-  if (core.get_plan_name() == "spiral_stc") {
+  if (core->get_plan_name() == "spiral_stc") {
     SpiralStcPtr spiral_stc = SpiralStcPtr(new SpiralStc());
     spiral_stc->initialize(
         PointPtr(
-            new Point(core.get_starting_point_x(),
-                core.get_starting_point_y())), core.get_robot_size());
+            new Point(core->get_starting_point_x(),
+                core->get_starting_point_y())), core->get_robot_size());
     spiral_stc->set_behavior_go_to(
         boost::bind(&Wandrian::spiral_stc_go_to, this, _1, _2));
     spiral_stc->set_behavior_see_obstacle(
         boost::bind(&Wandrian::spiral_stc_see_obstacle, this, _1, _2));
     spiral_stc->cover();
-  } else if (core.get_plan_name() == "full_spiral_stc") {
+  } else if (core->get_plan_name() == "full_spiral_stc") {
     FullSpiralStcPtr full_spiral_stc = FullSpiralStcPtr(new FullSpiralStc());
     full_spiral_stc->initialize(
         PointPtr(
-            new Point(core.get_starting_point_x(),
-                core.get_starting_point_y())), core.get_robot_size());
+            new Point(core->get_starting_point_x(),
+                core->get_starting_point_y())), core->get_robot_size());
     full_spiral_stc->set_behavior_go_to(
         boost::bind(&Wandrian::full_spiral_stc_go_to, this, _1, _2));
     full_spiral_stc->set_behavior_see_obstacle(
@@ -60,15 +61,16 @@ bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibly) {
   return go_to(position, flexibly);
 }
 
-bool Wandrian::spiral_stc_see_obstacle(VectorPtr orientation, double) {
+bool Wandrian::spiral_stc_see_obstacle(VectorPtr orientation, double distance) {
   // TODO: Correctly check whether obstacle is near or not
-  double angle = orientation ^ core.get_current_orientation();
+  core->set_laser_range(distance);
+  double angle = orientation ^ core->get_current_orientation();
   return
       (std::abs(angle) <= M_PI_4) ?
-          core.get_obstacles()[IN_FRONT] :
+          core->get_obstacles()[IN_FRONT] :
           ((angle > M_PI_4) ?
-              core.get_obstacles()[AT_LEFT_SIDE] :
-              core.get_obstacles()[AT_RIGHT_SIDE]);
+              core->get_obstacles()[AT_LEFT_SIDE] :
+              core->get_obstacles()[AT_RIGHT_SIDE]);
 }
 
 bool Wandrian::full_spiral_stc_go_to(PointPtr position, bool flexibly) {
@@ -86,32 +88,34 @@ bool Wandrian::go_to(PointPtr new_position, bool flexibly) {
   go(forward);
   while (true) {
     // Check current_position + k * current_orientation == new_position
-    VectorPtr direction_vector = (new_position - core.get_current_position())
-        / (new_position % core.get_current_position());
+    VectorPtr direction_vector = (new_position - core->get_current_position())
+        / (new_position % core->get_current_position());
     if (forward ?
-        (!(std::abs(direction_vector->x - core.get_current_orientation()->x)
+        (!(std::abs(direction_vector->x - core->get_current_orientation()->x)
             < EPS_ORI_TO_MOVE
-            && std::abs(direction_vector->y - core.get_current_orientation()->y)
+            && std::abs(
+                direction_vector->y - core->get_current_orientation()->y)
                 < EPS_ORI_TO_MOVE)) :
-        (!(std::abs(direction_vector->x + core.get_current_orientation()->x)
+        (!(std::abs(direction_vector->x + core->get_current_orientation()->x)
             < EPS_ORI_TO_MOVE
-            && std::abs(direction_vector->y + core.get_current_orientation()->y)
+            && std::abs(
+                direction_vector->y + core->get_current_orientation()->y)
                 < EPS_ORI_TO_MOVE))) {
-      core.stop();
+      core->stop();
       forward = rotate_to(new_position, flexibly);
       go(forward);
     }
 
-    if (!core.get_obstacles()[IN_FRONT]) {
-      if (std::abs(new_position->x - core.get_current_position()->x) < EPS_POS
-          && std::abs(new_position->y - core.get_current_position()->y)
+    if (!core->get_obstacles()[IN_FRONT]) {
+      if (std::abs(new_position->x - core->get_current_position()->x) < EPS_POS
+          && std::abs(new_position->y - core->get_current_position()->y)
               < EPS_POS) {
-        core.stop();
+        core->stop();
         break;
       }
     } else {
       // Obstacle
-      core.stop();
+      core->stop();
       return false;
     }
   }
@@ -119,9 +123,9 @@ bool Wandrian::go_to(PointPtr new_position, bool flexibly) {
 }
 
 bool Wandrian::rotate_to(PointPtr new_position, bool flexibly) {
-  VectorPtr new_orientation = (new_position - core.get_current_position())
-      / (new_position % core.get_current_position());
-  double angle = new_orientation ^ core.get_current_orientation();
+  VectorPtr new_orientation = (new_position - core->get_current_position())
+      / (new_position % core->get_current_position());
+  double angle = new_orientation ^ core->get_current_orientation();
 
   bool will_move_forward = !flexibly ? true : std::abs(angle) < M_PI_2;
   if (angle > EPS_ORI_TO_ROTATE)
@@ -130,15 +134,15 @@ bool Wandrian::rotate_to(PointPtr new_position, bool flexibly) {
     rotate(will_move_forward ? CLOCKWISE : COUNTERCLOCKWISE);
   while (true) {
     if (will_move_forward ?
-        (std::abs(new_orientation->x - core.get_current_orientation()->x)
+        (std::abs(new_orientation->x - core->get_current_orientation()->x)
             < EPS_ORI_TO_ROTATE
-            && std::abs(new_orientation->y - core.get_current_orientation()->y)
+            && std::abs(new_orientation->y - core->get_current_orientation()->y)
                 < EPS_ORI_TO_ROTATE) :
-        (std::abs(new_orientation->x + core.get_current_orientation()->x)
+        (std::abs(new_orientation->x + core->get_current_orientation()->x)
             < EPS_ORI_TO_ROTATE
-            && std::abs(new_orientation->y + core.get_current_orientation()->y)
+            && std::abs(new_orientation->y + core->get_current_orientation()->y)
                 < EPS_ORI_TO_ROTATE)) {
-      core.stop();
+      core->stop();
       break;
     }
   }
@@ -146,13 +150,13 @@ bool Wandrian::rotate_to(PointPtr new_position, bool flexibly) {
 }
 
 void Wandrian::go(bool forward) {
-  double linear_vel_step = core.get_linear_velocity_step();
-  core.set_linear_velocity(forward ? linear_vel_step : -linear_vel_step);
+  double linear_vel_step = core->get_linear_velocity_step();
+  core->set_linear_velocity(forward ? linear_vel_step : -linear_vel_step);
 }
 
 void Wandrian::rotate(bool clockwise) {
-  double angular_vel_step = core.get_angular_velocity_step();
-  core.set_angular_velocity(clockwise ? -angular_vel_step : angular_vel_step);
+  double angular_vel_step = core->get_angular_velocity_step();
+  core->set_angular_velocity(clockwise ? -angular_vel_step : angular_vel_step);
 }
 
 }

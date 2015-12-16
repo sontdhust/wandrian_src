@@ -19,7 +19,7 @@ public:
   void spin();
 
 private:
-  Core core;
+  CorePtr core;
 
   // Behaviors
   void wandrian_run();
