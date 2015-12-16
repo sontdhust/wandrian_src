@@ -25,10 +25,9 @@ class BasePlan {
 
 public:
   virtual ~BasePlan();
-  void set_behavior_go_to(boost::function<bool(PointPtr, bool)>);
   virtual void cover();
-  /* __attribute__((will_be_removed)) */
-  std::list<PointPtr> get_path();
+
+  void set_behavior_go_to(boost::function<bool(PointPtr, bool)>);
 
 protected:
   std::list<PointPtr> path;

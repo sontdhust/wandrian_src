@@ -32,7 +32,7 @@ inline double operator%(const Point &p1, const Point &p2) {
 }
 
 inline bool operator<(const Point &p1, const Point &p2) {
-  // TODO Choose relevant epsilon value
+  // TODO: Choose relevant epsilon value
   double EPS = 20 * std::numeric_limits<double>::epsilon();
   return std::abs(p1.x - p2.x) > EPS ? p1.x - p2.x < -EPS : p1.y - p2.y < -EPS;
 }

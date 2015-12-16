@@ -38,7 +38,7 @@ void Wandrian::wandrian_run() {
         boost::bind(&Wandrian::spiral_stc_go_to, this, _1, _2));
     spiral_stc->set_behavior_see_obstacle(
         boost::bind(&Wandrian::spiral_stc_see_obstacle, this, _1, _2));
-    return spiral_stc->cover();
+    spiral_stc->cover();
   }
 }
 
