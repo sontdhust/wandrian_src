@@ -87,6 +87,10 @@ State SpiralStc::state_of(CellPtr cell) {
 }
 
 void SpiralStc::scan(CellPtr current) {
+
+  Global::get_instance()->write_message("Hello, I am here!");
+  Global::get_instance()->read_message();
+
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;32mBEGIN:\033[0m "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
   VectorPtr orientation = (current->get_parent()->get_center()

@@ -19,6 +19,7 @@
 #include "../include/plans/spiral_stc/cell.hpp"
 #include "std_msgs/String.h"
 
+
 using namespace wandrian::common;
 using namespace wandrian::plans::spiral_stc;
 
@@ -46,13 +47,13 @@ public:
   void set_behavior_run(boost::function<void()>);
   void set_linear_velocity(double);
   void set_angular_velocity(double);
-//  std::set<CellPtr, CellComp> get_old_cells();
 
-//  std::set<CellPtr, CellComp> *old_cells;
-//  void insert_old_cells(CellPtr);
+
+
 protected:
 
 private:
+  std::string robot_name; //arg
   std::string plan_name; // arg
   double starting_point_x; // arg
   double starting_point_y; // arg
@@ -80,7 +81,6 @@ private:
 
   ros::Publisher motor_power_publisher;
   ros::Publisher velocity_publisher;
-  ros::Publisher comutication_publisher;
   ros::Subscriber odom_subscriber;
   ros::Subscriber laser_subscriber;
 

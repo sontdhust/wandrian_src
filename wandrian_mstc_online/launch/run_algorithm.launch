@@ -11,7 +11,6 @@
     <remap from="$(arg robot_name)_algorithm/velocity" to="$(arg robot_name)/mobile_base/commands/velocity"/>
     <remap from="$(arg robot_name)_algorithm/odom" to="$(arg robot_name)/odom"/>
     <remap from="$(arg robot_name)_algorithm/laser" to="$(arg robot_name)/scan"/>
-    <remap from="$(arg robot_name)_algorithm/ros_bag" to="ros_bag"/>
 
     <param name="plan_name" value="$(arg plan_name)" type="string"/>
     <param name="starting_point_x" value="$(arg starting_point_x)" type="double"/>

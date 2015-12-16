@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(wandrian_mstc_online)
-find_package(catkin REQUIRED COMPONENTS geometry_msgs std_srvs std_msgs roscpp ecl_exceptions ecl_threads ecl_time kobuki_msgs)
+find_package(catkin REQUIRED COMPONENTS geometry_msgs std_srvs std_msgs roscpp ecl_exceptions ecl_threads ecl_time kobuki_msgs rosbag)
 
 catkin_package(
    INCLUDE_DIRS include

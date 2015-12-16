@@ -36,6 +36,7 @@ bool ExtendedCore::initialize() {
   nh.getParam("starting_point_x", starting_point_x);
   nh.getParam("starting_point_y", starting_point_y);
   nh.getParam("robot_size", robot_size);
+  nh.getParam("robot_name", robot_name);
 
   nh.getParam("linear_velocity_step", linear_velocity_step);
   nh.getParam("linear_velocity_max", linear_velocity_max);
@@ -49,7 +50,6 @@ bool ExtendedCore::initialize() {
   motor_power_publisher = nh.advertise<kobuki_msgs::MotorPower>("motor_power",
       1);
   velocity_publisher = nh.advertise<geometry_msgs::Twist>("velocity", 1);
-  comutication_publisher = nh.advertise<std_msgs::String>("ros_bag", 1000);
 
   odom_subscriber = nh.subscribe<nav_msgs::Odometry>("odom", 1,
       &ExtendedCore::subscribe_odometry, this);
