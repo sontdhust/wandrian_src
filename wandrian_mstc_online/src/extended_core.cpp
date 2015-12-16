@@ -269,6 +269,7 @@ void ExtendedCore::process_keyboard_input(char c) {
     thread_run.start(&ExtendedCore::start_thread_run, *this);
     break;
   case 'q':
+    Global::get_instance()->write_message("");
     is_quitting = true;
     break;
   default:

@@ -20,6 +20,7 @@ SpiralStc::~SpiralStc() {
 }
 
 void SpiralStc::initialize(PointPtr starting_point, double robot_size) {
+  Global::get_instance()->robot_size = robot_size;
   this->robot_size = robot_size;
   // Initialize starting_cell
   starting_cell = CellPtr(
@@ -37,19 +38,13 @@ void SpiralStc::initialize(PointPtr starting_point, double robot_size) {
   path.insert(path.end(), starting_point);
 }
 
-//std::set<CellPtr, CellComp> SpiralStc::get_old_cells(){
-//  return *old_cells;
-//}
-//
-//void SpiralStc::insert_old_cells(CellPtr new_cell){
-//  *old_cells->insert(new_cell);
-//}
-//void SpiralStc::set_old_cells(std::set<CellPtr, CellComp> *extended_core_old_cells){
-//  old_cells = &extended_core_old_cells;
-//}
-
 void SpiralStc::cover() {
   Global::get_instance()->old_cells.insert(starting_cell);
+
+  Global::get_instance()->read_message();
+  std::string message = Global::get_instance()->create_message_from_old_cells();
+  Global::get_instance()->write_message(message);
+
   scan(starting_cell);
 }
 
@@ -87,8 +82,6 @@ State SpiralStc::state_of(CellPtr cell) {
 }
 
 void SpiralStc::scan(CellPtr current) {
-
-  Global::get_instance()->write_message("Hello, I am here!");
   Global::get_instance()->read_message();
 
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;32mBEGIN:\033[0m "
@@ -119,6 +112,11 @@ void SpiralStc::scan(CellPtr current) {
       neighbor->set_parent(current);
       go_with(orientation++, robot_size);
       Global::get_instance()->old_cells.insert(neighbor);
+
+      Global::get_instance()->read_message();
+      std::string message = Global::get_instance()->create_message_from_old_cells();
+      Global::get_instance()->write_message(message);
+
       scan(neighbor);
     }
   } while (orientation % initial_orientation

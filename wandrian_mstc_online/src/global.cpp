@@ -9,13 +9,17 @@
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
 #include <boost/foreach.hpp>
+#include <boost/tokenizer.hpp>
 #define foreach BOOST_FOREACH
+#include <algorithm>
+#include <sstream>
 
 namespace wandrian {
 
 GlobalPtr Global::instance;
 
 Global::Global() {
+  robot_size = 0.5;
 }
 
 Global::~Global() {
@@ -28,6 +32,7 @@ GlobalPtr Global::get_instance() {
 }
 
 void Global::write_message(std::string message) {
+  ROS_INFO("My old cells: %s", message.data());
   rosbag::Bag bag;
   bag.open("message.bag", rosbag::bagmode::Write);
   std_msgs::String str;
@@ -38,6 +43,8 @@ void Global::write_message(std::string message) {
 
 void Global::read_message() {
   rosbag::Bag bag;
+  std::string msg;
+
   bag.open("message.bag", rosbag::bagmode::Read);
   std::vector<std::string> topics;
   topics.push_back(std::string("communication_publisher"));
@@ -46,12 +53,53 @@ void Global::read_message() {
   foreach(rosbag::MessageInstance const m, view) {
     std_msgs::String::ConstPtr s = m.instantiate<std_msgs::String>();
     if (s != NULL) {
-      ROS_INFO("%s", s->data.c_str());
+//      ROS_INFO("Ros bag old cells: %s", s->data.c_str());
+      msg.append(s->data.c_str());
     }
   }
 
   bag.close();
+  ROS_INFO("Ros bag old cells: %s", msg.data());
+  update_old_cells_from_message(msg);
 
 }
 
+std::string Global::create_message_from_old_cells() {
+  std::string msg;
+  std::set<CellPtr, CellComp> temp_old_cells = this->old_cells;
+  for (int i = 0; i <= temp_old_cells.size(); i++) {
+    CellPtr temp_cell = *temp_old_cells.begin();
+    std::stringstream tmp;
+    tmp << temp_cell->get_center()->x << ","
+        << temp_cell->get_center()->y << ";";
+    msg.append(tmp.str());
+    temp_old_cells.erase(temp_cell);
+  }
+  return msg;
+}
+
+void Global::update_old_cells_from_message(std::string msg) {
+  double x = 0.0;
+  double y = 0.0;
+  CellPtr temp_cell;
+  int i;
+  boost::char_separator<char> split_old_cells(";");
+  boost::char_separator<char> split_point(",");
+  boost::tokenizer<boost::char_separator<char> > tokens(msg, split_old_cells);
+  BOOST_FOREACH (const std::string& cell, tokens) {
+    boost::tokenizer<boost::char_separator<char> > tokens(cell, split_point);
+    i = 1;
+    BOOST_FOREACH (const std::string& coordinates, tokens) {
+      if (i == 1) {
+        x = atof(coordinates.c_str());
+      } else if (i == 2) {
+        y = atof(coordinates.c_str());
+      }
+      i++;
+    }
+    temp_cell = CellPtr(new Cell(PointPtr(new Point(x, y)), 2 * robot_size));
+    this->old_cells.insert(temp_cell);
+  }
+
+}
 }

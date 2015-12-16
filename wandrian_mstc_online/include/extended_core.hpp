@@ -18,6 +18,7 @@
 #include "../include/common/vector.hpp"
 #include "../include/plans/spiral_stc/cell.hpp"
 #include "std_msgs/String.h"
+#include "global.hpp"
 
 
 using namespace wandrian::common;
