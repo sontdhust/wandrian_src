@@ -26,16 +26,12 @@ public:
   void initialize(PointPtr, double);
   void cover();
 
-  /* __attribute__((will_be_removed)) */
-  void set_environment(EnvironmentPtr);
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
 
 protected:
   bool go_to(PointPtr, bool);
 
 private:
-  /* __attribute__((will_be_removed)) */
-  EnvironmentPtr environment;
   CellPtr starting_cell;
   double robot_size; // = 'cell size' / 2
   boost::function<bool(VectorPtr, double)> behavior_see_obstacle;

@@ -95,7 +95,7 @@ bool Core::initialize() {
     is_powered = true;
   }
 
-  // start keyboard input thread
+  // Start keyboard input thread
   thread_keyboard.start(&Core::start_thread_keyboard, *this);
   return true;
 }
@@ -117,10 +117,10 @@ void Core::spin() {
     ros::spinOnce();
     loop_rate.sleep();
   }
-  if (is_quitting) { // ros node is still ok, send a disable command
+  if (is_quitting) { // Ros node is still ok, send a disable command
     disable_power();
   } else {
-    // just in case we got here not via a keyboard quit request
+    // Just in case we got here not via a keyboard quit request
     is_quitting = true;
     thread_keyboard.cancel();
     thread_run.cancel();
@@ -222,16 +222,16 @@ void Core::process_keyboard_input(char c) {
   case kobuki_msgs::KeyboardInput::KeyCode_Left:
     if (is_powered) {
       if (c == kobuki_msgs::KeyboardInput::KeyCode_Down
-          && velocity->linear.x >= -linear_velocity_max) { // decrease linear vel
+          && velocity->linear.x >= -linear_velocity_max) { // Decrease linear vel
         velocity->linear.x -= linear_velocity_step;
       } else if (c == kobuki_msgs::KeyboardInput::KeyCode_Up
-          && velocity->linear.x <= linear_velocity_max) { // increase linear vel
+          && velocity->linear.x <= linear_velocity_max) { // Increase linear vel
         velocity->linear.x += linear_velocity_step;
       } else if (c == kobuki_msgs::KeyboardInput::KeyCode_Right
-          && velocity->angular.z >= -angular_velocity_max) { // decrease angular vel
+          && velocity->angular.z >= -angular_velocity_max) { // Decrease angular vel
         velocity->angular.z -= angular_velocity_step;
       } else if (c == kobuki_msgs::KeyboardInput::KeyCode_Left
-          && velocity->angular.z <= angular_velocity_max) { // increase angular vel
+          && velocity->angular.z <= angular_velocity_max) { // Increase angular vel
         velocity->angular.z += angular_velocity_step;
       }
       ROS_INFO_STREAM(
@@ -292,8 +292,6 @@ void Core::subscribe_odometry(const nav_msgs::OdometryConstPtr& odom) {
   double px = odom->pose.pose.position.x;
   double py = odom->pose.pose.position.y;
   double ow = odom->pose.pose.orientation.w;
-//  double ox = odom->pose.pose.orientation.x;
-//  double oy = odom->pose.pose.orientation.y;
   double oz = odom->pose.pose.orientation.z;
   current_position->x = px + starting_point_x;
   current_position->y = py + starting_point_y;

@@ -88,7 +88,7 @@ void Polygon::build() {
       graph.find(*next)->second.insert(*current);
     }
   }
-// Find all intersects
+  // Find all intersects
   std::map<SegmentPtr, std::set<PointPtr, PointComp>, SegmentComp> segments;
   for (std::map<PointPtr, std::set<PointPtr, PointComp> >::iterator current =
       graph.begin(); current != graph.end(); current++) {
@@ -126,7 +126,7 @@ void Polygon::build() {
       }
     }
   }
-// Insert intersects and new edges into graph
+  // Insert intersects and new edges into graph
   for (std::map<SegmentPtr, std::set<PointPtr, PointComp> >::iterator segment =
       segments.begin(); segment != segments.end(); segment++) {
     for (std::set<PointPtr>::iterator intersect = segment->second.begin();
@@ -146,7 +146,7 @@ void Polygon::build() {
       }
     }
   }
-// TODO Remove redundant edges
+  // TODO: Remove redundant edges
 }
 
 PointPtr Polygon::get_leftmost() {
@@ -183,7 +183,7 @@ std::list<PointPtr> Polygon::get_partial_bound(bool is_upper) {
   PointPtr rightmost = get_rightmost();
   partial_bound.insert(partial_bound.end(), leftmost);
 
-  // TODO Choose relevant epsilon value
+  // TODO: Choose relevant epsilon value
   double EPS = 20 * std::numeric_limits<double>::epsilon();
 
   PointPtr current = leftmost;

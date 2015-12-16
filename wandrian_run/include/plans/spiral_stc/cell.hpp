@@ -40,7 +40,7 @@ typedef boost::shared_ptr<Cell const> CellConstPtr;
 typedef boost::shared_ptr<Cell> CellPtr;
 
 inline bool operator<(const Cell &c1, const Cell &c2) {
-  // TODO Choose relevant epsilon value
+  // TODO: Choose relevant epsilon value
   double EPS = 20 * std::numeric_limits<double>::epsilon();
   CellPtr cell1 = CellPtr(new Cell(c1));
   CellPtr cell2 = CellPtr(new Cell(c2));
