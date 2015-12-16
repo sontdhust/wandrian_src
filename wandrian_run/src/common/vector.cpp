@@ -22,5 +22,9 @@ VectorPtr Vector::rotate_counterclockwise() {
   return VectorPtr(new Vector(-y, x));
 }
 
+VectorPtr Vector::rotate_clockwise() {
+  return VectorPtr(new Vector(y, -x));
+}
+
 }
 }

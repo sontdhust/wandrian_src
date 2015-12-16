@@ -27,6 +27,7 @@ double e_size = 0;
 EnvironmentPtr environment;
 PointPtr starting_point;
 BoustrophedonPtr boustrophedon_pt;
+std::list<PointPtr> tmp_path;
 
 /**
  * Linked libraries to compile: -lglut -lGL (g++)
@@ -92,7 +93,7 @@ void display() {
 
   // Boustrophedon covering path
   glColor3ub(0, 255, 0);
-  draw(boustrophedon_pt->get_path(), GL_LINE_STRIP);
+  draw(tmp_path, GL_LINE_STRIP);
 
   glRasterPos2i(0, -11);
   std::stringstream ss;
@@ -111,6 +112,42 @@ int run(int argc, char **argv) {
   glutDisplayFunc(display);
   glutMainLoop();
   return 0;
+}
+
+bool test_go_to(PointPtr position, bool flexibly) {
+  tmp_path.insert(tmp_path.end(), position);
+  return true;
+}
+
+bool test_see_obstacle(VectorPtr orientation, double step) {
+  // Simulator check obstacle
+  PointPtr last_position = *(--tmp_path.end());
+  PointPtr new_position = PointPtr(
+      new Point(*last_position + *orientation * step * R_SIZE / 2));
+  if (environment) {
+    CellPtr space = boost::static_pointer_cast<Cell>(environment->space);
+    if (new_position->x >= space->get_center()->x + space->get_size() / 2
+        || new_position->x <= space->get_center()->x - space->get_size() / 2
+        || new_position->y >= space->get_center()->y + space->get_size() / 2
+        || new_position->y <= space->get_center()->y - space->get_size() / 2) {
+      return true;
+    }
+    for (std::list<PolygonPtr>::iterator o = environment->obstacles.begin();
+        o != environment->obstacles.end(); o++) {
+      CellPtr obstacle = boost::static_pointer_cast<Cell>(*o);
+      if (new_position->x
+          >= obstacle->get_center()->x - obstacle->get_size() / 2
+          && new_position->x
+              <= obstacle->get_center()->x + obstacle->get_size() / 2
+          && new_position->y
+              >= obstacle->get_center()->y - obstacle->get_size() / 2
+          && new_position->y
+              <= obstacle->get_center()->y + obstacle->get_size() / 2) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 int main(int argc, char **argv) {
@@ -137,7 +174,8 @@ int main(int argc, char **argv) {
   //         (std::rand() % (int) (e_size / R_SIZE / 2.0)
   //             - (int) (e_size / R_SIZE / 4.0)) + R_SIZE - R_SIZE / 2));
 
-  starting_point = PointPtr(new Point((e_size-R_SIZE)/2, -(e_size - R_SIZE)/2));
+  starting_point = PointPtr(
+      new Point((e_size - R_SIZE) / 2, -(e_size - R_SIZE) / 2));
 
   int r = std::rand() % (int) (e_size * e_size / 16) + e_size * e_size / 8;
 
@@ -269,7 +307,10 @@ int main(int argc, char **argv) {
   environment = EnvironmentPtr(new Environment(space, obstacles));
   boustrophedon_pt = BoustrophedonPtr(new Boustrophedon());
   boustrophedon_pt->initialize(starting_point, R_SIZE);
-  boustrophedon_pt->set_environment(environment);
+  tmp_path.insert(tmp_path.end(), starting_point);
+  boustrophedon_pt->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
+  boustrophedon_pt->set_behavior_see_obstacle(
+      boost::bind(&test_see_obstacle, _1, _2));
   boustrophedon_pt->cover();
 
   run(argc, argv);
