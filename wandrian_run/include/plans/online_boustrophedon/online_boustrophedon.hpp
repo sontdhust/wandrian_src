@@ -43,6 +43,9 @@ private:
 
   bool see_obstacle(VectorPtr, double);
   bool go_with(VectorPtr, double);
+  void turn_left(CellPtr , CellPtr, VectorPtr);
+  void turn_right(CellPtr , CellPtr, VectorPtr);
+  void go_straight(CellPtr , CellPtr, VectorPtr);
   void online_boustrophedon(CellPtr);
   bool check(CellPtr);
 };

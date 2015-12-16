@@ -18,8 +18,14 @@ Vector::Vector(const Vector &vector) :
     x(vector.x), y(vector.y) {
 }
 
-VectorPtr Vector::rotate_counterclockwise() {
+VectorPtr Vector::rotate_counterclockwise_left() {
   return VectorPtr(new Vector(-y, x));
+}
+VectorPtr Vector::rotate_counterclockwise_right() {
+  return VectorPtr(new Vector(y, -x));
+}
+VectorPtr Vector::rotate_counterclockwise_180() {
+  return VectorPtr(new Vector(-x, -y));
 }
 
 }

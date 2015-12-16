@@ -19,7 +19,10 @@ struct Vector {
 
   Vector(double, double);
   Vector(const Vector&);
-  boost::shared_ptr<Vector> rotate_counterclockwise();
+  boost::shared_ptr<Vector> rotate_counterclockwise_left();
+  boost::shared_ptr<Vector> rotate_counterclockwise_right();
+  boost::shared_ptr<Vector> rotate_counterclockwise_180();
+
 };
 
 typedef boost::shared_ptr<Vector> VectorPtr;
