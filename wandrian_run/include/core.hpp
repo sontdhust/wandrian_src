@@ -37,7 +37,11 @@ public:
   std::string get_plan_name();
   double get_starting_point_x();
   double get_starting_point_y();
+  
   double get_robot_size();
+
+  double get_environment_size();
+
   PointPtr get_current_position();
   VectorPtr get_current_orientation();
   bool* get_obstacles();
@@ -53,6 +57,9 @@ private:
   double starting_point_x; // arg
   double starting_point_y; // arg
   double robot_size; // arg
+
+  double environment_size; //arg
+
   PointPtr current_position; // odom subscriber
   VectorPtr current_orientation; // odom subscriber
   bool obstacles[3]; // laser subscriber
@@ -78,6 +85,7 @@ private:
   ros::Publisher velocity_publisher;
   ros::Subscriber odom_subscriber;
   ros::Subscriber laser_subscriber;
+
 
   void run();
 

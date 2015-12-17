@@ -24,7 +24,7 @@ Change to catkin root directory then run:
 ####Running:
 
     $ roslaunch wandrian_run environment.launch world_file:=tmp
-    $ roslaunch wandrian_run run.launch plan_name:=boustrophedon starting_point_x:=3.75 starting_point_y:=-3.75 robot_size:=0.5
+    $ roslaunch wandrian_run run.launch plan_name:=boustrophedon starting_point_x:=2.75 starting_point_y:=-2.75 robot_size:=0.5 environment_size:=6
 
 
 echo "source phanthao/GR/workspace/catkin_ws/devel/setup.bash" >> ~/.bashrc

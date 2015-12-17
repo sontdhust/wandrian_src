@@ -3,6 +3,7 @@
   <arg name="starting_point_x"/>
   <arg name="starting_point_y"/>
   <arg name="robot_size"/>
+  <arg name="environment_size"/>
   <arg name="robot_name" value="mobile_base"/>
 
   <!-- Spawns Kobuki inside a Gazebo simulation -->
@@ -24,7 +25,9 @@
     <param name="starting_point_x" value="$(arg starting_point_x)" type="double"/>
     <param name="starting_point_y" value="$(arg starting_point_y)" type="double"/>
     <param name="robot_size" value="$(arg robot_size)" type="double"/>
-
+    
+    <param name="environment_size" value="$(arg environment_size)" type="double"/>
+    
     <param name="linear_velocity_step" value="0.2" type="double"/>
     <param name="linear_velocity_max" value="2" type="double"/>
     <param name="angular_velocity_step" value="0.4" type="double"/>

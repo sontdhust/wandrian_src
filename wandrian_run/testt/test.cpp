@@ -187,15 +187,18 @@ int main(int argc, char **argv) {
             (std::rand() % (int) (e_size / R_SIZE / 2.0)
                 - (int) (e_size / R_SIZE / 4.0)) + R_SIZE));
 
-    bool valid = false;
-    for (std::list<PolygonPtr>::iterator p = obstacles.begin();
-        p != obstacles.end(); p++)
-      if (*((boost::static_pointer_cast<Cell>(*p))->get_center()) == *center
-          || (center->x == starting_point->x - R_SIZE / 2
-              && center->y == starting_point->y + R_SIZE / 2)) {
-        valid = false;
-        break;
-      };
+    bool valid = true;
+
+    // for (std::list<PolygonPtr>::iterator p = obstacles.begin();
+    //     p != obstacles.end(); p++)
+
+    //   if (*((boost::static_pointer_cast<Cell>(*p))->get_center()) == *center
+    //       || (center->x == starting_point->x - R_SIZE / 2
+    //           && center->y == starting_point->y + R_SIZE / 2)) {
+    //     valid = false;
+    //     break;
+    // };
+
     if (valid) {
       obstacles.insert(obstacles.end(), CellPtr(new Cell(center, 2 * R_SIZE)));
     }
@@ -306,7 +309,7 @@ int main(int argc, char **argv) {
 
   environment = EnvironmentPtr(new Environment(space, obstacles));
   boustrophedon_pt = BoustrophedonPtr(new Boustrophedon());
-  boustrophedon_pt->initialize(starting_point, R_SIZE);
+  boustrophedon_pt->initialize(starting_point, R_SIZE, e_size);
   tmp_path.insert(tmp_path.end(), starting_point);
   boustrophedon_pt->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
   boustrophedon_pt->set_behavior_see_obstacle(

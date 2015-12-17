@@ -25,24 +25,29 @@ class Boustrophedon: public BasePlan {
 public:
   Boustrophedon();
   ~Boustrophedon();
-  void initialize(PointPtr, double);
+  
+  void initialize(PointPtr, double, double);
+
   void cover();
 
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
-
+  
+  
 protected:
   bool go_to(PointPtr, bool);
 
 private:
   CellPtr starting_cell;
   double robot_size; // = 'cell size' / 2
+  double environment_size;
+  
   boost::function<bool(VectorPtr, double)> behavior_see_obstacle;
   std::set<CellPtr, CellComp> old_cells;
 
   bool see_obstacle(VectorPtr, double);
   bool go_with(VectorPtr, double);
 
-  void boustrophedon_pt(CellPtr);
+  void boustrophedon_cd(CellPtr);
   bool check(CellPtr);
 };
 
