@@ -29,7 +29,6 @@ public:
   double get_size();
   void set_parent(boost::shared_ptr<Cell>);
   boost::shared_ptr<Cell> get_parent();
-
 private:
   PointPtr center;
   double size;
