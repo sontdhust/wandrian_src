@@ -116,7 +116,7 @@ void OnlineBoustrophedon::turn_right(CellPtr neighbor_right, CellPtr current,
 void OnlineBoustrophedon::find_bpcell(CellPtr current){
   double distance = 10000;
   
-  for (std::set<CellPtr,CellComp>::iterator i = bplist.begin(); i != bplist.end(); i++) {
+  for (std::set<CellPtr>::iterator i = bplist.begin(); i != bplist.end(); i++) {
     CellPtr tmp = CellPtr(*i);
     double tmp_distance = get_distance(current,tmp);
     if(tmp_distance < distance){
@@ -240,9 +240,9 @@ void OnlineBoustrophedon::online_boustrophedon(CellPtr current) {
                 new Point(
                     *(current->get_center()) + *orientation * robot_size)),
             robot_size));
-    if(check(neighbor)!=OLD_CELL && see_obstacle(orientation,1)==false){
-      bplist.insert(neighbor);  
-    }
+    // if(check(neighbor)!=OLD_CELL && see_obstacle(orientation,2)==false){
+    //   bplist.insert(neighbor);  
+    // }
     CellPtr neighbor_left = CellPtr(
         new Cell(
             PointPtr(
@@ -345,6 +345,7 @@ void OnlineBoustrophedon::online_boustrophedon(CellPtr current) {
           go_straight(neighbor,current,orientation);
     }
   }
+  old_cells.insert(old_cells.end(),current);
   std::cout << "\n\033[1;34mcurrent-\033[0m\033[1;31mEND\033[0m: "
         << current->get_center()->x << "," << current->get_center()->y << "\n";
     std::cout << "Backtrack list: "
@@ -353,7 +354,7 @@ void OnlineBoustrophedon::online_boustrophedon(CellPtr current) {
   find_bpcell(current);
   move_bpcell(current);
   }
-  exit(0);
+  //exit(0);
 }
 
 
