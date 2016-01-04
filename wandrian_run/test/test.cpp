@@ -15,7 +15,8 @@
 #include <boost/bind.hpp>
 #include <sstream>
 #include <fstream>
-#include "../include/plans/spiral_stc/spiral_stc.hpp"
+#include "../include/common/environment.hpp"
+#include "../include/plans/spiral_stc/full_spiral_stc.hpp"
 
 #define R_SIZE 0.5 // Robot size
 #define E_SIZE 4.0 // Default environment size
@@ -27,7 +28,6 @@ double e_size = 0;
 
 EnvironmentPtr environment;
 PointPtr starting_point;
-SpiralStcPtr spiral_stc;
 std::list<PointPtr> tmp_path;
 
 /**
@@ -55,7 +55,8 @@ void display() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  glScalef(0.5, 0.5, 0);
+  glScalef(e_size <= 20 ? 0.5 : 10.0 / e_size,
+      e_size <= 20 ? 0.5 : 10.0 / e_size, 0);
 
   // Center point
   glPointSize(4);
@@ -91,16 +92,15 @@ void display() {
   glBegin(GL_POINTS);
   glVertex2d(starting_point->x, starting_point->y);
   glEnd();
-
-  // Spiral STC covering path
-  glColor3ub(0, 255, 0);
-  draw(tmp_path, GL_LINE_STRIP);
-
-  glRasterPos2i(0, -11);
+  glRasterPos2i(0, e_size <= 20 ? -11 : -e_size / 2 - 1);
   std::stringstream ss;
   ss << starting_point->x << ", " << starting_point->y;
   for (int i = 0; i < ss.str().length(); i++)
     glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ss.str()[i]);
+
+  // Spiral STC covering path
+  glColor3ub(0, 255, 0);
+  draw(tmp_path, GL_LINE_STRIP);
 
   glutSwapBuffers();
 }
@@ -120,11 +120,10 @@ bool test_go_to(PointPtr position, bool flexibly) {
   return true;
 }
 
-bool test_see_obstacle(VectorPtr orientation, double step) {
+bool test_see_obstacle(VectorPtr orientation, double distance) {
   // Simulator check obstacle
   PointPtr last_position = *(--tmp_path.end());
-  PointPtr new_position = PointPtr(
-      new Point(*last_position + *orientation * step * R_SIZE / 2));
+  PointPtr new_position = last_position + orientation * distance;
   if (environment) {
     CellPtr space = boost::static_pointer_cast<Cell>(environment->space);
     if (new_position->x >= space->get_center()->x + space->get_size() / 2
@@ -154,14 +153,12 @@ bool test_see_obstacle(VectorPtr orientation, double step) {
 int main(int argc, char **argv) {
   if (argc >= 2) {
     std::istringstream iss(argv[1]);
-    if (!(iss >> e_size)
-        || !(4 <= e_size && e_size <= 20 && (int) e_size % 2 == 0)) {
+    if (!(iss >> e_size) || !((int) e_size % 2 == 0)) {
       e_size = E_SIZE;
     }
   } else {
     e_size = E_SIZE;
   }
-
   CellPtr space = CellPtr(new Cell(PointPtr(new Point(0, 0)), e_size));
   std::list<PolygonPtr> obstacles;
 
@@ -169,29 +166,51 @@ int main(int argc, char **argv) {
   starting_point = PointPtr(
       new Point(
           (std::rand() % (int) (e_size / R_SIZE / 2.0)
-              - (int) (e_size / R_SIZE / 4.0)) + R_SIZE + R_SIZE / 2,
+              - (int) (e_size / R_SIZE / 4.0)) + R_SIZE + R_SIZE / 2.0,
           (std::rand() % (int) (e_size / R_SIZE / 2.0)
-              - (int) (e_size / R_SIZE / 4.0)) + R_SIZE - R_SIZE / 2));
+              - (int) (e_size / R_SIZE / 4.0)) + R_SIZE - R_SIZE / 2.0));
 
-  int r = std::rand() % (int) (e_size * e_size / 16) + e_size * e_size / 8;
-  for (int i = 0; i <= r; i++) {
+  double o_size;
+  int number_of_obstacles;
+  double r = 0.2;
+  if (argc >= 3) {
+    std::istringstream iss(argv[2]);
+    if (!(iss >> o_size)) {
+      o_size = 2.0 * R_SIZE;
+      number_of_obstacles = 0;
+    } else {
+      double n = 0.75 * r * (e_size * e_size) / (o_size * o_size);
+      number_of_obstacles = n
+          + ((int) (0.25 * n) != 0 ? std::rand() % (int) (0.25 * n) : 0);
+    }
+  } else {
+    o_size = 2.0 * R_SIZE;
+    double n = 0.75 * r * (e_size * e_size) / (o_size * o_size);
+    number_of_obstacles = n
+        + ((int) (0.25 * n) != 0 ? std::rand() % (int) (0.25 * n) : 0);
+  }
+
+  for (int i = 0; i <= number_of_obstacles; i++) {
     PointPtr center = PointPtr(
         new Point(
-            (std::rand() % (int) (e_size / R_SIZE / 2.0)
-                - (int) (e_size / R_SIZE / 4.0)) + R_SIZE,
-            (std::rand() % (int) (e_size / R_SIZE / 2.0)
-                - (int) (e_size / R_SIZE / 4.0)) + R_SIZE));
+            (std::rand() % (int) (e_size / R_SIZE / (o_size / R_SIZE))
+                - (int) (e_size / R_SIZE / (o_size / R_SIZE) / 2.0) + R_SIZE)
+                * o_size,
+            (std::rand() % (int) (e_size / R_SIZE / (o_size / R_SIZE))
+                - (int) (e_size / R_SIZE / (o_size / R_SIZE) / 2.0) + R_SIZE)
+                * o_size));
     bool valid = true;
+    double EPS = std::numeric_limits<double>::epsilon();
     for (std::list<PolygonPtr>::iterator p = obstacles.begin();
         p != obstacles.end(); p++)
-      if (*((boost::static_pointer_cast<Cell>(*p))->get_center()) == *center
-          || (center->x == starting_point->x - R_SIZE / 2
-              && center->y == starting_point->y + R_SIZE / 2)) {
+      if ((boost::static_pointer_cast<Cell>(*p))->get_center() == center
+          || (std::abs(center->x - (starting_point->x - R_SIZE / 2)) < EPS
+              && std::abs(center->y - (starting_point->y + R_SIZE / 2)) < EPS)) {
         valid = false;
         break;
       };
     if (valid) {
-      obstacles.insert(obstacles.end(), CellPtr(new Cell(center, 2 * R_SIZE)));
+      obstacles.insert(obstacles.end(), CellPtr(new Cell(center, o_size)));
     }
   }
 
@@ -205,7 +224,8 @@ int main(int argc, char **argv) {
       n = 1;
       // Upper bound
       for (double i = -e_size / 2 + R_SIZE / 2; i <= e_size / 2 - R_SIZE / 2;
-          i += R_SIZE) {
+          i +=
+          R_SIZE) {
         world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
@@ -219,7 +239,8 @@ int main(int argc, char **argv) {
 
       // Right bound
       for (double i = -e_size / 2 + R_SIZE / 2; i <= e_size / 2 - R_SIZE / 2;
-          i += R_SIZE) {
+          i +=
+          R_SIZE) {
         world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
@@ -233,7 +254,8 @@ int main(int argc, char **argv) {
 
       // Lower bound
       for (double i = -e_size / 2 + R_SIZE / 2; i <= e_size / 2 - R_SIZE / 2;
-          i += R_SIZE) {
+          i +=
+          R_SIZE) {
         world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
@@ -247,7 +269,8 @@ int main(int argc, char **argv) {
 
       // Left bound
       for (double i = -e_size / 2 + R_SIZE / 2; i <= e_size / 2 - R_SIZE / 2;
-          i += R_SIZE) {
+          i +=
+          R_SIZE) {
         world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
@@ -299,14 +322,27 @@ int main(int argc, char **argv) {
   world_out.close();
 
   environment = EnvironmentPtr(new Environment(space, obstacles));
-  spiral_stc = SpiralStcPtr(new SpiralStc());
-  spiral_stc->initialize(starting_point, R_SIZE);
-  tmp_path.insert(tmp_path.end(), starting_point);
-  spiral_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
-  spiral_stc->set_behavior_see_obstacle(
-      boost::bind(&test_see_obstacle, _1, _2));
-  spiral_stc->cover();
-
+  if (argc >= 4) {
+    if (std::string(argv[3]) == "spiral_stc") {
+      SpiralStcPtr plan_spiral_stc = SpiralStcPtr(new SpiralStc());
+      plan_spiral_stc->initialize(starting_point, R_SIZE);
+      tmp_path.insert(tmp_path.end(), starting_point);
+      plan_spiral_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
+      plan_spiral_stc->set_behavior_see_obstacle(
+          boost::bind(&test_see_obstacle, _1, _2));
+      plan_spiral_stc->cover();
+    } else if (std::string(argv[3]) == "full_spiral_stc") {
+      FullSpiralStcPtr plan_full_spiral_stc = FullSpiralStcPtr(
+          new FullSpiralStc());
+      plan_full_spiral_stc->initialize(starting_point, R_SIZE);
+      tmp_path.insert(tmp_path.end(), starting_point);
+      plan_full_spiral_stc->set_behavior_go_to(
+          boost::bind(&test_go_to, _1, _2));
+      plan_full_spiral_stc->set_behavior_see_obstacle(
+          boost::bind(&test_see_obstacle, _1, _2));
+      plan_full_spiral_stc->cover();
+    }
+  }
   run(argc, argv);
   return 0;
 }
