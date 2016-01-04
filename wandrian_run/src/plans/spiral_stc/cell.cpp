@@ -1,5 +1,5 @@
 /*
- * square.cpp
+ * cell.cpp
  *
  *  Created on: Sep 15, 2015
  *      Author: sontd

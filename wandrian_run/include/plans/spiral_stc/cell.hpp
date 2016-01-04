@@ -1,5 +1,5 @@
 /*
- * square.hpp
+ * cell.hpp
  *
  *  Created on: Sep 15, 2015
  *      Author: sontd

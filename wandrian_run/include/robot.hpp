@@ -1,12 +1,12 @@
 /*
- * core.hpp
+ * robot.hpp
  *
  *  Created on: Jul 31, 2015
  *      Author: sontd
  */
 
-#ifndef WANDRIAN_RUN_INCLUDE_CORE_HPP_
-#define WANDRIAN_RUN_INCLUDE_CORE_HPP_
+#ifndef WANDRIAN_RUN_INCLUDE_ROBOT_HPP_
+#define WANDRIAN_RUN_INCLUDE_ROBOT_HPP_
 
 #include <termios.h> // For keyboard input
 #include <ros/ros.h>
@@ -21,11 +21,11 @@ using namespace wandrian::common;
 
 namespace wandrian {
 
-class Core {
+class Robot {
 
 public:
-  Core();
-  ~Core();
+  Robot();
+  ~Robot();
   bool initialize();
   void spin();
   void stop();
@@ -33,7 +33,7 @@ public:
   std::string get_plan_name();
   double get_starting_point_x();
   double get_starting_point_y();
-  double get_robot_size();
+  double get_tool_size();
   PointPtr get_current_position();
   VectorPtr get_current_orientation();
   bool* get_obstacles();
@@ -49,9 +49,9 @@ private:
   std::string plan_name; // arg
   double starting_point_x; // arg
   double starting_point_y; // arg
-  double robot_size; // arg
-  PointPtr current_position; // odom subscriber
-  VectorPtr current_orientation; // odom subscriber
+  double tool_size; // arg
+  PointPtr current_position; // odometry subscriber
+  VectorPtr current_orientation; // odometry subscriber
   bool obstacles[3]; // laser subscriber
   double linear_velocity_step; // param
   double linear_velocity_max; // param
@@ -72,9 +72,9 @@ private:
   ecl::Thread thread_keyboard;
   ecl::Thread thread_run;
 
-  ros::Publisher motor_power_publisher;
+  ros::Publisher power_publisher;
   ros::Publisher velocity_publisher;
-  ros::Subscriber odom_subscriber;
+  ros::Subscriber odometry_subscriber;
   ros::Subscriber laser_subscriber;
 
   void run();
@@ -91,8 +91,8 @@ private:
   void subscribe_laser(const sensor_msgs::LaserScanConstPtr&);
 };
 
-typedef boost::shared_ptr<Core> CorePtr;
+typedef boost::shared_ptr<Robot> RobotPtr;
 
 }
 
-#endif /* WANDRIAN_RUN_INCLUDE_CORE_HPP_ */
+#endif /* WANDRIAN_RUN_INCLUDE_ROBOT_HPP_ */

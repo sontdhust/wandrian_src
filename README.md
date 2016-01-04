@@ -24,9 +24,9 @@ Change to catkin root directory then run:
 ####Run simulator:
 
     $ roslaunch wandrian_run environment.launch world_file:=tmp
-    $ roslaunch wandrian_run run_simulator.launch plan_name:=spiral_stc starting_point_x:=0.75 starting_point_y:=-0.75 robot_size:=0.5
+    $ roslaunch wandrian_run run_simulator.launch plan_name:=spiral_stc starting_point_x:=0.75 starting_point_y:=-0.75 tool_size:=0.5
 
 ####Run practically:
 	$ roslaunch kobuki_node minimal.launch --screen
 	$ rosrun hokuyo_node hokuyo_node
-	$ roslaunch wandrian_run run_practically.launch plan_name:=spiral_stc robot_size:=0.4
+	$ roslaunch wandrian_run run_practically.launch plan_name:=spiral_stc tool_size:=0.4

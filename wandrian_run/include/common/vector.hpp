@@ -23,12 +23,12 @@ enum Orientation {
   //                       |___|___|
   //                           |
   //                           |
-  //                       BEHIND (3)
+  //                      IN_BACK (3)
 
   AT_RIGHT_SIDE,
   IN_FRONT,
   AT_LEFT_SIDE,
-  BEHIND
+  IN_BACK
 };
 
 inline Orientation operator+(Orientation o) {
@@ -38,8 +38,8 @@ inline Orientation operator+(Orientation o) {
   case IN_FRONT:
     return AT_LEFT_SIDE;
   case AT_LEFT_SIDE:
-    return BEHIND;
-  case BEHIND:
+    return IN_BACK;
+  case IN_BACK:
     return AT_RIGHT_SIDE;
   }
   return o;
@@ -90,7 +90,7 @@ inline Orientation operator%(VectorPtr v1, VectorPtr v2) {
   if (std::abs(angle) >= 3 * M_PI_4)
     return IN_FRONT;
   else if (std::abs(angle) <= M_PI_4)
-    return BEHIND;
+    return IN_BACK;
   else if (angle > 0)
     return AT_RIGHT_SIDE;
   else
@@ -143,7 +143,7 @@ inline VectorPtr operator~(Orientation o) {
     return VectorPtr(new Vector(0, 1));
   case AT_LEFT_SIDE:
     return VectorPtr(new Vector(-1, 0));
-  case BEHIND:
+  case IN_BACK:
     return VectorPtr(new Vector(0, -1));
   default:
     return VectorPtr(new Vector());

@@ -1,5 +1,5 @@
 /*
- * PartiallyOccupiableCell.hpp
+ * partially_occupiable_cell.hpp
  *
  *  Created on: Dec 12, 2015
  *      Author: cslab

@@ -12,27 +12,27 @@ namespace plans {
 namespace spiral_stc {
 
 SpiralStc::SpiralStc() :
-    robot_size(0) {
+    tool_size(0) {
 }
 
 SpiralStc::~SpiralStc() {
 }
 
-void SpiralStc::initialize(PointPtr starting_point, double robot_size) {
-  this->robot_size = robot_size;
+void SpiralStc::initialize(PointPtr starting_point, double tool_size) {
+  this->tool_size = tool_size;
   // Initialize starting_cell
   starting_cell = CellPtr(
       new Cell(
           PointPtr(
-              new Point(starting_point->x - robot_size / 2,
-                  starting_point->y + robot_size / 2)), 2 * robot_size));
+              new Point(starting_point->x - tool_size / 2,
+                  starting_point->y + tool_size / 2)), 2 * tool_size));
   starting_cell->set_parent(
       CellPtr(
           new Cell(
               PointPtr(
                   new Point(starting_cell->get_center()->x,
-                      starting_cell->get_center()->y - 2 * robot_size)),
-              2 * robot_size)));
+                      starting_cell->get_center()->y - 2 * tool_size)),
+              2 * tool_size)));
   path.insert(path.end(), starting_point);
 }
 
@@ -76,38 +76,38 @@ void SpiralStc::scan(CellPtr current) {
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;32mBEGIN:\033[0m "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
   VectorPtr orientation = (current->get_parent()->get_center()
-      - current->get_center()) / 2 / robot_size;
+      - current->get_center()) / 2 / tool_size;
   VectorPtr initial_orientation = orientation++;
   // While current cell has a new obstacle-free neighboring cell
   bool is_starting_cell = current == starting_cell;
   do {
     // Scan for new neighbor of current cell in counterclockwise order
     CellPtr neighbor = CellPtr(
-        new Cell(current->get_center() + orientation * 2 * robot_size,
-            2 * robot_size));
+        new Cell(current->get_center() + orientation * 2 * tool_size,
+            2 * tool_size));
     std::cout << "  \033[1;33mneighbor:\033[0m " << neighbor->get_center()->x
         << "," << neighbor->get_center()->y;
     if (state_of(neighbor) == OLD) { // Old cell
       // Go to next sub-cell
-      go_with(++orientation, robot_size);
+      go_with(++orientation, tool_size);
       continue;
     }
-    if (see_obstacle(orientation, robot_size / 2)) { // Obstacle
+    if (see_obstacle(orientation, tool_size / 2)) { // Obstacle
       // Go to next sub-cell
-      go_with(++orientation, robot_size);
+      go_with(++orientation, tool_size);
     } else { // New free neighbor
       std::cout << "\n";
       // Construct a spanning-tree edge
       neighbor->set_parent(current);
-      go_with(orientation++, robot_size);
+      go_with(orientation++, tool_size);
       old_cells.insert(neighbor);
       scan(neighbor);
     }
   } while (orientation % initial_orientation
-      != (is_starting_cell ? AT_RIGHT_SIDE : BEHIND));
+      != (is_starting_cell ? AT_RIGHT_SIDE : IN_BACK));
   // Back to sub-cell of parent
   if (!is_starting_cell) {
-    go_with(orientation, robot_size);
+    go_with(orientation, tool_size);
   }
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;31mEND:\033[0m "
       << current->get_center()->x << "," << current->get_center()->y << "\n";

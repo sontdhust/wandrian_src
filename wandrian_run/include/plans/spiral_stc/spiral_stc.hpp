@@ -30,7 +30,7 @@ public:
 
 protected:
   std::set<CellPtr, CellComp> old_cells;
-  double robot_size; // = 'cell size' / 2
+  double tool_size; // = 'cell size' / 2
 
   bool go_to(PointPtr, bool);
   bool see_obstacle(VectorPtr, double);

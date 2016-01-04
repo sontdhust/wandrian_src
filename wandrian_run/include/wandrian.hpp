@@ -8,7 +8,7 @@
 #ifndef WANDRIAN_RUN_INCLUDE_WANDRIAN_HPP_
 #define WANDRIAN_RUN_INCLUDE_WANDRIAN_HPP_
 
-#include "core.hpp"
+#include "robot.hpp"
 
 namespace wandrian {
 
@@ -19,7 +19,7 @@ public:
   void spin();
 
 private:
-  CorePtr core;
+  RobotPtr robot;
 
   // Behaviors
   void wandrian_run();
@@ -30,9 +30,11 @@ private:
 
   // Helpers
   bool go_to(PointPtr, bool);
+  bool see_obstacle(Orientation, double);
   bool rotate_to(PointPtr, bool);
   void go(bool);
   void rotate(bool);
+  void dodge();
 };
 
 }
