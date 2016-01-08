@@ -91,6 +91,7 @@ void SpiralStc::scan(CellPtr current) {
   VectorPtr initial_orientation = orientation++;
   // While current cell has a new obstacle-free neighboring cell
   bool is_starting_cell = current == starting_cell;
+
   do {
     // Scan for new neighbor of current cell in counterclockwise order
     CellPtr neighbor = CellPtr(
@@ -98,6 +99,9 @@ void SpiralStc::scan(CellPtr current) {
             2 * robot_size));
     std::cout << "  \033[1;33mneighbor:\033[0m " << neighbor->get_center()->x
         << "," << neighbor->get_center()->y;
+
+    Global::get_instance()->read_message();
+
     if (state_of(neighbor) == OLD) { // Old cell
       // Go to next sub-cell
       go_with(++orientation, robot_size);
@@ -111,9 +115,10 @@ void SpiralStc::scan(CellPtr current) {
       // Construct a spanning-tree edge
       neighbor->set_parent(current);
       go_with(orientation++, robot_size);
-      Global::get_instance()->old_cells.insert(neighbor);
 
       Global::get_instance()->read_message();
+      Global::get_instance()->old_cells.insert(neighbor);
+
       std::string message = Global::get_instance()->create_message_from_old_cells();
       Global::get_instance()->write_message(message);
 

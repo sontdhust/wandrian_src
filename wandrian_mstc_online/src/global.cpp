@@ -32,7 +32,7 @@ GlobalPtr Global::get_instance() {
 }
 
 void Global::write_message(std::string message) {
-  ROS_INFO("My old cells: %s", message.data());
+  ROS_INFO("[Writing]My old cells: %s", message.data());
   rosbag::Bag bag;
   bag.open("message.bag", rosbag::bagmode::Write);
   std_msgs::String str;
@@ -59,7 +59,7 @@ void Global::read_message() {
   }
 
   bag.close();
-  ROS_INFO("Ros bag old cells: %s", msg.data());
+  ROS_INFO("[Reading]Ros bag old cells: %s", msg.data());
   update_old_cells_from_message(msg);
 
 }
@@ -67,7 +67,8 @@ void Global::read_message() {
 std::string Global::create_message_from_old_cells() {
   std::string msg;
   std::set<CellPtr, CellComp> temp_old_cells = this->old_cells;
-  for (int i = 0; i <= temp_old_cells.size(); i++) {
+  // for (int i = 0; i <= temp_old_cells.size(); i++) {
+  while (temp_old_cells.size() != 0){
     CellPtr temp_cell = *temp_old_cells.begin();
     std::stringstream tmp;
     tmp << temp_cell->get_center()->x << ","
@@ -100,6 +101,6 @@ void Global::update_old_cells_from_message(std::string msg) {
     temp_cell = CellPtr(new Cell(PointPtr(new Point(x, y)), 2 * robot_size));
     this->old_cells.insert(temp_cell);
   }
-
+  ROS_INFO("[Reading]My old cells: %s", create_message_from_old_cells().data());
 }
 }
