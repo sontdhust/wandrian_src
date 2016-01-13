@@ -48,9 +48,11 @@ void Wandrian::wandrian_run() {
     // std::cout << "\033[1;34mENVIRONMENT-\033[0m: " << core.get_environment_size()<< "\n";
 
     boustronphedon_cd->initialize(
-        PointPtr(
-            new Point(core.get_starting_point_x(),
-                core.get_starting_point_y())), core.get_robot_size(), core.get_environment_size());
+        // PointPtr(
+        //     new Point(core.get_starting_point_x(),
+        //         core.get_starting_point_y())), core.get_robot_size(), core.get_environment_size());
+        PointPtr( new Point(core.get_starting_point_x(), core.get_starting_point_y())),
+                 core.get_robot_size());
 
     boustronphedon_cd->set_behavior_go_to(
         boost::bind(&Wandrian::spiral_stc_go_to, this, _1, _2));

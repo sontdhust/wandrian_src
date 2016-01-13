@@ -1,8 +1,6 @@
 /*
  * boustronphedon_cd.cpp
  *
- *  Created on: Sep 15, 2015
- *      Author: sontd
  */
 
 #include "../../../include/plans/boustrophedon_off/boustrophedon.hpp"
@@ -18,29 +16,16 @@ Boustrophedon::Boustrophedon() :
 Boustrophedon::~Boustrophedon() {
 }
 //, double environment_size
-void Boustrophedon::initialize(PointPtr starting_point, double robot_size, double environment_size) {
+void Boustrophedon::initialize(PointPtr starting_point, double robot_size) {
   this->robot_size = robot_size;
-  this->environment_size = environment_size;
-  
-  // Initialize starting_cell
-  starting_cell = CellPtr(
-      new Cell(PointPtr(new Point(starting_point->x, starting_point->y)),
-          robot_size));
-
-  starting_cell->set_parent(
-      CellPtr(
-          new Cell(
-              PointPtr(
-                  new Point(starting_cell->get_center()->x,
-                      starting_cell->get_center()->y - robot_size)),
-              robot_size)));
+  //this->environment_size = environment_size;
 
   path.insert(path.end(), starting_point);
 }
 
 void Boustrophedon::cover() {
-  old_cells.insert(starting_cell);
-  boustrophedon_cd(starting_cell);
+ // old_cells.insert(starting_cell);
+  boustrophedon_cd();
 }
 
 void Boustrophedon::set_behavior_see_obstacle(
@@ -57,83 +42,82 @@ bool Boustrophedon::go_to(PointPtr position, bool flexibly) {
   return true;
 }
 
-bool Boustrophedon::see_obstacle(VectorPtr orientation, double step) {
-  if (behavior_see_obstacle)
-    return behavior_see_obstacle(orientation, step);
-  return false;
+bool Boustrophedon::go_go(PointPtr center_cellnext, double edgex, double edgey){
+    double x = (center_cellnext->x*2 + edgex - robot_size)/2 ;
+    double y = (center_cellnext->y*2 - edgey + robot_size)/2 ;
+
+    PointPtr starting_point = PointPtr(new Point(x,y));
+    go_to(starting_point, STRICTLY);
+
+    std::cout << "\033[1;34mLast_position-\033[0m\033[1;31m\033[0m: "
+    << starting_point->x << "," << starting_point->y << "\n";
+    
+
+    PointPtr last_position;
+    PointPtr new_position;
+
+    int flag = 0;
+
+    for (int i = 0; i < edgex; ++i){
+      if (i!=0){
+        last_position = *(--path.end());
+        new_position = PointPtr(new Point(last_position->x-0.5, last_position->y));
+        go_to(new_position, STRICTLY);
+      }
+      for (int j = 0; j < edgey*2-1; ++j){
+        last_position = *(--path.end());
+        new_position = PointPtr(new Point(last_position->x, last_position->y + 0.5));
+        go_to(new_position, STRICTLY);
+      }
+      last_position = *(--path.end());
+      new_position = PointPtr(new Point(last_position->x-0.5, last_position->y));
+      go_to(new_position, STRICTLY);
+      
+      for (int j = 0; j < edgey*2-1; ++j){
+        last_position = *(--path.end());
+        new_position = PointPtr(new Point(last_position->x, last_position->y - 0.5));
+        go_to(new_position, STRICTLY);
+      }
+
+      
+
+    }
+      return true;
 }
 
 bool Boustrophedon::go_with(VectorPtr orientation, double step) {
   PointPtr last_position = *(--path.end());
-
   PointPtr new_position = PointPtr(
-      new Point(*last_position + *orientation * step * robot_size));
-
+      new Point(*last_position + *orientation * step * robot_size / 2));
   return go_to(new_position, STRICTLY);
 }
 
-void Boustrophedon::boustrophedon_cd(CellPtr current) {
-
-  std::cout << "\033[1;34mcurrent-\033[0m\033[1;32mBEGIN:\033[0m "
-      << current->get_center()->x << "," << current->get_center()->y << "\n";
-
-  VectorPtr orientation = VectorPtr(
-      new Vector(
-          (*(current->get_parent()->get_center()) - *(current->get_center()))
-              / robot_size));
+void Boustrophedon::boustrophedon_cd() {
 
   int e_size = 0;
-  if (environment_size!= 0)
-  {
+  if (environment_size!= 0){
     e_size = environment_size;
-  }else{
+  }
+  else{
     e_size = 4;
   }
- 
-  std::cout << "\033[1;34mENVIRONMENT-\033[0m: " << environment_size << "\n";
-  std::cout << "\033[1;34mRobot-\033[0m: " << robot_size << "\n";
-  std::cout << "\033[1;34mcurrent-\033[0m\033[1;31mEND\033[0m: " << e_size << "\n";
+  // //No obstacles 
+  // PointPtr new_position = PointPtr(new Point(0,0));
+  // go_go(new_position, e_size, e_size);
+  // Obstacles
+  PointPtr d1 = PointPtr(new Point(2,0));
+  PointPtr d2 = PointPtr(new Point(0,-2));
+  PointPtr d3 = PointPtr(new Point(-2,0));
 
+  go_go(d1,2,6);
+  go_go(d2,2,2);
+  go_go(d3,2,6);
 
-  for (int i = 0; i < e_size; ++i) {
-
-    if (i == 0) {
-      orientation = orientation->rotate_counterclockwise();
-      orientation = orientation->rotate_counterclockwise();
-      
-      std::cout << "\033[1;34mEND(x,y):-\033[0m"
-      << -(e_size -robot_size)/2 << "," << -(e_size -robot_size)/2 << "\n";
-    }
-
-    PointPtr last_position = *(--path.end());
-    std::cout << "\033[1;34mLast-\033[0m\033[1;31mPosition\033[0m: "
-    << last_position->x << "," << last_position->y << "\n";
-
-    go_with(orientation, e_size * 2 - 1);
-    orientation = orientation->rotate_counterclockwise();
-    go_with(orientation, 1);
-    orientation = orientation->rotate_counterclockwise();
-    go_with(orientation, e_size * 2 - 1);
-    orientation = orientation->rotate_clockwise();    
-
-    last_position = *(--path.end());
-    if ((last_position->x == (robot_size -e_size )/2)&&(last_position->y == (robot_size-e_size)/2)){
-        std::cout << "\033[1;34mcurrent-\033[0m\033[1;31mEND\033[0m: "
-      << current->get_center()->x << "," << current->get_center()->y << "\n";
-    }else{
-      go_with(orientation, 1);
-      orientation = orientation->rotate_clockwise();
-    }    
-
-  }
 
 
 }
 
-bool Boustrophedon::check(CellPtr cell_to_check) {
-  return
-      (old_cells.find(cell_to_check) != old_cells.end()) ? OLD_CELL : NEW_CELL;
-}
+
 
 }
 }
