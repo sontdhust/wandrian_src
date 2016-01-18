@@ -21,6 +21,12 @@ using namespace wandrian::plans::spiral_stc;
 
 namespace wandrian {
 
+Wandrian::Wandrian() {
+}
+
+Wandrian::~Wandrian() {
+}
+
 bool Wandrian::initialize() {
   robot = RobotPtr(new Robot());
   return robot->initialize();
@@ -57,52 +63,59 @@ void Wandrian::wandrian_run() {
   }
 }
 
-bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibly) {
-  return go_to(position, flexibly);
+bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibility) {
+  return go_to(position, flexibility);
 }
 
-bool Wandrian::spiral_stc_see_obstacle(VectorPtr orientation, double distance) {
+bool Wandrian::spiral_stc_see_obstacle(VectorPtr direction, double distance) {
   // TODO: Correctly check whether obstacle is near or not
-  double angle = orientation ^ robot->get_current_orientation();
-  return
-      (std::abs(angle) <= M_PI_4) ?
-          see_obstacle(IN_FRONT, distance) :
-          ((angle > M_PI_4) ?
-              see_obstacle(AT_LEFT_SIDE, distance) :
-              see_obstacle(AT_RIGHT_SIDE, distance));
+  double angle = direction ^ robot->get_current_direction();
+  if (std::abs(angle) <= 3 * M_PI_4)
+    return
+        (std::abs(angle) <= M_PI_4) ?
+            see_obstacle(IN_FRONT, distance) :
+            ((angle > M_PI_4) ?
+                see_obstacle(AT_LEFT_SIDE, distance) :
+                see_obstacle(AT_RIGHT_SIDE, distance));
+  else {
+    rotate_to(direction, STRICTLY);
+    return see_obstacle(IN_FRONT, distance);
+  }
 }
 
-bool Wandrian::full_spiral_stc_go_to(PointPtr position, bool flexibly) {
-  return spiral_stc_go_to(position, flexibly);
+bool Wandrian::full_spiral_stc_go_to(PointPtr position, bool flexibility) {
+  return spiral_stc_go_to(position, flexibility);
 }
 
-bool Wandrian::full_spiral_stc_see_obstacle(VectorPtr orientation,
+bool Wandrian::full_spiral_stc_see_obstacle(VectorPtr direction,
     double distance) {
-  return spiral_stc_see_obstacle(orientation, distance);
+  return spiral_stc_see_obstacle(direction, distance);
 }
 
-bool Wandrian::go_to(PointPtr new_position, bool flexibly) {
+bool Wandrian::go_to(PointPtr new_position, bool flexibility) {
   bool forward;
-  forward = rotate_to(new_position, flexibly);
+  forward = rotate_to(new_position, flexibility);
   // Assume there is no obstacle, robot go straight
   go(forward);
   while (true) {
-    // Check current_position + k * current_orientation == new_position
-    VectorPtr direction_vector = (new_position - robot->get_current_position())
+    // TODO: Moving obstacle detected, dodging
+    if (robot->get_obstacle_movement() != STOPPING) {
+      dodge();
+    }
+    // Check current_position + k * current_direction == new_position
+    VectorPtr direction = (new_position - robot->get_current_position())
         / (new_position % robot->get_current_position());
     if (forward ?
-        (!(std::abs(direction_vector->x - robot->get_current_orientation()->x)
+        (!(std::abs(direction->x - robot->get_current_direction()->x)
             < EPS_ORI_TO_MOVE
-            && std::abs(
-                direction_vector->y - robot->get_current_orientation()->y)
+            && std::abs(direction->y - robot->get_current_direction()->y)
                 < EPS_ORI_TO_MOVE)) :
-        (!(std::abs(direction_vector->x + robot->get_current_orientation()->x)
+        (!(std::abs(direction->x + robot->get_current_direction()->x)
             < EPS_ORI_TO_MOVE
-            && std::abs(
-                direction_vector->y + robot->get_current_orientation()->y)
+            && std::abs(direction->y + robot->get_current_direction()->y)
                 < EPS_ORI_TO_MOVE))) { // Wrong direction
       robot->stop();
-      forward = rotate_to(new_position, flexibly);
+      forward = rotate_to(new_position, flexibility);
       go(forward);
     }
     if (std::abs(new_position->x - robot->get_current_position()->x) < EPS_POS
@@ -110,11 +123,6 @@ bool Wandrian::go_to(PointPtr new_position, bool flexibly) {
             < EPS_POS) { // Reached the new position
       robot->stop();
       break;
-    }
-    if (robot->get_obstacles()[AT_RIGHT_SIDE]
-        || robot->get_obstacles()[IN_FRONT]
-        || robot->get_obstacles()[AT_LEFT_SIDE]) {
-      dodge();
     }
   }
   return true;
@@ -125,27 +133,29 @@ bool Wandrian::see_obstacle(Orientation orientation, double distance) {
   return robot->get_obstacles()[orientation];
 }
 
-bool Wandrian::rotate_to(PointPtr new_position, bool flexibly) {
-  VectorPtr new_orientation = (new_position - robot->get_current_position())
+bool Wandrian::rotate_to(PointPtr new_position, bool flexibility) {
+  VectorPtr new_direction = (new_position - robot->get_current_position())
       / (new_position % robot->get_current_position());
-  double angle = new_orientation ^ robot->get_current_orientation();
+  return rotate_to(new_direction, flexibility);
+}
 
-  bool will_move_forward = !flexibly ? true : std::abs(angle) < M_PI_2;
+bool Wandrian::rotate_to(VectorPtr new_direction, bool flexibility) {
+  double angle = new_direction ^ robot->get_current_direction();
+  bool will_move_forward =
+      (flexibility != FLEXIBLY) ? true : std::abs(angle) < M_PI_2;
   if (angle > EPS_ORI_TO_ROTATE)
     rotate(will_move_forward ? COUNTERCLOCKWISE : CLOCKWISE);
   else if (angle < -EPS_ORI_TO_ROTATE)
     rotate(will_move_forward ? CLOCKWISE : COUNTERCLOCKWISE);
   while (true) {
     if (will_move_forward ?
-        (std::abs(new_orientation->x - robot->get_current_orientation()->x)
+        (std::abs(new_direction->x - robot->get_current_direction()->x)
             < EPS_ORI_TO_ROTATE
-            && std::abs(
-                new_orientation->y - robot->get_current_orientation()->y)
+            && std::abs(new_direction->y - robot->get_current_direction()->y)
                 < EPS_ORI_TO_ROTATE) :
-        (std::abs(new_orientation->x + robot->get_current_orientation()->x)
+        (std::abs(new_direction->x + robot->get_current_direction()->x)
             < EPS_ORI_TO_ROTATE
-            && std::abs(
-                new_orientation->y + robot->get_current_orientation()->y)
+            && std::abs(new_direction->y + robot->get_current_direction()->y)
                 < EPS_ORI_TO_ROTATE)) {
       robot->stop();
       break;
@@ -160,14 +170,16 @@ void Wandrian::go(bool forward) {
       forward ? linear_velocity_step : -linear_velocity_step);
 }
 
-void Wandrian::rotate(bool clockwise) {
+void Wandrian::rotate(bool rotation_is_clockwise) {
   double angular_velocity_step = robot->get_angular_velocity_step();
   robot->set_angular_velocity(
-      clockwise ? -angular_velocity_step : angular_velocity_step);
+      rotation_is_clockwise ? -angular_velocity_step : angular_velocity_step);
 }
 
 void Wandrian::dodge() {
-
+  while (robot->get_obstacle_movement() == COMING) {
+    robot->stop();
+  }
 }
 
 }

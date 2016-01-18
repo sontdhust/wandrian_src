@@ -28,7 +28,7 @@ double e_size = 0;
 
 EnvironmentPtr environment;
 PointPtr starting_point;
-std::list<PointPtr> tmp_path;
+std::list<PointPtr> path;
 
 /**
  * Linked libraries to compile: -lglut -lGL (g++)
@@ -100,7 +100,7 @@ void display() {
 
   // Spiral STC covering path
   glColor3ub(0, 255, 0);
-  draw(tmp_path, GL_LINE_STRIP);
+  draw(path, GL_LINE_STRIP);
 
   glutSwapBuffers();
 }
@@ -115,15 +115,15 @@ int run(int argc, char **argv) {
   return 0;
 }
 
-bool test_go_to(PointPtr position, bool flexibly) {
-  tmp_path.insert(tmp_path.end(), position);
+bool test_go_to(PointPtr position, bool) {
+  path.insert(path.end(), position);
   return true;
 }
 
-bool test_see_obstacle(VectorPtr orientation, double distance) {
+bool test_see_obstacle(VectorPtr direction, double distance) {
   // Simulator check obstacle
-  PointPtr last_position = *(--tmp_path.end());
-  PointPtr new_position = last_position + orientation * distance;
+  PointPtr last_position = *(--path.end());
+  PointPtr new_position = last_position + direction * distance;
   if (environment) {
     CellPtr space = boost::static_pointer_cast<Cell>(environment->space);
     if (new_position->x >= space->get_center()->x + space->get_size() / 2
@@ -224,8 +224,7 @@ int main(int argc, char **argv) {
       n = 1;
       // Upper bound
       for (double i = -e_size / 2 + T_SIZE / 2; i <= e_size / 2 - T_SIZE / 2;
-          i +=
-          T_SIZE) {
+          i += T_SIZE) {
         world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
@@ -239,8 +238,7 @@ int main(int argc, char **argv) {
 
       // Right bound
       for (double i = -e_size / 2 + T_SIZE / 2; i <= e_size / 2 - T_SIZE / 2;
-          i +=
-          T_SIZE) {
+          i += T_SIZE) {
         world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
@@ -254,8 +252,7 @@ int main(int argc, char **argv) {
 
       // Lower bound
       for (double i = -e_size / 2 + T_SIZE / 2; i <= e_size / 2 - T_SIZE / 2;
-          i +=
-          T_SIZE) {
+          i += T_SIZE) {
         world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
@@ -269,8 +266,7 @@ int main(int argc, char **argv) {
 
       // Left bound
       for (double i = -e_size / 2 + T_SIZE / 2; i <= e_size / 2 - T_SIZE / 2;
-          i +=
-          T_SIZE) {
+          i += T_SIZE) {
         world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
@@ -286,33 +282,24 @@ int main(int argc, char **argv) {
       // Obstacles
       for (std::list<PolygonPtr>::iterator o = obstacles.begin();
           o != obstacles.end(); o++) {
-        PointPtr p = (boost::static_pointer_cast<Cell>(*o))->get_center();
-        int c = 1;
-        for (double i = p->y - T_SIZE * 3 / 4; i <= p->y + T_SIZE * 3 / 4;
-            i += T_SIZE / 2) {
-          world_out << "    <model name='cinder_block_obstacle_" << n << "_"
-              << c << "'>\n";
-          world_out << "      <include>\n";
-          world_out << "        <uri>model://cinder_block</uri>\n";
-          world_out << "      </include>\n";
-          world_out << "      <pose>" << p->x - T_SIZE / 2 << " " << i
-              << " 0 0 0 0</pose>\n";
-          world_out << "      <static>1</static>\n";
-          world_out << "    </model>\n";
-          c++;
-        }
-        for (double i = p->y - T_SIZE * 3 / 4; i <= p->y + T_SIZE * 3 / 4;
-            i += T_SIZE / 2) {
-          world_out << "    <model name='cinder_block_obstacle_" << n << "_"
-              << c << "'>\n";
-          world_out << "      <include>\n";
-          world_out << "        <uri>model://cinder_block</uri>\n";
-          world_out << "      </include>\n";
-          world_out << "      <pose>" << p->x + T_SIZE / 2 << " " << i
-              << " 0 0 0 0</pose>\n";
-          world_out << "      <static>1</static>\n";
-          world_out << "    </model>\n";
-          c++;
+        CellPtr cell = boost::static_pointer_cast<Cell>(*o);
+        PointPtr c = cell->get_center();
+        double s = cell->get_size();
+        double x = c->x - T_SIZE * (s / T_SIZE / 2.0 - 1.0 / 2.0);
+        for (int i = 1; i <= (int) (s / T_SIZE); i++) {
+          for (double y = c->y - T_SIZE * (s / T_SIZE / 2.0 - 1.0 / 4.0);
+              y <= c->y + T_SIZE * (s / T_SIZE / 2.0 - 1.0 / 4.0);
+              y += T_SIZE / 2.0) {
+            world_out << "    <model name='cinder_block_obstacle_" << n << "_"
+                << i << "'>\n";
+            world_out << "      <include>\n";
+            world_out << "        <uri>model://cinder_block</uri>\n";
+            world_out << "      </include>\n";
+            world_out << "      <pose>" << x << " " << y << " 0 0 0 0</pose>\n";
+            world_out << "      <static>1</static>\n";
+            world_out << "    </model>\n";
+          }
+          x += T_SIZE;
         }
         n++;
       }
@@ -326,7 +313,7 @@ int main(int argc, char **argv) {
     if (std::string(argv[3]) == "spiral_stc") {
       SpiralStcPtr plan_spiral_stc = SpiralStcPtr(new SpiralStc());
       plan_spiral_stc->initialize(starting_point, T_SIZE);
-      tmp_path.insert(tmp_path.end(), starting_point);
+      path.insert(path.end(), starting_point);
       plan_spiral_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
       plan_spiral_stc->set_behavior_see_obstacle(
           boost::bind(&test_see_obstacle, _1, _2));
@@ -335,7 +322,7 @@ int main(int argc, char **argv) {
       FullSpiralStcPtr plan_full_spiral_stc = FullSpiralStcPtr(
           new FullSpiralStc());
       plan_full_spiral_stc->initialize(starting_point, T_SIZE);
-      tmp_path.insert(tmp_path.end(), starting_point);
+      path.insert(path.end(), starting_point);
       plan_full_spiral_stc->set_behavior_go_to(
           boost::bind(&test_go_to, _1, _2));
       plan_full_spiral_stc->set_behavior_see_obstacle(

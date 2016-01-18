@@ -72,10 +72,10 @@ class PartiallyOccupiableCell: public Cell {
 public:
   PartiallyOccupiableCell(PointPtr, double);
   ~PartiallyOccupiableCell();
+
   PointPtr get_current_position();
   Quadrant get_current_quadrant();
   State* get_quadrants();
-
   void set_current_quadrant(Quadrant);
   void set_quadrants_state(Quadrant, State);
 

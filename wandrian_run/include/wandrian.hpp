@@ -15,6 +15,8 @@ namespace wandrian {
 class Wandrian {
 
 public:
+  Wandrian();
+  ~Wandrian();
   bool initialize();
   void spin();
 
@@ -32,10 +34,13 @@ private:
   bool go_to(PointPtr, bool);
   bool see_obstacle(Orientation, double);
   bool rotate_to(PointPtr, bool);
+  bool rotate_to(VectorPtr, bool);
   void go(bool);
   void rotate(bool);
   void dodge();
 };
+
+typedef boost::shared_ptr<Wandrian> WandrianPtr;
 
 }
 

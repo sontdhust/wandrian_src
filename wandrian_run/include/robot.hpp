@@ -21,6 +21,10 @@ using namespace wandrian::common;
 
 namespace wandrian {
 
+enum ObstacleMovement {
+  STOPPING, COMING, LEAVING
+};
+
 class Robot {
 
 public:
@@ -35,11 +39,11 @@ public:
   double get_starting_point_y();
   double get_tool_size();
   PointPtr get_current_position();
-  VectorPtr get_current_orientation();
+  VectorPtr get_current_direction();
   bool* get_obstacles();
+  ObstacleMovement get_obstacle_movement();
   double get_linear_velocity_step();
   double get_angular_velocity_step();
-
   void set_behavior_run(boost::function<void()>);
   void set_linear_velocity(double);
   void set_angular_velocity(double);
@@ -50,9 +54,12 @@ private:
   double starting_point_x; // arg
   double starting_point_y; // arg
   double tool_size; // arg
+  double proportion_ranges_sum; // arg
+  double augmentation_factor_range; // arg
   PointPtr current_position; // odometry subscriber
-  VectorPtr current_orientation; // odometry subscriber
+  VectorPtr current_direction; // odometry subscriber
   bool obstacles[3]; // laser subscriber
+  ObstacleMovement obstacle_movement; // laser timer
   double linear_velocity_step; // param
   double linear_velocity_max; // param
   double angular_velocity_step; // param
@@ -67,15 +74,21 @@ private:
   bool is_zero_vel; // Avoid zero-vel messages from the beginning
   bool is_logging;
   int file_descriptor;
+  PointPtr last_position;
+  VectorPtr last_direction;
+  sensor_msgs::LaserScan::_ranges_type laser_ranges;
+  sensor_msgs::LaserScan::_ranges_type last_laser_ranges;
+  double laser_ray;
 
   struct termios terminal;
   ecl::Thread thread_keyboard;
   ecl::Thread thread_run;
+  ros::Timer timer_laser;
 
-  ros::Publisher power_publisher;
-  ros::Publisher velocity_publisher;
-  ros::Subscriber odometry_subscriber;
-  ros::Subscriber laser_subscriber;
+  ros::Publisher publisher_power;
+  ros::Publisher publisher_velocity;
+  ros::Subscriber subscriber_odometry;
+  ros::Subscriber subscriber_laser;
 
   void run();
 
@@ -83,6 +96,7 @@ private:
   void start_thread_keyboard();
   void process_keyboard_input(char);
   void start_thread_run();
+  void start_timer_laser(const ros::TimerEvent&);
 
   // Helpers
   void enable_power();

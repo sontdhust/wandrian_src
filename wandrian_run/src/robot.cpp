@@ -5,25 +5,26 @@
  *      Author: sontd
  */
 
-#include "../include/robot.hpp"
-
 #include <kobuki_msgs/MotorPower.h>
 #include <kobuki_msgs/KeyboardInput.h>
 #include <ecl/time.hpp>
+#include "../include/robot.hpp"
 
-// TODO: Choose relevant threshold values
-#define THRESHOLD_COUNT 0.5
-#define AUGMENTED 1.0
+// TODO: Choose relevant values
+#define PROPORTION_RANGES_COUNT 0.5
+#define PROPORTION_RANGES_SUM 0.2
+#define AUGMENTATION_FACTOR_RANGE 2.0
 
 namespace wandrian {
 
 Robot::Robot() :
-    starting_point_x(0), starting_point_y(0), tool_size(0), current_position(
-        new Point(0, 0)), current_orientation(new Vector(0, 1)), linear_velocity_step(
-        0), linear_velocity_max(0), angular_velocity_step(0), angular_velocity_max(
-        0), velocity(new geometry_msgs::Twist()), laser_range(0), is_quitting(
-        false), is_powered(false), is_zero_vel(true), is_logging(false), file_descriptor(
-        0) {
+    starting_point_x(0), starting_point_y(0), tool_size(0), proportion_ranges_sum(
+        0), augmentation_factor_range(0), current_position(new Point()), current_direction(
+        new Vector()), obstacle_movement(STOPPING), linear_velocity_step(0), linear_velocity_max(
+        0), angular_velocity_step(0), angular_velocity_max(0), velocity(
+        new geometry_msgs::Twist()), laser_range(0), is_quitting(false), is_powered(
+        false), is_zero_vel(true), is_logging(false), file_descriptor(0), last_position(
+        new Point()), last_direction(new Vector()), laser_ray(0) {
   tcgetattr(file_descriptor, &terminal); // get terminal properties
 }
 
@@ -38,21 +39,31 @@ bool Robot::initialize() {
   nh.getParam("starting_point_x", starting_point_x);
   nh.getParam("starting_point_y", starting_point_y);
   nh.getParam("tool_size", tool_size);
+  nh.getParam("proportion_ranges_sum", proportion_ranges_sum);
+  nh.getParam("augmentation_factor_range", augmentation_factor_range);
 
   nh.getParam("linear_velocity_step", linear_velocity_step);
   nh.getParam("linear_velocity_max", linear_velocity_max);
   nh.getParam("angular_velocity_step", angular_velocity_step);
   nh.getParam("angular_velocity_max", angular_velocity_max);
 
+  if (proportion_ranges_sum <= 0 || proportion_ranges_sum >= 1)
+    proportion_ranges_sum = PROPORTION_RANGES_SUM;
+  if (augmentation_factor_range <= 0)
+    augmentation_factor_range = AUGMENTATION_FACTOR_RANGE;
+
   obstacles[AT_RIGHT_SIDE] = false;
   obstacles[IN_FRONT] = false;
   obstacles[AT_LEFT_SIDE] = false;
 
-  power_publisher = nh.advertise<kobuki_msgs::MotorPower>("power", 1);
-  velocity_publisher = nh.advertise<geometry_msgs::Twist>("velocity", 1);
-  odometry_subscriber = nh.subscribe<nav_msgs::Odometry>("odometry", 1,
+  timer_laser = nh.createTimer(ros::Duration(0.5),
+      boost::bind(&Robot::start_timer_laser, this, _1));
+
+  publisher_power = nh.advertise<kobuki_msgs::MotorPower>("power", 1);
+  publisher_velocity = nh.advertise<geometry_msgs::Twist>("velocity", 1);
+  subscriber_odometry = nh.subscribe<nav_msgs::Odometry>("odometry", 1,
       &Robot::subscribe_odometry, this);
-  laser_subscriber = nh.subscribe<sensor_msgs::LaserScan>("laser", 1,
+  subscriber_laser = nh.subscribe<sensor_msgs::LaserScan>("laser", 1,
       &Robot::subscribe_laser, this);
 
   velocity->linear.x = 0.0;
@@ -67,7 +78,7 @@ bool Robot::initialize() {
   int count = 0;
   bool connected = false;
   while (!connected) {
-    if (power_publisher.getNumSubscribers() > 0) {
+    if (publisher_power.getNumSubscribers() > 0) {
       connected = true;
       break;
     }
@@ -92,7 +103,7 @@ bool Robot::initialize() {
   } else {
     kobuki_msgs::MotorPower power;
     power.state = kobuki_msgs::MotorPower::ON;
-    power_publisher.publish(power);
+    publisher_power.publish(power);
     ROS_INFO("[Connection]: Connected.");
     is_powered = true;
   }
@@ -104,16 +115,15 @@ bool Robot::initialize() {
 
 void Robot::spin() {
   ros::Rate loop_rate(10);
-
   while (!is_quitting && ros::ok()) {
     // Avoid spamming robot with continuous zero-velocity messages
     if ((velocity->linear.x != 0.0) || (velocity->linear.y != 0.0)
         || (velocity->linear.z != 0.0) || (velocity->angular.x != 0.0)
         || (velocity->angular.y != 0.0) || (velocity->angular.z != 0.0)) {
-      velocity_publisher.publish(velocity);
+      publisher_velocity.publish(velocity);
       is_zero_vel = false;
     } else if (!is_zero_vel) {
-      velocity_publisher.publish(velocity);
+      publisher_velocity.publish(velocity);
       is_zero_vel = true;
     }
     ros::spinOnce();
@@ -133,7 +143,8 @@ void Robot::spin() {
 void Robot::stop() {
   velocity->linear.x = 0.0;
   velocity->angular.z = 0.0;
-  velocity_publisher.publish(velocity);
+  // Force stop
+  publisher_velocity.publish(velocity);
 }
 
 std::string Robot::get_plan_name() {
@@ -156,12 +167,16 @@ PointPtr Robot::get_current_position() {
   return current_position;
 }
 
-VectorPtr Robot::get_current_orientation() {
-  return current_orientation;
+VectorPtr Robot::get_current_direction() {
+  return current_direction;
 }
 
 bool* Robot::get_obstacles() {
   return obstacles;
+}
+
+ObstacleMovement Robot::get_obstacle_movement() {
+  return obstacle_movement;
 }
 
 double Robot::get_linear_velocity_step() {
@@ -259,8 +274,8 @@ void Robot::process_keyboard_input(char c) {
   case 'i': {
     std::ostringstream info;
     info << "[Odom]: Pos(" << current_position->x << "," << current_position->y
-        << "); " << "Ori(" << current_orientation->x << ","
-        << current_orientation->y << ")";
+        << "); " << "Ori(" << current_direction->x << ","
+        << current_direction->y << ")";
     info << "[Laser]: Obs(" << obstacles[AT_RIGHT_SIDE] << ","
         << obstacles[IN_FRONT] << "," << obstacles[AT_LEFT_SIDE] << ")";
     info << " " << ros::Time::now();
@@ -283,12 +298,57 @@ void Robot::start_thread_run() {
   run();
 }
 
+void Robot::start_timer_laser(const ros::TimerEvent&) {
+  if (laser_ranges.size() <= 0 || last_laser_ranges.size() <= 0) {
+    last_laser_ranges = laser_ranges;
+    return;
+  }
+  // Estimate laser ranges
+  std::vector<float> estimated_laser_ranges;
+  VectorPtr translation = current_position - last_position;
+  for (int i = 0; i <= last_laser_ranges.size() - 1; i++) {
+    VectorPtr angle = VectorPtr(
+        new Vector(
+            (i - last_laser_ranges.size() / 2) * laser_ray
+                + last_direction->get_angle()));
+    estimated_laser_ranges.push_back(
+        (float) (last_laser_ranges[i]
+            + translation->get_magnitude() * cos(angle ^ -translation)));
+  }
+  double rotation = current_direction ^ last_direction;
+  int rays = rotation / laser_ray;
+  double ranges_sum, estimated_ranges_sum = 0;
+  for (int i = rotation > 0 ? 0 : estimated_laser_ranges.size() - 1;
+      rotation > 0 ? i <= estimated_laser_ranges.size() - 1 - rays : i >= -rays;
+      rotation > 0 ? i++ : i--) {
+    estimated_laser_ranges[i] = estimated_laser_ranges[i + rays];
+    if (isnan(laser_ranges[i]) || isnan(estimated_laser_ranges[i])
+        || isinf(laser_ranges[i]) || isinf(estimated_laser_ranges[i]))
+      continue;
+    ranges_sum += laser_ranges[i];
+    estimated_ranges_sum += estimated_laser_ranges[i];
+  }
+  if (ranges_sum - estimated_ranges_sum
+      >= proportion_ranges_sum * estimated_ranges_sum)
+    obstacle_movement = LEAVING;
+  else if (estimated_ranges_sum - ranges_sum
+      >= proportion_ranges_sum * ranges_sum)
+    obstacle_movement = COMING;
+  else
+    obstacle_movement = STOPPING;
+  last_position->x = current_position->x;
+  last_position->y = current_position->y;
+  last_direction->x = current_direction->x;
+  last_direction->y = current_direction->y;
+  last_laser_ranges = laser_ranges;
+}
+
 void Robot::enable_power() {
   stop();
   ROS_INFO("[Power]: Enabled");
   kobuki_msgs::MotorPower power;
   power.state = kobuki_msgs::MotorPower::ON;
-  power_publisher.publish(power);
+  publisher_power.publish(power);
   is_powered = true;
 }
 
@@ -297,7 +357,7 @@ void Robot::disable_power() {
   ROS_INFO("[Power]: Disabled");
   kobuki_msgs::MotorPower power;
   power.state = kobuki_msgs::MotorPower::OFF;
-  power_publisher.publish(power);
+  publisher_power.publish(power);
   is_powered = false;
 }
 
@@ -308,9 +368,9 @@ void Robot::subscribe_odometry(const nav_msgs::OdometryConstPtr& odometry) {
   double oz = odometry->pose.pose.orientation.z;
   current_position->x = px + starting_point_x;
   current_position->y = py + starting_point_y;
-  // Set initial orientation to (1, 0)
-  current_orientation->x = ow * ow - oz * oz;
-  current_orientation->y = 2 * oz * ow;
+  // Set initial direction to (1, 0)
+  current_direction->x = ow * ow - oz * oz;
+  current_direction->y = 2 * oz * ow;
 }
 
 void Robot::subscribe_laser(const sensor_msgs::LaserScanConstPtr& laser) {
@@ -321,69 +381,78 @@ void Robot::subscribe_laser(const sensor_msgs::LaserScanConstPtr& laser) {
   const double ANGLE_LEFT_MIN = 1.0 / 3.0 * M_PI;
   const double ANGLE_LEFT_MAX = 2.0 / 3.0 * M_PI;
 
-  double ray = (double) laser->ranges.size()
-      / (laser->angle_max - laser->angle_min);
-  int range_right_min = (ANGLE_RIGHT_MIN - laser->angle_min) * ray;
-  int range_right_max = (ANGLE_RIGHT_MAX - laser->angle_min) * ray;
-  int range_in_front_min = (ANGLE_IN_FRONT_MIN - laser->angle_min) * ray;
-  int range_in_front_max = (ANGLE_IN_FRONT_MAX - laser->angle_min) * ray;
-  int range_left_min = (ANGLE_LEFT_MIN - laser->angle_min) * ray;
-  int range_left_max = (ANGLE_LEFT_MAX - laser->angle_min) * ray;
+  sensor_msgs::LaserScan::_ranges_type laser_ranges = laser->ranges;
+  if (laser_ray == 0.0)
+    laser_ray = (laser->angle_max - laser->angle_min)
+        / (double) laser_ranges.size();
+  this->laser_ranges = laser_ranges;
+  int range_right_min = (ANGLE_RIGHT_MIN - laser->angle_min) / laser_ray;
+  int range_right_max = (ANGLE_RIGHT_MAX - laser->angle_min) / laser_ray;
+  int range_in_front_min = (ANGLE_IN_FRONT_MIN - laser->angle_min) / laser_ray;
+  int range_in_front_max = (ANGLE_IN_FRONT_MAX - laser->angle_min) / laser_ray;
+  int range_left_min = (ANGLE_LEFT_MIN - laser->angle_min) / laser_ray;
+  int range_left_max = (ANGLE_LEFT_MAX - laser->angle_min) / laser_ray;
 
+  // Detect obstacle
   if (laser->angle_min <= ANGLE_RIGHT_MAX
       && laser->angle_max >= ANGLE_RIGHT_MIN) {
     int count = 0;
     range_right_min = range_right_min >= 0 ? range_right_min : 0;
     range_right_max =
-        range_right_max <= laser->ranges.size() ?
-            range_right_max : laser->ranges.size();
+        range_right_max <= laser_ranges.size() ?
+            range_right_max : laser_ranges.size();
     for (int i = range_right_min; i <= range_right_max - 1; i++) {
-      if (laser->ranges[i] <= AUGMENTED * laser_range)
+      if (laser_ranges[i] <= augmentation_factor_range * laser_range)
         count++;
     }
     obstacles[AT_RIGHT_SIDE] = (count
-        >= (range_right_max - range_right_min) * THRESHOLD_COUNT);
+        >= (range_right_max - range_right_min) * PROPORTION_RANGES_COUNT);
   }
   if (laser->angle_min <= ANGLE_IN_FRONT_MAX
       && laser->angle_max >= ANGLE_IN_FRONT_MIN) {
     int count = 0;
     range_in_front_min = range_in_front_min >= 0 ? range_in_front_min : 0;
     range_in_front_max =
-        range_in_front_max <= laser->ranges.size() ?
-            range_in_front_max : laser->ranges.size();
+        range_in_front_max <= laser_ranges.size() ?
+            range_in_front_max : laser_ranges.size();
     for (int i = range_in_front_min; i <= range_in_front_max - 1; i++) {
-      if (laser->ranges[i] <= AUGMENTED * laser_range)
+      if (laser_ranges[i] <= augmentation_factor_range * laser_range)
         count++;
     }
     obstacles[IN_FRONT] = (count
-        >= (range_in_front_max - range_in_front_min) * THRESHOLD_COUNT);
+        >= (range_in_front_max - range_in_front_min) * PROPORTION_RANGES_COUNT);
   }
   if (laser->angle_min <= ANGLE_LEFT_MAX
       && laser->angle_max >= ANGLE_LEFT_MIN) {
     int count = 0;
     range_left_min = range_left_min >= 0 ? range_left_min : 0;
     range_left_max =
-        range_left_max <= laser->ranges.size() ?
-            range_left_max : laser->ranges.size();
+        range_left_max <= laser_ranges.size() ?
+            range_left_max : laser_ranges.size();
     for (int i = range_left_min; i <= range_left_max - 1; i++) {
-      if (laser->ranges[i] <= AUGMENTED * laser_range)
+      if (laser_ranges[i] <= augmentation_factor_range * laser_range)
         count++;
     }
     obstacles[AT_LEFT_SIDE] = (count
-        >= (range_left_max - range_left_min) * THRESHOLD_COUNT);
+        >= (range_left_max - range_left_min) * PROPORTION_RANGES_COUNT);
   }
 
   if (is_logging) {
-    std::string obs = "";
+    std::string ori;
     if (obstacles[AT_RIGHT_SIDE])
-      obs += "Right,";
+      ori += "Right,";
     if (obstacles[IN_FRONT])
-      obs += "Ahead,";
+      ori += "Front,";
     if (obstacles[AT_LEFT_SIDE])
-      obs += "Left,";
-    if (obs.length() > 0)
-      obs = obs.substr(0, obs.length() - 1);
-    ROS_WARN_STREAM("[Laser]: Obs(" << obs << ")");
+      ori += "Left,";
+    if (ori.length() > 0)
+      ori = ori.substr(0, ori.length() - 1);
+    std::string mov;
+    if (obstacle_movement == LEAVING)
+      mov += " LEAVING";
+    else if (obstacle_movement == COMING)
+      mov += " COMING";
+    ROS_WARN_STREAM("[Laser]: Obs(" << ori << ")" << mov);
   }
 }
 
