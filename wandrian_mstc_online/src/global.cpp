@@ -18,9 +18,9 @@ namespace wandrian {
 
 GlobalPtr Global::instance;
 
-Global::Global() {
-  robot_size = 0.5;
-}
+//Global::Global() {
+//  robot_size = 0.5;
+//}
 
 Global::~Global() {
 }
@@ -29,6 +29,22 @@ GlobalPtr Global::get_instance() {
   if (instance == NULL)
     instance = GlobalPtr(new Global());
   return instance;
+}
+
+const std::string& Global::get_robot_name() const {
+  return robot_name;
+}
+
+void Global::set_robot_name(const std::string& robotName) {
+  robot_name = robotName;
+}
+
+double Global::get_robot_size() const {
+  return robot_size;
+}
+
+void Global::set_robot_size(double robotSize) {
+  robot_size = robotSize;
 }
 
 void Global::write_message(std::string message) {
@@ -68,11 +84,11 @@ std::string Global::create_message_from_old_cells() {
   std::string msg;
   std::set<CellPtr, CellComp> temp_old_cells = this->old_cells;
   // for (int i = 0; i <= temp_old_cells.size(); i++) {
-  while (temp_old_cells.size() != 0){
+  while (temp_old_cells.size() != 0) {
     CellPtr temp_cell = *temp_old_cells.begin();
     std::stringstream tmp;
-    tmp << temp_cell->get_center()->x << ","
-        << temp_cell->get_center()->y << ";";
+    tmp << temp_cell->get_center()->x << "," << temp_cell->get_center()->y
+        << get_robot_name() << ";";
     msg.append(tmp.str());
     temp_old_cells.erase(temp_cell);
   }

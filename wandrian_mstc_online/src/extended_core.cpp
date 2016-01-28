@@ -38,6 +38,9 @@ bool ExtendedCore::initialize() {
   nh.getParam("robot_size", robot_size);
   nh.getParam("robot_name", robot_name);
 
+  Global::get_instance()->set_robot_size(robot_size);
+  Global::get_instance()->set_robot_name(robot_name);
+
   nh.getParam("linear_velocity_step", linear_velocity_step);
   nh.getParam("linear_velocity_max", linear_velocity_max);
   nh.getParam("angular_velocity_step", angular_velocity_step);

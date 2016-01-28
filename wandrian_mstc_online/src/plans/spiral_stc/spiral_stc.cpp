@@ -104,23 +104,44 @@ void SpiralStc::scan(CellPtr current) {
 
     if (state_of(neighbor) == OLD) { // Old cell
       // Go to next sub-cell
+
+      Global::get_instance()->read_message();
+            Global::get_instance()->old_cells.insert(neighbor);
+
+            std::string message = Global::get_instance()->create_message_from_old_cells();
+            Global::get_instance()->write_message(message);
+
       go_with(++orientation, robot_size);
       continue;
     }
     if (see_obstacle(orientation, robot_size / 2)) { // Obstacle
       // Go to next sub-cell
+
+      Global::get_instance()->read_message();
+            Global::get_instance()->old_cells.insert(neighbor);
+
+            std::string message = Global::get_instance()->create_message_from_old_cells();
+            Global::get_instance()->write_message(message);
+
       go_with(++orientation, robot_size);
     } else { // New free neighbor
       std::cout << "\n";
       // Construct a spanning-tree edge
       neighbor->set_parent(current);
-      go_with(orientation++, robot_size);
 
       Global::get_instance()->read_message();
-      Global::get_instance()->old_cells.insert(neighbor);
+            Global::get_instance()->old_cells.insert(neighbor);
 
-      std::string message = Global::get_instance()->create_message_from_old_cells();
-      Global::get_instance()->write_message(message);
+            std::string message = Global::get_instance()->create_message_from_old_cells();
+            Global::get_instance()->write_message(message);
+
+      go_with(orientation++, robot_size);
+
+//      Global::get_instance()->read_message_for_old_cells();
+//      Global::get_instance()->old_cells.insert(neighbor);
+//
+//      std::string message = Global::get_instance()->create_message_from_old_cells();
+//      Global::get_instance()->write_message_for_old_cells(message);
 
       scan(neighbor);
     }

@@ -23,7 +23,6 @@ public:
   Global();
   ~Global();
   std::set<CellPtr, CellComp> old_cells;
-  double robot_size;
 
   void write_message(std::string);
   void read_message();
@@ -31,8 +30,17 @@ public:
   void update_old_cells_from_message(std::string);
   static boost::shared_ptr<Global> get_instance();
 
+  const std::string& get_robot_name() const;
+  void set_robot_name(const std::string&);
+
+  double get_robot_size() const;
+  void set_robot_size(double);
+
 private:
   static boost::shared_ptr<Global> instance;
+  std::string robot_name;
+  double robot_size;
+  std::string message;
 };
 
 typedef boost::shared_ptr<Global> GlobalPtr;
