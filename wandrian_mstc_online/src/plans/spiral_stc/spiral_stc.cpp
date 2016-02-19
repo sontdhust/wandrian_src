@@ -7,6 +7,7 @@
 
 #include "../../../include/plans/spiral_stc/spiral_stc.hpp"
 #include "../../../include/global.hpp"
+#include <algorithm>
 
 namespace wandrian {
 namespace plans {
@@ -20,7 +21,7 @@ SpiralStc::~SpiralStc() {
 }
 
 void SpiralStc::initialize(PointPtr starting_point, double robot_size) {
-  Global::get_instance()->robot_size = robot_size;
+  Global::get_instance()->set_robot_size(robot_size);
   this->robot_size = robot_size;
   // Initialize starting_cell
   starting_cell = CellPtr(
@@ -39,10 +40,13 @@ void SpiralStc::initialize(PointPtr starting_point, double robot_size) {
 }
 
 void SpiralStc::cover() {
-  Global::get_instance()->old_cells.insert(starting_cell);
+//  Global::get_instance()->old_cells.insert(starting_cell);
+  Global::get_instance()->insert_my_moved_cell_to_list(starting_cell);
 
   Global::get_instance()->read_message();
-  std::string message = Global::get_instance()->create_message_from_old_cells();
+//  std::string message = Global::get_instance()->create_message_from_old_cells();
+  std::string message =
+      Global::get_instance()->create_message_from_list_old_cells();
   Global::get_instance()->write_message(message);
 
   scan(starting_cell);
@@ -73,9 +77,11 @@ bool SpiralStc::see_obstacle(VectorPtr orientation, double distance) {
 }
 
 State SpiralStc::state_of(CellPtr cell) {
-  State state =
-      (Global::get_instance()->old_cells.find(cell)
-          != Global::get_instance()->old_cells.end()) ? OLD : NEW;
+//  State state =
+//      (Global::get_instance()->old_cells.find(cell)
+//          != Global::get_instance()->old_cells.end()) ? OLD : NEW;
+  State state = (Global::get_instance()->find_cell_in_list(cell)) ? OLD : NEW;
+
   if (state == OLD)
     std::cout << " \033[1;45m(OLD)\033[0m\n";
   return state;
@@ -106,10 +112,14 @@ void SpiralStc::scan(CellPtr current) {
       // Go to next sub-cell
 
       Global::get_instance()->read_message();
-            Global::get_instance()->old_cells.insert(neighbor);
+//      Global::get_instance()->old_cells.insert(neighbor);
+      Global::get_instance()->insert_my_moved_cell_to_list(neighbor);
 
-            std::string message = Global::get_instance()->create_message_from_old_cells();
-            Global::get_instance()->write_message(message);
+//      std::string message =
+//          Global::get_instance()->create_message_from_old_cells();
+      std::string message =
+                      Global::get_instance()->create_message_from_list_old_cells();
+      Global::get_instance()->write_message(message);
 
       go_with(++orientation, robot_size);
       continue;
@@ -118,10 +128,14 @@ void SpiralStc::scan(CellPtr current) {
       // Go to next sub-cell
 
       Global::get_instance()->read_message();
-            Global::get_instance()->old_cells.insert(neighbor);
+//      Global::get_instance()->old_cells.insert(neighbor);
+      Global::get_instance()->insert_my_moved_cell_to_list(neighbor);
 
-            std::string message = Global::get_instance()->create_message_from_old_cells();
-            Global::get_instance()->write_message(message);
+//      std::string message =
+//          Global::get_instance()->create_message_from_old_cells();
+      std::string message =
+                Global::get_instance()->create_message_from_list_old_cells();
+      Global::get_instance()->write_message(message);
 
       go_with(++orientation, robot_size);
     } else { // New free neighbor
@@ -130,10 +144,14 @@ void SpiralStc::scan(CellPtr current) {
       neighbor->set_parent(current);
 
       Global::get_instance()->read_message();
-            Global::get_instance()->old_cells.insert(neighbor);
+//      Global::get_instance()->old_cells.insert(neighbor);
+      Global::get_instance()->insert_my_moved_cell_to_list(neighbor);
 
-            std::string message = Global::get_instance()->create_message_from_old_cells();
-            Global::get_instance()->write_message(message);
+//      std::string message =
+//          Global::get_instance()->create_message_from_old_cells();
+      std::string message =
+                      Global::get_instance()->create_message_from_list_old_cells();
+      Global::get_instance()->write_message(message);
 
       go_with(orientation++, robot_size);
 

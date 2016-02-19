@@ -9,7 +9,7 @@
         <ray>
           <scan>
             <horizontal>
-              <samples>27</samples>
+              <samples>512</samples>
               <resolution>1</resolution>
               <min_angle>${-M_PI*2/3}</min_angle>
               <max_angle>${M_PI*2/3}</max_angle>
