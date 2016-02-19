@@ -2,7 +2,7 @@
  * core.hpp
  *
  *  Created on: Jul 31, 2015
- *      Author: sontd
+ *      Author: anhnt
  */
 
 #ifndef WANDRIAN_RUN_INCLUDE_CORE_HPP_

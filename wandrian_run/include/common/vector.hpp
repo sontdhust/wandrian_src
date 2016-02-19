@@ -2,7 +2,7 @@
  * vector.hpp
  *
  *  Created on: Sep 16, 2015
- *      Author: sontd
+ *      Author: anhnt
  */
 
 #ifndef WANDRIAN_RUN_INCLUDE_COMMON_VECTOR_HPP_

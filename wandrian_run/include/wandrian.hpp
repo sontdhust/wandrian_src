@@ -2,7 +2,7 @@
  * wandrian.hpp
  *
  *  Created on: Sep 23, 2015
- *      Author: sontd
+ *      Author: anhnt
  */
 
 #ifndef WANDRIAN_RUN_INCLUDE_WANDRIAN_HPP_

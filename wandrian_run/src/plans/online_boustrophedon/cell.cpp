@@ -2,7 +2,7 @@
  * square.cpp
  *
  *  Created on: Sep 15, 2015
- *      Author: sontd
+ *      Author: anhnt
  */
 
 #include "../../../include/plans/online_boustrophedon/cell.hpp"

@@ -2,7 +2,7 @@
  * environment.cpp
  *
  *  Created on: Jul 28, 2015
- *      Author: sontd
+ *      Author: anhnt
  */
 
 #include "../../include/common/environment.hpp"

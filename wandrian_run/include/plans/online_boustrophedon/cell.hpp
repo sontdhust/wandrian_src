@@ -2,7 +2,7 @@
  * square.hpp
  *
  *  Created on: Sep 15, 2015
- *      Author: sontd
+ *      Author: anhnt
  */
 
 #ifndef WANDRIAN_RUN_INCLUDE_PLANS_ONLINE_BOUSTROPHEDON_CELL_HPP_

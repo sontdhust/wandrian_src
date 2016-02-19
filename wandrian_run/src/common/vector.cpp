@@ -2,7 +2,7 @@
  * vector.cpp
  *
  *  Created on: Sep 16, 2015
- *      Author: sontd
+ *      Author: anhnt
  */
 
 #include "../../include/common/vector.hpp"

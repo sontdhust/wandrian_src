@@ -2,7 +2,7 @@
  * base_plan.hpp
  *
  *  Created on: Sep 24, 2015
- *      Author: sontd
+ *      Author: anhnt
  */
 
 #ifndef WANDRIAN_RUN_INCLUDE_PLANS_BASE_PLAN_HPP_

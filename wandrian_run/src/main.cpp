@@ -2,7 +2,7 @@
  * main.cpp
  *
  *  Created on: Jul 31, 2015
- *      Author: sontd
+ *      Author: anhnt
  */
 
 #include "../include/wandrian.hpp"

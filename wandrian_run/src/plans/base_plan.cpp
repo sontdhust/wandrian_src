@@ -2,7 +2,7 @@
  * base_plan.cpp
  *
  *  Created on: Sep 24, 2015
- *      Author: sontd
+ *      Author: anhnt
  */
 
 #include "../../include/plans/base_plan.hpp"

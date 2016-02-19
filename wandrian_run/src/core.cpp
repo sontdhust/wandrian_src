@@ -2,7 +2,7 @@
  * core.cpp
  *
  *  Created on: Jul 31, 2015
- *      Author: sontd
+ *      Author: anhnt
  */
 
 #include <kobuki_msgs/MotorPower.h>
@@ -329,7 +329,7 @@ void Core::subscribe_laser(const sensor_msgs::LaserScanConstPtr& laser) {
       count++;
   }
   obstacles[IN_FRONT] = (count
-      >= (range_size - range_right_size - range_left_size) * THRESHOLD_COUNT);
+      >= (range_size - range_right_size - range_left_size) * THRESHOLD_COUNT*0.9);
 
   count = 0;
   for (int i = range_size - range_left_size; i <= range_size - 1; i++) {
