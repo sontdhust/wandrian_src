@@ -220,6 +220,7 @@ void ExtendedCore::start_thread_keyboard() {
   puts("l: Toggle logging.");
   puts("i: Get information");
   puts("r: Start running.");
+  puts("c: Clear ros bag.");
   puts("q: Quit.");
   char c;
   while (!is_quitting) {
@@ -275,8 +276,12 @@ void ExtendedCore::process_keyboard_input(char c) {
     ROS_INFO_STREAM("[Run]: " << "Start running");
     thread_run.start(&ExtendedCore::start_thread_run, *this);
     break;
-  case 'q':
+  case 'c':
     Global::get_instance()->write_message("");
+    Global::get_instance()->write_status("");
+    break;
+  case 'q':
+//    Global::get_instance()->write_message("", "");
     is_quitting = true;
     break;
   default:

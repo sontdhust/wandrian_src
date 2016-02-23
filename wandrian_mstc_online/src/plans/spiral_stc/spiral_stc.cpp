@@ -47,8 +47,10 @@ void SpiralStc::cover() {
       Global::get_instance()->create_message_from_list_old_cells();
 //  Global::get_instance()->read_message();
 //  std::string message = Global::get_instance()->create_message_from_old_cells();
+  std::string status = Global::get_instance()->create_status_message(
+      starting_cell);
   Global::get_instance()->write_message(message);
-
+  Global::get_instance()->write_status(status);
   scan(starting_cell);
 }
 
@@ -89,6 +91,10 @@ State SpiralStc::state_of(CellPtr cell) {
 
 void SpiralStc::scan(CellPtr current) {
 //  Global::get_instance()->read_message();
+  std::string status;
+  status = Global::get_instance()->create_status_message(current);
+  Global::get_instance()->write_status(status);
+
   Global::get_instance()->read_message_with_list_data();
 
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;32mBEGIN:\033[0m "
@@ -112,34 +118,68 @@ void SpiralStc::scan(CellPtr current) {
 
     if (state_of(neighbor) == OLD) { // Old cell
       // Go to next sub-cell
+      if (Global::get_instance()->ask_other_robot_still_alive(
+          Global::get_instance()->find_robot_name(neighbor))) {
+        // Still alive
+//        Global::get_instance()->read_message_with_list_data();
+//        //      Global::get_instance()->read_message();
+//        //      Global::get_instance()->old_cells.insert(neighbor);
+//        Global::get_instance()->insert_my_moved_cell_to_list(neighbor);
+//
+//        //      std::string message =
+//        //          Global::get_instance()->create_message_from_old_cells();
+//        std::string message =
+//            Global::get_instance()->create_message_from_list_old_cells();
+//
+//        Global::get_instance()->write_message(message);
 
-      Global::get_instance()->read_message_with_list_data();
-//      Global::get_instance()->read_message();
-//      Global::get_instance()->old_cells.insert(neighbor);
-      Global::get_instance()->insert_my_moved_cell_to_list(neighbor);
+        go_with(++orientation, robot_size);
+        continue;
+      } else {
+        std::cout << "\n";
+        // Construct a spanning-tree edge
+        neighbor->set_parent(current);
 
-//      std::string message =
-//          Global::get_instance()->create_message_from_old_cells();
-      std::string message =
-                      Global::get_instance()->create_message_from_list_old_cells();
-      Global::get_instance()->write_message(message);
+        Global::get_instance()->read_message_with_list_data();
+        //      Global::get_instance()->read_message();
+        //      Global::get_instance()->old_cells.insert(neighbor);
 
-      go_with(++orientation, robot_size);
-      continue;
+        Global::get_instance()->insert_my_moved_cell_to_list(neighbor);
+
+        //      std::string message =
+        //          Global::get_instance()->create_message_from_old_cells();
+        std::string message =
+            Global::get_instance()->create_message_from_list_old_cells();
+//        status = Global::get_instance()->create_status_message(current);
+        Global::get_instance()->write_message(message);
+
+        go_with(orientation++, robot_size);
+
+        //      Global::get_instance()->read_message_for_old_cells();
+        //      Global::get_instance()->old_cells.insert(neighbor);
+        //
+        //      std::string message = Global::get_instance()->create_message_from_old_cells();
+        //      Global::get_instance()->write_message_for_old_cells(message);
+
+        scan(neighbor);
+        continue;
+      }
+
     }
     if (see_obstacle(orientation, robot_size / 2)) { // Obstacle
       // Go to next sub-cell
 
-      Global::get_instance()->read_message_with_list_data();
-//      Global::get_instance()->read_message();
-//      Global::get_instance()->old_cells.insert(neighbor);
-      Global::get_instance()->insert_my_moved_cell_to_list(neighbor);
-
+//      Global::get_instance()->read_message_with_list_data();
+////      Global::get_instance()->read_message();
+////      Global::get_instance()->old_cells.insert(neighbor);
+//      Global::get_instance()->insert_my_moved_cell_to_list(neighbor);
+//
+////      std::string message =
+////          Global::get_instance()->create_message_from_old_cells();
 //      std::string message =
-//          Global::get_instance()->create_message_from_old_cells();
-      std::string message =
-                Global::get_instance()->create_message_from_list_old_cells();
-      Global::get_instance()->write_message(message);
+//          Global::get_instance()->create_message_from_list_old_cells();
+//      status = Global::get_instance()->create_status_message(current);
+//      Global::get_instance()->write_message(message, status);
 
       go_with(++orientation, robot_size);
     } else { // New free neighbor
@@ -155,7 +195,8 @@ void SpiralStc::scan(CellPtr current) {
 //      std::string message =
 //          Global::get_instance()->create_message_from_old_cells();
       std::string message =
-                      Global::get_instance()->create_message_from_list_old_cells();
+          Global::get_instance()->create_message_from_list_old_cells();
+//      status = Global::get_instance()->create_status_message(current);
       Global::get_instance()->write_message(message);
 
       go_with(orientation++, robot_size);

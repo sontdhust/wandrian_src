@@ -24,21 +24,30 @@ class Global {
 public:
   Global();
   ~Global();
-  std::set<CellPtr, CellComp> old_cells;                        //old cells with set
-  std::list<CellInOldCells> list_old_cells;  //old cells with list
+  std::set<CellPtr, CellComp> old_cells;                   // Old cells with set
+  std::list<CellInOldCells> list_old_cells;               // Old cells with list
 
   static boost::shared_ptr<Global> get_instance();
 
-  void write_message(std::string);
+  void write_message(std::string); // Write old cells
+  void write_status(std::string);
 //  void read_message();
-  void read_message_with_set_data();
-  void read_message_with_list_data();
+  void read_message_with_set_data(); // Read old cells data, update to local old cells
+  void read_message_with_list_data(); // Read old cells data, update to local old cells
+  std::string read_message_with_set_data_no_update(); // Read old cells data, no update to local old cells
+  std::string read_message_with_list_data_no_update(); // Read old cells data, no update to local old cells
 
   const std::string& get_robot_name() const;
   void set_robot_name(const std::string&);
 
   double get_robot_size() const;
   void set_robot_size(double);
+
+  std::string read_status_from_ros_bag();       // Read status data from ros bag
+  bool ask_other_robot_still_alive(std::string);
+  std::string create_status_message(CellPtr); // robot_name, last x, last y, last time update, status
+  void clear_robots_dead_old_cells(std::string, std::string, std::string);
+  std::string find_robot_name(CellPtr);
 
 //BEGIN OLD CELLS WITH SET
   std::string create_message_from_old_cells();
