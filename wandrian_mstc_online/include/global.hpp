@@ -30,7 +30,9 @@ public:
   static boost::shared_ptr<Global> get_instance();
 
   void write_message(std::string);
-  void read_message();
+//  void read_message();
+  void read_message_with_set_data();
+  void read_message_with_list_data();
 
   const std::string& get_robot_name() const;
   void set_robot_name(const std::string&);

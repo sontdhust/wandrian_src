@@ -41,12 +41,12 @@ void SpiralStc::initialize(PointPtr starting_point, double robot_size) {
 
 void SpiralStc::cover() {
 //  Global::get_instance()->old_cells.insert(starting_cell);
+  Global::get_instance()->read_message_with_list_data();
   Global::get_instance()->insert_my_moved_cell_to_list(starting_cell);
-
-  Global::get_instance()->read_message();
-//  std::string message = Global::get_instance()->create_message_from_old_cells();
   std::string message =
       Global::get_instance()->create_message_from_list_old_cells();
+//  Global::get_instance()->read_message();
+//  std::string message = Global::get_instance()->create_message_from_old_cells();
   Global::get_instance()->write_message(message);
 
   scan(starting_cell);
@@ -88,7 +88,8 @@ State SpiralStc::state_of(CellPtr cell) {
 }
 
 void SpiralStc::scan(CellPtr current) {
-  Global::get_instance()->read_message();
+//  Global::get_instance()->read_message();
+  Global::get_instance()->read_message_with_list_data();
 
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;32mBEGIN:\033[0m "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
@@ -106,12 +107,14 @@ void SpiralStc::scan(CellPtr current) {
     std::cout << "  \033[1;33mneighbor:\033[0m " << neighbor->get_center()->x
         << "," << neighbor->get_center()->y;
 
-    Global::get_instance()->read_message();
+//    Global::get_instance()->read_message();
+    Global::get_instance()->read_message_with_list_data();
 
     if (state_of(neighbor) == OLD) { // Old cell
       // Go to next sub-cell
 
-      Global::get_instance()->read_message();
+      Global::get_instance()->read_message_with_list_data();
+//      Global::get_instance()->read_message();
 //      Global::get_instance()->old_cells.insert(neighbor);
       Global::get_instance()->insert_my_moved_cell_to_list(neighbor);
 
@@ -127,7 +130,8 @@ void SpiralStc::scan(CellPtr current) {
     if (see_obstacle(orientation, robot_size / 2)) { // Obstacle
       // Go to next sub-cell
 
-      Global::get_instance()->read_message();
+      Global::get_instance()->read_message_with_list_data();
+//      Global::get_instance()->read_message();
 //      Global::get_instance()->old_cells.insert(neighbor);
       Global::get_instance()->insert_my_moved_cell_to_list(neighbor);
 
@@ -143,7 +147,8 @@ void SpiralStc::scan(CellPtr current) {
       // Construct a spanning-tree edge
       neighbor->set_parent(current);
 
-      Global::get_instance()->read_message();
+      Global::get_instance()->read_message_with_list_data();
+//      Global::get_instance()->read_message();
 //      Global::get_instance()->old_cells.insert(neighbor);
       Global::get_instance()->insert_my_moved_cell_to_list(neighbor);
 

@@ -56,7 +56,7 @@ void Global::write_message(std::string message) {
   bag.close();
 }
 
-void Global::read_message() {
+void Global::read_message_with_set_data() {
   rosbag::Bag bag;
   std::string msg;
 
@@ -78,6 +78,52 @@ void Global::read_message() {
   update_old_cells_from_message(msg);
 
 }
+
+void Global::read_message_with_list_data() {
+  rosbag::Bag bag;
+  std::string msg;
+
+  bag.open("message.bag", rosbag::bagmode::Read);
+  std::vector<std::string> topics;
+  topics.push_back(std::string("communication_publisher"));
+
+  rosbag::View view(bag, rosbag::TopicQuery(topics));
+  foreach(rosbag::MessageInstance const m, view) {
+    std_msgs::String::ConstPtr s = m.instantiate<std_msgs::String>();
+    if (s != NULL) {
+//      ROS_INFO("Ros bag old cells: %s", s->data.c_str());
+      msg.append(s->data.c_str());
+    }
+  }
+
+  bag.close();
+  ROS_INFO("[Reading]Ros bag old cells: %s", msg.data());
+  update_list_old_cells_from_message(msg);
+
+}
+
+//void Global::read_message() {
+//  rosbag::Bag bag;
+//  std::string msg;
+//
+//  bag.open("message.bag", rosbag::bagmode::Read);
+//  std::vector<std::string> topics;
+//  topics.push_back(std::string("communication_publisher"));
+//
+//  rosbag::View view(bag, rosbag::TopicQuery(topics));
+//  foreach(rosbag::MessageInstance const m, view) {
+//    std_msgs::String::ConstPtr s = m.instantiate<std_msgs::String>();
+//    if (s != NULL) {
+////      ROS_INFO("Ros bag old cells: %s", s->data.c_str());
+//      msg.append(s->data.c_str());
+//    }
+//  }
+//
+//  bag.close();
+//  ROS_INFO("[Reading]Ros bag old cells: %s", msg.data());
+//  update_old_cells_from_message(msg);
+//
+//}
 
 //BEGIN OLD CELLS WITH SET
 
@@ -173,7 +219,7 @@ bool Global::find_cell_in_list(CellPtr cell){
   bool value = false;
   for (std::list<CellInOldCells>::iterator item =
         list_old_cells.begin(); item != list_old_cells.end(); ++item) {
-    if((*item).get_moved_cell()==cell){
+    if(((*item).get_moved_cell()->get_center()->x == cell->get_center()->x)&&((*item).get_moved_cell()->get_center()->y == cell->get_center()->y)){
       value = true;
       break;
     }
