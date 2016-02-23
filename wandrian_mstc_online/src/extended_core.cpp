@@ -41,6 +41,10 @@ bool ExtendedCore::initialize() {
   Global::get_instance()->set_robot_size(robot_size);
   Global::get_instance()->set_robot_name(robot_name);
 
+  std::cout << "1. My name is " << Global::get_instance()->get_robot_name();
+  std::cout << "2. My name is " << robot_name;
+  std::cout << "3. Other information: " << plan_name << starting_point_x << starting_point_y << robot_size;
+
   nh.getParam("linear_velocity_step", linear_velocity_step);
   nh.getParam("linear_velocity_max", linear_velocity_max);
   nh.getParam("angular_velocity_step", angular_velocity_step);

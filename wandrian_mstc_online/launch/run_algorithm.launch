@@ -13,6 +13,7 @@
     <remap from="$(arg robot_name)_algorithm/laser" to="$(arg robot_name)/scan"/>
 
     <param name="plan_name" value="$(arg plan_name)" type="string"/>
+    <param name="robot_name" value="$(arg robot_name)" type="string"/>
     <param name="starting_point_x" value="$(arg starting_point_x)" type="double"/>
     <param name="starting_point_y" value="$(arg starting_point_y)" type="double"/>
     <param name="robot_size" value="$(arg robot_size)" type="double"/>

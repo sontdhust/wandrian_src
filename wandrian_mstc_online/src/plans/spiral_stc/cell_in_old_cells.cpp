@@ -11,11 +11,12 @@ namespace spiral_stc {
 
 //CellInOldCells::CellInOldCells(){
 //}
-CellInOldCells::CellInOldCells(CellPtr moved_cell, std::string robot_name)
-{
+CellInOldCells::CellInOldCells(CellPtr moved_cell, std::string robot_name) :
+    Cell(moved_cell->get_center(), moved_cell->get_size()) {
   CellInOldCells::moved_cell = moved_cell;
   CellInOldCells::robot_name = robot_name;
 }
+
 CellInOldCells::~CellInOldCells() {
 }
 
