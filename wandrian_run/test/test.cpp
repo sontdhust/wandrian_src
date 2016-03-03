@@ -174,6 +174,7 @@ int main(int argc, char **argv) {
               - (int) (e_size / R_SIZE / 4.0)) + R_SIZE - R_SIZE / 2));
 
   int r = std::rand() % (int) (e_size * e_size / 16) + e_size * e_size / 8;
+
   for (int i = 0; i <= r; i++) {
     PointPtr center = PointPtr(
         new Point(
@@ -182,6 +183,7 @@ int main(int argc, char **argv) {
             (std::rand() % (int) (e_size / R_SIZE / 2.0)
                 - (int) (e_size / R_SIZE / 4.0)) + R_SIZE));
     bool valid = true;
+    
     for (std::list<PolygonPtr>::iterator p = obstacles.begin();
         p != obstacles.end(); p++)
       if (*((boost::static_pointer_cast<Cell>(*p))->get_center()) == *center
@@ -295,6 +297,7 @@ int main(int argc, char **argv) {
       }
     }
   }
+
   world_in.close();
   world_out.close();
 
@@ -306,7 +309,6 @@ int main(int argc, char **argv) {
   spiral_stc->set_behavior_see_obstacle(
       boost::bind(&test_see_obstacle, _1, _2));
   spiral_stc->cover();
-
   run(argc, argv);
   return 0;
 }

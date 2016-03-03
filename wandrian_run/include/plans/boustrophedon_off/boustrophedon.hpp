@@ -11,8 +11,10 @@
 #include "../../common/environment.hpp"
 #include "../base_plan.hpp"
 #include "cell.hpp"
+#include "obstacle.hpp"
+#include "space.hpp"
 #include "ros/ros.h"
-
+#include <list>
 using namespace wandrian::common;
 
 namespace wandrian {
@@ -26,15 +28,17 @@ public:
   Boustrophedon();
   ~Boustrophedon();
   
-  void initialize(PointPtr, double, double);
+  void initialize(PointPtr, double);
 
   void cover();
 
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
   
+  void dfs(SpacePtr space);
   
 protected:
   bool go_to(PointPtr, bool);
+  bool go_go(SpacePtr);
 
 private:
   CellPtr starting_cell;
@@ -47,7 +51,7 @@ private:
   bool see_obstacle(VectorPtr, double);
   bool go_with(VectorPtr, double);
 
-  void boustrophedon_cd(CellPtr);
+  void boustrophedon_cd();
   bool check(CellPtr);
 };
 

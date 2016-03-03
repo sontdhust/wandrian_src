@@ -39,7 +39,6 @@ void Cell::set_parent(CellPtr parent) {
 CellPtr Cell::get_parent() {
   return parent;
 }
-
 }
 }
 }

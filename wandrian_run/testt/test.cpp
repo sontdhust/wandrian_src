@@ -17,7 +17,7 @@
 #include "../include/plans/boustrophedon_off/boustrophedon.hpp"
 
 #define R_SIZE 0.5 // robot size
-#define E_SIZE 4.0 // default environment size
+#define E_SIZE 6.0 // default environment size
 #define WORLD_INSERT_OBSTACLE "<!-- INSERT: Bound and Obstacles here -->" // flag at original world file to insert bound and obstacles into
 
 using namespace wandrian::plans::boustrophedon_off;
@@ -101,7 +101,7 @@ void display() {
   glEnd();
 
 
- 
+
 
   // Boustrophedon covering path
   glColor3ub(0, 255, 0);
@@ -181,16 +181,18 @@ int main(int argc, char **argv) {
 
 
   starting_point = PointPtr(
-      new Point((e_size - R_SIZE) / 2, -(e_size - R_SIZE) / 2));
+      new Point(-(e_size - R_SIZE) / 2, -(e_size - R_SIZE) / 2));
 
   int r = std::rand() % (int) (e_size * e_size / 16) + e_size * e_size / 8;
 
-  obstacles.insert(obstacles.end(), CellPtr(new Cell(PointPtr(new Point(0, 0)), 2*R_SIZE)));
-  //obstacles.insert(obstacles.end(), CellPtr(new Cell(PointPtr(new Point(0, 2)), 4*R_SIZE)));
+  obstacles.insert(obstacles.end(), CellPtr(new Cell(PointPtr(new Point(-1.5, 0.5)), 2*R_SIZE)));
+  obstacles.insert(obstacles.end(), CellPtr(new Cell(PointPtr(new Point(-1.5, -0.5)), 2*R_SIZE)));
+  obstacles.insert(obstacles.end(), CellPtr(new Cell(PointPtr(new Point(2, -2)), 4*R_SIZE)));
 
   std::ifstream world_in("../../worlds/empty.world");
   std::ofstream world_out("../../worlds/tmp.world");
   std::string line;
+
   while (std::getline(world_in, line, '\n')) {
     world_out << line << '\n';
     if (line.find(WORLD_INSERT_OBSTACLE) != std::string::npos) {
@@ -252,37 +254,31 @@ int main(int argc, char **argv) {
         n++;
       }
 
+
       n = 1;
+//      double o_size = 4 * R_SIZE;
       // Obstacles
       for (std::list<PolygonPtr>::iterator o = obstacles.begin();
           o != obstacles.end(); o++) {
-        PointPtr p = (boost::static_pointer_cast<Cell>(*o))->get_center();
+          PointPtr p = (boost::static_pointer_cast<Cell>(*o))->get_center();
+          double s = (boost::static_pointer_cast<Cell>(*o))->get_size();
         int c = 1;
-        for (double i = p->y - R_SIZE * 3 / 4; i <= p->y + R_SIZE * 3 / 4;
-            i += R_SIZE / 2) {
-          world_out << "    <model name='cinder_block_obstacle_" << n << "_"
-              << c << "'>\n";
-          world_out << "      <include>\n";
-          world_out << "        <uri>model://cinder_block</uri>\n";
-          world_out << "      </include>\n";
-          world_out << "      <pose>" << p->x - R_SIZE / 2 << " " << i
-              << " 0 0 0 0</pose>\n";
-          world_out << "      <static>1</static>\n";
-          world_out << "    </model>\n";
-          c++;
-        }
-        for (double i = p->y - R_SIZE * 3 / 4; i <= p->y + R_SIZE * 3 / 4;
-            i += R_SIZE / 2) {
-          world_out << "    <model name='cinder_block_obstacle_" << n << "_"
-              << c << "'>\n";
-          world_out << "      <include>\n";
-          world_out << "        <uri>model://cinder_block</uri>\n";
-          world_out << "      </include>\n";
-          world_out << "      <pose>" << p->x + R_SIZE / 2 << " " << i
-              << " 0 0 0 0</pose>\n";
-          world_out << "      <static>1</static>\n";
-          world_out << "    </model>\n";
-          c++;
+        double x = p->x - R_SIZE * (s / R_SIZE / 2.0 - 1.0 / 2.0);
+        for (int i = 1; i <= (int) (s / R_SIZE); i++) {
+          for (double j = p->y - R_SIZE * (s / R_SIZE / 2.0 - 1.0 / 4.0);
+              j <= p->y + R_SIZE * (s / R_SIZE / 2.0 - 1.0 / 4.0);
+              j += R_SIZE / 2.0) {
+            world_out << "    <model name='cinder_block_obstacle_" << n << "_"
+                << c << "'>\n";
+            world_out << "      <include>\n";
+            world_out << "        <uri>model://cinder_block</uri>\n";
+            world_out << "      </include>\n";
+            world_out << "      <pose>" << x << " " << j << " 0 0 0 0</pose>\n";
+            world_out << "      <static>1</static>\n";
+            world_out << "    </model>\n";
+            c++;
+          }
+          x += R_SIZE;
         }
         n++;
       }
