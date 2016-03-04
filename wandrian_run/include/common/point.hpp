@@ -20,6 +20,7 @@ struct Point {
 
   double x, y;
 
+  Point();
   Point(double, double);
   Point(const Point&);
 };

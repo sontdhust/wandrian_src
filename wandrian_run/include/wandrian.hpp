@@ -8,18 +8,20 @@
 #ifndef WANDRIAN_RUN_INCLUDE_WANDRIAN_HPP_
 #define WANDRIAN_RUN_INCLUDE_WANDRIAN_HPP_
 
-#include "core.hpp"
+#include "robot.hpp"
 
 namespace wandrian {
 
 class Wandrian {
 
 public:
+  Wandrian();
+  ~Wandrian();
   bool initialize();
   void spin();
 
 private:
-  Core core;
+  RobotPtr robot;
 
   // Behaviors
   void wandrian_run();
@@ -30,10 +32,15 @@ private:
 
   // Helpers
   bool go_to(PointPtr, bool);
+  bool see_obstacle(Orientation, double);
   bool rotate_to(PointPtr, bool);
+  bool rotate_to(VectorPtr, bool);
   void go(bool);
   void rotate(bool);
+  void dodge();
 };
+
+typedef boost::shared_ptr<Wandrian> WandrianPtr;
 
 }
 
