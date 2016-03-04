@@ -1,9 +1,0 @@
-<!-- Launches Gazebo simulation: an empty world -->
-<launch>
-  <!-- start Gazebo with an empty world -->
-  <include file="$(find wandrian_keyop)/launch/empty_world.launch">
-    <arg name="use_sim_time" value="true"/>
-    <arg name="debug" value="false"/>
-    <arg name="world_name" value="$(find wandrian_keyop)/worlds/empty.world"/>
-  </include>
-</launch>

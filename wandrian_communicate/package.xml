@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>create_publisher</name>
+  <name>wandrian_communicate</name>
   <version>0.0.0</version>
-  <description>create publisher</description>
+  <description>wandrian communicate</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->

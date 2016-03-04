@@ -21,6 +21,7 @@ GlobalPtr Global::instance;
 Global::Global() {
   robot_size = 0.5;
 }
+
 Global::~Global() {
 }
 
@@ -110,7 +111,7 @@ bool Global::ask_other_robot_still_alive(std::string robot_name_want_ask) {
         read_status_from_ros_bag(), split_status);
     BOOST_FOREACH (const std::string& status, tokens) {
       if (status.find(robot_name_want_ask) != std::string::npos) {
-        //found
+        // Found
         boost::tokenizer<boost::char_separator<char> > tokens(status,
             split_information);
         i = 1;
@@ -155,15 +156,14 @@ bool Global::ask_other_robot_still_alive(std::string robot_name_want_ask) {
               BOOST_FOREACH (const std::string& dead_robot_status, tokens) {
                 if (dead_robot_status.find(robot_name_want_ask)
                     != std::string::npos) {
-                  //found
+                  // Found
                   continue;
                 } else {
-                  //not found
+                  // Not found
                   temp_status.append(dead_robot_status);
                   temp_status.append(";");
                 }
               }
-
               clear_robots_dead_old_cells(robot_name_want_ask, temp_cell,
                   temp_status);
             }
@@ -182,15 +182,14 @@ bool Global::ask_other_robot_still_alive(std::string robot_name_want_ask) {
               BOOST_FOREACH (const std::string& dead_robot_status, tokens) {
                 if (dead_robot_status.find(robot_name_want_ask)
                     != std::string::npos) {
-                  //found
+                  // Found
                   continue;
                 } else {
-                  //not found
+                  // Not found
                   temp_status.append(dead_robot_status);
                   temp_status.append(";");
                 }
               }
-
               clear_robots_dead_old_cells(robot_name_want_ask, temp_cell,
                   temp_status);
             }
@@ -198,7 +197,7 @@ bool Global::ask_other_robot_still_alive(std::string robot_name_want_ask) {
           i++;
         }
       } else {
-        //not found
+        // Not found
       }
     }
   }
@@ -216,10 +215,10 @@ void Global::clear_robots_dead_old_cells(std::string robot_dead_name,
       split_old_cell);
   BOOST_FOREACH (const std::string& cell, tokens) {
     if (cell.find(robot_dead_name) != std::string::npos) {
-      //found
+      // Found
       continue;
     } else {
-      //not found
+      // Not found
       new_old_cells.append(cell);
       new_old_cells.append(";");
     }
@@ -249,11 +248,11 @@ std::string Global::create_status_message(CellPtr last_cell) {
         split_status);
     BOOST_FOREACH (const std::string& status, tokens) {
       if (status.find(get_robot_name()) != std::string::npos) {
-        //found
+        // Found
         all_robots_new_status.append(my_status);
         check_added = true;
       } else {
-        //not found
+        // Not found
         all_robots_new_status.append(status);
         all_robots_new_status.append(";");
       }
@@ -267,19 +266,18 @@ std::string Global::create_status_message(CellPtr last_cell) {
 }
 
 void Global::write_message(std::string message) {
-
-  //Write old cells
+  // Write old cells
   ROS_INFO("[Writing]My old cells: %s", message.data());
   rosbag::Bag bag;
   bag.open("message.bag", rosbag::bagmode::Write);
   std_msgs::String str;
   str.data = message.data();
-  bag.write("communication_publisher", ros::Time::now(), str);
+  bag.write("publisher_communication", ros::Time::now(), str);
   bag.close();
 }
 
 void Global::write_status(std::string status) {
-  //Write status
+  // Write status
   rosbag::Bag status_bag;
   ROS_INFO("[Writing status]Status: %s", status.data());
   status_bag.open("status.bag", rosbag::bagmode::Write);
@@ -295,7 +293,7 @@ std::string Global::read_message_with_set_data_no_update() {
 
   bag.open("message.bag", rosbag::bagmode::Read);
   std::vector<std::string> topics;
-  topics.push_back(std::string("communication_publisher"));
+  topics.push_back(std::string("publisher_communication"));
 
   rosbag::View view(bag, rosbag::TopicQuery(topics));
   foreach(rosbag::MessageInstance const m, view) {
@@ -319,7 +317,7 @@ std::string Global::read_message_with_list_data_no_update() {
 
   bag.open("message.bag", rosbag::bagmode::Read);
   std::vector<std::string> topics;
-  topics.push_back(std::string("communication_publisher"));
+  topics.push_back(std::string("publisher_communication"));
 
   rosbag::View view(bag, rosbag::TopicQuery(topics));
   foreach(rosbag::MessageInstance const m, view) {
@@ -343,7 +341,7 @@ void Global::read_message_with_list_data() {
 //
 //  bag.open("message.bag", rosbag::bagmode::Read);
 //  std::vector<std::string> topics;
-//  topics.push_back(std::string("communication_publisher"));
+//  topics.push_back(std::string("publisher_communication"));
 //
 //  rosbag::View view(bag, rosbag::TopicQuery(topics));
 //  foreach(rosbag::MessageInstance const m, view) {
@@ -360,7 +358,7 @@ void Global::read_message_with_list_data() {
 //
 //}
 
-//BEGIN OLD CELLS WITH SET
+// BEGIN OLD CELLS WITH SET
 
 std::string Global::create_message_from_old_cells() {
   std::string msg;
@@ -402,9 +400,9 @@ void Global::update_old_cells_from_message(std::string msg) {
   ROS_INFO("[Reading]My old cells: %s", create_message_from_old_cells().data());
 }
 
-//END OLD CELLS WITH SET
+// END OLD CELLS WITH SET
 
-//BEGIN OLD CELLS WITH LIST
+// BEGIN OLD CELLS WITH LIST
 
 std::string Global::create_message_from_list_old_cells() {
   std::string msg;
@@ -470,6 +468,6 @@ void Global::insert_my_moved_cell_to_list(CellPtr cell) {
   list_old_cells.push_back(CellInOldCells(cell, get_robot_name()));
 }
 
-//END OLD CELLS WITH LIST
+// END OLD CELLS WITH LIST
 
 }

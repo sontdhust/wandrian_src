@@ -40,6 +40,6 @@ Change to catkin root directory then run:
 
     $ roslaunch wandrian_mstc_online environment.launch world_file:=tmp
     $ roslaunch wandrian_mstc_online add_2_robots.launch starting_point_x_robot1:=0.75 starting_point_y_robot1:=0.25 starting_point_x_robot2:=1.75 starting_point_y_robot2:=-1.75
-    $ rosrun create_publisher communicate
+    $ rosrun wandrian_communicate communicate
     $ roslaunch wandrian_mstc_online run_algorithm.launch plan_name:=spiral_stc robot_size:=0.5 robot_name:=robot1 starting_point_x:=0.75 starting_point_y:=0.25
     $ roslaunch wandrian_mstc_online run_algorithm.launch plan_name:=spiral_stc robot_size:=0.5 robot_name:=robot2 starting_point_x:=1.75 starting_point_y:=-1.75
