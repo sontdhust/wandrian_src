@@ -8,9 +8,9 @@
 #ifndef WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_SPIRAL_STC_HPP_
 #define WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_SPIRAL_STC_HPP_
 
-#include "../../common/environment.hpp"
 #include "../base_plan.hpp"
 #include "cell.hpp"
+#include "../../common/vector.hpp"
 
 using namespace wandrian::common;
 
@@ -23,24 +23,25 @@ class SpiralStc: public BasePlan {
 public:
   SpiralStc();
   ~SpiralStc();
-  void initialize(PointPtr, double);
-  void cover();
+  virtual void initialize(PointPtr, double);
+  virtual void cover();
 
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
 
 protected:
+  std::set<CellPtr, CellComp> old_cells;
+  double tool_size; // = 'cell size' / 2
+
   bool go_to(PointPtr, bool);
+  bool see_obstacle(VectorPtr, double);
+  virtual State state_of(CellPtr);
+  virtual void scan(CellPtr);
 
 private:
   CellPtr starting_cell;
-  double robot_size; // = 'cell size' / 2
   boost::function<bool(VectorPtr, double)> behavior_see_obstacle;
-  std::set<CellPtr, CellComp> old_cells;
 
-  bool see_obstacle(VectorPtr, double);
   bool go_with(VectorPtr, double);
-  void spiral_stc(CellPtr);
-  bool check(CellPtr);
 };
 
 typedef boost::shared_ptr<SpiralStc> SpiralStcPtr;

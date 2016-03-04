@@ -10,6 +10,9 @@
 namespace wandrian {
 namespace plans {
 
+BasePlan::BasePlan() {
+}
+
 BasePlan::~BasePlan() {
   // Override this method
 }
@@ -23,10 +26,10 @@ void BasePlan::set_behavior_go_to(
   this->behavior_go_to = behavior_go_to;
 }
 
-bool BasePlan::go_to(PointPtr position, bool flexibly) {
+bool BasePlan::go_to(PointPtr position, bool flexibility) {
   // Override this method
   if (behavior_go_to)
-    return behavior_go_to(position, flexibly);
+    return behavior_go_to(position, flexibility);
   return true;
 }
 
