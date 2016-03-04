@@ -12,7 +12,7 @@ _Add_:
 
 Change to catkin root directory then run:
 
-    $ catkin_make
+    $ catkin_make --force-cmake
     $ . devel/setup.bash
     $ . src/wandrian_run/setup.sh
 
