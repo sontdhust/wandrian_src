@@ -23,6 +23,7 @@ namespace plans {
 class BasePlan {
 
 public:
+  BasePlan();
   virtual ~BasePlan();
   virtual void cover();
 

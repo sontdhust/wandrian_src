@@ -23,12 +23,12 @@ enum Orientation {
   //                       |___|___|
   //                           |
   //                           |
-  //                       BEHIND (3)
+  //                      IN_BACK (3)
 
   AT_RIGHT_SIDE,
   IN_FRONT,
   AT_LEFT_SIDE,
-  BEHIND
+  IN_BACK
 };
 
 inline Orientation operator+(Orientation o) {
@@ -38,8 +38,8 @@ inline Orientation operator+(Orientation o) {
   case IN_FRONT:
     return AT_LEFT_SIDE;
   case AT_LEFT_SIDE:
-    return BEHIND;
-  case BEHIND:
+    return IN_BACK;
+  case IN_BACK:
     return AT_RIGHT_SIDE;
   }
   return o;
@@ -55,13 +55,21 @@ struct Vector {
   double x, y;
 
   Vector();
+  Vector(double);
   Vector(double, double);
   Vector(const Vector&);
   void rotate_counterclockwise();
   void rotate_clockwise();
+
+  double get_magnitude();
+  double get_angle();
 };
 
 typedef boost::shared_ptr<Vector> VectorPtr;
+
+inline VectorPtr operator-(VectorPtr v) {
+  return VectorPtr(new Vector(-v->x, -v->y));
+}
 
 inline VectorPtr operator*(VectorPtr v, double k) {
   return VectorPtr(new Vector(v->x * k, v->y * k));
@@ -90,17 +98,11 @@ inline Orientation operator%(VectorPtr v1, VectorPtr v2) {
   if (std::abs(angle) >= 3 * M_PI_4)
     return IN_FRONT;
   else if (std::abs(angle) <= M_PI_4)
-    return BEHIND;
+    return IN_BACK;
   else if (angle > 0)
     return AT_RIGHT_SIDE;
   else
     return AT_LEFT_SIDE;
-}
-
-inline VectorPtr operator+(VectorPtr v) {
-  VectorPtr vector = VectorPtr(new Vector(*v));
-  vector->rotate_counterclockwise();
-  return vector;
 }
 
 inline VectorPtr operator++(VectorPtr v) {
@@ -111,12 +113,6 @@ inline VectorPtr operator++(VectorPtr v) {
 inline VectorPtr operator++(VectorPtr v, int) {
   VectorPtr vector = VectorPtr(new Vector(*v));
   v->rotate_counterclockwise();
-  return vector;
-}
-
-inline VectorPtr operator-(VectorPtr v) {
-  VectorPtr vector = VectorPtr(new Vector(*v));
-  vector->rotate_clockwise();
   return vector;
 }
 
@@ -143,7 +139,7 @@ inline VectorPtr operator~(Orientation o) {
     return VectorPtr(new Vector(0, 1));
   case AT_LEFT_SIDE:
     return VectorPtr(new Vector(-1, 0));
-  case BEHIND:
+  case IN_BACK:
     return VectorPtr(new Vector(0, -1));
   default:
     return VectorPtr(new Vector());

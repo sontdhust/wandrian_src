@@ -1,0 +1,23 @@
+<launch>
+  <arg name="plan_name"/>
+  <arg name="tool_size"/>
+  <arg name="proportion_ranges_sum"/>
+  <arg name="augmentation_factor_range"/>
+
+  <node pkg="wandrian_run" type="run" name="run" output="screen">
+    <remap from="run/power" to="mobile_base/commands/motor_power"/>
+    <remap from="run/velocity" to="mobile_base/commands/velocity"/>
+    <remap from="run/odometry" to="odom"/>
+    <remap from="run/laser" to="scan"/>
+
+    <param name="plan_name" value="$(arg plan_name)" type="string"/>
+    <param name="tool_size" value="$(arg tool_size)" type="double"/>
+    <param name="proportion_ranges_sum" value="$(arg proportion_ranges_sum)" type="double"/>
+    <param name="augmentation_factor_range" value="$(arg augmentation_factor_range)" type="double"/>
+
+    <param name="linear_velocity_step" value="0.05" type="double"/>
+    <param name="linear_velocity_max" value="1.5" type="double"/>
+    <param name="angular_velocity_step" value="0.3" type="double"/>
+    <param name="angular_velocity_max" value="3" type="double"/>
+  </node>
+</launch>

@@ -1,12 +1,12 @@
 /*
- * core.hpp
+ * robot.hpp
  *
  *  Created on: Jul 31, 2015
  *      Author: sontd
  */
 
-#ifndef WANDRIAN_RUN_INCLUDE_CORE_HPP_
-#define WANDRIAN_RUN_INCLUDE_CORE_HPP_
+#ifndef WANDRIAN_RUN_INCLUDE_ROBOT_HPP_
+#define WANDRIAN_RUN_INCLUDE_ROBOT_HPP_
 
 #include <termios.h> // For keyboard input
 #include <ros/ros.h>
@@ -14,18 +14,22 @@
 #include <geometry_msgs/Twist.h> // For velocity commands
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/LaserScan.h>
-#include "../include/common/point.hpp"
-#include "../include/common/vector.hpp"
+#include "common/point.hpp"
+#include "common/vector.hpp"
 
 using namespace wandrian::common;
 
 namespace wandrian {
 
-class Core {
+enum ObstacleMovement {
+  STOPPING, COMING, LEAVING
+};
+
+class Robot {
 
 public:
-  Core();
-  ~Core();
+  Robot();
+  ~Robot();
   bool initialize();
   void spin();
   void stop();
@@ -33,25 +37,29 @@ public:
   std::string get_plan_name();
   double get_starting_point_x();
   double get_starting_point_y();
-  double get_robot_size();
+  double get_tool_size();
   PointPtr get_current_position();
-  VectorPtr get_current_orientation();
+  VectorPtr get_current_direction();
   bool* get_obstacles();
+  ObstacleMovement get_obstacle_movement();
   double get_linear_velocity_step();
   double get_angular_velocity_step();
-
   void set_behavior_run(boost::function<void()>);
   void set_linear_velocity(double);
   void set_angular_velocity(double);
+  void set_laser_range(double);
 
 private:
   std::string plan_name; // arg
   double starting_point_x; // arg
   double starting_point_y; // arg
-  double robot_size; // arg
-  PointPtr current_position; // odom subscriber
-  VectorPtr current_orientation; // odom subscriber
+  double tool_size; // arg
+  double proportion_ranges_sum; // arg
+  double augmentation_factor_range; // arg
+  PointPtr current_position; // odometry subscriber
+  VectorPtr current_direction; // odometry subscriber
   bool obstacles[3]; // laser subscriber
+  ObstacleMovement obstacle_movement; // laser timer
   double linear_velocity_step; // param
   double linear_velocity_max; // param
   double angular_velocity_step; // param
@@ -59,21 +67,28 @@ private:
 
   boost::function<void()> behavior_run;
   geometry_msgs::TwistPtr velocity;
+  double laser_range;
 
   bool is_quitting;
   bool is_powered;
   bool is_zero_vel; // Avoid zero-vel messages from the beginning
   bool is_logging;
   int file_descriptor;
+  PointPtr last_position;
+  VectorPtr last_direction;
+  sensor_msgs::LaserScan::_ranges_type laser_ranges;
+  sensor_msgs::LaserScan::_ranges_type last_laser_ranges;
+  double laser_ray;
 
   struct termios terminal;
   ecl::Thread thread_keyboard;
   ecl::Thread thread_run;
+  ros::Timer timer_laser;
 
-  ros::Publisher motor_power_publisher;
-  ros::Publisher velocity_publisher;
-  ros::Subscriber odom_subscriber;
-  ros::Subscriber laser_subscriber;
+  ros::Publisher publisher_power;
+  ros::Publisher publisher_velocity;
+  ros::Subscriber subscriber_odometry;
+  ros::Subscriber subscriber_laser;
 
   void run();
 
@@ -81,6 +96,7 @@ private:
   void start_thread_keyboard();
   void process_keyboard_input(char);
   void start_thread_run();
+  void start_timer_laser(const ros::TimerEvent&);
 
   // Helpers
   void enable_power();
@@ -89,6 +105,8 @@ private:
   void subscribe_laser(const sensor_msgs::LaserScanConstPtr&);
 };
 
+typedef boost::shared_ptr<Robot> RobotPtr;
+
 }
 
-#endif /* WANDRIAN_RUN_INCLUDE_CORE_HPP_ */
+#endif /* WANDRIAN_RUN_INCLUDE_ROBOT_HPP_ */

@@ -1,5 +1,5 @@
 /*
- * square.hpp
+ * cell.hpp
  *
  *  Created on: Sep 15, 2015
  *      Author: sontd
@@ -25,10 +25,10 @@ class Cell: public Polygon {
 public:
   Cell(PointPtr, double);
   virtual ~Cell();
+
   PointPtr get_center() const;
   double get_size() const;
   boost::shared_ptr<Cell> get_parent();
-
   void set_parent(boost::shared_ptr<Cell>);
 
 protected:
