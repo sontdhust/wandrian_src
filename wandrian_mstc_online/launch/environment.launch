@@ -1,0 +1,11 @@
+<!-- Launches Kobuki Gazebo simulation in an empty world -->
+<launch>
+  <arg name="world_file"/>
+
+  <!-- Start Gazebo with an empty world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="use_sim_time" value="true"/>
+    <arg name="debug" value="false"/>
+    <arg name="world_name" value="$(find wandrian_mstc_online)/worlds/$(arg world_file).world"/>
+  </include>
+</launch>

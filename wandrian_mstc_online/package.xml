@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<package>
+  <name>wandrian_mstc_online</name>
+  <version>0.0.0</version>
+  <description>
+    Wandrian Run
+  </description>
+  <author email="manhnh.bkhn@gmail.com">Nguyen Huu Manh</author>
+  <maintainer email="manhnh.bkhn@gmail.com">Nguyen Huu Manh</maintainer>
+  <license>BSD</license>
+  <url type="repository">https://github.com/manhnhhust/wandrian_src/tree/feature/online-robust-mstc</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Ros -->
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>std_srvs</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>roscpp</build_depend>
+
+  <!-- Ecl -->
+  <build_depend>ecl_exceptions</build_depend>
+  <build_depend>ecl_threads</build_depend>
+  <build_depend>ecl_time</build_depend>
+
+  <!-- Kobuki -->
+  <build_depend>kobuki_msgs</build_depend>
+
+
+  <!-- Ros -->
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>std_srvs</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>roscpp</run_depend>
+
+  <!-- Ecl -->
+  <run_depend>ecl_exceptions</run_depend>
+  <run_depend>ecl_threads</run_depend>
+  <run_depend>ecl_time</run_depend>
+
+  <!-- Kobuki -->
+  <run_depend>kobuki_msgs</run_depend>
+  
+  <!-- Yujin ocs -->
+  <run_depend>yocs_cmd_vel_mux</run_depend>
+  <run_depend>yocs_velocity_smoother</run_depend>
+</package>

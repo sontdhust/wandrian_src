@@ -5,8 +5,8 @@
  *      Author: cslab
  */
 
-#ifndef WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_FULL_SPIRAL_STC_HPP_
-#define WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_FULL_SPIRAL_STC_HPP_
+#ifndef WANDRIAN_MSTC_ONLINE_INCLUDE_PLANS_SPIRAL_STC_FULL_SPIRAL_STC_HPP_
+#define WANDRIAN_MSTC_ONLINE_INCLUDE_PLANS_SPIRAL_STC_FULL_SPIRAL_STC_HPP_
 
 #include "spiral_stc.hpp"
 #include "partially_occupiable_cell.hpp"
@@ -20,16 +20,17 @@ class FullSpiralStc: public SpiralStc {
 public:
   FullSpiralStc();
   ~FullSpiralStc();
-  void initialize(PointPtr, double);
-  void cover();
+  virtual void initialize(PointPtr, double);
+  virtual void cover();
+
+//  std::set<CellPtr, CellComp> *old_cells;
 
 protected:
-  State state_of(CellPtr);
-  void scan(CellPtr);
+  virtual State state_of(CellPtr);
+  virtual void scan(CellPtr);
 
 private:
   PartiallyOccupiableCellPtr starting_cell;
-  std::set<CellPtr, CellComp> old_cells;
 
   bool go_from(CellPtr, bool, CellPtr);
   bool visit(CellPtr, Quadrant, bool);
@@ -42,4 +43,4 @@ typedef boost::shared_ptr<FullSpiralStc> FullSpiralStcPtr;
 }
 }
 
-#endif /* WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_FULL_SPIRAL_STC_HPP_ */
+#endif /* WANDRIAN_MSTC_ONLINE_INCLUDE_PLANS_SPIRAL_STC_FULL_SPIRAL_STC_HPP_ */
