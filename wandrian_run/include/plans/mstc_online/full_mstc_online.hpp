@@ -5,21 +5,21 @@
  *      Author: cslab
  */
 
-#ifndef WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_FULL_SPIRAL_STC_HPP_
-#define WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_FULL_SPIRAL_STC_HPP_
+#ifndef WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_FULL_MSTC_ONLINE_HPP_
+#define WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_FULL_MSTC_ONLINE_HPP_
 
-#include "spiral_stc.hpp"
+#include "mstc_online.hpp"
 #include "partially_occupiable_cell.hpp"
 
 namespace wandrian {
 namespace plans {
 namespace mstc_online {
 
-class FullSpiralStc: public SpiralStc {
+class FullMstcOnline: public MstcOnline {
 
 public:
-  FullSpiralStc();
-  ~FullSpiralStc();
+  FullMstcOnline();
+  ~FullMstcOnline();
   virtual void initialize(PointPtr, double);
   virtual void cover();
 
@@ -37,10 +37,10 @@ private:
   bool state_of_subcells_of(CellPtr, Orientation);
 };
 
-typedef boost::shared_ptr<FullSpiralStc> FullSpiralStcPtr;
+typedef boost::shared_ptr<FullMstcOnline> FullMstcOnlinePtr;
 
 }
 }
 }
 
-#endif /* WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_FULL_SPIRAL_STC_HPP_ */
+#endif /* WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_FULL_MSTC_ONLINE_HPP_ */

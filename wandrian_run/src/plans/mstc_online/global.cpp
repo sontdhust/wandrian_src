@@ -144,7 +144,7 @@ bool Global::ask_other_robot_still_alive(std::string robot_name_want_ask) {
             current = atoi(tmp.c_str());
 
             std::cout << "DHBKHNHEDSPIK56 <<" << current - old_time << ">>";
-            if (current - old_time > 25) {
+            if (current - old_time > 45) {
               // Robot was dead
               result = false;
               temp_status.append("[DEAD];");

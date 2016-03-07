@@ -5,8 +5,8 @@
  *      Author: manhnh
  */
 
-#ifndef WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_SPIRAL_STC_HPP_
-#define WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_SPIRAL_STC_HPP_
+#ifndef WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_MSTC_ONLINE_HPP_
+#define WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_MSTC_ONLINE_HPP_
 
 #include "../base_plan.hpp"
 #include "cell.hpp"
@@ -18,11 +18,11 @@ namespace wandrian {
 namespace plans {
 namespace mstc_online {
 
-class SpiralStc: public BasePlan {
+class MstcOnline: public BasePlan {
 
 public:
-  SpiralStc();
-  ~SpiralStc();
+  MstcOnline();
+  ~MstcOnline();
   virtual void initialize(PointPtr, double);
   virtual void cover();
 
@@ -43,10 +43,10 @@ private:
   bool go_with(VectorPtr, double);
 };
 
-typedef boost::shared_ptr<SpiralStc> SpiralStcPtr;
+typedef boost::shared_ptr<MstcOnline> MstcOnlinePtr;
 
 }
 }
 }
 
-#endif /* WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_SPIRAL_STC_HPP_ */
+#endif /* WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_MSTC_ONLINE_HPP_ */

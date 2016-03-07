@@ -15,8 +15,6 @@
 #include <std_msgs/String.h>
 #include <list>
 
-using namespace wandrian::plans::mstc_online;
-
 namespace wandrian {
 namespace plans {
 namespace mstc_online {

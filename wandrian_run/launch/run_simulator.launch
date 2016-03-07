@@ -18,7 +18,7 @@
     <remap from="run/power" to="mobile_base/commands/motor_power"/>
     <remap from="run/velocity" to="mobile_base/commands/velocity"/>
     <remap from="run/odometry" to="odom"/>
-    <remap from="run/laser" to="mobile_base/sensors/laser"/>
+    <remap from="run/laser" to="scan"/>
 
     <param name="plan_name" value="$(arg plan_name)" type="string"/>
     <param name="starting_point_x" value="$(arg starting_point_x)" type="double"/>

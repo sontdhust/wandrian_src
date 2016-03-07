@@ -5,7 +5,7 @@
  *      Author: cslab
  */
 
-#include "../../../include/plans/mstc_online/full_spiral_stc.hpp"
+#include "../../../include/plans/mstc_online/full_mstc_online.hpp"
 #include "../../../include/plans/mstc_online/global.hpp"
 
 #define PASS true
@@ -18,13 +18,13 @@ namespace wandrian {
 namespace plans {
 namespace mstc_online {
 
-FullSpiralStc::FullSpiralStc() {
+FullMstcOnline::FullMstcOnline() {
 }
 
-FullSpiralStc::~FullSpiralStc() {
+FullMstcOnline::~FullMstcOnline() {
 }
 
-void FullSpiralStc::initialize(PointPtr starting_point, double tool_size) {
+void FullMstcOnline::initialize(PointPtr starting_point, double tool_size) {
   this->tool_size = tool_size;
   // Initialize starting_cell
   starting_cell = PartiallyOccupiableCellPtr(
@@ -42,13 +42,13 @@ void FullSpiralStc::initialize(PointPtr starting_point, double tool_size) {
   path.insert(path.end(), starting_point);
 }
 
-void FullSpiralStc::cover() {
+void FullMstcOnline::cover() {
   Global::get_instance()->old_cells.insert(starting_cell);
   starting_cell->set_current_quadrant(IV);
   scan(starting_cell);
 }
 
-State FullSpiralStc::state_of(CellPtr cell) {
+State FullMstcOnline::state_of(CellPtr cell) {
   State state =
       (Global::get_instance()->old_cells.find(cell)
           != Global::get_instance()->old_cells.end()) ? OLD : NEW;
@@ -57,7 +57,7 @@ State FullSpiralStc::state_of(CellPtr cell) {
   return state;
 }
 
-void FullSpiralStc::scan(CellPtr current) {
+void FullMstcOnline::scan(CellPtr current) {
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;32mBEGIN:\033[0m "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
   VectorPtr orientation = (current->get_parent()->get_center()
@@ -116,7 +116,7 @@ void FullSpiralStc::scan(CellPtr current) {
       << current->get_center()->x << "," << current->get_center()->y << "\n";
 }
 
-bool FullSpiralStc::go_from(CellPtr current, bool pass, CellPtr next) {
+bool FullMstcOnline::go_from(CellPtr current, bool pass, CellPtr next) {
   VectorPtr orientation = (next->get_center() - current->get_center())
       / (2 * tool_size);
   PartiallyOccupiableCellPtr c = boost::dynamic_pointer_cast<
@@ -195,14 +195,14 @@ bool FullSpiralStc::go_from(CellPtr current, bool pass, CellPtr next) {
     return false;
 }
 
-bool FullSpiralStc::visit(CellPtr cell, Quadrant quadrant, bool flexibly) {
+bool FullMstcOnline::visit(CellPtr cell, Quadrant quadrant, bool flexibly) {
   PartiallyOccupiableCellPtr c = boost::dynamic_pointer_cast<
       PartiallyOccupiableCell>(cell);
   c->set_current_quadrant(quadrant);
   return go_to(c->get_current_position(), flexibly);
 }
 
-bool FullSpiralStc::state_of_subcells_of(CellPtr cell,
+bool FullMstcOnline::state_of_subcells_of(CellPtr cell,
     Orientation orientation) {
   PartiallyOccupiableCellPtr c = boost::dynamic_pointer_cast<
       PartiallyOccupiableCell>(*Global::get_instance()->old_cells.find(cell));

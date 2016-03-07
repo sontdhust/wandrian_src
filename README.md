@@ -24,7 +24,7 @@ Change to catkin root directory then run:
 
 ####Run simulator:
 
-    $ roslaunch wandrian_run environment.launch world_file:=tmp
+    $ roslaunch wandrian_run environment.launch world_file:=prefered_full_spiral_stc
     $ roslaunch wandrian_run run_simulator.launch plan_name:=full_spiral_stc starting_point_x:=0.75 starting_point_y:=0.25 tool_size:=0.5
 
 ####Run practically:
@@ -34,10 +34,8 @@ Change to catkin root directory then run:
     $ rosrun hokuyo_node hokuyo_node
     $ roslaunch wandrian_run run_practically.launch plan_name:=full_spiral_stc tool_size:=0.4 proportion_ranges_sum:=0.05 augmentation_factor_range:=2.0
 
-####Running (wandrian_keyop project (2 robots versison)):
-
-    $ roslaunch wandrian_run environment.launch world_file:=tmp
-    $ roslaunch wandrian_run add_robots.launch starting_point_x_robot1:=0.75 starting_point_y_robot1:=0.25 starting_point_x_robot2:=1.75 starting_point_y_robot2:=-1.75
-    $ rosrun wandrian_communicate communicate
-    $ roslaunch wandrian_run algorithm.launch plan_name:=spiral_stc tool_size:=0.5 robot_name:=robot1 starting_point_x:=0.75 starting_point_y:=0.25
-    $ roslaunch wandrian_run algorithm.launch plan_name:=spiral_stc tool_size:=0.5 robot_name:=robot2 starting_point_x:=1.75 starting_point_y:=-1.75
+####Running mstc_online:
+    $ roslaunch wandrian_run environment.launch world_file:=prefered_mstc_online
+    $ roslaunch wandrian_run add_robots.launch starting_point_x_robot1:=-1.25 starting_point_y_robot1:=-1.75 starting_point_x_robot2:=1.75 starting_point_y_robot2:=0.25
+    $ roslaunch wandrian_run algorithm.launch plan_name:=mstc_online tool_size:=0.5 robot_name:=robot1 starting_point_x:=-1.25 starting_point_y:=-1.75
+    $ roslaunch wandrian_run algorithm.launch plan_name:=mstc_online tool_size:=0.5 robot_name:=robot2 starting_point_x:=1.75 starting_point_y:=0.25
