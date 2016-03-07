@@ -5,7 +5,7 @@
   <arg name="starting_point_x"/>
   <arg name="starting_point_y"/>
 
-  <node pkg="wandrian_run" type="algorithm" name="$(arg robot_name)_algorithm" output="screen">
+  <node pkg="wandrian_run" type="run" name="$(arg robot_name)_algorithm" output="screen">
     <remap from="$(arg robot_name)_algorithm/power" to="$(arg robot_name)/mobile_base/commands/motor_power"/>
     <remap from="$(arg robot_name)_algorithm/velocity" to="$(arg robot_name)/mobile_base/commands/velocity"/>
     <remap from="$(arg robot_name)_algorithm/odometry" to="$(arg robot_name)/odom"/>
