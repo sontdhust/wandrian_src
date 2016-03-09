@@ -16,8 +16,10 @@
 #include <sensor_msgs/LaserScan.h>
 #include "common/point.hpp"
 #include "common/vector.hpp"
+#include "plans/mstc_online/global.hpp"
 
 using namespace wandrian::common;
+using namespace wandrian::plans::mstc_online;
 
 namespace wandrian {
 
@@ -51,6 +53,7 @@ public:
 
 private:
   std::string plan_name; // arg
+  std::string robot_name; //arg
   double starting_point_x; // arg
   double starting_point_y; // arg
   double tool_size; // arg

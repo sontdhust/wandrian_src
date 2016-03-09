@@ -8,6 +8,7 @@
 #include "../include/wandrian.hpp"
 #include "../include/plans/spiral_stc/spiral_stc.hpp"
 #include "../include/plans/spiral_stc/full_spiral_stc.hpp"
+#include "../include/plans/mstc_online/mstc_online.hpp"
 
 #define CLOCKWISE true
 #define COUNTERCLOCKWISE false
@@ -18,6 +19,7 @@
 #define EPS_POS 0.06
 
 using namespace wandrian::plans::spiral_stc;
+using namespace wandrian::plans::mstc_online;
 
 namespace wandrian {
 
@@ -60,6 +62,17 @@ void Wandrian::wandrian_run() {
     full_spiral_stc->set_behavior_see_obstacle(
         boost::bind(&Wandrian::full_spiral_stc_see_obstacle, this, _1, _2));
     full_spiral_stc->cover();
+  } else if (robot->get_plan_name() == "mstc_online") {
+    MstcOnlinePtr mstc_online = MstcOnlinePtr(new MstcOnline());
+    mstc_online->initialize(
+        PointPtr(
+            new Point(robot->get_starting_point_x(),
+                robot->get_starting_point_y())), robot->get_tool_size());
+    mstc_online->set_behavior_go_to(
+        boost::bind(&Wandrian::mstc_online_go_to, this, _1, _2));
+    mstc_online->set_behavior_see_obstacle(
+        boost::bind(&Wandrian::mstc_online_see_obstacle, this, _1, _2));
+    mstc_online->cover();
   }
 }
 
@@ -89,6 +102,14 @@ bool Wandrian::full_spiral_stc_go_to(PointPtr position, bool flexibility) {
 
 bool Wandrian::full_spiral_stc_see_obstacle(VectorPtr direction,
     double distance) {
+  return spiral_stc_see_obstacle(direction, distance);
+}
+
+bool Wandrian::mstc_online_go_to(PointPtr position, bool flexibility) {
+  return spiral_stc_go_to(position, flexibility);
+}
+
+bool Wandrian::mstc_online_see_obstacle(VectorPtr direction, double distance) {
   return spiral_stc_see_obstacle(direction, distance);
 }
 

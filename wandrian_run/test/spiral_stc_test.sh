@@ -20,7 +20,7 @@ g++ -c spiral_stc.cpp
 g++ -c full_spiral_stc.cpp
 
 cd ../..
-g++ -o ../wandrian_run ../../test.cpp common/point.o common/vector.o common/segment.o \
+g++ -o ../wandrian_run ../../spiral_stc_test.cpp common/point.o common/vector.o common/segment.o \
 common/polygon.o common/environment.o plans/base_plan.o \
 plans/spiral_stc/cell.o plans/spiral_stc/partially_occupiable_cell.o \
 plans/spiral_stc/spiral_stc.o plans/spiral_stc/full_spiral_stc.o \

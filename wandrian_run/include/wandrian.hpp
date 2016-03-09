@@ -29,6 +29,8 @@ private:
   bool spiral_stc_see_obstacle(VectorPtr, double);
   bool full_spiral_stc_go_to(PointPtr, bool);
   bool full_spiral_stc_see_obstacle(VectorPtr, double);
+  bool mstc_online_go_to(PointPtr, bool);
+  bool mstc_online_see_obstacle(VectorPtr, double);
 
   // Helpers
   bool go_to(PointPtr, bool);

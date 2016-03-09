@@ -36,6 +36,7 @@ bool Robot::initialize() {
   ros::NodeHandle nh("~");
 
   nh.getParam("plan_name", plan_name);
+  nh.getParam("robot_name", robot_name);
   nh.getParam("starting_point_x", starting_point_x);
   nh.getParam("starting_point_y", starting_point_y);
   nh.getParam("tool_size", tool_size);
@@ -46,6 +47,15 @@ bool Robot::initialize() {
   nh.getParam("linear_velocity_max", linear_velocity_max);
   nh.getParam("angular_velocity_step", angular_velocity_step);
   nh.getParam("angular_velocity_max", angular_velocity_max);
+
+  if (plan_name == "mstc_online") {
+    Global::get_instance()->set_tool_size(tool_size);
+    Global::get_instance()->set_robot_name(robot_name);
+    std::cout << "1. My name is " << Global::get_instance()->get_robot_name();
+    std::cout << "2. My name is " << robot_name;
+    std::cout << "3. Other information: " << plan_name << starting_point_x
+        << starting_point_y << tool_size;
+  }
 
   if (proportion_ranges_sum <= 0 || proportion_ranges_sum >= 1)
     proportion_ranges_sum = PROPORTION_RANGES_SUM;
@@ -224,6 +234,7 @@ void Robot::start_thread_keyboard() {
   puts("l: Toggle logging.");
   puts("i: Get information");
   puts("r: Start running.");
+  puts("c: Clear ros bag.");
   puts("q: Quit.");
   char c;
   while (!is_quitting) {
@@ -285,6 +296,12 @@ void Robot::process_keyboard_input(char c) {
   case 'r':
     ROS_INFO_STREAM("[Run]: " << "Start running");
     thread_run.start(&Robot::start_thread_run, *this);
+    break;
+  case 'c':
+    if (plan_name == "mstc_online") {
+      Global::get_instance()->write_message("");
+      Global::get_instance()->write_status("");
+    }
     break;
   case 'q':
     is_quitting = true;
