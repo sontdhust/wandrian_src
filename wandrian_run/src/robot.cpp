@@ -49,9 +49,9 @@ bool Robot::initialize() {
   nh.getParam("angular_velocity_max", angular_velocity_max);
 
   if (plan_name == "mstc_online") {
-    Global::get_instance()->set_tool_size(tool_size);
-    Global::get_instance()->set_robot_name(robot_name);
-    std::cout << "1. My name is " << Global::get_instance()->get_robot_name();
+    Global::shared_instance()->set_tool_size(tool_size);
+    Global::shared_instance()->set_robot_name(robot_name);
+    std::cout << "1. My name is " << Global::shared_instance()->get_robot_name();
     std::cout << "2. My name is " << robot_name;
     std::cout << "3. Other information: " << plan_name << starting_point_x
         << starting_point_y << tool_size;
@@ -299,8 +299,8 @@ void Robot::process_keyboard_input(char c) {
     break;
   case 'c':
     if (plan_name == "mstc_online") {
-      Global::get_instance()->write_message("");
-      Global::get_instance()->write_status("");
+      Global::shared_instance()->write_old_cells_message("");
+      Global::shared_instance()->write_status_message("");
     }
     break;
   case 'q':

@@ -21,7 +21,7 @@ MstcOnline::~MstcOnline() {
 }
 
 void MstcOnline::initialize(PointPtr starting_point, double tool_size) {
-  Global::get_instance()->set_tool_size(tool_size);
+  Global::shared_instance()->set_tool_size(tool_size);
   this->tool_size = tool_size;
   // Initialize starting_cell
   starting_cell = CellPtr(
@@ -40,14 +40,14 @@ void MstcOnline::initialize(PointPtr starting_point, double tool_size) {
 }
 
 void MstcOnline::cover() {
-  Global::get_instance()->read_message_with_list_data();
-  Global::get_instance()->insert_my_moved_cell_to_list(starting_cell);
+  Global::shared_instance()->read_message_then_update_old_cells();
+  Global::shared_instance()->insert_old_cell(starting_cell);
   std::string message =
-      Global::get_instance()->create_message_from_list_old_cells();
-  std::string status = Global::get_instance()->create_status_message(
+      Global::shared_instance()->create_old_cells_message();
+  std::string status = Global::shared_instance()->create_status_message(
       starting_cell);
-  Global::get_instance()->write_message(message);
-  Global::get_instance()->write_status(status);
+  Global::shared_instance()->write_old_cells_message(message);
+  Global::shared_instance()->write_status_message(status);
   scan(starting_cell);
 }
 
@@ -76,7 +76,7 @@ bool MstcOnline::see_obstacle(VectorPtr orientation, double distance) {
 }
 
 State MstcOnline::state_of(CellPtr cell) {
-  State state = (Global::get_instance()->find_cell_in_list(cell)) ? OLD : NEW;
+  State state = (Global::shared_instance()->find_old_cell(cell)) ? OLD : NEW;
 
   if (state == OLD)
     std::cout << " \033[1;45m(OLD)\033[0m\n";
@@ -85,10 +85,10 @@ State MstcOnline::state_of(CellPtr cell) {
 
 void MstcOnline::scan(CellPtr current) {
   std::string status;
-  status = Global::get_instance()->create_status_message(current);
-  Global::get_instance()->write_status(status);
+  status = Global::shared_instance()->create_status_message(current);
+  Global::shared_instance()->write_status_message(status);
 
-  Global::get_instance()->read_message_with_list_data();
+  Global::shared_instance()->read_message_then_update_old_cells();
 
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;32mBEGIN:\033[0m "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
@@ -106,12 +106,12 @@ void MstcOnline::scan(CellPtr current) {
     std::cout << "  \033[1;33mneighbor:\033[0m " << neighbor->get_center()->x
         << "," << neighbor->get_center()->y;
 
-    Global::get_instance()->read_message_with_list_data();
+    Global::shared_instance()->read_message_then_update_old_cells();
 
     if (state_of(neighbor) == OLD) { // Old cell
       // Go to next sub-cell
-      if (Global::get_instance()->ask_other_robot_still_alive(
-          Global::get_instance()->find_robot_name(neighbor))) {
+      if (Global::shared_instance()->ask_other_robot_still_alive(
+          Global::shared_instance()->find_robot_name(neighbor))) {
         // Still alive
         go_with(++orientation, tool_size);
         continue;
@@ -119,13 +119,13 @@ void MstcOnline::scan(CellPtr current) {
         std::cout << "\n";
         neighbor->set_parent(current);
 
-        Global::get_instance()->read_message_with_list_data();
+        Global::shared_instance()->read_message_then_update_old_cells();
 
-        Global::get_instance()->insert_my_moved_cell_to_list(neighbor);
+        Global::shared_instance()->insert_old_cell(neighbor);
 
         std::string message =
-            Global::get_instance()->create_message_from_list_old_cells();
-        Global::get_instance()->write_message(message);
+            Global::shared_instance()->create_old_cells_message();
+        Global::shared_instance()->write_old_cells_message(message);
 
         go_with(orientation++, tool_size);
 
@@ -143,12 +143,12 @@ void MstcOnline::scan(CellPtr current) {
       // Construct a spanning-tree edge
       neighbor->set_parent(current);
 
-      Global::get_instance()->read_message_with_list_data();
-      Global::get_instance()->insert_my_moved_cell_to_list(neighbor);
+      Global::shared_instance()->read_message_then_update_old_cells();
+      Global::shared_instance()->insert_old_cell(neighbor);
 
       std::string message =
-          Global::get_instance()->create_message_from_list_old_cells();
-      Global::get_instance()->write_message(message);
+          Global::shared_instance()->create_old_cells_message();
+      Global::shared_instance()->write_old_cells_message(message);
 
       go_with(orientation++, tool_size);
       scan(neighbor);

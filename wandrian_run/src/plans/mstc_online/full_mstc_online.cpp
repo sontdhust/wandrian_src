@@ -43,15 +43,15 @@ void FullMstcOnline::initialize(PointPtr starting_point, double tool_size) {
 }
 
 void FullMstcOnline::cover() {
-  Global::get_instance()->old_cells.insert(starting_cell);
+  Global::shared_instance()->cells.insert(starting_cell);
   starting_cell->set_current_quadrant(IV);
   scan(starting_cell);
 }
 
 State FullMstcOnline::state_of(CellPtr cell) {
   State state =
-      (Global::get_instance()->old_cells.find(cell)
-          != Global::get_instance()->old_cells.end()) ? OLD : NEW;
+      (Global::shared_instance()->cells.find(cell)
+          != Global::shared_instance()->cells.end()) ? OLD : NEW;
   if (state == OLD)
     std::cout << " \033[1;45m(OLD)\033[0m\n";
   return state;
@@ -102,7 +102,7 @@ void FullMstcOnline::scan(CellPtr current) {
       } else { // New free neighbor
         // Construct a spanning-tree edge
         neighbor->set_parent(current);
-        Global::get_instance()->old_cells.insert(neighbor);
+        Global::shared_instance()->cells.insert(neighbor);
         scan(neighbor);
       }
     }
@@ -205,7 +205,7 @@ bool FullMstcOnline::visit(CellPtr cell, Quadrant quadrant, bool flexibly) {
 bool FullMstcOnline::state_of_subcells_of(CellPtr cell,
     Orientation orientation) {
   PartiallyOccupiableCellPtr c = boost::dynamic_pointer_cast<
-      PartiallyOccupiableCell>(*Global::get_instance()->old_cells.find(cell));
+      PartiallyOccupiableCell>(*Global::shared_instance()->cells.find(cell));
   Quadrant q;
   if (orientation == AT_LEFT_SIDE)
     q = I;

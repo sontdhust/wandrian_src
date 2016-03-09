@@ -23,8 +23,6 @@ public:
   virtual void initialize(PointPtr, double);
   virtual void cover();
 
-//  std::set<CellPtr, CellComp> *old_cells;
-
 protected:
   virtual State state_of(CellPtr);
   virtual void scan(CellPtr);
