@@ -11,8 +11,9 @@ namespace wandrian {
 namespace plans {
 namespace mstc_online {
 
-PartiallyOccupiableCell::PartiallyOccupiableCell(PointPtr center, double size) :
-    Cell(center, size), current_quadrant(IV) {
+PartiallyOccupiableCell::PartiallyOccupiableCell(PointPtr center, double size,
+    std::string robot_name) :
+    Cell(center, size, robot_name), current_quadrant(IV) {
   for (int i = I; i <= IV; i++)
     quadrants[i] = NEW;
 }

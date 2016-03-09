@@ -27,15 +27,15 @@ Vector::Vector(const Vector &vector) :
 }
 
 void Vector::rotate_counterclockwise() {
-  double tmp = x;
+  double d = x;
   x = -y;
-  y = tmp;
+  y = d;
 }
 
 void Vector::rotate_clockwise() {
-  double tmp = x;
+  double d = x;
   x = y;
-  y = -tmp;
+  y = -d;
 }
 
 double Vector::get_magnitude() {

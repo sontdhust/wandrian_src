@@ -18,7 +18,7 @@
 namespace wandrian {
 
 Robot::Robot() :
-    starting_point_x(0), starting_point_y(0), tool_size(0), proportion_ranges_sum(
+    tool_size(0), starting_point_x(0), starting_point_y(0), proportion_ranges_sum(
         0), augmentation_factor_range(0), current_position(new Point()), current_direction(
         new Vector()), obstacle_movement(STOPPING), linear_velocity_step(0), linear_velocity_max(
         0), angular_velocity_step(0), angular_velocity_max(0), velocity(
@@ -37,9 +37,9 @@ bool Robot::initialize() {
 
   nh.getParam("plan_name", plan_name);
   nh.getParam("robot_name", robot_name);
+  nh.getParam("tool_size", tool_size);
   nh.getParam("starting_point_x", starting_point_x);
   nh.getParam("starting_point_y", starting_point_y);
-  nh.getParam("tool_size", tool_size);
   nh.getParam("proportion_ranges_sum", proportion_ranges_sum);
   nh.getParam("augmentation_factor_range", augmentation_factor_range);
 
@@ -49,9 +49,10 @@ bool Robot::initialize() {
   nh.getParam("angular_velocity_max", angular_velocity_max);
 
   if (plan_name == "mstc_online") {
-    Global::shared_instance()->set_tool_size(tool_size);
-    Global::shared_instance()->set_robot_name(robot_name);
-    std::cout << "1. My name is " << Global::shared_instance()->get_robot_name();
+    communicator = CommunicatorPtr(new Communicator());
+    communicator->set_robot_name(robot_name);
+    communicator->set_tool_size(tool_size);
+    std::cout << "1. My name is " << communicator->get_robot_name();
     std::cout << "2. My name is " << robot_name;
     std::cout << "3. Other information: " << plan_name << starting_point_x
         << starting_point_y << tool_size;
@@ -197,6 +198,10 @@ double Robot::get_angular_velocity_step() {
   return angular_velocity_step;
 }
 
+CommunicatorPtr Robot::get_communicator() {
+  return communicator;
+}
+
 void Robot::set_behavior_run(boost::function<void()> behavior_run) {
   this->behavior_run = behavior_run;
 }
@@ -299,8 +304,8 @@ void Robot::process_keyboard_input(char c) {
     break;
   case 'c':
     if (plan_name == "mstc_online") {
-      Global::shared_instance()->write_old_cells_message("");
-      Global::shared_instance()->write_status_message("");
+      communicator->write_old_cells_message("");
+      communicator->write_status_message("");
     }
     break;
   case 'q':

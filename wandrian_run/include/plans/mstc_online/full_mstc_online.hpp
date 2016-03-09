@@ -20,7 +20,7 @@ class FullMstcOnline: public MstcOnline {
 public:
   FullMstcOnline();
   ~FullMstcOnline();
-  virtual void initialize(PointPtr, double);
+  virtual void initialize(PointPtr, double, CommunicatorPtr);
   virtual void cover();
 
 protected:

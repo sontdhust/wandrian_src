@@ -70,7 +70,7 @@ inline Quadrant operator--(Quadrant &q) {
 class PartiallyOccupiableCell: public Cell {
 
 public:
-  PartiallyOccupiableCell(PointPtr, double);
+  PartiallyOccupiableCell(PointPtr, double, std::string);
   ~PartiallyOccupiableCell();
   PointPtr get_current_position();
   Quadrant get_current_quadrant();

@@ -1,11 +1,11 @@
 /*
- * global.cpp
+ * communicator.cpp
  *
  *  Created on: Dec 15, 2015
  *      Author: manhnh
  */
 
-#include "../include/plans/mstc_online/global.hpp"
+#include "../include/plans/mstc_online/communicator.hpp"
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
 #include <boost/foreach.hpp>
@@ -18,16 +18,14 @@ namespace wandrian {
 namespace plans {
 namespace mstc_online {
 
-GlobalPtr Global::instance;
-
-Global::Global() {
+Communicator::Communicator() {
   tool_size = 0.5;
 }
 
-Global::~Global() {
+Communicator::~Communicator() {
 }
 
-void Global::write_old_cells_message(std::string message) {
+void Communicator::write_old_cells_message(std::string message) {
   // Write old cells
   ROS_INFO("[Writing]My old cells: %s", message.data());
   rosbag::Bag bag;
@@ -38,7 +36,7 @@ void Global::write_old_cells_message(std::string message) {
   bag.close();
 }
 
-void Global::write_status_message(std::string status) {
+void Communicator::write_status_message(std::string status) {
   // Write status
   rosbag::Bag status_bag;
   ROS_INFO("[Writing status]Status: %s", status.data());
@@ -49,30 +47,28 @@ void Global::write_status_message(std::string status) {
   status_bag.close();
 }
 
-std::string Global::create_old_cells_message() {
-  std::string msg;
-  for (std::list<OldCell>::iterator item = old_cells.begin();
+std::string Communicator::create_old_cells_message() {
+  std::string messages;
+  for (std::list<CellPtr>::iterator item = old_cells.begin();
       item != old_cells.end(); ++item) {
-    std::stringstream tmp;
-    tmp << (*item).get_old_cell()->get_center()->x << ","
-        << (*item).get_old_cell()->get_center()->y << ","
-        << (*item).get_robot_name() << ";";
-    msg.append(tmp.str());
+    std::stringstream messsage;
+    messsage << (*item)->get_center()->x << "," << (*item)->get_center()->y
+        << "," << (*item)->get_robot_name() << ";";
+    messages.append(messsage.str());
   }
-  return msg;
+  return messages;
 }
 
-std::string Global::create_status_message(CellPtr last_cell) {
+std::string Communicator::create_status_message(CellPtr last_cell) {
   bool check_added = false;
   std::string my_status;
   std::string all_robots_new_status = "";
-  std::stringstream tmp;
-  std::string status_from_ros_bag = read_status_from_ros_bag();
-
-  tmp << get_robot_name() << "," << last_cell->get_center()->x << ","
+  std::stringstream status;
+  std::string status_from_ros_bag = read_status_message();
+  status << get_robot_name() << "," << last_cell->get_center()->x << ","
       << last_cell->get_center()->y << "," << ros::Time::now() << ","
       << "[ALIVE];";
-  my_status.append(tmp.str());
+  my_status.append(status.str());
   if (status_from_ros_bag == "") {
     all_robots_new_status = my_status;
   } else {
@@ -97,22 +93,23 @@ std::string Global::create_status_message(CellPtr last_cell) {
   return all_robots_new_status;
 }
 
-void Global::read_message_then_update_old_cells() {
-  update_old_cells_from_message(read_message());
+void Communicator::read_message_then_update_old_cells() {
+  update_old_cells_from_message(read_old_cells_message());
 }
 
-bool Global::ask_other_robot_still_alive(std::string robot_name_want_ask) {
+bool Communicator::ask_other_robot_still_alive(
+    std::string robot_name_want_ask) {
   bool result = true;
-  std::string temp_cell;
+  std::string cell_string;
   int i;
-  std::string temp_status; // When robot is dead, change robot's status to [DEAD] and store to this variable
+  std::string status_string; // When robot is dead, change robot's status to [DEAD] and store to this variable
   if (robot_name_want_ask == get_robot_name()) {
     result = true;
   } else {
     boost::char_separator<char> split_status(";");
     boost::char_separator<char> split_information(",");
-    boost::tokenizer<boost::char_separator<char> > tokens(
-        read_status_from_ros_bag(), split_status);
+    boost::tokenizer<boost::char_separator<char> > tokens(read_status_message(),
+        split_status);
     foreach (const std::string& status, tokens) {
       if (status.find(robot_name_want_ask) != std::string::npos) {
         // Found
@@ -121,41 +118,39 @@ bool Global::ask_other_robot_still_alive(std::string robot_name_want_ask) {
         i = 1;
         foreach (const std::string& information, tokens) {
           if (i == 1) {
-            temp_status.append(information);
-            temp_status.append(",");
+            status_string.append(information);
+            status_string.append(",");
           } else if (i == 2) {
-            temp_status.append(information);
-            temp_status.append(",");
-            temp_cell.append(information);
-            temp_cell.append(",");
+            status_string.append(information);
+            status_string.append(",");
+            cell_string.append(information);
+            cell_string.append(",");
           } else if (i == 3) {
-            temp_status.append(information);
-            temp_status.append(",");
-            temp_cell.append(information);
-            temp_cell.append(",");
+            status_string.append(information);
+            status_string.append(",");
+            cell_string.append(information);
+            cell_string.append(",");
           } else if (i == 4) {
-            temp_status.append(information);
+            status_string.append(information);
 
             int old_time = atoi(information.c_str());
             int current;
-            std::stringstream tmp_time_now;
-            std::string tmp;
-            tmp_time_now << ros::Time::now();
-            tmp = tmp_time_now.str();
-            current = atoi(tmp.c_str());
+            std::stringstream ss;
+            ss << ros::Time::now();
+            current = atoi(ss.str().c_str());
 
             std::cout << "DHBKHNHEDSPIK56 <<" << current - old_time << ">>";
             if (current - old_time > 45) {
               // Robot was dead
               result = false;
-              temp_status.append("[DEAD];");
-              temp_cell.append(get_robot_name());
-              temp_cell.append(";");
+              status_string.append("[DEAD];");
+              cell_string.append(get_robot_name());
+              cell_string.append(";");
 
               // Update all status
               boost::char_separator<char> split(";");
               boost::tokenizer<boost::char_separator<char> > tokens(
-                  read_status_from_ros_bag(), split);
+                  read_status_message(), split);
               foreach (const std::string& dead_robot_status, tokens) {
                 if (dead_robot_status.find(robot_name_want_ask)
                     != std::string::npos) {
@@ -163,25 +158,25 @@ bool Global::ask_other_robot_still_alive(std::string robot_name_want_ask) {
                   continue;
                 } else {
                   // Not found
-                  temp_status.append(dead_robot_status);
-                  temp_status.append(";");
+                  status_string.append(dead_robot_status);
+                  status_string.append(";");
                 }
               }
-              clear_robots_dead_old_cells(robot_name_want_ask, temp_cell,
-                  temp_status);
+              clear_robots_dead_old_cells(robot_name_want_ask, cell_string,
+                  status_string);
             }
           } else if (i == 5) {
             if (information == "[DEAD];") {
-              temp_status.append(information);
+              status_string.append(information);
               // Robot was dead
               result = false;
-              temp_cell.append(get_robot_name());
-              temp_cell.append(";");
+              cell_string.append(get_robot_name());
+              cell_string.append(";");
 
               // Update all status
               boost::char_separator<char> split(";");
               boost::tokenizer<boost::char_separator<char> > tokens(
-                  read_status_from_ros_bag(), split);
+                  read_status_message(), split);
               foreach (const std::string& dead_robot_status, tokens) {
                 if (dead_robot_status.find(robot_name_want_ask)
                     != std::string::npos) {
@@ -189,12 +184,12 @@ bool Global::ask_other_robot_still_alive(std::string robot_name_want_ask) {
                   continue;
                 } else {
                   // Not found
-                  temp_status.append(dead_robot_status);
-                  temp_status.append(";");
+                  status_string.append(dead_robot_status);
+                  status_string.append(";");
                 }
               }
-              clear_robots_dead_old_cells(robot_name_want_ask, temp_cell,
-                  temp_status);
+              clear_robots_dead_old_cells(robot_name_want_ask, cell_string,
+                  status_string);
             }
           }
           i++;
@@ -207,7 +202,7 @@ bool Global::ask_other_robot_still_alive(std::string robot_name_want_ask) {
   return result;
 }
 
-std::string Global::find_robot_name(CellPtr cell_to_find) {
+std::string Communicator::find_robot_name(CellPtr cell_to_find) {
   std::string robot_name = "NOT FOUND";
   int i;
   double x;
@@ -238,12 +233,12 @@ std::string Global::find_robot_name(CellPtr cell_to_find) {
   return robot_name;
 }
 
-bool Global::find_old_cell(CellPtr cell) {
+bool Communicator::find_old_cell(CellPtr cell) {
   bool value = false;
-  for (std::list<OldCell>::iterator item = old_cells.begin();
+  for (std::list<CellPtr>::iterator item = old_cells.begin();
       item != old_cells.end(); ++item) {
-    if (((*item).get_old_cell()->get_center()->x == cell->get_center()->x)
-        && ((*item).get_old_cell()->get_center()->y == cell->get_center()->y)) {
+    if (((*item)->get_center()->x == cell->get_center()->x)
+        && ((*item)->get_center()->y == cell->get_center()->y)) {
       value = true;
       break;
     }
@@ -251,32 +246,27 @@ bool Global::find_old_cell(CellPtr cell) {
   return value;
 }
 
-void Global::insert_old_cell(CellPtr cell) {
-  old_cells.push_back(OldCell(cell, get_robot_name()));
+void Communicator::insert_old_cell(CellPtr cell) {
+  old_cells.push_back(
+      CellPtr(
+          new Cell(cell->get_center(), cell->get_size(), get_robot_name())));
 }
 
-GlobalPtr Global::shared_instance() {
-  if (instance == NULL)
-    instance = GlobalPtr(new Global());
-  return instance;
-}
-
-const std::string& Global::get_robot_name() {
+std::string Communicator::get_robot_name() const {
   return robot_name;
 }
 
-void Global::set_robot_name(const std::string& robotName) {
-  robot_name = robotName;
+void Communicator::set_robot_name(const std::string& robot_name) {
+  this->robot_name = robot_name;
 }
 
-void Global::set_tool_size(double robotSize) {
-  tool_size = robotSize;
+void Communicator::set_tool_size(double tool_size) {
+  this->tool_size = tool_size;
 }
 
-std::string Global::read_message() {
+std::string Communicator::read_old_cells_message() {
   rosbag::Bag bag;
   std::string msg;
-
   bag.open("message.bag", rosbag::bagmode::Read);
   std::vector<std::string> topics;
   topics.push_back(std::string("publisher_communication"));
@@ -293,7 +283,7 @@ std::string Global::read_message() {
   return msg;
 }
 
-void Global::update_old_cells_from_message(std::string msg) {
+void Communicator::update_old_cells_from_message(std::string msg) {
   old_cells.clear();
   double x = 0.0;
   double y = 0.0;
@@ -315,18 +305,16 @@ void Global::update_old_cells_from_message(std::string msg) {
       }
       i++;
     }
-    OldCell temp_cell = OldCell(
-        CellPtr(new Cell(PointPtr(new Point(x, y)), 2 * tool_size)),
-        robot_name);
-    old_cells.push_back(temp_cell);
+    CellPtr old_cell = CellPtr(
+        new Cell(PointPtr(new Point(x, y)), 2 * tool_size, robot_name));
+    old_cells.push_back(old_cell);
   }
   ROS_INFO("[Reading]My old cells: %s", create_old_cells_message().data());
 }
 
-std::string Global::read_status_from_ros_bag() {
+std::string Communicator::read_status_message() {
   rosbag::Bag bag;
   std::string msg;
-
   bag.open("status.bag", rosbag::bagmode::Read);
   std::vector<std::string> topics;
   topics.push_back(std::string("status_publisher"));
@@ -342,17 +330,17 @@ std::string Global::read_status_from_ros_bag() {
   return msg;
 }
 
-void Global::clear_robots_dead_old_cells(std::string robot_dead_name,
+void Communicator::clear_robots_dead_old_cells(std::string dead_robot_name,
     std::string last_cell, std::string last_status) {
   // Read old cells data from ros bag
-  std::string old_old_cells = read_message();
+  std::string old_old_cells = read_old_cells_message();
   std::string new_old_cells;
   // Clear robot dead old cells
   boost::char_separator<char> split_old_cell(";");
   boost::tokenizer<boost::char_separator<char> > tokens(old_old_cells,
       split_old_cell);
   foreach (const std::string& cell, tokens) {
-    if (cell.find(robot_dead_name) != std::string::npos) {
+    if (cell.find(dead_robot_name) != std::string::npos) {
       // Found
       continue;
     } else {
