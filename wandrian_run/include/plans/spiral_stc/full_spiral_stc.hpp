@@ -29,6 +29,7 @@ protected:
 
 private:
   PartiallyOccupiableCellPtr starting_cell;
+  std::set<CellPtr, CellComp> old_cells;
 
   bool go_from(CellPtr, bool, CellPtr);
   bool visit(CellPtr, Quadrant, bool);
