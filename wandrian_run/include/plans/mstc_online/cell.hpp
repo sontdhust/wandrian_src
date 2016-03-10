@@ -2,11 +2,11 @@
  * cell.hpp
  *
  *  Created on: Sep 15, 2015
- *      Author: anhnt
+ *      Author: manhnh
  */
 
-#ifndef WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_ONLINE_CELL_HPP_
-#define WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_ONLINE_CELL_HPP_
+#ifndef WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_CELL_HPP_
+#define WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_CELL_HPP_
 
 #include "../../common/polygon.hpp"
 
@@ -14,7 +14,7 @@ using namespace wandrian::common;
 
 namespace wandrian {
 namespace plans {
-namespace boustrophedon_online {
+namespace mstc_online {
 
 enum State {
   NEW, OLD, OBSTACLE
@@ -23,17 +23,19 @@ enum State {
 class Cell: public Polygon {
 
 public:
-  Cell(PointPtr, double);
+  Cell(PointPtr, double, std::string);
   virtual ~Cell();
 
   PointPtr get_center() const;
   double get_size() const;
+  std::string get_robot_name() const;
   boost::shared_ptr<Cell> get_parent();
   void set_parent(boost::shared_ptr<Cell>);
 
 protected:
   PointPtr center;
   double size;
+  std::string robot_name;
 
 private:
   boost::shared_ptr<Cell> parent;
@@ -71,4 +73,4 @@ struct CellComp {
 }
 }
 
-#endif /* WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_ONLINE_CELL_HPP_ */
+#endif /* WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_CELL_HPP_ */

@@ -10,6 +10,14 @@
 namespace wandrian {
 namespace common {
 
+Vector::Vector() :
+    x(0), y(-1) {
+}
+
+Vector::Vector(double a) :
+    x(cos(a)), y(sin(a)) {
+}
+
 Vector::Vector(double x, double y) :
     x(x), y(y) {
 }
@@ -21,11 +29,33 @@ Vector::Vector(const Vector &vector) :
 VectorPtr Vector::rotate_counterclockwise_left() {
   return VectorPtr(new Vector(-y, x));
 }
+
 VectorPtr Vector::rotate_counterclockwise_right() {
   return VectorPtr(new Vector(y, -x));
 }
+
 VectorPtr Vector::rotate_counterclockwise_180() {
   return VectorPtr(new Vector(-x, -y));
+}
+
+void Vector::rotate_counterclockwise() {
+  double d = x;
+  x = -y;
+  y = d;
+}
+
+void Vector::rotate_clockwise() {
+  double d = x;
+  x = y;
+  y = -d;
+}
+
+double Vector::get_magnitude() {
+  return sqrt(std::pow(x, 2) + std::pow(y, 2));
+}
+
+double Vector::get_angle() {
+  return atan2(y, x);
 }
 
 }

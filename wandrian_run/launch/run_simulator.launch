@@ -1,8 +1,8 @@
 <launch>
   <arg name="plan_name"/>
+  <arg name="tool_size"/>
   <arg name="starting_point_x"/>
   <arg name="starting_point_y"/>
-  <arg name="robot_size"/>
   <arg name="robot_name" value="mobile_base"/>
 
   <!-- Spawns Kobuki inside a Gazebo simulation -->
@@ -15,15 +15,15 @@
   <node pkg="nodelet" type="nodelet" name="$(arg robot_name)_nodelet_manager" args="manager"/>
   
   <node pkg="wandrian_run" type="run" name="run" output="screen">
-    <remap from="run/motor_power" to="mobile_base/commands/motor_power"/>
+    <remap from="run/power" to="mobile_base/commands/motor_power"/>
     <remap from="run/velocity" to="mobile_base/commands/velocity"/>
-    <remap from="run/odom" to="odom"/>
-    <remap from="run/laser" to="mobile_base/sensors/laser"/>
+    <remap from="run/odometry" to="odom"/>
+    <remap from="run/laser" to="scan"/>
 
     <param name="plan_name" value="$(arg plan_name)" type="string"/>
+    <param name="tool_size" value="$(arg tool_size)" type="double"/>
     <param name="starting_point_x" value="$(arg starting_point_x)" type="double"/>
     <param name="starting_point_y" value="$(arg starting_point_y)" type="double"/>
-    <param name="robot_size" value="$(arg robot_size)" type="double"/>
 
     <param name="linear_velocity_step" value="0.2" type="double"/>
     <param name="linear_velocity_max" value="2" type="double"/>
