@@ -2,7 +2,7 @@
  * segment.hpp
  *
  *  Created on: Jun 23, 2015
- *      Author: anhnt
+ *      Author: sontd
  */
 
 #ifndef WANDRIAN_RUN_INCLUDE_COMMON_SEGMENT_HPP_

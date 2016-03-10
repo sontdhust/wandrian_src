@@ -2,7 +2,7 @@
  * point.cpp
  *
  *  Created on: Jun 23, 2015
- *      Author: anhnt
+ *      Author: sontd
  */
 
 #include "../../include/common/point.hpp"
@@ -20,6 +20,10 @@ Point::Point(double x, double y) :
 
 Point::Point(const Point &point) :
     x(point.x), y(point.y) {
+}
+
+Point::Point(const PointPtr point) :
+    x(point->x), y(point->y) {
 }
 
 }

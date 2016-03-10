@@ -2,7 +2,7 @@
  * polygon.cpp
  *
  *  Created on: Jun 23, 2015
- *      Author: anhnt
+ *      Author: sontd
  */
 
 #include <boost/next_prior.hpp>

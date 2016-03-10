@@ -2,7 +2,7 @@
  * robot.hpp
  *
  *  Created on: Jul 31, 2015
- *      Author: anhnt
+ *      Author: sontd
  */
 
 #ifndef WANDRIAN_RUN_INCLUDE_ROBOT_HPP_

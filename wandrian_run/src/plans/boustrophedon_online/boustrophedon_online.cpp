@@ -67,22 +67,22 @@ bool BoustrophedonOnline::go_to_bpcell(PointPtr position, bool flexibly) {
   return true;
 }
 
-bool BoustrophedonOnline::see_obstacle(VectorPtr orientation, double step) {
+bool BoustrophedonOnline::see_obstacle(VectorPtr orientation, double distance) {
   if (behavior_see_obstacle)
-    return behavior_see_obstacle(orientation, step);
+    return behavior_see_obstacle(orientation, distance);
   return false;
 }
 
-bool BoustrophedonOnline::go_with(VectorPtr orientation, double step) {
+bool BoustrophedonOnline::go_with(VectorPtr orientation, double distance) {
   PointPtr last_position = *(--path.end());
   PointPtr new_position = PointPtr(
-      new Point(*last_position + *orientation * step * robot_size / 2));
+      new Point(last_position + orientation * distance));
   return go_to(new_position, STRICTLY);
 }
 bool BoustrophedonOnline::go_with_bpcell(PointPtr last_position,
-    VectorPtr orientation, double step) {
+    VectorPtr orientation, double distance) {
   PointPtr new_position = PointPtr(
-      new Point(*last_position + *orientation * step * robot_size / 2));
+      new Point(last_position + orientation * distance));
   return go_to_bpcell(new_position, STRICTLY);
 }
 void BoustrophedonOnline::go_straight(CellPtr neighbor, CellPtr current,
@@ -91,7 +91,7 @@ void BoustrophedonOnline::go_straight(CellPtr neighbor, CellPtr current,
   neighbor->set_parent(current);
   // current->neighbors.insert(current->neighbors.end(), neighbor);
   old_cells.insert(neighbor);
-  go_with(orientation, 2);
+  go_with(orientation, robot_size);
   bplist.erase(neighbor);
   boustrophedon_online(neighbor);
 }
@@ -101,7 +101,7 @@ void BoustrophedonOnline::turn_left(CellPtr neighbor_left, CellPtr current,
   neighbor_left->set_parent(current);
   // current->neighbors.insert(current->neighbors.end(), neighbor_left);
   old_cells.insert(neighbor_left);
-  go_with(orientation->rotate_counterclockwise_left(), 2);
+  go_with(orientation->rotate_counterclockwise_left(), robot_size);
   check_rotate = -1;
   bplist.erase(neighbor_left);
   boustrophedon_online(neighbor_left);
@@ -112,7 +112,7 @@ void BoustrophedonOnline::turn_right(CellPtr neighbor_right, CellPtr current,
   neighbor_right->set_parent(current);
   // current->neighbors.insert(current->neighbors.end(), neighbor_right);
   old_cells.insert(neighbor_right);
-  go_with(orientation->rotate_counterclockwise_right(), 2);
+  go_with(orientation->rotate_counterclockwise_right(), robot_size);
   check_rotate = 1;
   bplist.erase(neighbor_right);
   boustrophedon_online(neighbor_right);
@@ -129,14 +129,14 @@ void BoustrophedonOnline::find_bpcell(CellPtr current) {
             PointPtr(
                 new Point(tmp->get_center()->x + robot_size,
                     tmp->get_center()->y)), robot_size));
-    if (check(neighbor_W) == OLD_CELL)
+    if (state_of(neighbor_W) == OLD)
       goal = check_vertex(neighbor_W);
     CellPtr neighbor_E = CellPtr(
         new Cell(
             PointPtr(
                 new Point(tmp->get_center()->x - robot_size,
                     tmp->get_center()->y)), robot_size));
-    if (check(neighbor_E) == OLD_CELL)
+    if (state_of(neighbor_E) == OLD)
       goal = check_vertex(neighbor_E);
 
     vector<mygraph_t::vertex_descriptor> p(num_vertices(g));
@@ -148,7 +148,7 @@ void BoustrophedonOnline::find_bpcell(CellPtr current) {
           predecessor_map(&p[0]).distance_map(&d[0]).visitor(
               astar_goal_visitor<vertex>(goal)));
 
-    } catch (found_goal *fg) { // found a path to the goal
+    } catch (found_goal &fg) { // found a path to the goal
       list<vertex> shortest_path;
       for (vertex v = goal;; v = p[v]) {
         shortest_path.push_front(v);
@@ -184,16 +184,14 @@ void BoustrophedonOnline::bpmove(CellPtr current) {
             robot_size));
     VectorPtr orientation = VectorPtr(
         new Vector(
-            (*(next_cell->get_center()) - *(current->get_center()))
-                / robot_size));
-    go_with_bpcell(current->get_center(), orientation, 2);
+            (next_cell->get_center() - current->get_center()) / robot_size));
+    go_with_bpcell(current->get_center(), orientation, robot_size);
     current = next_cell;
   }
   VectorPtr orientation = VectorPtr(
       new Vector(
-          (*(starting_cell->get_center()) - *(current->get_center()))
-              / robot_size));
-  go_with_bpcell(current->get_center(), orientation, 2);
+          (starting_cell->get_center() - current->get_center()) / robot_size));
+  go_with_bpcell(current->get_center(), orientation, robot_size);
   path.insert(path.end(), starting_cell->get_center());
   old_cells.insert(old_cells.end(), starting_cell);
   starting_cell->set_parent(
@@ -252,7 +250,7 @@ void BoustrophedonOnline::insert_cell_to_graph(CellPtr current,
     CellPtr neighbor, int vertex_current) {
 
   int vertex_neighbor = check_vertex(neighbor);
-  if (check(neighbor) == OLD_CELL) {
+  if (state_of(neighbor) == OLD) {
     if (vertex_current == -1) {
       if (vertex_neighbor == -1) {
         number_neighbor_cell = number_neighbor_cell + 1;
@@ -293,16 +291,16 @@ void BoustrophedonOnline::insert_cell_to_graph(CellPtr current,
 //                 new Point(
 //                     starting_cell->get_center()->x, starting_cell->get_center()->y - robot_size)),
 //             robot_size));
-//   if(check(neighbor_N)==OLD_CELL){
+//   if(check(neighbor_N)==OLD){
 //     std::cout << "\033[1;32mNew neighbor N:\033[0m" << " " << neighbor_N->get_center()->x << ", " << neighbor_N->get_center()->y;     
 //     bpmove(current, neighbor_N);
-//   }else if(check(neighbor_W)==OLD_CELL){
+//   }else if(check(neighbor_W)==OLD){
 //     std::cout << "\033[1;32mNew neighbor W:\033[0m" << " " << neighbor_W->get_center()->x << ", " << neighbor_W->get_center()->y;
 //     bpmove(current, neighbor_W);
-//   }else if(check(neighbor_E)==OLD_CELL){
+//   }else if(check(neighbor_E)==OLD){
 //     std::cout << "\033[1;32mNew neighbor E:\033[0m" << " " << neighbor_E->get_center()->x << ", " << neighbor_E->get_center()->y;
 //     bpmove(current, neighbor_E);
-//   }else if(check(neighbor_S)==OLD_CELL){
+//   }else if(check(neighbor_S)==OLD){
 //     std::cout << "\033[1;32mNew neighbor S:\033[0m" << " " << neighbor_S->get_center()->x << ", " << neighbor_S->get_center()->y;
 //     bpmove(current, neighbor_S);
 //   }
@@ -314,33 +312,32 @@ void BoustrophedonOnline::boustrophedon_online(CellPtr current) {
   std::cout << "Backtrack list: " << bplist.size() << "\n";
   VectorPtr orientation = VectorPtr(
       new Vector(
-          (*(current->get_parent()->get_center()) - *(current->get_center()))
+          (current->get_parent()->get_center() - current->get_center())
               / robot_size));
 
   // quay vector 180 do
   orientation = orientation->rotate_counterclockwise_180();
   if (current->get_center() == starting_cell->get_center()
-      && see_obstacle(orientation, 1)) {
+      && see_obstacle(orientation, robot_size / 2)) {
     orientation = orientation->rotate_counterclockwise_180();
   }
   // Scan for the first new neighbor of current cell in counterclockwise order
   CellPtr neighbor = CellPtr(
       new Cell(
-          PointPtr(
-              new Point(*(current->get_center()) + *orientation * robot_size)),
+          PointPtr(new Point(current->get_center() + orientation * robot_size)),
           robot_size));
-  // if(check(neighbor)!=OLD_CELL && see_obstacle(orientation,2)==false){
+  // if(check(neighbor)!=OLD && see_obstacle(orientation,2)==false){
   //   bplist.insert(neighbor);
   // }
   CellPtr neighbor_left = CellPtr(
       new Cell(
           PointPtr(
               new Point(
-                  *(current->get_center())
-                      + *orientation->rotate_counterclockwise_left()
+                  current->get_center()
+                      + orientation->rotate_counterclockwise_left()
                           * robot_size)), robot_size));
-  if (check(neighbor_left) != OLD_CELL
-      && see_obstacle(orientation->rotate_counterclockwise_left(), 1)
+  if (state_of(neighbor_left) != OLD
+      && see_obstacle(orientation->rotate_counterclockwise_left(), robot_size/2)
           == false) {
     bplist.insert(neighbor_left);
   }
@@ -349,23 +346,24 @@ void BoustrophedonOnline::boustrophedon_online(CellPtr current) {
       new Cell(
           PointPtr(
               new Point(
-                  *(current->get_center())
-                      + *orientation->rotate_counterclockwise_right()
+                  current->get_center()
+                      + orientation->rotate_counterclockwise_right()
                           * robot_size)), robot_size));
-  if (check(neighbor_right) != OLD_CELL
-      && see_obstacle(orientation->rotate_counterclockwise_right(), 1)
+  if (state_of(neighbor_right) != OLD
+      && see_obstacle(orientation->rotate_counterclockwise_right(), robot_size/2)
           == false) {
     bplist.insert(neighbor_right);
   }
-  CellPtr neighbor_bottom = CellPtr(
-      new Cell(
-          PointPtr(
-              new Point(
-                  *(current->get_center())
-                      + *orientation->rotate_counterclockwise_180()
-                          * robot_size)), robot_size));
-  if (check(neighbor_bottom) != OLD_CELL
-      && see_obstacle(orientation->rotate_counterclockwise_180(), 1) == false) {
+  CellPtr neighbor_bottom =
+      CellPtr(
+          new Cell(
+              PointPtr(
+                  new Point(
+                      *(current->get_center()
+                          + orientation->rotate_counterclockwise_180()
+                              * robot_size))), robot_size));
+  if (state_of(neighbor_bottom) != OLD
+      && see_obstacle(orientation->rotate_counterclockwise_180(), robot_size/2) == false) {
     bplist.insert(neighbor_bottom);
   }
 
@@ -402,61 +400,61 @@ void BoustrophedonOnline::boustrophedon_online(CellPtr current) {
 
   if (straight == false) {
     if (check_rotate == 1) {
-      if (see_obstacle(orientation->rotate_counterclockwise_right(), 1)
-          == false&& check(neighbor_right) != OLD_CELL) {
+      if (see_obstacle(orientation->rotate_counterclockwise_right(), robot_size/2) == false
+          && state_of(neighbor_right) != OLD) {
         straight = true;
         turn_right(neighbor_right, current, orientation);
-      } else if (see_obstacle(orientation->rotate_counterclockwise_left(), 1)
-          == false && check(neighbor_left) != OLD_CELL) {
+      } else if (see_obstacle(orientation->rotate_counterclockwise_left(), robot_size/2)
+          == false && state_of(neighbor_left) != OLD) {
         straight = true;
         turn_left(neighbor_left, current, orientation);
-      } else if (see_obstacle(orientation, 1)
-          == false&& check(neighbor) != OLD_CELL) {
+      } else if (see_obstacle(orientation, robot_size/2) == false
+          && state_of(neighbor) != OLD) {
         go_straight(neighbor, current, orientation);
       }
     } else {
-      if (see_obstacle(orientation->rotate_counterclockwise_left(), 1)
-          == false&& check(neighbor_left) != OLD_CELL) {
+      if (see_obstacle(orientation->rotate_counterclockwise_left(), robot_size/2) == false
+          && state_of(neighbor_left) != OLD) {
         straight = true;
         turn_left(neighbor_left, current, orientation);
-      } else if (see_obstacle(orientation->rotate_counterclockwise_right(), 1)
-          == false && check(neighbor_right) != OLD_CELL) {
+      } else if (see_obstacle(orientation->rotate_counterclockwise_right(), robot_size/2)
+          == false && state_of(neighbor_right) != OLD) {
         straight = true;
         turn_right(neighbor_right, current, orientation);
-      } else if (see_obstacle(orientation, 1)
-          == false&& check(neighbor) != OLD_CELL) {
+      } else if (see_obstacle(orientation, robot_size/2) == false
+          && state_of(neighbor) != OLD) {
         go_straight(neighbor, current, orientation);
       }
     }
   } else {
-    if (see_obstacle(orientation, 1) || check(neighbor) == OLD_CELL) { // TODO: Check obstacle here
+    if (see_obstacle(orientation, robot_size/2) || state_of(neighbor) == OLD) { // TODO: Check obstacle here
       std::cout << " \033[1;46m(OBSTACLE)\033[0m\n";
       // Go to next sub-cell
 
       if (check_rotate == 1) {
-        if (see_obstacle(orientation->rotate_counterclockwise_left(), 1)
-            == false && check(neighbor_left) != OLD_CELL) {
+        if (see_obstacle(orientation->rotate_counterclockwise_left(), robot_size/2)
+            == false && state_of(neighbor_left) != OLD) {
           straight = false;
           turn_left(neighbor_left, current, orientation);
-        } else if (see_obstacle(orientation->rotate_counterclockwise_right(), 1)
-            == false && check(neighbor_right) != OLD_CELL) {
+        } else if (see_obstacle(orientation->rotate_counterclockwise_right(), robot_size/2)
+            == false && state_of(neighbor_right) != OLD) {
           straight = false;
           turn_right(neighbor_right, current, orientation);
         }
 
       } else if (check_rotate == -1) {
-        if (see_obstacle(orientation->rotate_counterclockwise_right(), 1)
-            == false && check(neighbor_right) != OLD_CELL) {
+        if (see_obstacle(orientation->rotate_counterclockwise_right(), robot_size/2)
+            == false && state_of(neighbor_right) != OLD) {
           straight = false;
           turn_right(neighbor_right, current, orientation);
-        } else if (see_obstacle(orientation->rotate_counterclockwise_left(), 1)
-            == false && check(neighbor_left) != OLD_CELL) {
+        } else if (see_obstacle(orientation->rotate_counterclockwise_left(), robot_size/2)
+            == false && state_of(neighbor_left) != OLD) {
           straight = false;
           turn_left(neighbor_left, current, orientation);
         }
       }
-    } else if (see_obstacle(orientation, 1)
-        == false&& check(neighbor) != OLD_CELL) { // New free neighbor
+    } else if (see_obstacle(orientation, robot_size/2) == false
+        && state_of(neighbor) != OLD) { // New free neighbor
       straight = true;
       go_straight(neighbor, current, orientation);
     }
@@ -474,9 +472,8 @@ void BoustrophedonOnline::boustrophedon_online(CellPtr current) {
 
 }
 
-bool BoustrophedonOnline::check(CellPtr cell_to_check) {
-  return
-      (old_cells.find(cell_to_check) != old_cells.end()) ? OLD_CELL : NEW_CELL;
+State BoustrophedonOnline::state_of(CellPtr cell_to_check) {
+  return (old_cells.find(cell_to_check) != old_cells.end()) ? OLD : NEW;
 }
 
 }

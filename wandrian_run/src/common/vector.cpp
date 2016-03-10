@@ -26,6 +26,10 @@ Vector::Vector(const Vector &vector) :
     x(vector.x), y(vector.y) {
 }
 
+Vector::Vector(const VectorPtr vector) :
+    x(vector->x), y(vector->y) {
+}
+
 VectorPtr Vector::rotate_counterclockwise_left() {
   return VectorPtr(new Vector(-y, x));
 }

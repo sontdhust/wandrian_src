@@ -2,7 +2,7 @@
  * segment.cpp
  *
  *  Created on: Jun 23, 2015
- *      Author: anhnt
+ *      Author: sontd
  */
 
 #include <stdexcept>

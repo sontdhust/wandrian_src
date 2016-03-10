@@ -9,6 +9,7 @@
 #define WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_ONLINE_BOUSTROPHEDON_ONLINE_HPP_
 
 #include "../../common/environment.hpp"
+#include "../../common/vector.hpp"
 #include "../base_plan.hpp"
 #include "../boustrophedon_online/a_star.hpp"
 #include "../boustrophedon_online/cell.hpp"
@@ -52,7 +53,7 @@ private:
   void bpmove(CellPtr);
   void find_bpcell(CellPtr);
   void boustrophedon_online(CellPtr);
-  bool check(CellPtr);
+  State state_of(CellPtr);
   int check_rotate;
   bool straight;
   int number_cell;
