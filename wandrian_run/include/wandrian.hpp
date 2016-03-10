@@ -10,9 +10,9 @@
 
 #include "common/vector.hpp"
 #include "core.hpp"
-#include "plans/online_boustrophedon/online_boustrophedon.hpp"
+#include "plans/boustrophedon_online/boustrophedon_online.hpp"
 
-using namespace wandrian::plans::online_boustrophedon;
+using namespace wandrian::plans::boustrophedon_online;
 
 namespace wandrian {
 
@@ -27,8 +27,8 @@ private:
 
   // Behaviors
   void wandrian_run();
-  bool online_boustrophedon_go_to(PointPtr, bool);
-  bool online_boustrophedon_see_obstacle(VectorPtr, double);
+  bool boustrophedon_online_go_to(PointPtr, bool);
+  bool boustrophedon_online_see_obstacle(VectorPtr, double);
 
   // Helpers
   bool go_to(PointPtr, bool);

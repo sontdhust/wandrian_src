@@ -6,7 +6,7 @@
  */
 
 #include "../include/wandrian.hpp"
-#include "../include/plans/online_boustrophedon/online_boustrophedon.hpp"
+#include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
 
 #define CLOCKWISE true
 #define COUNTERCLOCKWISE false
@@ -29,25 +29,28 @@ void Wandrian::spin() {
 
 void Wandrian::wandrian_run() {
 
-  if (core.get_plan_name() == "online_boustrophedon") {
-    OnlineBoustrophedonPtr online_boustrophedon = OnlineBoustrophedonPtr(new OnlineBoustrophedon());
-    online_boustrophedon->initialize(
+  if (core.get_plan_name() == "boustrophedon_online") {
+    BoustrophedonOnlinePtr boustrophedon_online = BoustrophedonOnlinePtr(
+        new BoustrophedonOnline());
+    boustrophedon_online->initialize(
         PointPtr(
             new Point(core.get_starting_point_x(),
                 core.get_starting_point_y())), core.get_robot_size());
-    online_boustrophedon->set_behavior_go_to(
-        boost::bind(&Wandrian::online_boustrophedon_go_to, this, _1, _2));
-    online_boustrophedon->set_behavior_see_obstacle(
-        boost::bind(&Wandrian::online_boustrophedon_see_obstacle, this, _1, _2));
-    return online_boustrophedon->cover();
+    boustrophedon_online->set_behavior_go_to(
+        boost::bind(&Wandrian::boustrophedon_online_go_to, this, _1, _2));
+    boustrophedon_online->set_behavior_see_obstacle(
+        boost::bind(&Wandrian::boustrophedon_online_see_obstacle, this, _1,
+            _2));
+    return boustrophedon_online->cover();
   }
 }
 
-bool Wandrian::online_boustrophedon_go_to(PointPtr position, bool flexibly) {
+bool Wandrian::boustrophedon_online_go_to(PointPtr position, bool flexibly) {
   return go_to(position, flexibly);
 }
 
-bool Wandrian::online_boustrophedon_see_obstacle(VectorPtr orientation, double step) {
+bool Wandrian::boustrophedon_online_see_obstacle(VectorPtr orientation,
+    double step) {
   // TODO: Correctly check whether obstacle is near or not
   double angle = *orientation ^ *core.get_current_orientation();
   return

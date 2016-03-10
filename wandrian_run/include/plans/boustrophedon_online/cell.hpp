@@ -1,12 +1,12 @@
 /*
- * square.hpp
+ * cell.hpp
  *
  *  Created on: Sep 15, 2015
  *      Author: anhnt
  */
 
-#ifndef WANDRIAN_RUN_INCLUDE_PLANS_ONLINE_BOUSTROPHEDON_CELL_HPP_
-#define WANDRIAN_RUN_INCLUDE_PLANS_ONLINE_BOUSTROPHEDON_CELL_HPP_
+#ifndef WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_ONLINE_CELL_HPP_
+#define WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_ONLINE_CELL_HPP_
 
 #include "../../common/polygon.hpp"
 
@@ -14,7 +14,7 @@ using namespace wandrian::common;
 
 namespace wandrian {
 namespace plans {
-namespace online_boustrophedon {
+namespace boustrophedon_online {
 
 #define OLD_CELL false
 #define NEW_CELL true
@@ -29,6 +29,7 @@ public:
   double get_size();
   void set_parent(boost::shared_ptr<Cell>);
   boost::shared_ptr<Cell> get_parent();
+
 private:
   PointPtr center;
   double size;
@@ -59,4 +60,4 @@ struct CellComp {
 }
 }
 
-#endif /* WANDRIAN_RUN_INCLUDE_PLANS_ONLINE_BOUSTROPHEDON_CELL_HPP_ */
+#endif /* WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_ONLINE_CELL_HPP_ */

@@ -1,15 +1,15 @@
 /*
- * square.cpp
+ * cell.cpp
  *
  *  Created on: Sep 15, 2015
  *      Author: anhnt
  */
 
-#include "../../../include/plans/online_boustrophedon/cell.hpp"
+#include "../../../include/plans/boustrophedon_online/cell.hpp"
 
 namespace wandrian {
 namespace plans {
-namespace online_boustrophedon {
+namespace boustrophedon_online {
 
 Cell::Cell(PointPtr center, double size) :
     center(center), size(size), parent(CellPtr()) {

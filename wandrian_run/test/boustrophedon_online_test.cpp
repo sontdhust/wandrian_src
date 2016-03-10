@@ -15,19 +15,20 @@
 #include <boost/bind.hpp>
 #include <sstream>
 #include <fstream>
-#include "../include/plans/online_boustrophedon/online_boustrophedon.hpp"
+
+#include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
 
 #define R_SIZE 0.5 // robot size
 #define E_SIZE 4.0 // default environment size
 #define WORLD_INSERT_OBSTACLE "<!-- INSERT: Bound and Obstacles here -->" // flag at original world file to insert bound and obstacles into
 
-using namespace wandrian::plans::online_boustrophedon;
+using namespace wandrian::plans::boustrophedon_online;
 
 double e_size = 0;
 
 EnvironmentPtr environment;
 PointPtr starting_point;
-OnlineBoustrophedonPtr online_boustrophedon;
+BoustrophedonOnlinePtr boustrophedon_online;
 std::list<PointPtr> tmp_path;
 
 /**
@@ -298,13 +299,13 @@ int main(int argc, char **argv) {
   world_out.close();
 
   environment = EnvironmentPtr(new Environment(space, obstacles));
-  online_boustrophedon = OnlineBoustrophedonPtr(new OnlineBoustrophedon());
-  online_boustrophedon->initialize(starting_point, R_SIZE);
+  boustrophedon_online = BoustrophedonOnlinePtr(new BoustrophedonOnline());
+  boustrophedon_online->initialize(starting_point, R_SIZE);
   tmp_path.insert(tmp_path.end(), starting_point);
-  online_boustrophedon->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
-  online_boustrophedon->set_behavior_see_obstacle(
+  boustrophedon_online->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
+  boustrophedon_online->set_behavior_see_obstacle(
       boost::bind(&test_see_obstacle, _1, _2));
-  online_boustrophedon->cover();
+  boustrophedon_online->cover();
 
   run(argc, argv);
   return 0;

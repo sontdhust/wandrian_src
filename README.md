@@ -19,9 +19,9 @@ Change to catkin root directory then run:
 ####Build for testing:
 
     $ cd src/wandrian_run/test/
-    $ ./test.sh
+    $ ./boustrophedon_online_test.sh
 
 ####Running:
 
     $ roslaunch wandrian_run environment.launch world_file:=tmp
-    $ roslaunch wandrian_run run.launch plan_name:=online_boustrophedon starting_point_x:=-1.75 starting_point_y:=-1.75 robot_size:=0.5
+    $ roslaunch wandrian_run run.launch plan_name:=boustrophedon_online starting_point_x:=-1.75 starting_point_y:=-1.75 robot_size:=0.5
