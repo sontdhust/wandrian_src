@@ -6,7 +6,7 @@
  */
 
 #include "../../../include/plans/mstc_online/full_mstc_online.hpp"
-#include "../../../include/plans/mstc_online/global.hpp"
+#include "../../../include/plans/mstc_online/communicator.hpp"
 
 #define PASS true
 #define DONT_PASS false
@@ -24,34 +24,36 @@ FullMstcOnline::FullMstcOnline() {
 FullMstcOnline::~FullMstcOnline() {
 }
 
-void FullMstcOnline::initialize(PointPtr starting_point, double tool_size) {
+void FullMstcOnline::initialize(PointPtr starting_point, double tool_size,
+    CommunicatorPtr communicator) {
   this->tool_size = tool_size;
+  this->communicator = communicator;
   // Initialize starting_cell
   starting_cell = PartiallyOccupiableCellPtr(
       new PartiallyOccupiableCell(
           PointPtr(
               new Point(starting_point->x - tool_size / 2,
-                  starting_point->y + tool_size / 2)), 2 * tool_size));
+                  starting_point->y + tool_size / 2)), 2 * tool_size,
+          communicator->get_robot_name()));
   starting_cell->set_parent(
       PartiallyOccupiableCellPtr(
           new PartiallyOccupiableCell(
               PointPtr(
                   new Point(starting_cell->get_center()->x,
                       starting_cell->get_center()->y - 2 * tool_size)),
-              2 * tool_size)));
+              2 * tool_size, communicator->get_robot_name())));
   path.insert(path.end(), starting_point);
 }
 
 void FullMstcOnline::cover() {
-  Global::get_instance()->old_cells.insert(starting_cell);
+  communicator->cells.insert(starting_cell);
   starting_cell->set_current_quadrant(IV);
   scan(starting_cell);
 }
 
 State FullMstcOnline::state_of(CellPtr cell) {
   State state =
-      (Global::get_instance()->old_cells.find(cell)
-          != Global::get_instance()->old_cells.end()) ? OLD : NEW;
+      (communicator->cells.find(cell) != communicator->cells.end()) ? OLD : NEW;
   if (state == OLD)
     std::cout << " \033[1;45m(OLD)\033[0m\n";
   return state;
@@ -85,8 +87,8 @@ void FullMstcOnline::scan(CellPtr current) {
     // Scan for new neighbor of current cell in counterclockwise order
     PartiallyOccupiableCellPtr neighbor = PartiallyOccupiableCellPtr(
         new PartiallyOccupiableCell(
-            current->get_center() + orientation * 2 * tool_size,
-            2 * tool_size));
+            current->get_center() + orientation * 2 * tool_size, 2 * tool_size,
+            communicator->get_robot_name()));
     std::cout << "  \033[1;33mneighbor:\033[0m " << neighbor->get_center()->x
         << "," << neighbor->get_center()->y;
     if (state_of(neighbor) == OLD
@@ -102,7 +104,7 @@ void FullMstcOnline::scan(CellPtr current) {
       } else { // New free neighbor
         // Construct a spanning-tree edge
         neighbor->set_parent(current);
-        Global::get_instance()->old_cells.insert(neighbor);
+        communicator->cells.insert(neighbor);
         scan(neighbor);
       }
     }
@@ -205,7 +207,7 @@ bool FullMstcOnline::visit(CellPtr cell, Quadrant quadrant, bool flexibly) {
 bool FullMstcOnline::state_of_subcells_of(CellPtr cell,
     Orientation orientation) {
   PartiallyOccupiableCellPtr c = boost::dynamic_pointer_cast<
-      PartiallyOccupiableCell>(*Global::get_instance()->old_cells.find(cell));
+      PartiallyOccupiableCell>(*communicator->cells.find(cell));
   Quadrant q;
   if (orientation == AT_LEFT_SIDE)
     q = I;

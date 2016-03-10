@@ -20,10 +20,8 @@ class FullMstcOnline: public MstcOnline {
 public:
   FullMstcOnline();
   ~FullMstcOnline();
-  virtual void initialize(PointPtr, double);
+  virtual void initialize(PointPtr, double, CommunicatorPtr);
   virtual void cover();
-
-//  std::set<CellPtr, CellComp> *old_cells;
 
 protected:
   virtual State state_of(CellPtr);

@@ -23,17 +23,19 @@ enum State {
 class Cell: public Polygon {
 
 public:
-  Cell(PointPtr, double);
+  Cell(PointPtr, double, std::string);
   virtual ~Cell();
+
   PointPtr get_center() const;
   double get_size() const;
+  std::string get_robot_name() const;
   boost::shared_ptr<Cell> get_parent();
-
   void set_parent(boost::shared_ptr<Cell>);
 
 protected:
   PointPtr center;
   double size;
+  std::string robot_name;
 
 private:
   boost::shared_ptr<Cell> parent;

@@ -67,7 +67,8 @@ void Wandrian::wandrian_run() {
     mstc_online->initialize(
         PointPtr(
             new Point(robot->get_starting_point_x(),
-                robot->get_starting_point_y())), robot->get_tool_size());
+                robot->get_starting_point_y())), robot->get_tool_size(),
+        robot->get_communicator());
     mstc_online->set_behavior_go_to(
         boost::bind(&Wandrian::mstc_online_go_to, this, _1, _2));
     mstc_online->set_behavior_see_obstacle(
