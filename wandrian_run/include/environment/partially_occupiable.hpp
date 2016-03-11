@@ -1,18 +1,17 @@
 /*
- * partially_occupiable_cell.hpp
+ * partially_occupiable.hpp
  *
- *  Created on: Dec 12, 2015
- *      Author: cslab
+ *  Created on: Mar 11, 2016
+ *      Author: sontd
  */
 
-#ifndef WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_PARTIALLY_OCCUPIABLE_CELL_HPP_
-#define WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_PARTIALLY_OCCUPIABLE_CELL_HPP_
+#ifndef WANDRIAN_RUN_INCLUDE_ENVIRONMENT_PARTIALLY_OCCUPIABLE_HPP_
+#define WANDRIAN_RUN_INCLUDE_ENVIRONMENT_PARTIALLY_OCCUPIABLE_HPP_
 
 #include "cell.hpp"
 
 namespace wandrian {
-namespace plans {
-namespace spiral_stc {
+namespace environment {
 
 enum Quadrant {
   //  _____________
@@ -67,27 +66,26 @@ inline Quadrant operator--(Quadrant &q) {
   return q;
 }
 
-class PartiallyOccupiableCell: public Cell {
+class PartiallyOccupiable {
 
 public:
-  PartiallyOccupiableCell(PointPtr, double);
-  ~PartiallyOccupiableCell();
+  PartiallyOccupiable();
+  ~PartiallyOccupiable();
 
-  PointPtr get_current_position();
   Quadrant get_current_quadrant();
   State* get_quadrants();
   void set_current_quadrant(Quadrant);
   void set_quadrants_state(Quadrant, State);
+
+protected:
+  PointPtr current_position(PointPtr, double);
 
 private:
   Quadrant current_quadrant;
   State quadrants[4];
 };
 
-typedef boost::shared_ptr<PartiallyOccupiableCell> PartiallyOccupiableCellPtr;
-
-}
 }
 }
 
-#endif /* WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_PARTIALLY_OCCUPIABLE_CELL_HPP_ */
+#endif /* WANDRIAN_RUN_INCLUDE_ENVIRONMENT_PARTIALLY_OCCUPIABLE_HPP_ */

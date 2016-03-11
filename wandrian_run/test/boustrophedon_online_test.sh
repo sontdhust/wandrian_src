@@ -10,17 +10,22 @@ g++ -c vector.cpp
 g++ -c polygon.cpp
 g++ -c space.cpp
 
+cd ../environment
+g++ -c cell.cpp
+
 cd ../plans
 g++ -c base_plan.cpp
 
 cd boustrophedon_online
-g++ -c cell.cpp
 g++ -c boustrophedon_online.cpp
 
 cd ../..
-g++ -o ../wandrian_run ../../boustrophedon_online_test.cpp common/point.o common/vector.o \
-common/segment.o common/polygon.o common/space.o plans/base_plan.o \
-plans/boustrophedon_online/cell.o plans/boustrophedon_online/boustrophedon_online.o -lglut -lGL
+g++ -o ../wandrian_run \
+../../boustrophedon_online_test.cpp \
+common/point.o common/vector.o common/segment.o common/polygon.o common/space.o \
+plans/base_plan.o \
+environment/cell.o \
+plans/boustrophedon_online/boustrophedon_online.o -lglut -lGL
 cd ..
 clear
 clear

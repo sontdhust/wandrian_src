@@ -9,12 +9,13 @@
 #define WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_ONLINE_BOUSTROPHEDON_ONLINE_HPP_
 
 #include "../../common/vector.hpp"
+#include "../../environment/cell.hpp"
 #include "../base_plan.hpp"
 #include "../boustrophedon_online/a_star.hpp"
-#include "../boustrophedon_online/cell.hpp"
 #define MAX 100
 
 using namespace wandrian::common;
+using namespace wandrian::environment;
 
 namespace wandrian {
 namespace plans {

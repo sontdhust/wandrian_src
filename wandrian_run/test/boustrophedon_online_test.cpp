@@ -16,15 +16,16 @@
 #include <sstream>
 #include <fstream>
 
+#include "../include/common/space.hpp"
 #include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
 
 #define T_SIZE 0.5 // tool size
-#define S_SIZE 4.0 // default space size
+#define B_SIZE 4.0 // default space size
 #define WORLD_INSERT_OBSTACLE "<!-- INSERT: Bound and Obstacles here -->" // flag at original world file to insert bound and obstacles into
 
 using namespace wandrian::plans::boustrophedon_online;
 
-double e_size = 0;
+double b_size = 0;
 
 SpacePtr space;
 PointPtr starting_point;
@@ -69,8 +70,8 @@ void display() {
   glPointSize(1);
   glColor3ub(255, 255, 255);
   glBegin(GL_POINTS);
-  for (int i = -e_size; i <= e_size; i++) {
-    for (int j = -e_size; j <= e_size; j++) {
+  for (int i = -b_size; i <= b_size; i++) {
+    for (int j = -b_size; j <= b_size; j++) {
       if ((i != 0 || j != 0) && i % 2 == 0 && j % 2 == 0)
         glVertex2i((double) i / 2, (double) j / 2);
     }
@@ -156,33 +157,33 @@ bool test_see_obstacle(VectorPtr orientation, double distance) {
 int main(int argc, char **argv) {
   if (argc >= 2) {
     std::istringstream iss(argv[1]);
-    if (!(iss >> e_size)
-        || !(4 <= e_size && e_size <= 20 && (int) e_size % 2 == 0)) {
-      e_size = S_SIZE;
+    if (!(iss >> b_size)
+        || !(4 <= b_size && b_size <= 20 && (int) b_size % 2 == 0)) {
+      b_size = B_SIZE;
     }
   } else {
-    e_size = S_SIZE;
+    b_size = B_SIZE;
   }
 
-  CellPtr space = CellPtr(new Cell(PointPtr(new Point(0, 0)), e_size));
+  CellPtr bound = CellPtr(new Cell(PointPtr(new Point(0, 0)), b_size));
   std::list<PolygonPtr> obstacles;
 
   std::srand(std::time(0));
   starting_point = PointPtr(
       new Point(
-          (std::rand() % (int) (e_size / T_SIZE / 2.0)
-              - (int) (e_size / T_SIZE / 4.0)) + T_SIZE + T_SIZE / 2,
-          (std::rand() % (int) (e_size / T_SIZE / 2.0)
-              - (int) (e_size / T_SIZE / 4.0)) + T_SIZE - T_SIZE / 2));
+          (std::rand() % (int) (b_size / T_SIZE / 2.0)
+              - (int) (b_size / T_SIZE / 4.0)) + T_SIZE + T_SIZE / 2,
+          (std::rand() % (int) (b_size / T_SIZE / 2.0)
+              - (int) (b_size / T_SIZE / 4.0)) + T_SIZE - T_SIZE / 2));
 
-  int r = std::rand() % (int) (e_size * e_size / 16) + e_size * e_size / 8;
+  int r = std::rand() % (int) (b_size * b_size / 16) + b_size * b_size / 8;
   for (int i = 0; i <= r; i++) {
     PointPtr center = PointPtr(
         new Point(
-            (std::rand() % (int) (e_size / T_SIZE / 2.0)
-                - (int) (e_size / T_SIZE / 4.0)) + T_SIZE,
-            (std::rand() % (int) (e_size / T_SIZE / 2.0)
-                - (int) (e_size / T_SIZE / 4.0)) + T_SIZE));
+            (std::rand() % (int) (b_size / T_SIZE / 2.0)
+                - (int) (b_size / T_SIZE / 4.0)) + T_SIZE,
+            (std::rand() % (int) (b_size / T_SIZE / 2.0)
+                - (int) (b_size / T_SIZE / 4.0)) + T_SIZE));
     bool valid = true;
     for (std::list<PolygonPtr>::iterator p = obstacles.begin();
         p != obstacles.end(); p++)
@@ -206,13 +207,13 @@ int main(int argc, char **argv) {
       int n;
       n = 1;
       // Upper bound
-      for (double i = -e_size / 2 + T_SIZE / 2; i <= e_size / 2 - T_SIZE / 2;
+      for (double i = -b_size / 2 + T_SIZE / 2; i <= b_size / 2 - T_SIZE / 2;
           i += T_SIZE) {
         world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
         world_out << "      </include>\n";
-        world_out << "      <pose>" << i << " " << (e_size / 2 + T_SIZE / 4)
+        world_out << "      <pose>" << i << " " << (b_size / 2 + T_SIZE / 4)
             << " 0 0 0 0</pose>\n";
         world_out << "      <static>1</static>\n";
         world_out << "    </model>\n";
@@ -220,13 +221,13 @@ int main(int argc, char **argv) {
       }
 
       // Right bound
-      for (double i = -e_size / 2 + T_SIZE / 2; i <= e_size / 2 - T_SIZE / 2;
+      for (double i = -b_size / 2 + T_SIZE / 2; i <= b_size / 2 - T_SIZE / 2;
           i += T_SIZE) {
         world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
         world_out << "      </include>\n";
-        world_out << "      <pose>" << (e_size / 2 + T_SIZE / 4) << " " << -i
+        world_out << "      <pose>" << (b_size / 2 + T_SIZE / 4) << " " << -i
             << " 0 0 0 " << M_PI_2 << "</pose>\n";
         world_out << "      <static>1</static>\n";
         world_out << "    </model>\n";
@@ -234,13 +235,13 @@ int main(int argc, char **argv) {
       }
 
       // Lower bound
-      for (double i = -e_size / 2 + T_SIZE / 2; i <= e_size / 2 - T_SIZE / 2;
+      for (double i = -b_size / 2 + T_SIZE / 2; i <= b_size / 2 - T_SIZE / 2;
           i += T_SIZE) {
         world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
         world_out << "      </include>\n";
-        world_out << "      <pose>" << -i << " " << -(e_size / 2 + T_SIZE / 4)
+        world_out << "      <pose>" << -i << " " << -(b_size / 2 + T_SIZE / 4)
             << " 0 0 0 0</pose>\n";
         world_out << "      <static>1</static>\n";
         world_out << "    </model>\n";
@@ -248,13 +249,13 @@ int main(int argc, char **argv) {
       }
 
       // Left bound
-      for (double i = -e_size / 2 + T_SIZE / 2; i <= e_size / 2 - T_SIZE / 2;
+      for (double i = -b_size / 2 + T_SIZE / 2; i <= b_size / 2 - T_SIZE / 2;
           i += T_SIZE) {
         world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
         world_out << "      </include>\n";
-        world_out << "      <pose>" << -(e_size / 2 + T_SIZE / 4) << " " << i
+        world_out << "      <pose>" << -(b_size / 2 + T_SIZE / 4) << " " << i
             << " 0 0 0 " << M_PI_2 << "</pose>\n";
         world_out << "      <static>1</static>\n";
         world_out << "    </model>\n";
@@ -300,7 +301,7 @@ int main(int argc, char **argv) {
   world_in.close();
   world_out.close();
 
-  space = SpacePtr(new Space(space, obstacles));
+  space = SpacePtr(new Space(bound, obstacles));
   boustrophedon_online = BoustrophedonOnlinePtr(new BoustrophedonOnline());
   boustrophedon_online->initialize(starting_point, T_SIZE);
   tmp_path.insert(tmp_path.end(), starting_point);

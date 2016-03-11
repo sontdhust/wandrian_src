@@ -11,13 +11,12 @@
 #include <boost/tokenizer.hpp>
 #include <algorithm>
 #include <sstream>
-#include "../include/plans/mstc_online/communicator.hpp"
+#include "../../include/environment/communicator.hpp"
 
 #define foreach BOOST_FOREACH
 
 namespace wandrian {
-namespace plans {
-namespace mstc_online {
+namespace environment {
 
 Communicator::Communicator() {
   tool_size = 0.5;
@@ -50,7 +49,7 @@ void Communicator::write_status_message(std::string status) {
 
 std::string Communicator::create_old_cells_message() {
   std::string messages;
-  for (std::list<CellPtr>::iterator item = old_cells.begin();
+  for (std::list<IdentifiableCellPtr>::iterator item = old_cells.begin();
       item != old_cells.end(); ++item) {
     std::stringstream messsage;
     messsage << (*item)->get_center()->x << "," << (*item)->get_center()->y
@@ -60,7 +59,7 @@ std::string Communicator::create_old_cells_message() {
   return messages;
 }
 
-std::string Communicator::create_status_message(CellPtr last_cell) {
+std::string Communicator::create_status_message(IdentifiableCellPtr last_cell) {
   bool check_added = false;
   std::string my_status;
   std::string all_robots_new_status = "";
@@ -203,7 +202,7 @@ bool Communicator::ask_other_robot_still_alive(
   return result;
 }
 
-std::string Communicator::find_robot_name(CellPtr cell_to_find) {
+std::string Communicator::find_robot_name(IdentifiableCellPtr cell_to_find) {
   std::string robot_name = "NOT FOUND";
   int i;
   double x;
@@ -234,9 +233,9 @@ std::string Communicator::find_robot_name(CellPtr cell_to_find) {
   return robot_name;
 }
 
-bool Communicator::find_old_cell(CellPtr cell) {
+bool Communicator::find_old_cell(IdentifiableCellPtr cell) {
   bool value = false;
-  for (std::list<CellPtr>::iterator item = old_cells.begin();
+  for (std::list<IdentifiableCellPtr>::iterator item = old_cells.begin();
       item != old_cells.end(); ++item) {
     if (((*item)->get_center()->x == cell->get_center()->x)
         && ((*item)->get_center()->y == cell->get_center()->y)) {
@@ -247,10 +246,11 @@ bool Communicator::find_old_cell(CellPtr cell) {
   return value;
 }
 
-void Communicator::insert_old_cell(CellPtr cell) {
+void Communicator::insert_old_cell(IdentifiableCellPtr cell) {
   old_cells.push_back(
-      CellPtr(
-          new Cell(cell->get_center(), cell->get_size(), get_robot_name())));
+      IdentifiableCellPtr(
+          new IdentifiableCell(cell->get_center(), cell->get_size(),
+              get_robot_name())));
 }
 
 std::string Communicator::get_robot_name() const {
@@ -306,8 +306,9 @@ void Communicator::update_old_cells_from_message(std::string msg) {
       }
       i++;
     }
-    CellPtr old_cell = CellPtr(
-        new Cell(PointPtr(new Point(x, y)), 2 * tool_size, robot_name));
+    IdentifiableCellPtr old_cell = IdentifiableCellPtr(
+        new IdentifiableCell(PointPtr(new Point(x, y)), 2 * tool_size,
+            robot_name));
     old_cells.push_back(old_cell);
   }
   ROS_INFO("[Reading]My old cells: %s", create_old_cells_message().data());
@@ -356,6 +357,5 @@ void Communicator::clear_robots_dead_old_cells(std::string dead_robot_name,
   write_status_message(last_status);
 }
 
-}
 }
 }
