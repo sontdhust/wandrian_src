@@ -5,14 +5,15 @@
  *      Author: manhnh
  */
 
-#include "../include/plans/mstc_online/communicator.hpp"
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
 #include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
-#define foreach BOOST_FOREACH
 #include <algorithm>
 #include <sstream>
+#include "../include/plans/mstc_online/communicator.hpp"
+
+#define foreach BOOST_FOREACH
 
 namespace wandrian {
 namespace plans {

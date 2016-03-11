@@ -93,7 +93,7 @@ inline VectorPtr operator-(PointPtr p1, PointPtr p2) {
 }
 
 inline double operator^(VectorPtr v1, VectorPtr v2) {
-  double a1 = atan2(v1->y, v1->x) - atan2(v2->y, v2->x);
+  double a1 = std::atan2(v1->y, v1->x) - std::atan2(v2->y, v2->x);
   double a2 = (a1 > 0) ? a1 - 2 * M_PI : a1 + 2 * M_PI;
   return (std::abs(a1) < std::abs(a2)) ? a1 : a2;
 }

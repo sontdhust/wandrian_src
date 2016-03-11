@@ -8,7 +8,7 @@ g++ -c point.cpp
 g++ -c segment.cpp
 g++ -c vector.cpp
 g++ -c polygon.cpp
-g++ -c environment.cpp
+g++ -c space.cpp
 
 cd ../plans
 g++ -c base_plan.cpp
@@ -21,7 +21,7 @@ g++ -c full_spiral_stc.cpp
 
 cd ../..
 g++ -o ../wandrian_run ../../spiral_stc_test.cpp common/point.o common/vector.o common/segment.o \
-common/polygon.o common/environment.o plans/base_plan.o \
+common/polygon.o common/space.o plans/base_plan.o \
 plans/spiral_stc/cell.o plans/spiral_stc/partially_occupiable_cell.o \
 plans/spiral_stc/spiral_stc.o plans/spiral_stc/full_spiral_stc.o \
 -lglut -lGL

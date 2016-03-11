@@ -196,11 +196,12 @@ std::list<PointPtr> Polygon::get_partial_bound(bool is_upper) {
     for (std::set<PointPtr>::iterator adjacent =
         graph.find(current)->second.begin();
         adjacent != graph.find(current)->second.end(); adjacent++) {
-      double a = atan2(previous->y - current->y, previous->x - current->x)
-          - atan2((*adjacent)->y - current->y, (*adjacent)->x - current->x);
-      double d = sqrt(
-          pow(current->x - (*adjacent)->x, 2)
-              + pow(current->y - (*adjacent)->y, 2));
+      double a = std::atan2(previous->y - current->y, previous->x - current->x)
+          - std::atan2((*adjacent)->y - current->y,
+              (*adjacent)->x - current->x);
+      double d = std::sqrt(
+          std::pow(current->x - (*adjacent)->x, 2)
+              + std::pow(current->y - (*adjacent)->y, 2));
       if (is_upper) {
         a = std::abs(a) <= EPS ? 2 * M_PI : a > 0 ? a : 2 * M_PI + a;
         if (a - angle < -EPS || (std::abs(a - angle) < EPS && d < distance)) {

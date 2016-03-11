@@ -8,7 +8,6 @@
 #ifndef WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_COMMUNICATOR_HPP_
 #define WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_COMMUNICATOR_HPP_
 
-#include "plans/mstc_online/cell.hpp"
 #include <ros/ros.h>
 #include <boost/shared_ptr.hpp>
 #include <std_msgs/String.h>

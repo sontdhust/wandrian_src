@@ -15,18 +15,19 @@
 #include <boost/bind.hpp>
 #include <sstream>
 #include <fstream>
-#include "../include/common/environment.hpp"
+
+#include "../include/common/space.hpp"
 #include "../include/plans/spiral_stc/full_spiral_stc.hpp"
 
 #define T_SIZE 0.5 // Tool size
-#define E_SIZE 4.0 // Default environment size
+#define S_SIZE 4.0 // Default space size
 #define WORLD_INSERT_OBSTACLE "<!-- INSERT: Bound and Obstacles here -->" // Flag at original world file to insert bound and obstacles into
 
 using namespace wandrian::plans::spiral_stc;
 
 double e_size = 0;
 
-EnvironmentPtr environment;
+SpacePtr space;
 PointPtr starting_point;
 std::list<PointPtr> path;
 
@@ -79,10 +80,9 @@ void display() {
 
   // Environment
   glColor3ub(255, 0, 0);
-  draw(environment->space->get_bound(), GL_LINE_STRIP);
-  for (std::list<PolygonPtr>::iterator obstacle =
-      environment->obstacles.begin(); obstacle != environment->obstacles.end();
-      obstacle++) {
+  draw(space->boundary->get_bound(), GL_LINE_STRIP);
+  for (std::list<PolygonPtr>::iterator obstacle = space->obstacles.begin();
+      obstacle != space->obstacles.end(); obstacle++) {
     draw((*obstacle)->get_bound(), GL_POLYGON);
   }
 
@@ -124,16 +124,19 @@ bool test_see_obstacle(VectorPtr direction, double distance) {
   // Simulator check obstacle
   PointPtr last_position = *(--path.end());
   PointPtr new_position = last_position + direction * distance;
-  if (environment) {
-    CellPtr space = boost::static_pointer_cast<Cell>(environment->space);
-    if (new_position->x >= space->get_center()->x + space->get_size() / 2
-        || new_position->x <= space->get_center()->x - space->get_size() / 2
-        || new_position->y >= space->get_center()->y + space->get_size() / 2
-        || new_position->y <= space->get_center()->y - space->get_size() / 2) {
+  if (space) {
+    CellPtr boundary = boost::static_pointer_cast<Cell>(space->boundary);
+    if (new_position->x >= boundary->get_center()->x + boundary->get_size() / 2
+        || new_position->x
+            <= boundary->get_center()->x - boundary->get_size() / 2
+        || new_position->y
+            >= boundary->get_center()->y + boundary->get_size() / 2
+        || new_position->y
+            <= boundary->get_center()->y - boundary->get_size() / 2) {
       return true;
     }
-    for (std::list<PolygonPtr>::iterator o = environment->obstacles.begin();
-        o != environment->obstacles.end(); o++) {
+    for (std::list<PolygonPtr>::iterator o = space->obstacles.begin();
+        o != space->obstacles.end(); o++) {
       CellPtr obstacle = boost::static_pointer_cast<Cell>(*o);
       if (new_position->x
           >= obstacle->get_center()->x - obstacle->get_size() / 2
@@ -154,10 +157,10 @@ int main(int argc, char **argv) {
   if (argc >= 2) {
     std::istringstream iss(argv[1]);
     if (!(iss >> e_size) || !((int) e_size % 2 == 0)) {
-      e_size = E_SIZE;
+      e_size = S_SIZE;
     }
   } else {
-    e_size = E_SIZE;
+    e_size = S_SIZE;
   }
   CellPtr space = CellPtr(new Cell(PointPtr(new Point(0, 0)), e_size));
   std::list<PolygonPtr> obstacles;
@@ -308,7 +311,7 @@ int main(int argc, char **argv) {
   world_in.close();
   world_out.close();
 
-  environment = EnvironmentPtr(new Environment(space, obstacles));
+  space = SpacePtr(new Space(space, obstacles));
   if (argc >= 4) {
     if (std::string(argv[3]) == "spiral_stc") {
       SpiralStcPtr plan_spiral_stc = SpiralStcPtr(new SpiralStc());

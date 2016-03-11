@@ -8,7 +8,7 @@ g++ -c point.cpp
 g++ -c segment.cpp
 g++ -c vector.cpp
 g++ -c polygon.cpp
-g++ -c environment.cpp
+g++ -c space.cpp
 
 cd ../plans
 g++ -c base_plan.cpp
@@ -18,7 +18,9 @@ g++ -c cell.cpp
 g++ -c boustrophedon_online.cpp
 
 cd ../..
-g++ -o ../wandrian_run ../../boustrophedon_online_test.cpp common/point.o common/vector.o common/segment.o common/polygon.o common/environment.o plans/base_plan.o plans/boustrophedon_online/cell.o plans/boustrophedon_online/boustrophedon_online.o -lglut -lGL
+g++ -o ../wandrian_run ../../boustrophedon_online_test.cpp common/point.o common/vector.o \
+common/segment.o common/polygon.o common/space.o plans/base_plan.o \
+plans/boustrophedon_online/cell.o plans/boustrophedon_online/boustrophedon_online.o -lglut -lGL
 cd ..
 clear
 clear

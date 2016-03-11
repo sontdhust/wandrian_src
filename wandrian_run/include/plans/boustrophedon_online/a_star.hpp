@@ -11,9 +11,6 @@
 #include <list>
 #include <math.h>
 
-using namespace boost;
-using namespace std;
-
 namespace wandrian {
 namespace plans {
 namespace boustrophedon_online {
@@ -26,17 +23,17 @@ typedef float cost;
 
 // euclidean distance heuristic
 template<class Graph, class CostType, class LocMap>
-class distance_heuristic: public astar_heuristic<Graph, CostType> {
+class distance_heuristic: public boost::astar_heuristic<Graph, CostType> {
 
 public:
-  typedef typename graph_traits<Graph>::vertex_descriptor Vertex;
+  typedef typename boost::graph_traits<Graph>::vertex_descriptor Vertex;
   distance_heuristic(LocMap l, Vertex goal) :
       m_location(l), m_goal(goal) {
   }
   CostType operator()(Vertex u) {
     CostType dx = m_location[m_goal].x - m_location[u].x;
     CostType dy = m_location[m_goal].y - m_location[u].y;
-    return ::sqrt(dx * dx + dy * dy);
+    return std::sqrt(dx * dx + dy * dy);
   }
 
 private:
