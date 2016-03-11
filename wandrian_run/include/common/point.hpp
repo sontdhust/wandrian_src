@@ -23,13 +23,14 @@ struct Point {
   Point();
   Point(double, double);
   Point(const Point&);
+  Point(const boost::shared_ptr<Point>);
 };
 
 typedef boost::shared_ptr<Point> PointPtr;
 typedef boost::shared_ptr<Point const> PointConstPtr;
 
 inline double operator%(PointPtr p1, PointPtr p2) {
-  return std::sqrt(std::pow(p1->x - p2->x, 2) + std::pow(p1->y - p2->y, 2));
+  return sqrt(std::pow(p1->x - p2->x, 2) + std::pow(p1->y - p2->y, 2));
 }
 
 inline bool operator<(PointConstPtr p1, PointConstPtr p2) {

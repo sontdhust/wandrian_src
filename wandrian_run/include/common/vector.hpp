@@ -2,7 +2,7 @@
  * vector.hpp
  *
  *  Created on: Sep 16, 2015
- *      Author: sontd
+ *      Author: anhnt
  */
 
 #ifndef WANDRIAN_RUN_INCLUDE_COMMON_VECTOR_HPP_
@@ -58,6 +58,11 @@ struct Vector {
   Vector(double);
   Vector(double, double);
   Vector(const Vector&);
+  Vector(const boost::shared_ptr<Vector>);
+  boost::shared_ptr<Vector> rotate_counterclockwise_left();
+  boost::shared_ptr<Vector> rotate_counterclockwise_right();
+  boost::shared_ptr<Vector> rotate_counterclockwise_180();
+
   void rotate_counterclockwise();
   void rotate_clockwise();
 

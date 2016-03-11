@@ -22,5 +22,9 @@ Point::Point(const Point &point) :
     x(point.x), y(point.y) {
 }
 
+Point::Point(const PointPtr point) :
+    x(point->x), y(point->y) {
+}
+
 }
 }
