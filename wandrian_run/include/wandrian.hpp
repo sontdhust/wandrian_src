@@ -2,7 +2,7 @@
  * wandrian.hpp
  *
  *  Created on: Sep 23, 2015
- *      Author: sontd
+ *      Author: anhnt
  */
 
 #ifndef WANDRIAN_RUN_INCLUDE_WANDRIAN_HPP_
@@ -31,6 +31,8 @@ private:
   bool full_spiral_stc_see_obstacle(VectorPtr, double);
   bool mstc_online_go_to(PointPtr, bool);
   bool mstc_online_see_obstacle(VectorPtr, double);
+  bool boustrophedon_online_go_to(PointPtr, bool);
+  bool boustrophedon_online_see_obstacle(VectorPtr, double);
 
   // Helpers
   bool go_to(PointPtr, bool);

@@ -2,7 +2,7 @@
  * vector.cpp
  *
  *  Created on: Sep 16, 2015
- *      Author: sontd
+ *      Author: anhnt
  */
 
 #include "../../include/common/vector.hpp"
@@ -26,6 +26,22 @@ Vector::Vector(const Vector &vector) :
     x(vector.x), y(vector.y) {
 }
 
+Vector::Vector(const VectorPtr vector) :
+    x(vector->x), y(vector->y) {
+}
+
+VectorPtr Vector::rotate_counterclockwise_left() {
+  return VectorPtr(new Vector(-y, x));
+}
+
+VectorPtr Vector::rotate_counterclockwise_right() {
+  return VectorPtr(new Vector(y, -x));
+}
+
+VectorPtr Vector::rotate_counterclockwise_180() {
+  return VectorPtr(new Vector(-x, -y));
+}
+
 void Vector::rotate_counterclockwise() {
   double d = x;
   x = -y;
@@ -39,7 +55,7 @@ void Vector::rotate_clockwise() {
 }
 
 double Vector::get_magnitude() {
-  return std::sqrt(std::pow(x, 2) + std::pow(y, 2));
+  return sqrt(std::pow(x, 2) + std::pow(y, 2));
 }
 
 double Vector::get_angle() {
