@@ -41,9 +41,13 @@ public:
   void set_robot_name(const std::string&);
   void set_tool_size(double);
 
+  CellPtr& get_current_cell();
+  void set_current_cell(const CellPtr&);
+
 private:
   std::string robot_name;
   double tool_size;
+  CellPtr current_cell;
   std::list<IdentifiableCellPtr> old_cells; // Old cells with list
 
   std::string read_old_cells_message(); // Read old cells data, no update to local old cells

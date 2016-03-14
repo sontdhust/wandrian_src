@@ -140,7 +140,7 @@ bool Communicator::ask_other_robot_still_alive(
             current = atoi(ss.str().c_str());
 
             std::cout << "DHBKHNHEDSPIK56 <<" << current - old_time << ">>";
-            if (current - old_time > 45) {
+            if (current - old_time > 10) {
               // Robot was dead
               result = false;
               status_string.append("[DEAD];");
@@ -265,6 +265,14 @@ void Communicator::set_tool_size(double tool_size) {
   this->tool_size = tool_size;
 }
 
+CellPtr& Communicator::get_current_cell() {
+  return current_cell;
+}
+
+void Communicator::set_current_cell(const CellPtr& current_cell) {
+  this->current_cell = current_cell;
+}
+
 std::string Communicator::read_old_cells_message() {
   rosbag::Bag bag;
   std::string msg;
@@ -334,10 +342,18 @@ std::string Communicator::read_status_message() {
 
 void Communicator::clear_robots_dead_old_cells(std::string dead_robot_name,
     std::string last_cell, std::string last_status) {
+
+  old_cells.clear();
+  double x = 0.0;
+  double y = 0.0;
+  std::string robot_name;
+  int i;
+  boost::char_separator<char> split_point(",");
+
   // Read old cells data from ros bag
   std::string old_old_cells = read_old_cells_message();
   std::string new_old_cells;
-  // Clear robot dead old cells
+  // Clear dead robot's old cells
   boost::char_separator<char> split_old_cell(";");
   boost::tokenizer<boost::char_separator<char> > tokens(old_old_cells,
       split_old_cell);
@@ -349,10 +365,45 @@ void Communicator::clear_robots_dead_old_cells(std::string dead_robot_name,
       // Not found
       new_old_cells.append(cell);
       new_old_cells.append(";");
+      // Update local old cells
+      boost::tokenizer<boost::char_separator<char> > tokens(cell, split_point);
+      i = 1;
+      foreach (const std::string& coordinates, tokens) {
+        if (i == 1) {
+          x = atof(coordinates.c_str());
+        } else if (i == 2) {
+          y = atof(coordinates.c_str());
+        } else if (i == 3) {
+          robot_name = coordinates.c_str();
+        }
+        i++;
+      }
+      IdentifiableCellPtr old_cell = IdentifiableCellPtr(
+          new IdentifiableCell(PointPtr(new Point(x, y)), 2 * tool_size,
+              robot_name));
+      old_cells.push_back(old_cell);
     }
   }
   new_old_cells.append(last_cell);
-  // Write new old cells to ros bag and update status all robots
+
+  boost::tokenizer<boost::char_separator<char> > token_of_last_cell(last_cell, split_point);
+  i = 1;
+  foreach (const std::string& coordinates, token_of_last_cell) {
+    if (i == 1) {
+      x = atof(coordinates.c_str());
+    } else if (i == 2) {
+      y = atof(coordinates.c_str());
+    } else if (i == 3) {
+      robot_name = coordinates.c_str();
+    }
+    i++;
+  }
+  IdentifiableCellPtr old_cell = IdentifiableCellPtr(
+      new IdentifiableCell(PointPtr(new Point(x, y)), 2 * tool_size,
+          robot_name));
+  old_cells.push_back(old_cell);
+
+// Write new old cells to ros bag and update status all robots
   write_old_cells_message(new_old_cells);
   write_status_message(last_status);
 }

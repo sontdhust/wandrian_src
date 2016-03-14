@@ -14,9 +14,12 @@
 #include <geometry_msgs/Twist.h> // For velocity commands
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/LaserScan.h>
+#include <time.h>
 #include "common/point.hpp"
 #include "common/vector.hpp"
 #include "environment/communicator.hpp"
+
+#define NUM_SECONDS 5  //Loop after 5 seconds
 
 using namespace wandrian::common;
 using namespace wandrian::environment;
@@ -88,6 +91,7 @@ private:
   struct termios terminal;
   ecl::Thread thread_keyboard;
   ecl::Thread thread_run;
+  ecl::Thread thread_status; //mstc_online only
   ros::Timer timer_laser;
 
   ros::Publisher publisher_power;
@@ -102,6 +106,7 @@ private:
   void process_keyboard_input(char);
   void start_thread_run();
   void start_timer_laser(const ros::TimerEvent&);
+  void start_thread_status(); //mstc_online only, loop after NUM_SECOND second(s)
 
   // Helpers
   void enable_power();
