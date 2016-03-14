@@ -16,10 +16,10 @@
 #include <sensor_msgs/LaserScan.h>
 #include "common/point.hpp"
 #include "common/vector.hpp"
-#include "plans/mstc_online/global.hpp"
+#include "environment/communicator.hpp"
 
 using namespace wandrian::common;
-using namespace wandrian::plans::mstc_online;
+using namespace wandrian::environment;
 
 namespace wandrian {
 
@@ -37,15 +37,16 @@ public:
   void stop();
 
   std::string get_plan_name();
+  double get_tool_size();
   double get_starting_point_x();
   double get_starting_point_y();
-  double get_tool_size();
   PointPtr get_current_position();
   VectorPtr get_current_direction();
   bool* get_obstacles();
   ObstacleMovement get_obstacle_movement();
   double get_linear_velocity_step();
   double get_angular_velocity_step();
+  CommunicatorPtr get_communicator();
   void set_behavior_run(boost::function<void()>);
   void set_linear_velocity(double);
   void set_angular_velocity(double);
@@ -54,9 +55,9 @@ public:
 private:
   std::string plan_name; // arg
   std::string robot_name; //arg
+  double tool_size; // arg
   double starting_point_x; // arg
   double starting_point_y; // arg
-  double tool_size; // arg
   double proportion_ranges_sum; // arg
   double augmentation_factor_range; // arg
   PointPtr current_position; // odometry subscriber
@@ -67,6 +68,7 @@ private:
   double linear_velocity_max; // param
   double angular_velocity_step; // param
   double angular_velocity_max; // param
+  CommunicatorPtr communicator;
 
   boost::function<void()> behavior_run;
   geometry_msgs::TwistPtr velocity;

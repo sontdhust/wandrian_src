@@ -5,8 +5,8 @@
  *      Author: cslab
  */
 
+#include "../../../include/environment/communicator.hpp"
 #include "../../../include/plans/mstc_online/full_mstc_online.hpp"
-#include "../../../include/plans/mstc_online/global.hpp"
 
 #define PASS true
 #define DONT_PASS false
@@ -24,34 +24,38 @@ FullMstcOnline::FullMstcOnline() {
 FullMstcOnline::~FullMstcOnline() {
 }
 
-void FullMstcOnline::initialize(PointPtr starting_point, double tool_size) {
+void FullMstcOnline::initialize(PointPtr starting_point, double tool_size,
+    CommunicatorPtr communicator) {
   this->tool_size = tool_size;
+  this->communicator = communicator;
   // Initialize starting_cell
-  starting_cell = PartiallyOccupiableCellPtr(
-      new PartiallyOccupiableCell(
+  starting_cell = PartiallyOccupiableIdentifiableCellPtr(
+      new PartiallyOccupiableIdentifiableCell(
           PointPtr(
               new Point(starting_point->x - tool_size / 2,
-                  starting_point->y + tool_size / 2)), 2 * tool_size));
+                  starting_point->y + tool_size / 2)), 2 * tool_size,
+          communicator->get_robot_name()));
   starting_cell->set_parent(
-      PartiallyOccupiableCellPtr(
-          new PartiallyOccupiableCell(
+      PartiallyOccupiableIdentifiableCellPtr(
+          new PartiallyOccupiableIdentifiableCell(
               PointPtr(
                   new Point(starting_cell->get_center()->x,
                       starting_cell->get_center()->y - 2 * tool_size)),
-              2 * tool_size)));
+              2 * tool_size, communicator->get_robot_name())));
   path.insert(path.end(), starting_point);
 }
 
 void FullMstcOnline::cover() {
-  Global::get_instance()->old_cells.insert(starting_cell);
+  communicator->cells.insert(starting_cell);
   starting_cell->set_current_quadrant(IV);
   scan(starting_cell);
 }
 
 State FullMstcOnline::state_of(CellPtr cell) {
   State state =
-      (Global::get_instance()->old_cells.find(cell)
-          != Global::get_instance()->old_cells.end()) ? OLD : NEW;
+      (communicator->cells.find(
+          boost::static_pointer_cast<IdentifiableCell>(cell))
+          != communicator->cells.end()) ? OLD : NEW;
   if (state == OLD)
     std::cout << " \033[1;45m(OLD)\033[0m\n";
   return state;
@@ -64,8 +68,8 @@ void FullMstcOnline::scan(CellPtr current) {
       - current->get_center()) / 2 / tool_size;
   VectorPtr initial_orientation = orientation++;
   // Check current cell has diagonally opposite obstacles or not
-  PartiallyOccupiableCellPtr c = boost::dynamic_pointer_cast<
-      PartiallyOccupiableCell>(current);
+  PartiallyOccupiableIdentifiableCellPtr c = boost::dynamic_pointer_cast<
+      PartiallyOccupiableIdentifiableCell>(current);
   Quadrant q = c->get_current_quadrant();
   Orientation o;
   if (q == I)
@@ -83,10 +87,11 @@ void FullMstcOnline::scan(CellPtr current) {
   bool is_starting_cell = current == starting_cell;
   do {
     // Scan for new neighbor of current cell in counterclockwise order
-    PartiallyOccupiableCellPtr neighbor = PartiallyOccupiableCellPtr(
-        new PartiallyOccupiableCell(
-            current->get_center() + orientation * 2 * tool_size,
-            2 * tool_size));
+    PartiallyOccupiableIdentifiableCellPtr neighbor =
+        PartiallyOccupiableIdentifiableCellPtr(
+            new PartiallyOccupiableIdentifiableCell(
+                current->get_center() + orientation * 2 * tool_size,
+                2 * tool_size, communicator->get_robot_name()));
     std::cout << "  \033[1;33mneighbor:\033[0m " << neighbor->get_center()->x
         << "," << neighbor->get_center()->y;
     if (state_of(neighbor) == OLD
@@ -102,7 +107,7 @@ void FullMstcOnline::scan(CellPtr current) {
       } else { // New free neighbor
         // Construct a spanning-tree edge
         neighbor->set_parent(current);
-        Global::get_instance()->old_cells.insert(neighbor);
+        communicator->cells.insert(neighbor);
         scan(neighbor);
       }
     }
@@ -119,10 +124,10 @@ void FullMstcOnline::scan(CellPtr current) {
 bool FullMstcOnline::go_from(CellPtr current, bool pass, CellPtr next) {
   VectorPtr orientation = (next->get_center() - current->get_center())
       / (2 * tool_size);
-  PartiallyOccupiableCellPtr c = boost::dynamic_pointer_cast<
-      PartiallyOccupiableCell>(current);
-  PartiallyOccupiableCellPtr n = boost::dynamic_pointer_cast<
-      PartiallyOccupiableCell>(next);
+  PartiallyOccupiableIdentifiableCellPtr c = boost::dynamic_pointer_cast<
+      PartiallyOccupiableIdentifiableCell>(current);
+  PartiallyOccupiableIdentifiableCellPtr n = boost::dynamic_pointer_cast<
+      PartiallyOccupiableIdentifiableCell>(next);
   Quadrant quadrant = c->get_current_quadrant();
   Quadrant q;
   Quadrant q1;
@@ -196,16 +201,18 @@ bool FullMstcOnline::go_from(CellPtr current, bool pass, CellPtr next) {
 }
 
 bool FullMstcOnline::visit(CellPtr cell, Quadrant quadrant, bool flexibly) {
-  PartiallyOccupiableCellPtr c = boost::dynamic_pointer_cast<
-      PartiallyOccupiableCell>(cell);
+  PartiallyOccupiableIdentifiableCellPtr c = boost::dynamic_pointer_cast<
+      PartiallyOccupiableIdentifiableCell>(cell);
   c->set_current_quadrant(quadrant);
   return go_to(c->get_current_position(), flexibly);
 }
 
 bool FullMstcOnline::state_of_subcells_of(CellPtr cell,
     Orientation orientation) {
-  PartiallyOccupiableCellPtr c = boost::dynamic_pointer_cast<
-      PartiallyOccupiableCell>(*Global::get_instance()->old_cells.find(cell));
+  PartiallyOccupiableIdentifiableCellPtr c = boost::dynamic_pointer_cast<
+      PartiallyOccupiableIdentifiableCell>(
+      *communicator->cells.find(
+          boost::static_pointer_cast<IdentifiableCell>(cell)));
   Quadrant q;
   if (orientation == AT_LEFT_SIDE)
     q = I;

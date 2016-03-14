@@ -2,7 +2,7 @@
  * vector.hpp
  *
  *  Created on: Sep 16, 2015
- *      Author: sontd
+ *      Author: anhnt
  */
 
 #ifndef WANDRIAN_RUN_INCLUDE_COMMON_VECTOR_HPP_
@@ -58,6 +58,11 @@ struct Vector {
   Vector(double);
   Vector(double, double);
   Vector(const Vector&);
+  Vector(const boost::shared_ptr<Vector>);
+  boost::shared_ptr<Vector> rotate_counterclockwise_left();
+  boost::shared_ptr<Vector> rotate_counterclockwise_right();
+  boost::shared_ptr<Vector> rotate_counterclockwise_180();
+
   void rotate_counterclockwise();
   void rotate_clockwise();
 
@@ -88,7 +93,7 @@ inline VectorPtr operator-(PointPtr p1, PointPtr p2) {
 }
 
 inline double operator^(VectorPtr v1, VectorPtr v2) {
-  double a1 = atan2(v1->y, v1->x) - atan2(v2->y, v2->x);
+  double a1 = std::atan2(v1->y, v1->x) - std::atan2(v2->y, v2->x);
   double a2 = (a1 > 0) ? a1 - 2 * M_PI : a1 + 2 * M_PI;
   return (std::abs(a1) < std::abs(a2)) ? a1 : a2;
 }

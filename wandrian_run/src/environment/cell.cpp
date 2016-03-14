@@ -1,15 +1,14 @@
 /*
  * cell.cpp
  *
- *  Created on: Sep 15, 2015
- *      Author: manhnh
+ *  Created on: Mar 11, 2016
+ *      Author: cslab
  */
 
-#include "../../../include/plans/mstc_online/cell.hpp"
+#include "../../include/environment/cell.hpp"
 
 namespace wandrian {
-namespace plans {
-namespace mstc_online {
+namespace environment {
 
 Cell::Cell(PointPtr center, double size) :
     center(center), size(size) {
@@ -43,6 +42,5 @@ void Cell::set_parent(CellPtr parent) {
   this->parent = parent;
 }
 
-}
 }
 }

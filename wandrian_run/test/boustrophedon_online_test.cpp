@@ -17,19 +17,20 @@
 #include <fstream>
 
 #include "../include/common/space.hpp"
-#include "../include/plans/spiral_stc/full_spiral_stc.hpp"
+#include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
 
-#define T_SIZE 0.5 // Tool size
-#define B_SIZE 4.0 // Default space size
-#define WORLD_INSERT_OBSTACLE "<!-- INSERT: Bound and Obstacles here -->" // Flag at original world file to insert bound and obstacles into
+#define T_SIZE 0.5 // tool size
+#define B_SIZE 4.0 // default space size
+#define WORLD_INSERT_OBSTACLE "<!-- INSERT: Bound and Obstacles here -->" // flag at original world file to insert bound and obstacles into
 
-using namespace wandrian::plans::spiral_stc;
+using namespace wandrian::plans::boustrophedon_online;
 
 double b_size = 0;
 
 SpacePtr space;
 PointPtr starting_point;
-std::list<PointPtr> path;
+BoustrophedonOnlinePtr boustrophedon_online;
+std::list<PointPtr> tmp_path;
 
 /**
  * Linked libraries to compile: -lglut -lGL (g++)
@@ -56,8 +57,7 @@ void display() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  glScalef(b_size <= 20 ? 0.5 : 10.0 / b_size,
-      b_size <= 20 ? 0.5 : 10.0 / b_size, 0);
+  glScalef(0.5, 0.5, 0);
 
   // Center point
   glPointSize(4);
@@ -92,15 +92,16 @@ void display() {
   glBegin(GL_POINTS);
   glVertex2d(starting_point->x, starting_point->y);
   glEnd();
-  glRasterPos2i(0, b_size <= 20 ? -11 : -b_size / 2 - 1);
+
+  // Spiral STC covering path
+  glColor3ub(0, 255, 0);
+  draw(tmp_path, GL_LINE_STRIP);
+
+  glRasterPos2i(0, -11);
   std::stringstream ss;
   ss << starting_point->x << ", " << starting_point->y;
   for (int i = 0; i < ss.str().length(); i++)
     glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ss.str()[i]);
-
-  // Spiral STC covering path
-  glColor3ub(0, 255, 0);
-  draw(path, GL_LINE_STRIP);
 
   glutSwapBuffers();
 }
@@ -114,16 +115,16 @@ int run(int argc, char **argv) {
   glutMainLoop();
   return 0;
 }
-
-bool test_go_to(PointPtr position, bool) {
-  path.insert(path.end(), position);
+bool test_go_to(PointPtr position, bool flexibly) {
+  tmp_path.insert(tmp_path.end(), position);
   return true;
 }
 
-bool test_see_obstacle(VectorPtr direction, double distance) {
+bool test_see_obstacle(VectorPtr orientation, double distance) {
   // Simulator check obstacle
-  PointPtr last_position = *(--path.end());
-  PointPtr new_position = last_position + direction * distance;
+  PointPtr last_position = *(--tmp_path.end());
+  PointPtr new_position = PointPtr(
+      new Point(last_position + orientation * distance));
   if (space) {
     CellPtr boundary = boost::static_pointer_cast<Cell>(space->boundary);
     if (new_position->x >= boundary->get_center()->x + boundary->get_size() / 2
@@ -156,12 +157,14 @@ bool test_see_obstacle(VectorPtr direction, double distance) {
 int main(int argc, char **argv) {
   if (argc >= 2) {
     std::istringstream iss(argv[1]);
-    if (!(iss >> b_size) || !((int) b_size % 2 == 0)) {
+    if (!(iss >> b_size)
+        || !(4 <= b_size && b_size <= 20 && (int) b_size % 2 == 0)) {
       b_size = B_SIZE;
     }
   } else {
     b_size = B_SIZE;
   }
+
   CellPtr bound = CellPtr(new Cell(PointPtr(new Point(0, 0)), b_size));
   std::list<PolygonPtr> obstacles;
 
@@ -169,51 +172,29 @@ int main(int argc, char **argv) {
   starting_point = PointPtr(
       new Point(
           (std::rand() % (int) (b_size / T_SIZE / 2.0)
-              - (int) (b_size / T_SIZE / 4.0)) + T_SIZE + T_SIZE / 2.0,
+              - (int) (b_size / T_SIZE / 4.0)) + T_SIZE + T_SIZE / 2,
           (std::rand() % (int) (b_size / T_SIZE / 2.0)
-              - (int) (b_size / T_SIZE / 4.0)) + T_SIZE - T_SIZE / 2.0));
+              - (int) (b_size / T_SIZE / 4.0)) + T_SIZE - T_SIZE / 2));
 
-  double o_size;
-  int number_of_obstacles;
-  double r = 0.2;
-  if (argc >= 3) {
-    std::istringstream iss(argv[2]);
-    if (!(iss >> o_size)) {
-      o_size = 2.0 * T_SIZE;
-      number_of_obstacles = 0;
-    } else {
-      double n = 0.75 * r * (b_size * b_size) / (o_size * o_size);
-      number_of_obstacles = n
-          + ((int) (0.25 * n) != 0 ? std::rand() % (int) (0.25 * n) : 0);
-    }
-  } else {
-    o_size = 2.0 * T_SIZE;
-    double n = 0.75 * r * (b_size * b_size) / (o_size * o_size);
-    number_of_obstacles = n
-        + ((int) (0.25 * n) != 0 ? std::rand() % (int) (0.25 * n) : 0);
-  }
-
-  for (int i = 0; i <= number_of_obstacles; i++) {
+  int r = std::rand() % (int) (b_size * b_size / 16) + b_size * b_size / 8;
+  for (int i = 0; i <= r; i++) {
     PointPtr center = PointPtr(
         new Point(
-            (std::rand() % (int) (b_size / T_SIZE / (o_size / T_SIZE))
-                - (int) (b_size / T_SIZE / (o_size / T_SIZE) / 2.0) + T_SIZE)
-                * o_size,
-            (std::rand() % (int) (b_size / T_SIZE / (o_size / T_SIZE))
-                - (int) (b_size / T_SIZE / (o_size / T_SIZE) / 2.0) + T_SIZE)
-                * o_size));
+            (std::rand() % (int) (b_size / T_SIZE / 2.0)
+                - (int) (b_size / T_SIZE / 4.0)) + T_SIZE,
+            (std::rand() % (int) (b_size / T_SIZE / 2.0)
+                - (int) (b_size / T_SIZE / 4.0)) + T_SIZE));
     bool valid = true;
-    double EPS = std::numeric_limits<double>::epsilon();
     for (std::list<PolygonPtr>::iterator p = obstacles.begin();
         p != obstacles.end(); p++)
       if ((boost::static_pointer_cast<Cell>(*p))->get_center() == center
-          || (std::abs(center->x - (starting_point->x - T_SIZE / 2)) < EPS
-              && std::abs(center->y - (starting_point->y + T_SIZE / 2)) < EPS)) {
+          || (center->x == starting_point->x - T_SIZE / 2
+              && center->y == starting_point->y + T_SIZE / 2)) {
         valid = false;
         break;
       };
     if (valid) {
-      obstacles.insert(obstacles.end(), CellPtr(new Cell(center, o_size)));
+      obstacles.insert(obstacles.end(), CellPtr(new Cell(center, 2 * T_SIZE)));
     }
   }
 
@@ -285,24 +266,33 @@ int main(int argc, char **argv) {
       // Obstacles
       for (std::list<PolygonPtr>::iterator o = obstacles.begin();
           o != obstacles.end(); o++) {
-        CellPtr cell = boost::static_pointer_cast<Cell>(*o);
-        PointPtr c = cell->get_center();
-        double s = cell->get_size();
-        double x = c->x - T_SIZE * (s / T_SIZE / 2.0 - 1.0 / 2.0);
-        for (int i = 1; i <= (int) (s / T_SIZE); i++) {
-          for (double y = c->y - T_SIZE * (s / T_SIZE / 2.0 - 1.0 / 4.0);
-              y <= c->y + T_SIZE * (s / T_SIZE / 2.0 - 1.0 / 4.0);
-              y += T_SIZE / 2.0) {
-            world_out << "    <model name='cinder_block_obstacle_" << n << "_"
-                << i << "'>\n";
-            world_out << "      <include>\n";
-            world_out << "        <uri>model://cinder_block</uri>\n";
-            world_out << "      </include>\n";
-            world_out << "      <pose>" << x << " " << y << " 0 0 0 0</pose>\n";
-            world_out << "      <static>1</static>\n";
-            world_out << "    </model>\n";
-          }
-          x += T_SIZE;
+        PointPtr p = (boost::static_pointer_cast<Cell>(*o))->get_center();
+        int c = 1;
+        for (double i = p->y - T_SIZE * 3 / 4; i <= p->y + T_SIZE * 3 / 4;
+            i += T_SIZE / 2) {
+          world_out << "    <model name='cinder_block_obstacle_" << n << "_"
+              << c << "'>\n";
+          world_out << "      <include>\n";
+          world_out << "        <uri>model://cinder_block</uri>\n";
+          world_out << "      </include>\n";
+          world_out << "      <pose>" << p->x - T_SIZE / 2 << " " << i
+              << " 0 0 0 0</pose>\n";
+          world_out << "      <static>1</static>\n";
+          world_out << "    </model>\n";
+          c++;
+        }
+        for (double i = p->y - T_SIZE * 3 / 4; i <= p->y + T_SIZE * 3 / 4;
+            i += T_SIZE / 2) {
+          world_out << "    <model name='cinder_block_obstacle_" << n << "_"
+              << c << "'>\n";
+          world_out << "      <include>\n";
+          world_out << "        <uri>model://cinder_block</uri>\n";
+          world_out << "      </include>\n";
+          world_out << "      <pose>" << p->x + T_SIZE / 2 << " " << i
+              << " 0 0 0 0</pose>\n";
+          world_out << "      <static>1</static>\n";
+          world_out << "    </model>\n";
+          c++;
         }
         n++;
       }
@@ -312,27 +302,14 @@ int main(int argc, char **argv) {
   world_out.close();
 
   space = SpacePtr(new Space(bound, obstacles));
-  if (argc >= 4) {
-    if (std::string(argv[3]) == "spiral_stc") {
-      SpiralStcPtr plan_spiral_stc = SpiralStcPtr(new SpiralStc());
-      plan_spiral_stc->initialize(starting_point, T_SIZE);
-      path.insert(path.end(), starting_point);
-      plan_spiral_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
-      plan_spiral_stc->set_behavior_see_obstacle(
-          boost::bind(&test_see_obstacle, _1, _2));
-      plan_spiral_stc->cover();
-    } else if (std::string(argv[3]) == "full_spiral_stc") {
-      FullSpiralStcPtr plan_full_spiral_stc = FullSpiralStcPtr(
-          new FullSpiralStc());
-      plan_full_spiral_stc->initialize(starting_point, T_SIZE);
-      path.insert(path.end(), starting_point);
-      plan_full_spiral_stc->set_behavior_go_to(
-          boost::bind(&test_go_to, _1, _2));
-      plan_full_spiral_stc->set_behavior_see_obstacle(
-          boost::bind(&test_see_obstacle, _1, _2));
-      plan_full_spiral_stc->cover();
-    }
-  }
+  boustrophedon_online = BoustrophedonOnlinePtr(new BoustrophedonOnline());
+  boustrophedon_online->initialize(starting_point, T_SIZE);
+  tmp_path.insert(tmp_path.end(), starting_point);
+  boustrophedon_online->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
+  boustrophedon_online->set_behavior_see_obstacle(
+      boost::bind(&test_see_obstacle, _1, _2));
+  boustrophedon_online->cover();
+
   run(argc, argv);
   return 0;
 }

@@ -23,6 +23,7 @@ struct Point {
   Point();
   Point(double, double);
   Point(const Point&);
+  Point(const boost::shared_ptr<Point>);
 };
 
 typedef boost::shared_ptr<Point> PointPtr;

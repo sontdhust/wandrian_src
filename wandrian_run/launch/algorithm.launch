@@ -13,9 +13,9 @@
 
     <param name="plan_name" value="$(arg plan_name)" type="string"/>
     <param name="robot_name" value="$(arg robot_name)" type="string"/>
+    <param name="tool_size" value="$(arg tool_size)" type="double"/>
     <param name="starting_point_x" value="$(arg starting_point_x)" type="double"/>
     <param name="starting_point_y" value="$(arg starting_point_y)" type="double"/>
-    <param name="tool_size" value="$(arg tool_size)" type="double"/>
 
     <param name="linear_velocity_step" value="0.2" type="double"/>
     <param name="linear_velocity_max" value="2" type="double"/>
