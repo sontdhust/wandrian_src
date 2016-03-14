@@ -8,8 +8,10 @@
 #ifndef WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_FULL_MSTC_ONLINE_HPP_
 #define WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_FULL_MSTC_ONLINE_HPP_
 
+#include "../../environment/partially_occupiable_identifiable_cell.hpp"
 #include "mstc_online.hpp"
-#include "partially_occupiable_cell.hpp"
+
+using namespace wandrian::environment;
 
 namespace wandrian {
 namespace plans {
@@ -20,15 +22,15 @@ class FullMstcOnline: public MstcOnline {
 public:
   FullMstcOnline();
   ~FullMstcOnline();
-  virtual void initialize(PointPtr, double, CommunicatorPtr);
-  virtual void cover();
+  void initialize(PointPtr, double, CommunicatorPtr);
+  void cover();
 
 protected:
-  virtual State state_of(CellPtr);
-  virtual void scan(CellPtr);
+  State state_of(CellPtr);
+  void scan(CellPtr);
 
 private:
-  PartiallyOccupiableCellPtr starting_cell;
+  PartiallyOccupiableIdentifiableCellPtr starting_cell;
 
   bool go_from(CellPtr, bool, CellPtr);
   bool visit(CellPtr, Quadrant, bool);

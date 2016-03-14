@@ -9,11 +9,12 @@
 #define WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_MSTC_ONLINE_HPP_
 
 #include "../../common/vector.hpp"
+#include "../../environment/identifiable_cell.hpp"
+#include "../../environment/communicator.hpp"
 #include "../base_plan.hpp"
-#include "cell.hpp"
-#include "communicator.hpp"
 
 using namespace wandrian::common;
+using namespace wandrian::environment;
 
 namespace wandrian {
 namespace plans {
@@ -39,7 +40,7 @@ protected:
   virtual void scan(CellPtr);
 
 private:
-  CellPtr starting_cell;
+  IdentifiableCellPtr starting_cell;
   boost::function<bool(VectorPtr, double)> behavior_see_obstacle;
 
   bool go_with(VectorPtr, double);

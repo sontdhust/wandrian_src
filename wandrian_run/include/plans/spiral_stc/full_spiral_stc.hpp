@@ -9,7 +9,9 @@
 #define WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_FULL_SPIRAL_STC_HPP_
 
 #include "spiral_stc.hpp"
-#include "partially_occupiable_cell.hpp"
+#include "../../environment/partially_occupiable_cell.hpp"
+
+using namespace wandrian::environment;
 
 namespace wandrian {
 namespace plans {
@@ -29,7 +31,6 @@ protected:
 
 private:
   PartiallyOccupiableCellPtr starting_cell;
-  std::set<CellPtr, CellComp> old_cells;
 
   bool go_from(CellPtr, bool, CellPtr);
   bool visit(CellPtr, Quadrant, bool);

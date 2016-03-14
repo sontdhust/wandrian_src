@@ -25,15 +25,15 @@ void MstcOnline::initialize(PointPtr starting_point, double tool_size,
   this->tool_size = tool_size;
   this->communicator = communicator;
   // Initialize starting_cell
-  starting_cell = CellPtr(
-      new Cell(
+  starting_cell = IdentifiableCellPtr(
+      new IdentifiableCell(
           PointPtr(
               new Point(starting_point->x - tool_size / 2,
                   starting_point->y + tool_size / 2)), 2 * tool_size,
           communicator->get_robot_name()));
   starting_cell->set_parent(
-      CellPtr(
-          new Cell(
+      IdentifiableCellPtr(
+          new IdentifiableCell(
               PointPtr(
                   new Point(starting_cell->get_center()->x,
                       starting_cell->get_center()->y - 2 * tool_size)),
@@ -76,7 +76,9 @@ bool MstcOnline::see_obstacle(VectorPtr orientation, double distance) {
 }
 
 State MstcOnline::state_of(CellPtr cell) {
-  State state = (communicator->find_old_cell(cell)) ? OLD : NEW;
+  State state =
+      (communicator->find_old_cell(
+          boost::static_pointer_cast<IdentifiableCell>(cell))) ? OLD : NEW;
   if (state == OLD)
     std::cout << " \033[1;45m(OLD)\033[0m\n";
   return state;
@@ -84,7 +86,8 @@ State MstcOnline::state_of(CellPtr cell) {
 
 void MstcOnline::scan(CellPtr current) {
   std::string status;
-  status = communicator->create_status_message(current);
+  status = communicator->create_status_message(
+      boost::static_pointer_cast<IdentifiableCell>(current));
   communicator->write_status_message(status);
   communicator->read_message_then_update_old_cells();
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;32mBEGIN:\033[0m "
@@ -96,9 +99,10 @@ void MstcOnline::scan(CellPtr current) {
   bool is_starting_cell = current == starting_cell;
   do {
     // Scan for new neighbor of current cell in counterclockwise order
-    CellPtr neighbor = CellPtr(
-        new Cell(current->get_center() + orientation * 2 * tool_size,
-            2 * tool_size, communicator->get_robot_name()));
+    IdentifiableCellPtr neighbor = IdentifiableCellPtr(
+        new IdentifiableCell(
+            current->get_center() + orientation * 2 * tool_size, 2 * tool_size,
+            communicator->get_robot_name()));
     std::cout << "  \033[1;33mneighbor:\033[0m " << neighbor->get_center()->x
         << "," << neighbor->get_center()->y;
     communicator->read_message_then_update_old_cells();

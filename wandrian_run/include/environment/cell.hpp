@@ -1,20 +1,19 @@
 /*
  * cell.hpp
  *
- *  Created on: Sep 15, 2015
- *      Author: anhnt
+ *  Created on: Mar 11, 2016
+ *      Author: cslab
  */
 
-#ifndef WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_ONLINE_CELL_HPP_
-#define WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_ONLINE_CELL_HPP_
+#ifndef WANDRIAN_RUN_INCLUDE_ENVIRONMENT_CELL_HPP_
+#define WANDRIAN_RUN_INCLUDE_ENVIRONMENT_CELL_HPP_
 
-#include "../../common/polygon.hpp"
+#include "../common/polygon.hpp"
 
 using namespace wandrian::common;
 
 namespace wandrian {
-namespace plans {
-namespace boustrophedon_online {
+namespace environment {
 
 enum State {
   NEW, OLD, OBSTACLE
@@ -69,6 +68,5 @@ struct CellComp {
 
 }
 }
-}
 
-#endif /* WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_ONLINE_CELL_HPP_ */
+#endif /* WANDRIAN_RUN_INCLUDE_ENVIRONMENT_CELL_HPP_ */
