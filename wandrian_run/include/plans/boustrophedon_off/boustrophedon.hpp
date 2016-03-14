@@ -13,6 +13,7 @@
 #include "cell.hpp"
 #include "obstacle.hpp"
 #include "space.hpp"
+#include "vertices.hpp"
 #include "ros/ros.h"
 #include <list>
 using namespace wandrian::common;
@@ -34,8 +35,9 @@ public:
 
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
   
-  void dfs(SpacePtr space);
-  
+  void dfs(SpacePtr);
+  std::list<SpacePtr> create_space(std::list<SpacePtr>, SpacePtr);
+
 protected:
   bool go_to(PointPtr, bool);
   bool go_go(SpacePtr);
