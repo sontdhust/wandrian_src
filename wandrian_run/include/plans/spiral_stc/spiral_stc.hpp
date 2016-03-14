@@ -8,11 +8,12 @@
 #ifndef WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_SPIRAL_STC_HPP_
 #define WANDRIAN_RUN_INCLUDE_PLANS_SPIRAL_STC_SPIRAL_STC_HPP_
 
-#include "../base_plan.hpp"
-#include "cell.hpp"
 #include "../../common/vector.hpp"
+#include "../../environment/cell.hpp"
+#include "../base_plan.hpp"
 
 using namespace wandrian::common;
+using namespace wandrian::environment;
 
 namespace wandrian {
 namespace plans {

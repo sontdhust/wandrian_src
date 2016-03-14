@@ -55,11 +55,11 @@ void Vector::rotate_clockwise() {
 }
 
 double Vector::get_magnitude() {
-  return sqrt(std::pow(x, 2) + std::pow(y, 2));
+  return std::sqrt(std::pow(x, 2) + std::pow(y, 2));
 }
 
 double Vector::get_angle() {
-  return atan2(y, x);
+  return std::atan2(y, x);
 }
 
 }

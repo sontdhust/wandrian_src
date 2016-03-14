@@ -15,18 +15,19 @@
 #include <boost/bind.hpp>
 #include <sstream>
 #include <fstream>
-#include "../include/common/environment.hpp"
+
+#include "../include/common/space.hpp"
 #include "../include/plans/spiral_stc/full_spiral_stc.hpp"
 
 #define T_SIZE 0.5 // Tool size
-#define E_SIZE 4.0 // Default environment size
+#define B_SIZE 4.0 // Default space size
 #define WORLD_INSERT_OBSTACLE "<!-- INSERT: Bound and Obstacles here -->" // Flag at original world file to insert bound and obstacles into
 
 using namespace wandrian::plans::spiral_stc;
 
-double e_size = 0;
+double b_size = 0;
 
-EnvironmentPtr environment;
+SpacePtr space;
 PointPtr starting_point;
 std::list<PointPtr> path;
 
@@ -55,8 +56,8 @@ void display() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  glScalef(e_size <= 20 ? 0.5 : 10.0 / e_size,
-      e_size <= 20 ? 0.5 : 10.0 / e_size, 0);
+  glScalef(b_size <= 20 ? 0.5 : 10.0 / b_size,
+      b_size <= 20 ? 0.5 : 10.0 / b_size, 0);
 
   // Center point
   glPointSize(4);
@@ -69,8 +70,8 @@ void display() {
   glPointSize(1);
   glColor3ub(255, 255, 255);
   glBegin(GL_POINTS);
-  for (int i = -e_size; i <= e_size; i++) {
-    for (int j = -e_size; j <= e_size; j++) {
+  for (int i = -b_size; i <= b_size; i++) {
+    for (int j = -b_size; j <= b_size; j++) {
       if ((i != 0 || j != 0) && i % 2 == 0 && j % 2 == 0)
         glVertex2i((double) i / 2, (double) j / 2);
     }
@@ -79,10 +80,9 @@ void display() {
 
   // Environment
   glColor3ub(255, 0, 0);
-  draw(environment->space->get_bound(), GL_LINE_STRIP);
-  for (std::list<PolygonPtr>::iterator obstacle =
-      environment->obstacles.begin(); obstacle != environment->obstacles.end();
-      obstacle++) {
+  draw(space->boundary->get_bound(), GL_LINE_STRIP);
+  for (std::list<PolygonPtr>::iterator obstacle = space->obstacles.begin();
+      obstacle != space->obstacles.end(); obstacle++) {
     draw((*obstacle)->get_bound(), GL_POLYGON);
   }
 
@@ -92,7 +92,7 @@ void display() {
   glBegin(GL_POINTS);
   glVertex2d(starting_point->x, starting_point->y);
   glEnd();
-  glRasterPos2i(0, e_size <= 20 ? -11 : -e_size / 2 - 1);
+  glRasterPos2i(0, b_size <= 20 ? -11 : -b_size / 2 - 1);
   std::stringstream ss;
   ss << starting_point->x << ", " << starting_point->y;
   for (int i = 0; i < ss.str().length(); i++)
@@ -124,16 +124,19 @@ bool test_see_obstacle(VectorPtr direction, double distance) {
   // Simulator check obstacle
   PointPtr last_position = *(--path.end());
   PointPtr new_position = last_position + direction * distance;
-  if (environment) {
-    CellPtr space = boost::static_pointer_cast<Cell>(environment->space);
-    if (new_position->x >= space->get_center()->x + space->get_size() / 2
-        || new_position->x <= space->get_center()->x - space->get_size() / 2
-        || new_position->y >= space->get_center()->y + space->get_size() / 2
-        || new_position->y <= space->get_center()->y - space->get_size() / 2) {
+  if (space) {
+    CellPtr boundary = boost::static_pointer_cast<Cell>(space->boundary);
+    if (new_position->x >= boundary->get_center()->x + boundary->get_size() / 2
+        || new_position->x
+            <= boundary->get_center()->x - boundary->get_size() / 2
+        || new_position->y
+            >= boundary->get_center()->y + boundary->get_size() / 2
+        || new_position->y
+            <= boundary->get_center()->y - boundary->get_size() / 2) {
       return true;
     }
-    for (std::list<PolygonPtr>::iterator o = environment->obstacles.begin();
-        o != environment->obstacles.end(); o++) {
+    for (std::list<PolygonPtr>::iterator o = space->obstacles.begin();
+        o != space->obstacles.end(); o++) {
       CellPtr obstacle = boost::static_pointer_cast<Cell>(*o);
       if (new_position->x
           >= obstacle->get_center()->x - obstacle->get_size() / 2
@@ -153,22 +156,22 @@ bool test_see_obstacle(VectorPtr direction, double distance) {
 int main(int argc, char **argv) {
   if (argc >= 2) {
     std::istringstream iss(argv[1]);
-    if (!(iss >> e_size) || !((int) e_size % 2 == 0)) {
-      e_size = E_SIZE;
+    if (!(iss >> b_size) || !((int) b_size % 2 == 0)) {
+      b_size = B_SIZE;
     }
   } else {
-    e_size = E_SIZE;
+    b_size = B_SIZE;
   }
-  CellPtr space = CellPtr(new Cell(PointPtr(new Point(0, 0)), e_size));
+  CellPtr bound = CellPtr(new Cell(PointPtr(new Point(0, 0)), b_size));
   std::list<PolygonPtr> obstacles;
 
   std::srand(std::time(0));
   starting_point = PointPtr(
       new Point(
-          (std::rand() % (int) (e_size / T_SIZE / 2.0)
-              - (int) (e_size / T_SIZE / 4.0)) + T_SIZE + T_SIZE / 2.0,
-          (std::rand() % (int) (e_size / T_SIZE / 2.0)
-              - (int) (e_size / T_SIZE / 4.0)) + T_SIZE - T_SIZE / 2.0));
+          (std::rand() % (int) (b_size / T_SIZE / 2.0)
+              - (int) (b_size / T_SIZE / 4.0)) + T_SIZE + T_SIZE / 2.0,
+          (std::rand() % (int) (b_size / T_SIZE / 2.0)
+              - (int) (b_size / T_SIZE / 4.0)) + T_SIZE - T_SIZE / 2.0));
 
   double o_size;
   int number_of_obstacles;
@@ -179,13 +182,13 @@ int main(int argc, char **argv) {
       o_size = 2.0 * T_SIZE;
       number_of_obstacles = 0;
     } else {
-      double n = 0.75 * r * (e_size * e_size) / (o_size * o_size);
+      double n = 0.75 * r * (b_size * b_size) / (o_size * o_size);
       number_of_obstacles = n
           + ((int) (0.25 * n) != 0 ? std::rand() % (int) (0.25 * n) : 0);
     }
   } else {
     o_size = 2.0 * T_SIZE;
-    double n = 0.75 * r * (e_size * e_size) / (o_size * o_size);
+    double n = 0.75 * r * (b_size * b_size) / (o_size * o_size);
     number_of_obstacles = n
         + ((int) (0.25 * n) != 0 ? std::rand() % (int) (0.25 * n) : 0);
   }
@@ -193,11 +196,11 @@ int main(int argc, char **argv) {
   for (int i = 0; i <= number_of_obstacles; i++) {
     PointPtr center = PointPtr(
         new Point(
-            (std::rand() % (int) (e_size / T_SIZE / (o_size / T_SIZE))
-                - (int) (e_size / T_SIZE / (o_size / T_SIZE) / 2.0) + T_SIZE)
+            (std::rand() % (int) (b_size / T_SIZE / (o_size / T_SIZE))
+                - (int) (b_size / T_SIZE / (o_size / T_SIZE) / 2.0) + T_SIZE)
                 * o_size,
-            (std::rand() % (int) (e_size / T_SIZE / (o_size / T_SIZE))
-                - (int) (e_size / T_SIZE / (o_size / T_SIZE) / 2.0) + T_SIZE)
+            (std::rand() % (int) (b_size / T_SIZE / (o_size / T_SIZE))
+                - (int) (b_size / T_SIZE / (o_size / T_SIZE) / 2.0) + T_SIZE)
                 * o_size));
     bool valid = true;
     double EPS = std::numeric_limits<double>::epsilon();
@@ -223,13 +226,13 @@ int main(int argc, char **argv) {
       int n;
       n = 1;
       // Upper bound
-      for (double i = -e_size / 2 + T_SIZE / 2; i <= e_size / 2 - T_SIZE / 2;
+      for (double i = -b_size / 2 + T_SIZE / 2; i <= b_size / 2 - T_SIZE / 2;
           i += T_SIZE) {
         world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
         world_out << "      </include>\n";
-        world_out << "      <pose>" << i << " " << (e_size / 2 + T_SIZE / 4)
+        world_out << "      <pose>" << i << " " << (b_size / 2 + T_SIZE / 4)
             << " 0 0 0 0</pose>\n";
         world_out << "      <static>1</static>\n";
         world_out << "    </model>\n";
@@ -237,13 +240,13 @@ int main(int argc, char **argv) {
       }
 
       // Right bound
-      for (double i = -e_size / 2 + T_SIZE / 2; i <= e_size / 2 - T_SIZE / 2;
+      for (double i = -b_size / 2 + T_SIZE / 2; i <= b_size / 2 - T_SIZE / 2;
           i += T_SIZE) {
         world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
         world_out << "      </include>\n";
-        world_out << "      <pose>" << (e_size / 2 + T_SIZE / 4) << " " << -i
+        world_out << "      <pose>" << (b_size / 2 + T_SIZE / 4) << " " << -i
             << " 0 0 0 " << M_PI_2 << "</pose>\n";
         world_out << "      <static>1</static>\n";
         world_out << "    </model>\n";
@@ -251,13 +254,13 @@ int main(int argc, char **argv) {
       }
 
       // Lower bound
-      for (double i = -e_size / 2 + T_SIZE / 2; i <= e_size / 2 - T_SIZE / 2;
+      for (double i = -b_size / 2 + T_SIZE / 2; i <= b_size / 2 - T_SIZE / 2;
           i += T_SIZE) {
         world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
         world_out << "      </include>\n";
-        world_out << "      <pose>" << -i << " " << -(e_size / 2 + T_SIZE / 4)
+        world_out << "      <pose>" << -i << " " << -(b_size / 2 + T_SIZE / 4)
             << " 0 0 0 0</pose>\n";
         world_out << "      <static>1</static>\n";
         world_out << "    </model>\n";
@@ -265,13 +268,13 @@ int main(int argc, char **argv) {
       }
 
       // Left bound
-      for (double i = -e_size / 2 + T_SIZE / 2; i <= e_size / 2 - T_SIZE / 2;
+      for (double i = -b_size / 2 + T_SIZE / 2; i <= b_size / 2 - T_SIZE / 2;
           i += T_SIZE) {
         world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
         world_out << "      </include>\n";
-        world_out << "      <pose>" << -(e_size / 2 + T_SIZE / 4) << " " << i
+        world_out << "      <pose>" << -(b_size / 2 + T_SIZE / 4) << " " << i
             << " 0 0 0 " << M_PI_2 << "</pose>\n";
         world_out << "      <static>1</static>\n";
         world_out << "    </model>\n";
@@ -308,7 +311,7 @@ int main(int argc, char **argv) {
   world_in.close();
   world_out.close();
 
-  environment = EnvironmentPtr(new Environment(space, obstacles));
+  space = SpacePtr(new Space(bound, obstacles));
   if (argc >= 4) {
     if (std::string(argv[3]) == "spiral_stc") {
       SpiralStcPtr plan_spiral_stc = SpiralStcPtr(new SpiralStc());

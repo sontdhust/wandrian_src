@@ -16,10 +16,10 @@
 #include <sensor_msgs/LaserScan.h>
 #include "common/point.hpp"
 #include "common/vector.hpp"
-#include "../include/plans/mstc_online/communicator.hpp"
+#include "environment/communicator.hpp"
 
 using namespace wandrian::common;
-using namespace wandrian::plans::mstc_online;
+using namespace wandrian::environment;
 
 namespace wandrian {
 
