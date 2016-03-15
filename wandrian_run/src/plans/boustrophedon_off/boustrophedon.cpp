@@ -121,24 +121,8 @@ void Boustrophedon::dfs(SpacePtr space){
 	}
 }
 
-std::list<SpacePtr> Boustrophedon::create_space(std::list<SpacePtr> list_space, SpacePtr space){
-	list_space.push_back(space);
-	return list_space;
-}
+std::list<SpacePtr> Boustrophedon::create_space(ObstaclePtr environment, std::list<VerticesPtr> list_vertices){
 
-void Boustrophedon::boustrophedon_cd() {
-
-	std::list<ObstaclePtr> listobstacle;
-	std::list<ObstaclePtr>::iterator inspectLO;
-	ObstaclePtr environment;
-
-	std::list<int> TL;
-	std::list<int>::iterator ts;
-
-	std::list<PointPtr> list_point;
-	std::list<PointPtr>::iterator inspectLP;
-
-	std::list<VerticesPtr> list_vertices;
 	std::list<VerticesPtr> listvertices_temp;
 	std::list<VerticesPtr>::iterator inspectLV;
 	std::list<VerticesPtr>::iterator inspectLVT;
@@ -146,25 +130,142 @@ void Boustrophedon::boustrophedon_cd() {
 	std::list<SpacePtr> list_space;
 	std::list<SpacePtr>::iterator listLS;
 	PointPtr center_temp;
+	int i =1, j=1;
 	double sizex = 0, sizey = 0;
 
 	VerticesPtr vertices_previous;
 
+		//Create list space!
+	for(inspectLV = list_vertices.begin(), j=1, i= 1; j <= list_vertices.size(); ++inspectLV, ++j){
+		std::cout <<"V"<< j <<"("<<(*inspectLV)->get_positions()->x <<", "<<(*inspectLV)->get_positions()->y<<" )"<< std::endl;
 
+		listvertices_temp.sort(Vertices::compare_positionsy);
+		if(listvertices_temp.empty()&&(inspectLV == list_vertices.begin())){
+			std::cout<<"Empty1"<<std::endl;
+			listvertices_temp.push_back(*inspectLV);
+			++inspectLV;
+			++j;
+			listvertices_temp.push_back(*inspectLV);
+			continue;
+		}
 
-//	std::list<SpacePtr> listpoint;
-//	std::list<SpacePtr>::iterator inspectLP;
-//	std::list<SpacePtr>::iterator inspectLC;
-//
-	int i =1,j =1;
+		std::cout<<"List temp current "<<std::endl;
+		for (inspectLVT = listvertices_temp.begin();  inspectLVT != listvertices_temp.end() ; ++inspectLVT){
+			std::cout <<"V"<<"("<<(*inspectLVT)->get_positions()->x <<", "<<(*inspectLVT)->get_positions()->y<<" )"<< std::endl;
+		}
 
-	environment = ObstaclePtr(new Obstacle(PointPtr(new Point(0,0)), 6 ,6 ));
+		//1. Create one space
+			// + Center
+			// + Size
+		//2. Push + pop: Temp
 
-	//listobstacle.push_back(ObstaclePtr(new Obstacle(PointPtr(new Point(2,-2)) ,2 ,2 )));
-	listobstacle.push_back(ObstaclePtr(new Obstacle(PointPtr(new Point(-1.5, 0)) ,1 ,2 )));
-	//listobstacle.push_back(ObstaclePtr(new Obstacle(PointPtr(new Point(-0.75,-2.5)) , 1.5 ,1 )));
+		if((*inspectLV)->left_compared_center()||((*inspectLV)->get_polygon() == environment)){
+			for (inspectLVT = listvertices_temp.begin();  inspectLVT != listvertices_temp.end() ; ++inspectLVT) {
+				if(inspectLVT == listvertices_temp.begin()){
+					vertices_previous = *inspectLVT;
+					continue;
+				}
+				if((*inspectLVT)->get_positions()->y < (*inspectLV)->get_positions()->y){
+					vertices_previous = *inspectLVT;
+					continue;
+				}
 
-	listobstacle.push_back(environment);
+				// Create space
+				sizex =(*inspectLV)->get_positions()->x - (*inspectLVT)->get_positions()->x;
+				sizey =(*inspectLVT)->get_positions()->y - vertices_previous->get_positions()->y;
+
+				center_temp = PointPtr(new Point((*inspectLVT)->get_positions()->x + sizex/2,
+							(*inspectLVT)->get_positions()->y - sizey/2));
+
+				list_space.push_back(SpacePtr(new Space(center_temp, sizex, sizey)));
+
+				//Remove : two vetices space left
+				listvertices_temp.remove(vertices_previous);
+				listvertices_temp.remove(*inspectLVT);
+
+				//Push: two vertices space right
+				listvertices_temp.push_back(VerticesPtr(new Vertices(PointPtr(new Point(center_temp->x + sizex/2, center_temp->y + sizey/2 )),
+																		 ObstaclePtr(new Obstacle(center_temp, sizex, sizey)))));
+
+				if((*inspectLV)->get_positions()->y != environment->get_center()->y - environment->get_sizey()/2){
+					listvertices_temp.push_back(VerticesPtr(new Vertices(PointPtr(new Point(center_temp->x + sizex/2, center_temp->y - sizey/2 )),
+																					 ObstaclePtr(new Obstacle(center_temp, sizex, sizey)))));
+					listvertices_temp.push_back(*inspectLV);
+				}
+					++inspectLV;
+					++j;
+					listvertices_temp.push_back(*inspectLV);
+					break;
+				}
+			}
+			else{
+				if(((*inspectLV)->get_positions()->y == environment->get_center()->y - environment->get_sizey()/2 )||
+				  ((*inspectLV)->get_positions()->y == environment->get_center()->y + environment->get_sizey()/2)) {
+					listvertices_temp.push_back(*inspectLV);
+					++inspectLV;
+					++j;
+					continue;
+				}
+
+				for (inspectLVT = listvertices_temp.begin();  inspectLVT != listvertices_temp.end() ; ++inspectLVT) {
+					std::cout <<"V current "<<(*inspectLV)->get_positions()->y <<std::endl;
+					std::cout <<"V temp "<<(*inspectLVT)->get_positions()->y <<std::endl;
+					if((*inspectLV)->get_positions()->y == (*inspectLVT)->get_positions()->y){
+						std::cout <<(*inspectLV)->get_positions()->y <<std::endl;
+						break;
+					}
+					vertices_previous = *inspectLVT;
+				}
+
+				std::cout<<"Print2else "<<std::endl;
+
+				if((*inspectLV)->upon_compared_center()){
+				  vertices_previous = *inspectLVT;
+				  ++inspectLVT;
+				}
+
+				sizex = (*inspectLV)->get_positions()->x - vertices_previous->get_positions()->x;
+				sizey = (*inspectLVT)->get_positions()->y - vertices_previous->get_positions()->y;
+
+				center_temp = PointPtr(new Point(vertices_previous->get_positions()->x + sizex/2,vertices_previous->get_positions()->y +sizey/2));
+
+				list_space.push_back(SpacePtr(new Space(center_temp, sizex, sizey)));
+
+				//Remove : two vetices space left
+				listvertices_temp.remove(vertices_previous);
+				listvertices_temp.remove(*inspectLVT);
+
+				if((*inspectLV)->upon_compared_center()){
+					listvertices_temp.push_back(VerticesPtr(new Vertices(PointPtr(new Point(center_temp->x + sizex/2, center_temp->y + sizey/2 )),
+																		 ObstaclePtr(new Obstacle(center_temp, sizex, sizey)))));
+					std::cout<<center_temp->x + sizex/2<< center_temp->y + sizey/2 <<std::endl;
+				}
+				else{
+					listvertices_temp.push_back(VerticesPtr(new Vertices(PointPtr(new Point(center_temp->x + sizex/2, center_temp->y - sizey/2 )),
+																		 ObstaclePtr(new Obstacle(center_temp, sizex, sizey)))));
+				}
+
+				if((*inspectLV)->get_positions()->x == environment->get_center()->x + environment->get_sizex()/2){
+					++inspectLV;
+					++j;
+				}
+			}
+		}
+
+//create prant and child?
+	return list_space;
+
+}
+
+std::list<VerticesPtr> Boustrophedon::create_vertices(ObstaclePtr environment, std::list<ObstaclePtr> listobstacle){
+	std::list<PointPtr> list_point;
+	std::list<PointPtr>::iterator inspectLP;
+
+	std::list<VerticesPtr> list_vertices;
+	std::list<VerticesPtr>::iterator inspectLV;
+	std::list<ObstaclePtr>::iterator inspectLO;
+
+	int i =1, j =1;
 
 	std::cout <<"Environment : 0(" <<environment->get_center()->x<<" ,"<< environment->get_center()->y <<")"<<
 							" Size:"<<"("<<environment->get_sizex()<<" ,"<<environment->get_sizey()<<")"<<std::endl;
@@ -179,149 +280,69 @@ void Boustrophedon::boustrophedon_cd() {
 			std::cout <<"V"<< j++ <<"("<<(*inspectLP)->x <<", "<<(*inspectLP)->y <<" )"<<std::endl;
 			list_vertices.push_back(VerticesPtr(new Vertices(*inspectLP, *inspectLO)));
 		}
+		list_point.clear();
 	}
 
+	//Add vertices enviroment
 
-	std::cout <<" " <<std::endl;
-	for(inspectLV = list_vertices.begin(), j=1; inspectLV!= list_vertices.end(); ++inspectLV){
-		std::cout <<"V"<< j++ <<"("<<(*inspectLV)->get_positions()->x <<", "<<(*inspectLV)->get_positions()->y<<" )"<< std::endl;
+	list_point = environment->get_bound();
+	for(inspectLP = list_point.begin(); inspectLP != list_point.end(); ++inspectLP){
+		std::cout <<"What the hell"<< std::endl;
+
+		std::cout << "O"<<(*inspectLP)->x << (*inspectLP)->y << std::endl;
+
+		for(inspectLV = list_vertices.begin(),j=0; inspectLV != list_vertices.end(); ++inspectLV){
+
+			std::cout <<"V"<<(*inspectLV)->get_positions()->x<<" "<<(*inspectLV)->get_positions()->y << std::endl;
+
+			if(((*inspectLV)->get_positions()->x == (*inspectLP)->x)&&((*inspectLV)->get_positions()->y == (*inspectLP)->y)){
+				j = 1;
+				list_vertices.remove(*inspectLV);
+				std::cout <<"Sao the nhi"<< std::endl;
+				break;
+			}
+
+		}
+
+		if(j!= 1){
+			list_vertices.push_back(VerticesPtr(new Vertices(*inspectLP, environment)));
+		}
 	}
 
 	list_vertices.sort(Vertices::compare_positionsx);
 	std::cout <<" " <<std::endl;
 
+	return list_vertices;
+}
 
-	for(inspectLV = list_vertices.begin(), j=1; inspectLV!= list_vertices.end(); ++inspectLV){
-		std::cout <<"V"<< j++ <<"("<<(*inspectLV)->get_positions()->x <<", "<<(*inspectLV)->get_positions()->y<<" )"<< std::endl;
-	}
+void Boustrophedon::boustrophedon_cd() {
 
-
-
-	for(inspectLV = list_vertices.begin(), j=1, i= 1; inspectLV!= list_vertices.end(); ++inspectLV){
-		std::cout<<" "<<std::endl;
-		std::cout <<"V"<< j++ <<"("<<(*inspectLV)->get_positions()->x <<", "<<(*inspectLV)->get_positions()->y<<" )"<< std::endl;
-
-		listvertices_temp.sort(Vertices::compare_positionsy);
-		std::cout<<"Print1"<<std::endl;
+	std::list<ObstaclePtr> listobstacle;
+	std::list<ObstaclePtr>::iterator inspectLO;
+	ObstaclePtr environment;
 
 
-		if(listvertices_temp.empty()&&(inspectLV == list_vertices.begin())){
-			std::cout<<"Empty1"<<std::endl;
-			listvertices_temp.push_back(*inspectLV);
-			++inspectLV;
-			listvertices_temp.push_back(*inspectLV);
-			continue;
-		}
 
-		std::cout<<"List temp current "<<std::endl;
+	std::list<VerticesPtr> list_vertices;
+	std::list<VerticesPtr>::iterator inspectLV;
 
-		for (inspectLVT = listvertices_temp.begin();  inspectLVT != listvertices_temp.end() ; ++inspectLVT){
-			std::cout <<"V"<<"("<<(*inspectLVT)->get_positions()->x <<", "<<(*inspectLVT)->get_positions()->y<<" )"<< std::endl;
-
-		}
-
-		//1. Create one space
-			// + Center
-			// + Size
-		//2. Push + pop: Temp
-
-		if((*inspectLV)->left_compared_center()||((*inspectLV)->get_polygon() == environment)){
-
-			std::cout<<"Print4.1"<<std::endl;
-			for (inspectLVT = listvertices_temp.begin();  inspectLVT != listvertices_temp.end() ; ++inspectLVT) {
-
-				if(inspectLVT == listvertices_temp.begin()){
-					vertices_previous = *inspectLVT;
-					continue;
-				}
-
-				std::cout<<"Print4.2"<<std::endl;
-				if((*inspectLVT)->get_positions()->y < (*inspectLV)->get_positions()->y){
-					vertices_previous = *inspectLVT;
-					continue;
-				}
-
-				// Create space
-				sizex =(*inspectLV)->get_positions()->x - (*inspectLVT)->get_positions()->x;
-				sizey =(*inspectLVT)->get_positions()->y - vertices_previous->get_positions()->y;
-
-				center_temp = PointPtr(new Point((*inspectLVT)->get_positions()->x + sizex/2,
-						(*inspectLVT)->get_positions()->y - sizey/2));
-
-				list_space.push_back(SpacePtr(new Space(center_temp, sizex, sizey)));
-
-				std::cout<<"Print5 "<<std::endl;
-
-				//Remove : two vetices space left
-				listvertices_temp.remove(vertices_previous);
-				listvertices_temp.remove(*inspectLVT);
-
-				//Push: two vertices space right
-				std::cout<<"Print6 "<<std::endl;
+	std::list<SpacePtr> list_space;
+	std::list<SpacePtr>::iterator listLS;
 
 
-				listvertices_temp.push_back(VerticesPtr(new Vertices(PointPtr(new Point(center_temp->x + sizex/2, center_temp->y + sizey/2 )),
-																	 ObstaclePtr(new Obstacle(center_temp, sizex, sizey)))));
-				listvertices_temp.push_back(VerticesPtr(new Vertices(PointPtr(new Point(center_temp->x + sizex/2, center_temp->y - sizey/2 )),
-																	 ObstaclePtr(new Obstacle(center_temp, sizex, sizey)))));
+	environment = ObstaclePtr(new Obstacle(PointPtr(new Point(0,0)), 6 ,6 ));
 
-				break;
-			}
+	listobstacle.push_back(ObstaclePtr(new Obstacle(PointPtr(new Point(2,-2)) ,2 ,2 )));
+	listobstacle.push_back(ObstaclePtr(new Obstacle(PointPtr(new Point(-1.5, 0)) ,1 ,2 )));
+	listobstacle.push_back(ObstaclePtr(new Obstacle(PointPtr(new Point(-0.75,-2.5)) , 1.5 ,1 )));
 
 
-			listvertices_temp.push_back(*inspectLV);
-			++inspectLV;
-			listvertices_temp.push_back(*inspectLV);
+	//Create vertices
+	list_vertices = create_vertices(environment, listobstacle);
 
-		}
 
-		else{
+	list_space = create_space(environment, list_vertices);
 
-			std::cout<<"Print1else "<<std::endl;
-			for (inspectLVT = listvertices_temp.begin();  inspectLVT != listvertices_temp.end() ; ++inspectLVT) {
-				std::cout <<"V current "<<(*inspectLV)->get_positions()->y <<std::endl;
-				std::cout <<"V temp "<<(*inspectLVT)->get_positions()->y <<std::endl;
-				if((*inspectLV)->get_positions()->y == (*inspectLVT)->get_positions()->y){
-					std::cout <<(*inspectLV)->get_positions()->y <<std::endl;
-					break;
-				}
-				vertices_previous = *inspectLVT;
-
-			}
-
-			std::cout<<"Print2else "<<std::endl;
-
-			if((*inspectLV)->upon_compared_center()){
-			  vertices_previous = *inspectLVT;
-			  ++inspectLVT;
-			}
-
-			sizex = (*inspectLV)->get_positions()->x - vertices_previous->get_positions()->x;
-			sizey = (*inspectLVT)->get_positions()->y - vertices_previous->get_positions()->y;
-
-			center_temp = PointPtr(new Point(vertices_previous->get_positions()->x + sizex/2,vertices_previous->get_positions()->y +sizey/2));
-
-			list_space.push_back(SpacePtr(new Space(center_temp, sizex, sizey)));
-
-			//Remove : two vetices space left
-			listvertices_temp.remove(vertices_previous);
-			listvertices_temp.remove(*inspectLVT);
-
-			if((*inspectLV)->upon_compared_center()){
-				listvertices_temp.push_back(VerticesPtr(new Vertices(PointPtr(new Point(center_temp->x + sizex/2, center_temp->y + sizey/2 )),
-																	 ObstaclePtr(new Obstacle(center_temp, sizex, sizey)))));
-				std::cout<<center_temp->x + sizex/2<< center_temp->y + sizey/2 <<std::endl;
-			}
-			else{
-				listvertices_temp.push_back(VerticesPtr(new Vertices(PointPtr(new Point(center_temp->x + sizex/2, center_temp->y - sizey/2 )),
-																	 ObstaclePtr(new Obstacle(center_temp, sizex, sizey)))));
-			}
-
-			std::cout<<"Print3else "<<std::endl;
-
-		}
-
-	}
 
 	for (listLS = list_space.begin(); listLS != list_space.end(); ++listLS) {
 		std::cout <<"O("<<(*listLS)->get_center()->x <<" ,"<< (*listLS)->get_center()->y <<" ) ";
