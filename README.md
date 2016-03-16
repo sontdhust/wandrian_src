@@ -21,7 +21,7 @@ Change to catkin root directory then run:
 ####Build for testing:
 
     $ cd src/wandrian_run/test/
-    $ ./spiral_stc_test.sh 4 0.5 full_spiral_stc
+    $ ./test.sh 4 0.4 0.4 full_spiral_stc
 
 ####Run simulator:
 
@@ -33,7 +33,7 @@ Change to catkin root directory then run:
     $ roslaunch kobuki_node minimal.launch --screen
     $ sudo chmod a+rw /dev/ttyACM0
     $ rosrun hokuyo_node hokuyo_node
-    $ roslaunch wandrian_run run_practically.launch plan_name:=full_spiral_stc tool_size:=0.4 proportion_ranges_sum:=0.05 augmentation_factor_range:=2.0
+    $ roslaunch wandrian_run run_practically.launch plan_name:=full_spiral_stc tool_size:=0.4 starting_point_x:=0.0 starting_point_y:=0.0 linear_velocity:=0.1 angular_velocity:=0.6 proportion_ranges_count:=0.5 proportion_ranges_sum:=0.2 augmentation_factor_range:=2.0
 
 ####Running mstc_online:
 

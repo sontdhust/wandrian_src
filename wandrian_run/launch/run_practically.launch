@@ -1,6 +1,11 @@
 <launch>
   <arg name="plan_name"/>
   <arg name="tool_size"/>
+  <arg name="starting_point_x"/>
+  <arg name="starting_point_y"/>
+  <arg name="linear_velocity"/>
+  <arg name="angular_velocity"/>
+  <arg name="proportion_ranges_count"/>
   <arg name="proportion_ranges_sum"/>
   <arg name="augmentation_factor_range"/>
 
@@ -12,12 +17,15 @@
 
     <param name="plan_name" value="$(arg plan_name)" type="string"/>
     <param name="tool_size" value="$(arg tool_size)" type="double"/>
+    <param name="starting_point_x" value="$(arg starting_point_x)" type="double"/>
+    <param name="starting_point_y" value="$(arg starting_point_y)" type="double"/>
+    <param name="proportion_ranges_count" value="$(arg proportion_ranges_count)" type="double"/>
     <param name="proportion_ranges_sum" value="$(arg proportion_ranges_sum)" type="double"/>
     <param name="augmentation_factor_range" value="$(arg augmentation_factor_range)" type="double"/>
 
-    <param name="linear_velocity_step" value="0.05" type="double"/>
+    <param name="linear_velocity_step" value="$(arg linear_velocity)" type="double"/>
     <param name="linear_velocity_max" value="1.5" type="double"/>
-    <param name="angular_velocity_step" value="0.3" type="double"/>
+    <param name="angular_velocity_step" value="$(arg angular_velocity)" type="double"/>
     <param name="angular_velocity_max" value="3" type="double"/>
   </node>
 </launch>

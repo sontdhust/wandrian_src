@@ -58,6 +58,7 @@ private:
   double tool_size; // arg
   double starting_point_x; // arg
   double starting_point_y; // arg
+  double proportion_ranges_count; // arg
   double proportion_ranges_sum; // arg
   double augmentation_factor_range; // arg
   PointPtr current_position; // odometry subscriber

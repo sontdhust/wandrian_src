@@ -145,9 +145,6 @@ bool Wandrian::go_to(PointPtr new_position, bool flexibility) {
   go(forward);
   while (true) {
     // TODO: Moving obstacle detected, dodging
-    if (robot->get_obstacle_movement() != STOPPING) {
-      dodge();
-    }
     // Check current_position + k * current_direction == new_position
     VectorPtr direction = (new_position - robot->get_current_position())
         / (new_position % robot->get_current_position());
