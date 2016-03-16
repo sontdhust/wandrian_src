@@ -37,6 +37,14 @@ bool Vertices::upon_compared_center(){
 	return false;
 }
 
+bool Vertices::compare_vertices(boost::shared_ptr<Vertices> vertices1, boost::shared_ptr<Vertices> vertices2 ){
+	if((vertices1->get_positions()->x == vertices2->get_positions()->x)||(vertices1->get_positions()->y == vertices2->get_positions()->y))
+		return true;
+	return false;
+};
+
+
+
 bool Vertices::compare_positionsx(boost::shared_ptr<Vertices> vertices1, boost::shared_ptr<Vertices> vertices2 ){
 	if(vertices1->get_positions()->x < vertices2->get_positions()->x)
 		return true;

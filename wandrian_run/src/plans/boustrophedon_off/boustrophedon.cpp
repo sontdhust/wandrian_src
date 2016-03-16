@@ -111,9 +111,13 @@ void Boustrophedon::dfs(SpacePtr space){
 		     x = (space->get_center()->x*2 + space->get_sizex() - robot_size)/2 ;
 		     y = ((*inspectLC)->get_center()->y*2 - (*inspectLC)->get_sizey() + robot_size)/2 ;
 
+		     std::cout <<" Point backtrack"<<x<<" ,"<<y<<std::endl;
 		     (*inspectLC)->set_point_backtrack(PointPtr(new Point(x,y)));
+
 			go_to((*inspectLC)->point_backtrack, STRICTLY);
+
 			dfs(*inspectLC);
+
 			go_to((*inspectLC)->point_backtrack, STRICTLY);
 
 		}
@@ -121,19 +125,23 @@ void Boustrophedon::dfs(SpacePtr space){
 	}
 }
 
-std::list<SpacePtr> Boustrophedon::create_space(ObstaclePtr environment, std::list<VerticesPtr> list_vertices){
+std::list<SpacePtr> Boustrophedon::create_list_space(ObstaclePtr environment, std::list<VerticesPtr> list_vertices){
 
 	std::list<VerticesPtr> listvertices_temp;
 	std::list<VerticesPtr>::iterator inspectLV;
 	std::list<VerticesPtr>::iterator inspectLVT;
 
 	std::list<SpacePtr> list_space;
-	std::list<SpacePtr>::iterator listLS;
+	std::list<SpacePtr>::iterator inspectLS;
+	std::list<SpacePtr>::iterator inspectLS_temp;
 	PointPtr center_temp;
 	int i =1, j=1;
 	double sizex = 0, sizey = 0;
 
 	VerticesPtr vertices_previous;
+
+	std::list<PointPtr> list_point;
+	std::list<PointPtr>::iterator inspectLP;
 
 		//Create list space!
 	for(inspectLV = list_vertices.begin(), j=1, i= 1; j <= list_vertices.size(); ++inspectLV, ++j){
@@ -252,12 +260,29 @@ std::list<SpacePtr> Boustrophedon::create_space(ObstaclePtr environment, std::li
 			}
 		}
 
-//create prant and child?
+//TODO: Create parent and child?
+
+	list_space.sort(Space::compare_positionsx);
+
+	for (inspectLS = --list_space.end(), i=1 ; inspectLS != list_space.end(); --inspectLS) {
+
+		for (inspectLS_temp = --list_space.end(), i=1 ; inspectLS_temp != list_space.end(); --inspectLS_temp) {
+
+			if(Space::is_parent(*inspectLS_temp,*inspectLS)){
+				std::cout<<" Parent ("<<(*inspectLS_temp)->get_center()->x <<" ,"<< (*inspectLS_temp)->get_center()->y <<")"<<std::endl;
+				std::cout<<"Children ("<<(*inspectLS)->get_center()->x <<" ,"<< (*inspectLS)->get_center()->y <<")"<<std::endl;
+				(*inspectLS_temp)->children.push_back(*inspectLS);
+				(*inspectLS)->set_parent(*inspectLS_temp);
+				break;
+			}
+
+		}
+	}
 	return list_space;
 
 }
 
-std::list<VerticesPtr> Boustrophedon::create_vertices(ObstaclePtr environment, std::list<ObstaclePtr> listobstacle){
+std::list<VerticesPtr> Boustrophedon::create_list_vertices(ObstaclePtr environment, std::list<ObstaclePtr> listobstacle){
 	std::list<PointPtr> list_point;
 	std::list<PointPtr>::iterator inspectLP;
 
@@ -287,7 +312,6 @@ std::list<VerticesPtr> Boustrophedon::create_vertices(ObstaclePtr environment, s
 
 	list_point = environment->get_bound();
 	for(inspectLP = list_point.begin(); inspectLP != list_point.end(); ++inspectLP){
-		std::cout <<"What the hell"<< std::endl;
 
 		std::cout << "O"<<(*inspectLP)->x << (*inspectLP)->y << std::endl;
 
@@ -298,7 +322,6 @@ std::list<VerticesPtr> Boustrophedon::create_vertices(ObstaclePtr environment, s
 			if(((*inspectLV)->get_positions()->x == (*inspectLP)->x)&&((*inspectLV)->get_positions()->y == (*inspectLP)->y)){
 				j = 1;
 				list_vertices.remove(*inspectLV);
-				std::cout <<"Sao the nhi"<< std::endl;
 				break;
 			}
 
@@ -322,61 +345,53 @@ void Boustrophedon::boustrophedon_cd() {
 	ObstaclePtr environment;
 
 
-
 	std::list<VerticesPtr> list_vertices;
 	std::list<VerticesPtr>::iterator inspectLV;
 
 	std::list<SpacePtr> list_space;
-	std::list<SpacePtr>::iterator listLS;
+	std::list<SpacePtr>::iterator inspectLS;
+	std::list<SpacePtr>::iterator inspectLS_child;
 
+	int i,j;
 
 	environment = ObstaclePtr(new Obstacle(PointPtr(new Point(0,0)), 6 ,6 ));
 
 	listobstacle.push_back(ObstaclePtr(new Obstacle(PointPtr(new Point(2,-2)) ,2 ,2 )));
 	listobstacle.push_back(ObstaclePtr(new Obstacle(PointPtr(new Point(-1.5, 0)) ,1 ,2 )));
-	listobstacle.push_back(ObstaclePtr(new Obstacle(PointPtr(new Point(-0.75,-2.5)) , 1.5 ,1 )));
+	//listobstacle.push_back(ObstaclePtr(new Obstacle(PointPtr(new Point(-0.75,-2.5)) , 1.5 ,1 )));
 
 
 	//Create vertices
-	list_vertices = create_vertices(environment, listobstacle);
+	list_vertices = create_list_vertices(environment, listobstacle);
 
+	list_space = create_list_space(environment, list_vertices);
 
-	list_space = create_space(environment, list_vertices);
+	//TODO: Create list space
+	std::cout <<" "<<std::endl;
+	for (inspectLS = list_space.begin(), i=1; inspectLS != list_space.end(); ++inspectLS) {
 
+		std::cout <<"O"<<i++<<"("<<(*inspectLS)->get_center()->x <<" ,"<< (*inspectLS)->get_center()->y <<" ) ";
+		std::cout <<"Size("<<(*inspectLS)->get_sizex() <<" ,"<< (*inspectLS)->get_sizey() <<" )"<< std::endl;
 
-	for (listLS = list_space.begin(); listLS != list_space.end(); ++listLS) {
-		std::cout <<"O("<<(*listLS)->get_center()->x <<" ,"<< (*listLS)->get_center()->y <<" ) ";
-		std::cout <<"Size("<<(*listLS)->get_sizex() <<" ,"<< (*listLS)->get_sizey() <<" )"<< std::endl;
+		for (inspectLS_child = (*inspectLS)->children.begin() , j=1; inspectLS_child!= (*inspectLS)->children.end(); ++inspectLS_child) {
+			if(inspectLS_child == (*inspectLS)->children.begin()){
+				std::cout <<"Children:"<<std::endl;
+			}
+			std::cout <<"O"<< j++<<" (" <<(*inspectLS_child)->get_center()->x <<" ,"<< (*inspectLS_child)->get_center()->y <<" ) ";
+			std::cout <<"Size("<<(*inspectLS_child)->get_sizex() <<" ,"<< (*inspectLS_child)->get_sizey() <<" )"<< std::endl;
+		}
+		std::cout <<" "<<std::endl;
+
 	}
 
 
-
-//	SpacePtr s1 = SpacePtr(new Space(PointPtr(new Point(-2.5,0)), 1 ,6 ));
-//	SpacePtr s2 = SpacePtr(new Space(PointPtr(new Point(-1.5,2)), 1 ,2 ));
-//	SpacePtr s3 = SpacePtr(new Space(PointPtr(new Point(-1.5,-2)), 1 ,2 ));
-//	SpacePtr s4 = SpacePtr(new Space(PointPtr(new Point(0,0)), 2 ,6 ));
-//	SpacePtr s5 = SpacePtr(new Space(PointPtr(new Point(2,1)), 2 ,4 ));
-//
-//	listpoint.push_back(s1);
-//	s1->children.push_back(s3);
-//	s1->children.push_back(s2);
-//	listpoint.push_back(s2);
-//	s2->set_parent(s1);
-//	listpoint.push_back(s3);
-//	s3->set_parent(s1);
-//	s3->children.push_back(s4);
-//	listpoint.push_back(s4);
-//	s4->set_parent(s3);
-//	s4->children.push_back(s5);
-//	listpoint.push_back(s5);
-//	s5->set_parent(s4);
-//
-//	for(inspectLP = listpoint.begin(), i = 1; inspectLP != listpoint.end(); ++inspectLP){
-//		std::cout <<"Space:"<< i++ <<": "<<std::endl;
-//		if((*inspectLP)->status_visited == false){
-//			dfs(*inspectLP);
-//		}
-//	}
+	for(inspectLS = list_space.begin(), i=1; inspectLS!= list_space.end(); ++inspectLS){
+		std::cout <<"Space:" <<": "<<std::endl;
+	//	i++;
+		if((*inspectLS)->status_visited == false){
+			dfs(*inspectLS);
+		}
+	}
 
 }
 }

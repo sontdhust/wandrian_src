@@ -18,6 +18,25 @@ Space::Space(PointPtr center, double sizex, double sizey) :
   build();
 }
 
+bool Space::compare_positionsx(boost::shared_ptr<Space> space1, boost::shared_ptr<Space> space2 ){
+ 	if(space1->get_center()->x < space2->get_center()->x)
+ 		return true;
+ 	return false;
+ };
+
+bool Space::is_parent(boost::shared_ptr<Space> space1, boost::shared_ptr<Space> space2 ){
+ 	if((space1->get_center()->x + space1->get_sizex()/2)  == (space2->get_center()->x - space2->get_sizex()/2)){
+ 		if((space1->get_center()->y - space1->get_sizey()/2 > space2->get_center()->y + space2->get_sizey()/2)||
+ 		   (space1->get_center()->y + space1->get_sizey()/2 < space2->get_center()->y - space2->get_sizey()/2)){
+ 			return false;
+ 		}else{
+ 			return true;
+ 		}
+ 		return true;
+ 	}
+ 	return false;
+ };
+
 PointPtr Space::get_center() {
   return center;
 }

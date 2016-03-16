@@ -36,8 +36,8 @@ public:
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
   
   void dfs(SpacePtr);
-  std::list<SpacePtr> create_space(ObstaclePtr , std::list<VerticesPtr>);
-  std::list<VerticesPtr> create_vertices(ObstaclePtr, std::list<ObstaclePtr>);
+  std::list<SpacePtr> create_list_space(ObstaclePtr , std::list<VerticesPtr>);
+  std::list<VerticesPtr> create_list_vertices(ObstaclePtr, std::list<ObstaclePtr>);
 
 protected:
   bool go_to(PointPtr, bool);

@@ -26,6 +26,9 @@ public:
   void set_point_backtrack(PointPtr);
   void set_parent(boost::shared_ptr<Space>);
   boost::shared_ptr<Space> get_parent();
+  static bool compare_positionsx(boost::shared_ptr<Space>, boost::shared_ptr<Space>);
+  static bool is_parent(boost::shared_ptr<Space>, boost::shared_ptr<Space>);
+
 private:
   PointPtr center;
   double sizex;

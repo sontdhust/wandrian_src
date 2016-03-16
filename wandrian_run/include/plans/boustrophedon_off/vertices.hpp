@@ -24,6 +24,7 @@ public:
 	bool left_compared_center();
 	bool upon_compared_center();
 
+	static bool compare_vertices(boost::shared_ptr<Vertices> , boost::shared_ptr<Vertices> );
 	static bool compare_positionsx(boost::shared_ptr<Vertices> , boost::shared_ptr<Vertices> );
 	static bool compare_positionsy(boost::shared_ptr<Vertices> , boost::shared_ptr<Vertices> );
 private:
