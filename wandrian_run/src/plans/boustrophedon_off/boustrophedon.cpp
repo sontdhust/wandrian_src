@@ -62,23 +62,23 @@ bool Boustrophedon::go_go(SpacePtr space){
     for (int i = 0; i < space->get_sizex(); ++i){
       if (i!=0){
         last_position = *(--path.end());
-        new_position = PointPtr(new Point(last_position->x+0.5, last_position->y));
+        new_position = PointPtr(new Point(last_position->x+ robot_size, last_position->y));
         go_to(new_position, STRICTLY);
       }
       std::cout << "\033[1;34mTest_position-\033[0m\033[1;31m\033[0m: "
             << i << "\n";
       for (int j = 0; j < space->get_sizey()*2-1; ++j){
         last_position = *(--path.end());
-        new_position = PointPtr(new Point(last_position->x, last_position->y + 0.5));
+        new_position = PointPtr(new Point(last_position->x, last_position->y + robot_size));
         go_to(new_position, STRICTLY);
       }
       last_position = *(--path.end());
-      new_position = PointPtr(new Point(last_position->x+0.5, last_position->y));
+      new_position = PointPtr(new Point(last_position->x+ robot_size, last_position->y));
       go_to(new_position, STRICTLY);
       
       for (int j = 0; j < space->get_sizey()*2-1; ++j){
         last_position = *(--path.end());
-        new_position = PointPtr(new Point(last_position->x, last_position->y - 0.5));
+        new_position = PointPtr(new Point(last_position->x, last_position->y - robot_size));
         go_to(new_position, STRICTLY);
       }
     }

@@ -261,23 +261,28 @@ int main(int argc, char **argv) {
       // Obstacles
       for (std::list<PolygonPtr>::iterator o = obstacles.begin();
           o != obstacles.end(); o++) {
+
           PointPtr p = (boost::static_pointer_cast<Cell>(*o))->get_center();
           double s = (boost::static_pointer_cast<Cell>(*o))->get_size();
         int c = 1;
+
         double x = p->x - R_SIZE * (s / R_SIZE / 2.0 - 1.0 / 2.0);
         for (int i = 1; i <= (int) (s / R_SIZE); i++) {
-          for (double j = p->y - R_SIZE * (s / R_SIZE / 2.0 - 1.0 / 4.0);
-              j <= p->y + R_SIZE * (s / R_SIZE / 2.0 - 1.0 / 4.0);
-              j += R_SIZE / 2.0) {
+
+          for (double y = p->y - R_SIZE * (s / R_SIZE / 2.0 - 1.0 / 4.0);
+              y <= p->y + R_SIZE * (s / R_SIZE / 2.0 - 1.0 / 4.0);
+              y += R_SIZE / 2.0) {
+
             world_out << "    <model name='cinder_block_obstacle_" << n << "_"
                 << c << "'>\n";
             world_out << "      <include>\n";
             world_out << "        <uri>model://cinder_block</uri>\n";
             world_out << "      </include>\n";
-            world_out << "      <pose>" << x << " " << j << " 0 0 0 0</pose>\n";
+            world_out << "      <pose>" << x << " " << y << " 0 0 0 0</pose>\n";
             world_out << "      <static>1</static>\n";
             world_out << "    </model>\n";
             c++;
+
           }
           x += R_SIZE;
         }
