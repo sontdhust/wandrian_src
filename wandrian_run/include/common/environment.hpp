@@ -1,9 +1,3 @@
-/*
- * environment.hpp
- *
- *  Created on: Jul 28, 2015
- *      Author: sontd
- */
 
 #ifndef WANDRIAN_RUN_INCLUDE_COMMON_ENVIRONMENT_HPP_
 #define WANDRIAN_RUN_INCLUDE_COMMON_ENVIRONMENT_HPP_

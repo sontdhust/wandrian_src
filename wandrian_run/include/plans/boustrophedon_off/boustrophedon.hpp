@@ -12,6 +12,7 @@
 #include "../base_plan.hpp"
 #include "cell.hpp"
 #include "obstacle.hpp"
+#include "environmentoff.hpp"
 #include "space.hpp"
 #include "vertices.hpp"
 #include "ros/ros.h"
@@ -29,13 +30,14 @@ public:
   Boustrophedon();
   ~Boustrophedon();
   
-  void initialize(PointPtr, double);
+  void initialize(PointPtr, double, std::string);
 
   void cover();
 
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
   
   void dfs(SpacePtr);
+
   std::list<SpacePtr> create_list_space(ObstaclePtr , std::list<VerticesPtr>);
   std::list<VerticesPtr> create_list_vertices(ObstaclePtr, std::list<ObstaclePtr>);
 
@@ -44,14 +46,14 @@ protected:
   bool go_go(SpacePtr);
 
 private:
+
   CellPtr starting_cell;
   double robot_size; // = 'cell size' / 2
-  double environment_size;
+
+  EnvironmentOffPtr environment;
   
-  boost::function<bool(VectorPtr, double)> behavior_see_obstacle;
   std::set<CellPtr, CellComp> old_cells;
 
-  bool see_obstacle(VectorPtr, double);
   bool go_with(VectorPtr, double);
 
   void boustrophedon_cd();

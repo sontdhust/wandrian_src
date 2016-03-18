@@ -49,11 +49,12 @@ void Wandrian::wandrian_run() {
 
     boustrophedon_cd->initialize(
         PointPtr( new Point(core.get_starting_point_x(), core.get_starting_point_y())),
-                 core.get_robot_size());
-    boustrophedon_cd->set_behavior_go_to(
-        boost::bind(&Wandrian::spiral_stc_go_to, this, _1, _2));
-    boustrophedon_cd->set_behavior_see_obstacle(
-        boost::bind(&Wandrian::spiral_stc_see_obstacle, this, _1, _2));
+                 core.get_robot_size(),"");
+
+//    boustrophedon_cd->set_behavior_go_to(
+//        boost::bind(&Wandrian::spiral_stc_go_to, this, _1, _2));
+//    boustrophedon_cd->set_behavior_see_obstacle(
+//        boost::bind(&Wandrian::spiral_stc_see_obstacle, this, _1, _2));
     boustrophedon_cd->cover();
   }
 }
