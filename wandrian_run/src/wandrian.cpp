@@ -43,7 +43,8 @@ void Wandrian::spin() {
 
 void Wandrian::wandrian_run() {
   if (robot->get_plan_name() == "spiral_stc") {
-    SpiralStcPtr spiral_stc = SpiralStcPtr(new SpiralStc());
+    plan = SpiralStcPtr(new SpiralStc());
+    SpiralStcPtr spiral_stc = boost::static_pointer_cast<SpiralStc>(plan);
     spiral_stc->initialize(
         PointPtr(
             new Point(robot->get_starting_point_x(),
@@ -54,7 +55,9 @@ void Wandrian::wandrian_run() {
         boost::bind(&Wandrian::spiral_stc_see_obstacle, this, _1, _2));
     spiral_stc->cover();
   } else if (robot->get_plan_name() == "full_spiral_stc") {
-    FullSpiralStcPtr full_spiral_stc = FullSpiralStcPtr(new FullSpiralStc());
+    plan = FullSpiralStcPtr(new FullSpiralStc());
+    FullSpiralStcPtr full_spiral_stc =
+        boost::static_pointer_cast<FullSpiralStc>(plan);
     full_spiral_stc->initialize(
         PointPtr(
             new Point(robot->get_starting_point_x(),
@@ -65,7 +68,8 @@ void Wandrian::wandrian_run() {
         boost::bind(&Wandrian::full_spiral_stc_see_obstacle, this, _1, _2));
     full_spiral_stc->cover();
   } else if (robot->get_plan_name() == "mstc_online") {
-    MstcOnlinePtr mstc_online = MstcOnlinePtr(new MstcOnline());
+    plan = MstcOnlinePtr(new MstcOnline());
+    MstcOnlinePtr mstc_online = boost::static_pointer_cast<MstcOnline>(plan);
     mstc_online->initialize(
         PointPtr(
             new Point(robot->get_starting_point_x(),
@@ -77,8 +81,9 @@ void Wandrian::wandrian_run() {
         boost::bind(&Wandrian::mstc_online_see_obstacle, this, _1, _2));
     mstc_online->cover();
   } else if (robot->get_plan_name() == "boustrophedon_online") {
-    BoustrophedonOnlinePtr boustrophedon_online = BoustrophedonOnlinePtr(
-        new BoustrophedonOnline());
+    plan = BoustrophedonOnlinePtr(new BoustrophedonOnline());
+    BoustrophedonOnlinePtr boustrophedon_online = boost::static_pointer_cast<
+        BoustrophedonOnline>(plan);
     boustrophedon_online->initialize(
         PointPtr(
             new Point(robot->get_starting_point_x(),
@@ -97,6 +102,22 @@ bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibility) {
 }
 
 bool Wandrian::spiral_stc_see_obstacle(VectorPtr direction, double distance) {
+  PointPtr last_position = *(--plan->get_path().end());
+  PointPtr new_position = last_position + direction * distance;
+  RectanglePtr boundary = robot->get_space_boundary();
+  // TODO: Choose relevant epsilon value
+  const double EPS = 20 * std::numeric_limits<double>::epsilon();
+  if (new_position->x
+      >= boundary->get_center()->x + boundary->get_width() / 2 - EPS
+      || new_position->x
+          <= boundary->get_center()->x - boundary->get_width() / 2 + EPS
+      || new_position->y
+          >= boundary->get_center()->y + boundary->get_height() / 2 - EPS
+      || new_position->y
+          <= boundary->get_center()->y - boundary->get_height() / 2 + EPS) {
+    return true;
+  }
+
   // TODO: Correctly check whether obstacle is near or not
   double angle = direction ^ robot->get_current_direction();
   if (std::abs(angle) <= 3 * M_PI_4)

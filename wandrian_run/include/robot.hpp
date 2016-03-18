@@ -16,6 +16,7 @@
 #include <sensor_msgs/LaserScan.h>
 #include "common/point.hpp"
 #include "common/vector.hpp"
+#include "common/rectangle.hpp"
 #include "environment/communicator.hpp"
 
 using namespace wandrian::common;
@@ -40,6 +41,7 @@ public:
   double get_tool_size();
   double get_starting_point_x();
   double get_starting_point_y();
+  RectanglePtr get_space_boundary();
   PointPtr get_current_position();
   VectorPtr get_current_direction();
   bool* get_obstacles();
@@ -61,6 +63,10 @@ private:
   double proportion_ranges_count; // arg
   double proportion_ranges_sum; // arg
   double augmentation_factor_range; // arg
+  double space_center_x; //arg
+  double space_center_y; //arg
+  double space_boundary_width; //arg
+  double space_boundary_height; //arg
   PointPtr current_position; // odometry subscriber
   VectorPtr current_direction; // odometry subscriber
   bool obstacles[3]; // laser subscriber

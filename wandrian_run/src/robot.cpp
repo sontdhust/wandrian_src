@@ -19,8 +19,9 @@ namespace wandrian {
 
 Robot::Robot() :
     tool_size(0), starting_point_x(0), starting_point_y(0), proportion_ranges_count(
-        0), proportion_ranges_sum(0), augmentation_factor_range(0), current_position(
-        new Point()), current_direction(new Vector()), obstacle_movement(
+        0), proportion_ranges_sum(0), augmentation_factor_range(0), space_center_x(
+        0), space_center_y(0), space_boundary_width(0), space_boundary_height(
+        0), current_position(new Point()), current_direction(new Vector()), obstacle_movement(
         STOPPING), linear_velocity_step(0), linear_velocity_max(0), angular_velocity_step(
         0), angular_velocity_max(0), velocity(new geometry_msgs::Twist()), laser_range(
         0), is_quitting(false), is_powered(false), is_zero_vel(true), is_logging(
@@ -44,6 +45,10 @@ bool Robot::initialize() {
   nh.getParam("proportion_ranges_count", proportion_ranges_count);
   nh.getParam("proportion_ranges_sum", proportion_ranges_sum);
   nh.getParam("augmentation_factor_range", augmentation_factor_range);
+  nh.getParam("space_center_x", space_center_x);
+  nh.getParam("space_center_y", space_center_y);
+  nh.getParam("space_boundary_width", space_boundary_width);
+  nh.getParam("space_boundary_height", space_boundary_height);
 
   nh.getParam("linear_velocity_step", linear_velocity_step);
   nh.getParam("linear_velocity_max", linear_velocity_max);
@@ -164,6 +169,10 @@ std::string Robot::get_plan_name() {
   return plan_name;
 }
 
+double Robot::get_tool_size() {
+  return tool_size;
+}
+
 double Robot::get_starting_point_x() {
   return starting_point_x;
 }
@@ -172,8 +181,10 @@ double Robot::get_starting_point_y() {
   return starting_point_y;
 }
 
-double Robot::get_tool_size() {
-  return tool_size;
+RectanglePtr Robot::get_space_boundary() {
+  return RectanglePtr(
+      new Rectangle(PointPtr(new Point(space_center_x, space_center_y)),
+          space_boundary_width, space_boundary_height));
 }
 
 PointPtr Robot::get_current_position() {
