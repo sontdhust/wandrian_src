@@ -22,10 +22,12 @@ public:
   PointPtr get_center();
   double get_sizex();
   double get_sizey();
+
 private:
   PointPtr center;
   double sizex;
   double sizey;
+
 };
 
 typedef boost::shared_ptr<Obstacle const> ObstacleConstPtr;

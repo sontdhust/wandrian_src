@@ -186,9 +186,9 @@ int main(int argc, char **argv) {
 
   int r = std::rand() % (int) (e_size * e_size / 16) + e_size * e_size / 8;
 
-//  obstacles.insert(obstacles.end(), CellPtr(new Cell(PointPtr(new Point(-1.5, 0.5)), 2*R_SIZE)));
-//  obstacles.insert(obstacles.end(), CellPtr(new Cell(PointPtr(new Point(-1.5, -0.5)), 2*R_SIZE)));
-//  obstacles.insert(obstacles.end(), CellPtr(new Cell(PointPtr(new Point(2, -2)), 4*R_SIZE)));
+  obstacles.insert(obstacles.end(), CellPtr(new Cell(PointPtr(new Point(-1.5, 0.5)), 2*R_SIZE)));
+  obstacles.insert(obstacles.end(), CellPtr(new Cell(PointPtr(new Point(-1.5, -0.5)), 2*R_SIZE)));
+  obstacles.insert(obstacles.end(), CellPtr(new Cell(PointPtr(new Point(2, -2)), 4*R_SIZE)));
 
   std::ifstream world_in("../../worlds/empty.world");
   std::ofstream world_out("../../worlds/tmp.world");
@@ -290,9 +290,10 @@ int main(int argc, char **argv) {
 
  environment = EnvironmentPtr(new Environment(space, obstacles));
   boustrophedon_pt = BoustrophedonPtr(new Boustrophedon());
-  boustrophedon_pt->initialize(starting_point, R_SIZE, "environment.txt");
+  boustrophedon_pt->initialize(starting_point, R_SIZE, "../../worlds/environment.txt");
   tmp_path.insert(tmp_path.end(), starting_point);
-//  boustrophedon_pt->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
+  boustrophedon_pt->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
+
 //  boustrophedon_pt->set_behavior_see_obstacle(
 //      boost::bind(&test_see_obstacle, _1, _2));
 

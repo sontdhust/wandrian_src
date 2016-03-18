@@ -28,6 +28,8 @@ public:
 
 	  std::list<ObstaclePtr> get_obstacles();
 
+	  int static commaposition(std::string);
+
 	  void set_environment();
 
 private:

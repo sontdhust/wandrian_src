@@ -359,58 +359,40 @@ void Boustrophedon::boustrophedon_cd() {
 
 	int i,j;
 
-//	environment = ObstaclePtr(new Obstacle(PointPtr(new Point(0,0)), 4 , 4 ));
-//
-//	listobstacle.push_back(ObstaclePtr(new Obstacle(PointPtr(new Point(0,1)) ,4 , 2)));
-//	listobstacle.push_back(ObstaclePtr(new Obstacle(PointPtr(new Point(1.5, -1)) , 1 ,2 )));
-//
-//	listobstacle.push_back(ObstaclePtr(new Obstacle(PointPtr(new Point(-0.5, -1.5)), 1 , 1)));
-//	listobstacle.push_back(ObstaclePtr(new Obstacle(PointPtr(new Point(1.5, -1)) , 1 ,2 )));
-//	listobstacle.push_back(ObstaclePtr(new Obstacle(PointPtr(new Point(0,1)) ,4 , 2)));
-//	listobstacle.push_back(ObstaclePtr(new Obstacle(PointPtr(new Point(1.5, -1)) , 1 ,2 )));
-
-	//listobstacle.push_back(ObstaclePtr(new Obstacle(PointPtr(new Point(-0.75,-2.5)) , 1.5 ,1 )));
-
-
-
 	std::cout<< environment->namefile <<std::endl;
-	environment->set_environment();
+
+	//Create vertices
+
+	list_vertices = create_list_vertices(environment->get_environment(), environment->get_obstacles());
+
+	list_space = create_list_space(environment->get_environment(), list_vertices);
+
+	//TODO: Create list space
+	std::cout <<" "<<std::endl;
+	for (inspectLS = list_space.begin(), i=1; inspectLS != list_space.end(); ++inspectLS) {
+
+		std::cout <<"O"<<i++<<"("<<(*inspectLS)->get_center()->x <<" ,"<< (*inspectLS)->get_center()->y <<" ) ";
+		std::cout <<"Size("<<(*inspectLS)->get_sizex() <<" ,"<< (*inspectLS)->get_sizey() <<" )"<< std::endl;
+
+		for (inspectLS_child = (*inspectLS)->children.begin() , j=1; inspectLS_child!= (*inspectLS)->children.end(); ++inspectLS_child) {
+			if(inspectLS_child == (*inspectLS)->children.begin()){
+				std::cout <<"Children:"<<std::endl;
+			}
+			std::cout <<"O"<< j++<<" (" <<(*inspectLS_child)->get_center()->x <<" ,"<< (*inspectLS_child)->get_center()->y <<" ) ";
+			std::cout <<"Size("<<(*inspectLS_child)->get_sizex() <<" ,"<< (*inspectLS_child)->get_sizey() <<" )"<< std::endl;
+		}
+		std::cout <<" "<<std::endl;
+
+	}
 
 
+	for(inspectLS = list_space.begin(), i=1; inspectLS!= list_space.end(); ++inspectLS){
+		std::cout <<"Space:" <<": "<<std::endl;
 
-
-
-//	//Create vertices
-//	list_vertices = create_list_vertices(environment, listobstacle);
-//
-//	list_space = create_list_space(environment, list_vertices);
-//
-//	//TODO: Create list space
-//	std::cout <<" "<<std::endl;
-//	for (inspectLS = list_space.begin(), i=1; inspectLS != list_space.end(); ++inspectLS) {
-//
-//		std::cout <<"O"<<i++<<"("<<(*inspectLS)->get_center()->x <<" ,"<< (*inspectLS)->get_center()->y <<" ) ";
-//		std::cout <<"Size("<<(*inspectLS)->get_sizex() <<" ,"<< (*inspectLS)->get_sizey() <<" )"<< std::endl;
-//
-//		for (inspectLS_child = (*inspectLS)->children.begin() , j=1; inspectLS_child!= (*inspectLS)->children.end(); ++inspectLS_child) {
-//			if(inspectLS_child == (*inspectLS)->children.begin()){
-//				std::cout <<"Children:"<<std::endl;
-//			}
-//			std::cout <<"O"<< j++<<" (" <<(*inspectLS_child)->get_center()->x <<" ,"<< (*inspectLS_child)->get_center()->y <<" ) ";
-//			std::cout <<"Size("<<(*inspectLS_child)->get_sizex() <<" ,"<< (*inspectLS_child)->get_sizey() <<" )"<< std::endl;
-//		}
-//		std::cout <<" "<<std::endl;
-//
-//	}
-//
-//
-//	for(inspectLS = list_space.begin(), i=1; inspectLS!= list_space.end(); ++inspectLS){
-//		std::cout <<"Space:" <<": "<<std::endl;
-//	//	i++;
-//		if((*inspectLS)->status_visited == false){
-//			dfs(*inspectLS);
-//		}
-//	}
+		if((*inspectLS)->status_visited == false){
+			dfs(*inspectLS);
+		}
+	}
 
 }
 }
