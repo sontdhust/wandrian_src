@@ -24,8 +24,9 @@
 
 #define T_SIZE 0.5 // Tool size
 #define B_SIZE 4.0 // Default space size
-#define WORLD_INSERT_OBSTACLE "<!-- INSERT: Bound and Obstacles here -->" // Flag at original world file to insert bound and obstacles into
+#define WORLD_INSERT_OBSTACLE "<!-- INSERT: Boundary and Obstacles here -->" // Flag at original world file to insert boundary and obstacles into
 
+using namespace wandrian::common;
 using namespace wandrian::plans::spiral_stc;
 using namespace wandrian::plans::boustrophedon_online;
 
@@ -35,6 +36,9 @@ double t_size;
 SpacePtr space;
 PointPtr starting_point;
 std::list<PointPtr> path;
+
+// TODO: Choose relevant epsilon value
+const double EPS = 20 * std::numeric_limits<double>::epsilon();
 
 /**
  * Linked libraries to compile: -lglut -lGL (g++)
@@ -75,8 +79,14 @@ void display() {
   glPointSize(b_size <= 8 ? 2 : 1);
   glColor3ub(255, 255, 255);
   glBegin(GL_POINTS);
-  for (double i = -b_size / 2.0; i <= b_size / 2.0; i += t_size * 2.0) {
-    for (double j = -b_size / 2.0; j <= b_size / 2.0; j += t_size * 2.0) {
+  RectanglePtr boundary = boost::static_pointer_cast<Rectangle>(
+      space->boundary);
+  for (double i = boundary->get_center()->x - boundary->get_width() / 2.0;
+      i <= boundary->get_center()->x + boundary->get_width() / 2.0;
+      i += t_size * 2.0) {
+    for (double j = boundary->get_center()->y - boundary->get_height() / 2.0;
+        j <= boundary->get_center()->y + boundary->get_height() / 2.0;
+        j += t_size * 2.0) {
       if (i != 0 || j != 0)
         glVertex2d(i, j);
     }
@@ -85,10 +95,10 @@ void display() {
 
   // Environment
   glColor3ub(255, 0, 0);
-  draw(space->boundary->get_bound(), GL_LINE_STRIP);
+  draw(space->boundary->get_boundary(), GL_LINE_STRIP);
   for (std::list<PolygonPtr>::iterator obstacle = space->obstacles.begin();
       obstacle != space->obstacles.end(); obstacle++) {
-    draw((*obstacle)->get_bound(), GL_POLYGON);
+    draw((*obstacle)->get_boundary(), GL_POLYGON);
   }
 
   // Starting point
@@ -127,20 +137,19 @@ bool test_go_to(PointPtr position, bool) {
 
 bool test_see_obstacle(VectorPtr direction, double distance) {
   // Simulator check obstacle
-  // TODO: Choose relevant epsilon value
-  const double EPS = 20 * std::numeric_limits<double>::epsilon();
   PointPtr last_position = *(--path.end());
   PointPtr new_position = last_position + direction * distance;
   if (space) {
-    CellPtr boundary = boost::static_pointer_cast<Cell>(space->boundary);
+    RectanglePtr boundary = boost::static_pointer_cast<Rectangle>(
+        space->boundary);
     if (new_position->x
-        >= boundary->get_center()->x + boundary->get_size() / 2 - EPS
+        >= boundary->get_center()->x + boundary->get_width() / 2 - EPS
         || new_position->x
-            <= boundary->get_center()->x - boundary->get_size() / 2 + EPS
+            <= boundary->get_center()->x - boundary->get_width() / 2 + EPS
         || new_position->y
-            >= boundary->get_center()->y + boundary->get_size() / 2 - EPS
+            >= boundary->get_center()->y + boundary->get_height() / 2 - EPS
         || new_position->y
-            <= boundary->get_center()->y - boundary->get_size() / 2 + EPS) {
+            <= boundary->get_center()->y - boundary->get_height() / 2 + EPS) {
       return true;
     }
     for (std::list<PolygonPtr>::iterator o = space->obstacles.begin();
@@ -163,8 +172,9 @@ bool test_see_obstacle(VectorPtr direction, double distance) {
 
 int main(int argc, char **argv) {
   bool map_input = false;
+  RectanglePtr boundary;
   std::vector<PointPtr> obstacle_centers;
-  // Bound size and obstacle center from input map
+  // Boundary size and obstacle center from input map
   if (argc >= 2) {
     std::istringstream iss(argv[1]);
     if (!(iss >> b_size)) { // Read from input map file
@@ -172,9 +182,31 @@ int main(int argc, char **argv) {
       map_input = true;
       std::ifstream map(("../" + std::string(argv[1])).c_str());
       std::string line;
-      // Bound size
+      // Boundary size
       std::getline(map, line, '\n');
-      b_size = boost::lexical_cast<double>(line);
+      int delimiter_pos1;
+      int delimiter_pos2;
+      delimiter_pos1 = line.find(" ");
+      double center_x = boost::lexical_cast<double>(
+          boost::lexical_cast<double>(line.substr(0, delimiter_pos1)));
+      delimiter_pos2 = line.find(" ", delimiter_pos1 + 1);
+      double center_y = boost::lexical_cast<double>(
+          boost::lexical_cast<double>(
+              line.substr(delimiter_pos1 + 1,
+                  delimiter_pos2 - delimiter_pos1 - 1)));
+      delimiter_pos1 = delimiter_pos2;
+      delimiter_pos2 = line.find(" ", delimiter_pos1 + 1);
+      double width = boost::lexical_cast<double>(
+          boost::lexical_cast<double>(
+              line.substr(delimiter_pos1 + 1,
+                  delimiter_pos2 - delimiter_pos1 - 1)));
+      double height = boost::lexical_cast<double>(
+          boost::lexical_cast<double>(
+              line.substr(delimiter_pos2 + 1,
+                  line.length() - delimiter_pos2 - 1)));
+      boundary = RectanglePtr(
+          new Rectangle(PointPtr(new Point(center_x, center_y)), width,
+              height));
       // Starting point
       double starting_point_x;
       double starting_point_y;
@@ -201,11 +233,12 @@ int main(int argc, char **argv) {
       }
     } else {
       map_input = false;
+      boundary = RectanglePtr(
+          new Rectangle(PointPtr(new Point(0, 0)), b_size, b_size));
     }
   } else {
     b_size = B_SIZE;
   }
-  CellPtr boundary = CellPtr(new Cell(PointPtr(new Point(0, 0)), b_size));
   std::list<PolygonPtr> obstacles;
 
   // Tool size
@@ -251,7 +284,7 @@ int main(int argc, char **argv) {
   }
 
   for (int i = 0;
-      i <= (map_input ? obstacle_centers.size() - 1 : number_of_obstacles);
+      i <= (map_input ? (int) obstacle_centers.size() - 1 : number_of_obstacles);
       i++) {
     PointPtr center =
         map_input ?
@@ -287,54 +320,70 @@ int main(int argc, char **argv) {
     if (line.find(WORLD_INSERT_OBSTACLE) != std::string::npos) {
       int n;
       n = 1;
-      // Upper bound
-      for (double i = -b_size / 2 + t_size / 2; i <= b_size / 2 - t_size / 2;
-          i += t_size) {
-        world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
+      // Upper boundary
+      for (double i = boundary->get_center()->x - boundary->get_width() / 2
+          + t_size / 2;
+          i
+              <= boundary->get_center()->x + boundary->get_width() / 2
+                  - t_size / 2 + EPS; i += t_size) {
+        world_out << "    <model name='cinder_block_boundary_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
         world_out << "      </include>\n";
-        world_out << "      <pose>" << i << " " << (b_size / 2 + t_size / 4)
-            << " 0 0 0 0</pose>\n";
+        world_out << "      <pose>" << i << " "
+            << (boundary->get_center()->y + boundary->get_height() / 2
+                + t_size / 4) << " 0 0 0 0</pose>\n";
         world_out << "      <static>1</static>\n";
         world_out << "    </model>\n";
         n++;
       }
-      // Right bound
-      for (double i = -b_size / 2 + t_size / 2; i <= b_size / 2 - t_size / 2;
-          i += t_size) {
-        world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
+      // Right boundary
+      for (double i = boundary->get_center()->y - boundary->get_height() / 2
+          + t_size / 2;
+          i
+              <= boundary->get_center()->y + boundary->get_height() / 2
+                  - t_size / 2 + EPS; i += t_size) {
+        world_out << "    <model name='cinder_block_boundary_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
         world_out << "      </include>\n";
-        world_out << "      <pose>" << (b_size / 2 + t_size / 4) << " " << -i
-            << " 0 0 0 " << M_PI_2 << "</pose>\n";
+        world_out << "      <pose>"
+            << (boundary->get_center()->x + boundary->get_width() / 2
+                + t_size / 4) << " " << i << " 0 0 0 " << M_PI_2 << "</pose>\n";
         world_out << "      <static>1</static>\n";
         world_out << "    </model>\n";
         n++;
       }
-      // Lower bound
-      for (double i = -b_size / 2 + t_size / 2; i <= b_size / 2 - t_size / 2;
-          i += t_size) {
-        world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
+      // Lower boundary
+      for (double i = boundary->get_center()->x - boundary->get_width() / 2
+          + t_size / 2;
+          i
+              <= boundary->get_center()->x + boundary->get_width() / 2
+                  - t_size / 2 + EPS; i += t_size) {
+        world_out << "    <model name='cinder_block_boundary_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
         world_out << "      </include>\n";
-        world_out << "      <pose>" << -i << " " << -(b_size / 2 + t_size / 4)
-            << " 0 0 0 0</pose>\n";
+        world_out << "      <pose>" << i << " "
+            << (boundary->get_center()->y - boundary->get_height() / 2
+                - t_size / 4) << " 0 0 0 0</pose>\n";
         world_out << "      <static>1</static>\n";
         world_out << "    </model>\n";
         n++;
       }
-      // Left bound
-      for (double i = -b_size / 2 + t_size / 2; i <= b_size / 2 - t_size / 2;
-          i += t_size) {
-        world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
+      // Left boundary
+      for (double i = boundary->get_center()->y - boundary->get_height() / 2
+          + t_size / 2;
+          i
+              <= boundary->get_center()->y + boundary->get_height() / 2
+                  - t_size / 2 + EPS; i += t_size) {
+        world_out << "    <model name='cinder_block_boundary_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
         world_out << "      </include>\n";
-        world_out << "      <pose>" << -(b_size / 2 + t_size / 4) << " " << i
-            << " 0 0 0 " << M_PI_2 << "</pose>\n";
+        world_out << "      <pose>"
+            << (boundary->get_center()->x - boundary->get_width() / 2
+                - t_size / 4) << " " << i << " 0 0 0 " << M_PI_2 << "</pose>\n";
         world_out << "      <static>1</static>\n";
         world_out << "    </model>\n";
         n++;

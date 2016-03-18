@@ -45,21 +45,21 @@ Polygon::~Polygon() {
   }
 }
 
-std::list<PointPtr> Polygon::get_bound() {
-  std::list<PointPtr> bound;
-  std::list<PointPtr> upper_bound = get_upper_bound();
-  std::list<PointPtr> lower_bound = get_lower_bound();
+std::list<PointPtr> Polygon::get_boundary() {
+  std::list<PointPtr> boundary;
+  std::list<PointPtr> upper_boundary = get_upper_boundary();
+  std::list<PointPtr> lower_boundary = get_lower_boundary();
 
-  for (std::list<PointPtr>::iterator u = upper_bound.begin();
-      u != upper_bound.end(); u++) {
-    bound.insert(bound.end(), PointPtr(new Point(**u)));
+  for (std::list<PointPtr>::iterator u = upper_boundary.begin();
+      u != upper_boundary.end(); u++) {
+    boundary.insert(boundary.end(), PointPtr(new Point(**u)));
   }
 
   for (std::list<PointPtr>::reverse_iterator l = boost::next(
-      lower_bound.rbegin()); boost::next(l) != lower_bound.rend(); l++) {
-    bound.insert(bound.end(), PointPtr(new Point(**l)));
+      lower_boundary.rbegin()); boost::next(l) != lower_boundary.rend(); l++) {
+    boundary.insert(boundary.end(), PointPtr(new Point(**l)));
   }
-  return bound;
+  return boundary;
 }
 
 void Polygon::build() {
@@ -166,19 +166,19 @@ PointPtr Polygon::get_rightmost() {
   return rightmost;
 }
 
-std::list<PointPtr> Polygon::get_upper_bound() {
-  return get_partial_bound(true);
+std::list<PointPtr> Polygon::get_upper_boundary() {
+  return get_partial_boundary(true);
 }
 
-std::list<PointPtr> Polygon::get_lower_bound() {
-  return get_partial_bound(false);
+std::list<PointPtr> Polygon::get_lower_boundary() {
+  return get_partial_boundary(false);
 }
 
-std::list<PointPtr> Polygon::get_partial_bound(bool is_upper) {
-  std::list<PointPtr> partial_bound;
+std::list<PointPtr> Polygon::get_partial_boundary(bool is_upper) {
+  std::list<PointPtr> partial_boundary;
   PointPtr leftmost = get_leftmost();
   PointPtr rightmost = get_rightmost();
-  partial_bound.insert(partial_bound.end(), leftmost);
+  partial_boundary.insert(partial_boundary.end(), leftmost);
 
   // TODO: Choose relevant epsilon value
   double EPS = 20 * std::numeric_limits<double>::epsilon();
@@ -220,9 +220,9 @@ std::list<PointPtr> Polygon::get_partial_bound(bool is_upper) {
     }
     previous = current;
     current = next;
-    partial_bound.insert(partial_bound.end(), current);
+    partial_boundary.insert(partial_boundary.end(), current);
   }
-  return partial_bound;
+  return partial_boundary;
 }
 
 }
