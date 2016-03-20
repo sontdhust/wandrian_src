@@ -71,6 +71,8 @@ private:
   void bpmove(CellPtr);
   void scan(CellPtr);
   void find_bpcell(CellPtr);
+  bool find_into_bplist(CellPtr);
+  void refine_bplist();
   int check_vertex(CellPtr);
   double check_distance(CellPtr, CellPtr);
   void insert_edge(CellPtr, CellPtr, int);
