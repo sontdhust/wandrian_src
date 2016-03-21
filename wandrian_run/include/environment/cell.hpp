@@ -8,7 +8,7 @@
 #ifndef WANDRIAN_RUN_INCLUDE_ENVIRONMENT_CELL_HPP_
 #define WANDRIAN_RUN_INCLUDE_ENVIRONMENT_CELL_HPP_
 
-#include "../common/polygon.hpp"
+#include "../common/rectangle.hpp"
 
 using namespace wandrian::common;
 
@@ -19,20 +19,15 @@ enum State {
   NEW, OLD, OBSTACLE
 };
 
-class Cell: public Polygon {
+class Cell: public Rectangle {
 
 public:
   Cell(PointPtr, double);
   virtual ~Cell();
 
-  PointPtr get_center() const;
   double get_size() const;
   boost::shared_ptr<Cell> get_parent();
   void set_parent(boost::shared_ptr<Cell>);
-
-protected:
-  PointPtr center;
-  double size;
 
 private:
   boost::shared_ptr<Cell> parent;

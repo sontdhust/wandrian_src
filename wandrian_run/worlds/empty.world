@@ -28,7 +28,7 @@
       <elevation>0</elevation>
       <heading_deg>0</heading_deg>
     </spherical_coordinates>
-    <!-- INSERT: Bound and Obstacles here -->
+    <!-- INSERT: Boundary and Obstacles here -->
     <gui fullscreen='0'>
       <camera name='user_camera'>
         <pose>0 0 10 0 1.57079 1.57079</pose>

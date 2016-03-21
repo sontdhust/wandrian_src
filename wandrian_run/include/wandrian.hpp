@@ -9,6 +9,9 @@
 #define WANDRIAN_RUN_INCLUDE_WANDRIAN_HPP_
 
 #include "robot.hpp"
+#include "plans/base_plan.hpp"
+
+using namespace wandrian::plans;
 
 namespace wandrian {
 
@@ -22,6 +25,7 @@ public:
 
 private:
   RobotPtr robot;
+  BasePlanPtr plan;
 
   // Behaviors
   void wandrian_run();
