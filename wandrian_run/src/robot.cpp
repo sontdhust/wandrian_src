@@ -18,13 +18,15 @@
 namespace wandrian {
 
 Robot::Robot() :
-    tool_size(0), starting_point_x(0), starting_point_y(0), proportion_ranges_sum(
-        0), augmentation_factor_range(0), current_position(new Point()), current_direction(
-        new Vector()), obstacle_movement(STOPPING), linear_velocity_step(0), linear_velocity_max(
-        0), angular_velocity_step(0), angular_velocity_max(0), velocity(
-        new geometry_msgs::Twist()), laser_range(0), is_quitting(false), is_powered(
-        false), is_zero_vel(true), is_logging(false), file_descriptor(0), last_position(
-        new Point()), last_direction(new Vector()), laser_ray(0) {
+    tool_size(0), starting_point_x(0), starting_point_y(0), proportion_ranges_count(
+        0), proportion_ranges_sum(0), augmentation_factor_range(0), space_center_x(
+        0), space_center_y(0), space_boundary_width(0), space_boundary_height(
+        0), current_position(new Point()), current_direction(new Vector()), obstacle_movement(
+        STOPPING), linear_velocity_step(0), linear_velocity_max(0), angular_velocity_step(
+        0), angular_velocity_max(0), velocity(new geometry_msgs::Twist()), laser_range(
+        0), is_quitting(false), is_powered(false), is_zero_vel(true), is_logging(
+        false), file_descriptor(0), last_position(new Point()), last_direction(
+        new Vector()), laser_ray(0) {
   tcgetattr(file_descriptor, &terminal); // get terminal properties
 }
 
@@ -40,8 +42,13 @@ bool Robot::initialize() {
   nh.getParam("tool_size", tool_size);
   nh.getParam("starting_point_x", starting_point_x);
   nh.getParam("starting_point_y", starting_point_y);
+  nh.getParam("proportion_ranges_count", proportion_ranges_count);
   nh.getParam("proportion_ranges_sum", proportion_ranges_sum);
   nh.getParam("augmentation_factor_range", augmentation_factor_range);
+  nh.getParam("space_center_x", space_center_x);
+  nh.getParam("space_center_y", space_center_y);
+  nh.getParam("space_boundary_width", space_boundary_width);
+  nh.getParam("space_boundary_height", space_boundary_height);
 
   nh.getParam("linear_velocity_step", linear_velocity_step);
   nh.getParam("linear_velocity_max", linear_velocity_max);
@@ -58,8 +65,8 @@ bool Robot::initialize() {
         << starting_point_y << tool_size;
   }
 
-  if (proportion_ranges_sum <= 0 || proportion_ranges_sum >= 1)
-    proportion_ranges_sum = PROPORTION_RANGES_SUM;
+  if (proportion_ranges_count <= 0 || proportion_ranges_count >= 1)
+    proportion_ranges_count = PROPORTION_RANGES_COUNT;
   if (augmentation_factor_range <= 0)
     augmentation_factor_range = AUGMENTATION_FACTOR_RANGE;
 
@@ -162,6 +169,10 @@ std::string Robot::get_plan_name() {
   return plan_name;
 }
 
+double Robot::get_tool_size() {
+  return tool_size;
+}
+
 double Robot::get_starting_point_x() {
   return starting_point_x;
 }
@@ -170,8 +181,10 @@ double Robot::get_starting_point_y() {
   return starting_point_y;
 }
 
-double Robot::get_tool_size() {
-  return tool_size;
+RectanglePtr Robot::get_space_boundary() {
+  return RectanglePtr(
+      new Rectangle(PointPtr(new Point(space_center_x, space_center_y)),
+          space_boundary_width, space_boundary_height));
 }
 
 PointPtr Robot::get_current_position() {
@@ -428,7 +441,7 @@ void Robot::subscribe_laser(const sensor_msgs::LaserScanConstPtr& laser) {
         count++;
     }
     obstacles[AT_RIGHT_SIDE] = (count
-        >= (range_right_max - range_right_min) * PROPORTION_RANGES_COUNT);
+        >= (range_right_max - range_right_min) * proportion_ranges_count);
   }
   if (laser->angle_min <= ANGLE_IN_FRONT_MAX
       && laser->angle_max >= ANGLE_IN_FRONT_MIN) {
@@ -442,7 +455,7 @@ void Robot::subscribe_laser(const sensor_msgs::LaserScanConstPtr& laser) {
         count++;
     }
     obstacles[IN_FRONT] = (count
-        >= (range_in_front_max - range_in_front_min) * PROPORTION_RANGES_COUNT);
+        >= (range_in_front_max - range_in_front_min) * proportion_ranges_count);
   }
   if (laser->angle_min <= ANGLE_LEFT_MAX
       && laser->angle_max >= ANGLE_LEFT_MIN) {
@@ -456,7 +469,7 @@ void Robot::subscribe_laser(const sensor_msgs::LaserScanConstPtr& laser) {
         count++;
     }
     obstacles[AT_LEFT_SIDE] = (count
-        >= (range_left_max - range_left_min) * PROPORTION_RANGES_COUNT);
+        >= (range_left_max - range_left_min) * proportion_ranges_count);
   }
 
   if (is_logging) {
