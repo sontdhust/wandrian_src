@@ -19,7 +19,7 @@ PartiallyOccupiableIdentifiableCell::~PartiallyOccupiableIdentifiableCell() {
 }
 
 PointPtr PartiallyOccupiableIdentifiableCell::get_current_position() {
-  return current_position(center, size);
+  return current_position(center, get_size());
 }
 
 }
