@@ -69,10 +69,12 @@ private:
   void turn_left(CellPtr, CellPtr, VectorPtr);
   void turn_right(CellPtr, CellPtr, VectorPtr);
   void bpmove(CellPtr);
-
   void scan(CellPtr);
   void find_bpcell(CellPtr);
+  bool find_into_bplist(CellPtr);
+  void refine_bplist();
   int check_vertex(CellPtr);
+  double check_distance(CellPtr, CellPtr);
   void insert_edge(CellPtr, CellPtr, int);
   void insert_cell_to_graph(CellPtr, CellPtr, int);
   State state_of(CellPtr);
