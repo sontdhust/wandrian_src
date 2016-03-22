@@ -9,7 +9,7 @@
 #define WANDRIAN_RUN_INCLUDE_WANDRIAN_HPP_
 
 #include "common/vector.hpp"
-#include "core.hpp"
+#include "robot.hpp"
 #include "plans/boustrophedon_off/boustrophedon.hpp"
 
 using namespace wandrian::plans::boustrophedon_off;

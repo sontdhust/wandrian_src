@@ -8,7 +8,7 @@
 #include <kobuki_msgs/MotorPower.h>
 #include <kobuki_msgs/KeyboardInput.h>
 #include <ecl/time.hpp>
-#include "../include/core.hpp"
+#include "../include/robot.hpp"
 
 // TODO: Choose relevant value
 #define THRESHOLD_COUNT 0.5
