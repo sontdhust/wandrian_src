@@ -396,18 +396,20 @@ int main(int argc, char **argv) {
         PointPtr c = cell->get_center();
         double s = cell->get_size();
         double x = c->x - t_size * (s / t_size / 2.0 - 1.0 / 2.0);
+        int j = 1;
         for (int i = 1; i <= (int) (s / t_size); i++) {
           for (double y = c->y - t_size * (s / t_size / 2.0 - 1.0 / 4.0);
-              y <= c->y + t_size * (s / t_size / 2.0 - 1.0 / 4.0);
+              y <= c->y + t_size * (s / t_size / 2.0 - 1.0 / 4.0) + EPSILON;
               y += t_size / 2.0) {
             world_out << "    <model name='cinder_block_obstacle_" << n << "_"
-                << i << "'>\n";
+                << j << "'>\n";
             world_out << "      <include>\n";
             world_out << "        <uri>model://cinder_block</uri>\n";
             world_out << "      </include>\n";
             world_out << "      <pose>" << x << " " << y << " 0 0 0 0</pose>\n";
             world_out << "      <static>1</static>\n";
             world_out << "    </model>\n";
+            j++;
           }
           x += t_size;
         }

@@ -10,7 +10,7 @@
 
 #include <limits>
 
-// TODO: Choose relevant epsilon value
+// FIXME: Choose relevant values
 const double EPSILON = 20 * std::numeric_limits<double>::epsilon();
 const double SMALL_EPSILON = std::numeric_limits<double>::epsilon();
 

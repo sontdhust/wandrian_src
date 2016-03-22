@@ -14,7 +14,7 @@
 #define CLOCKWISE true
 #define COUNTERCLOCKWISE false
 
-// TODO: Choose relevant epsilon values
+// FIXME: Choose relevant values
 #define EPSILON_ROTATIONAL_ORIENTATION 0.06
 #define EPSILON_MOTIONAL_ORIENTATION 0.24
 #define EPSILON_POSITION 0.06
@@ -160,29 +160,35 @@ bool Wandrian::go_to(PointPtr new_position, bool flexibility) {
   forward = rotate_to(new_position, flexibility);
   // Assume there is no obstacle, robot go straight
   go(forward);
+  double epsilon_orientation = robot->get_epsilon_motional_orientation();
+  double epsilon_position = robot->get_epsilon_position();
+  if (epsilon_orientation <= 0)
+    epsilon_orientation = EPSILON_MOTIONAL_ORIENTATION;
+  if (epsilon_position <= 0)
+    epsilon_position = EPSILON_POSITION;
   while (true) {
-    // TODO: Moving obstacle detected, dodging
+    // TODO: Detect moving obstacle
     // Check current_position + k * current_direction == new_position
     VectorPtr direction = (new_position - robot->get_current_position())
         / (new_position % robot->get_current_position());
     if (forward ?
         (!(std::abs(direction->x - robot->get_current_direction()->x)
-            < EPSILON_MOTIONAL_ORIENTATION
+            < epsilon_orientation
             && std::abs(direction->y - robot->get_current_direction()->y)
-                < EPSILON_MOTIONAL_ORIENTATION)) :
+                < epsilon_orientation)) :
         (!(std::abs(direction->x + robot->get_current_direction()->x)
-            < EPSILON_MOTIONAL_ORIENTATION
+            < epsilon_orientation
             && std::abs(direction->y + robot->get_current_direction()->y)
-                < EPSILON_MOTIONAL_ORIENTATION))) { // Wrong direction
+                < epsilon_orientation))) { // Wrong direction
       robot->stop();
       forward = rotate_to(new_position, flexibility);
       go(forward);
     }
-    if (std::abs(
-        new_position->x - robot->get_current_position()->x) < EPSILON_POSITION
+    if (std::abs(new_position->x - robot->get_current_position()->x)
+        < epsilon_position
         && std::abs(new_position->y - robot->get_current_position()->y)
-        < EPSILON_POSITION) { // Reached the new position
-      robot->stop();
+            < epsilon_position) { // Reached the new position
+      robot->decelerate();
       break;
     }
   }
@@ -202,22 +208,25 @@ bool Wandrian::rotate_to(PointPtr new_position, bool flexibility) {
 
 bool Wandrian::rotate_to(VectorPtr new_direction, bool flexibility) {
   double angle = new_direction ^ robot->get_current_direction();
+  double epsilon = robot->get_epsilon_rotational_orientation();
+  if (epsilon <= 0)
+    epsilon = EPSILON_ROTATIONAL_ORIENTATION;
   bool will_move_forward =
       (flexibility != FLEXIBLY) ? true : std::abs(angle) < M_PI_2;
-  if (angle > EPSILON_ROTATIONAL_ORIENTATION)
+  if (angle > epsilon)
     rotate(will_move_forward ? COUNTERCLOCKWISE : CLOCKWISE);
-  else if (angle < -EPSILON_ROTATIONAL_ORIENTATION)
+  else if (angle < -epsilon)
     rotate(will_move_forward ? CLOCKWISE : COUNTERCLOCKWISE);
   while (true) {
     if (will_move_forward ?
         (std::abs(new_direction->x - robot->get_current_direction()->x)
-            < EPSILON_ROTATIONAL_ORIENTATION
+            < epsilon
             && std::abs(new_direction->y - robot->get_current_direction()->y)
-                < EPSILON_ROTATIONAL_ORIENTATION) :
+                < epsilon) :
         (std::abs(new_direction->x + robot->get_current_direction()->x)
-            < EPSILON_ROTATIONAL_ORIENTATION
+            < epsilon
             && std::abs(new_direction->y + robot->get_current_direction()->y)
-                < EPSILON_ROTATIONAL_ORIENTATION)) {
+                < epsilon)) {
       robot->stop();
       break;
     }

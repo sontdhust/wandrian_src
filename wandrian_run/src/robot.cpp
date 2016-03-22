@@ -10,7 +10,7 @@
 #include <ecl/time.hpp>
 #include "../include/robot.hpp"
 
-// TODO: Choose relevant values
+// FIXME: Choose relevant values
 #define PROPORTION_RANGES_COUNT 0.5
 #define PROPORTION_RANGES_SUM 0.2
 #define AUGMENTATION_FACTOR_RANGE 2.0
@@ -21,7 +21,8 @@ Robot::Robot() :
     tool_size(0), starting_point_x(0), starting_point_y(0), space_center_x(0), space_center_y(
         0), space_boundary_width(0), space_boundary_height(0), linear_velocity(
         0), angular_velocity(0), proportion_ranges_count(0), proportion_ranges_sum(
-        0), augmentation_factor_range(0), current_position(new Point()), current_direction(
+        0), augmentation_factor_range(0), epsilon_rotational_orientation(0), epsilon_motional_orientation(
+        0), epsilon_position(0), current_position(new Point()), current_direction(
         new Vector()), obstacle_movement(STOPPING), linear_velocity_step(0), linear_velocity_max(
         0), angular_velocity_step(0), angular_velocity_max(0), velocity(
         new geometry_msgs::Twist()), laser_range(0), is_quitting(false), is_powered(
@@ -51,6 +52,9 @@ bool Robot::initialize() {
   nh.getParam("proportion_ranges_count", proportion_ranges_count);
   nh.getParam("proportion_ranges_sum", proportion_ranges_sum);
   nh.getParam("augmentation_factor_range", augmentation_factor_range);
+  nh.getParam("epsilon_rotational_orientation", epsilon_rotational_orientation);
+  nh.getParam("epsilon_motional_orientation", epsilon_motional_orientation);
+  nh.getParam("epsilon_position", epsilon_position);
 
   nh.getParam("linear_velocity_step", linear_velocity_step);
   nh.getParam("linear_velocity_max", linear_velocity_max);
@@ -161,9 +165,13 @@ void Robot::spin() {
 }
 
 void Robot::stop() {
-  velocity->linear.x = 0.0;
-  velocity->angular.z = 0.0;
-  // Force stop
+  decelerate(0);
+}
+
+void Robot::decelerate(double linear_proportion, double angular_proportion) {
+  velocity->linear.x *= linear_proportion;
+  velocity->angular.z *= angular_proportion;
+  // Force decelerate
   publisher_velocity.publish(velocity);
 }
 
@@ -211,6 +219,18 @@ double Robot::get_linear_velocity() {
 
 double Robot::get_angular_velocity() {
   return angular_velocity;
+}
+
+double Robot::get_epsilon_rotational_orientation() {
+  return epsilon_rotational_orientation;
+}
+
+double Robot::get_epsilon_motional_orientation() {
+  return epsilon_motional_orientation;
+}
+
+double Robot::get_epsilon_position() {
+  return epsilon_position;
 }
 
 CommunicatorPtr Robot::get_communicator() {
@@ -314,6 +334,7 @@ void Robot::process_keyboard_input(char c) {
     break;
   }
   case 'r':
+  case ' ':
     ROS_INFO_STREAM("[Run]: " << "Start running");
     thread_run.start(&Robot::start_thread_run, *this);
     break;
@@ -327,6 +348,7 @@ void Robot::process_keyboard_input(char c) {
     is_quitting = true;
     break;
   default:
+    is_quitting = true;
     break;
   }
 }
