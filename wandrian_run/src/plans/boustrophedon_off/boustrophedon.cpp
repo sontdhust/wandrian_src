@@ -105,10 +105,23 @@ void Boustrophedon::dfs(SpacePtr space){
 		if((*inspectLC)->status_visited == false){
 			//TODO: Space size odd
 			//Point backtrack problem
-		     x = (space->get_center()->x*2 + space->get_sizex() - robot_size)/2 ;
-		     y = ((*inspectLC)->get_center()->y*2 - (*inspectLC)->get_sizey() + robot_size)/2 ;
+		     //x = (space->get_center()->x*2 + space->get_sizex() - robot_size)/2 ;
+
+			if((((*inspectLC)->get_center()->y*2 - (*inspectLC)->get_sizey() + robot_size)/2) >=
+			 (((space)->get_center()->y*2 - (space)->get_sizey() + robot_size)/2)){
+
+				x = (space->get_center()->x*2 + space->get_sizex() - robot_size)/2 ;
+				y = ((*inspectLC)->get_center()->y*2 - (*inspectLC)->get_sizey() + robot_size)/2 ;
+			}
+			else{
+
+				x = ((*inspectLC)->get_center()->x*2 - (*inspectLC)->get_sizex() + robot_size)/2 ;
+				y = (space->get_center()->y*2 - space->get_sizey() + robot_size)/2 ;
+
+			}
 
 		     std::cout <<" Point backtrack"<<x<<" ,"<<y<<std::endl;
+
 		     (*inspectLC)->set_point_backtrack(PointPtr(new Point(x,y)));
 
 			go_to((*inspectLC)->point_backtrack, STRICTLY);
