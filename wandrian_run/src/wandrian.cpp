@@ -6,7 +6,6 @@
  */
 
 #include "../include/wandrian.hpp"
-#include "../include/plans/spiral_stc/spiral_stc.hpp"
 #include "../include/plans/boustrophedon_off/boustrophedon.hpp"
 
 #define CLOCKWISE true
@@ -29,18 +28,6 @@ void Wandrian::spin() {
 }
 
 void Wandrian::wandrian_run() {
-  if (core.get_plan_name() == "spiral_stc") {
-    SpiralStcPtr spiral_stc = SpiralStcPtr(new SpiralStc());
-    spiral_stc->initialize(
-        PointPtr(
-            new Point(core.get_starting_point_x(),
-                core.get_starting_point_y())), core.get_robot_size());
-    spiral_stc->set_behavior_go_to(
-        boost::bind(&Wandrian::spiral_stc_go_to, this, _1, _2));
-    spiral_stc->set_behavior_see_obstacle(
-        boost::bind(&Wandrian::spiral_stc_see_obstacle, this, _1, _2));
-    spiral_stc->cover();
-  }
 
   if (core.get_plan_name() == "boustrophedon") {
 	  BoustrophedonPtr boustrophedon_cd = BoustrophedonPtr(new Boustrophedon());
@@ -52,27 +39,13 @@ void Wandrian::wandrian_run() {
         PointPtr( new Point(core.get_starting_point_x(), core.get_starting_point_y())),
                  core.get_robot_size(), "/home/thao/phanthao/GR/workspace/catkin_ws/wandrian/src/wandrian_run/worlds/environment.txt");
     boustrophedon_cd->set_behavior_go_to(
-        boost::bind(&Wandrian::spiral_stc_go_to, this, _1, _2));
+        boost::bind(&Wandrian::boustrophedon_cd_go_to, this, _1, _2));
 //    boustrophedon_cd->set_behavior_see_obstacle(
 //        boost::bind(&Wandrian::spiral_stc_see_obstacle, this, _1, _2));
     boustrophedon_cd->cover();
   }
 }
 
-bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibly) {
-  return go_to(position, flexibly);
-}
-
-bool Wandrian::spiral_stc_see_obstacle(VectorPtr orientation, double step) {
-  // TODO: Correctly check whether obstacle is near or not
-  double angle = *orientation ^ *core.get_current_orientation();
-  return
-      (std::abs(angle) <= M_PI_4) ?
-          core.get_obstacles()[IN_FRONT] :
-          ((angle > M_PI_4) ?
-              core.get_obstacles()[AT_LEFT_SIDE] :
-              core.get_obstacles()[AT_RIGHT_SIDE]);
-}
 
 bool Wandrian::boustrophedon_cd_go_to(PointPtr position, bool flexibly) {
   return go_to(position, flexibly);
