@@ -10,8 +10,8 @@
 
 #include <stdlib.h>
 #include <cmath>
-#include <limits>
 #include <boost/shared_ptr.hpp>
+#include "global.hpp"
 
 namespace wandrian {
 namespace common {
@@ -34,11 +34,9 @@ inline double operator%(PointPtr p1, PointPtr p2) {
 }
 
 inline bool operator<(PointConstPtr p1, PointConstPtr p2) {
-  // TODO: Choose relevant epsilon value
-  double EPS = 20 * std::numeric_limits<double>::epsilon();
   return
-      std::abs(p1->x - p2->x) > EPS ?
-          p1->x - p2->x < -EPS : p1->y - p2->y < -EPS;
+      std::abs(p1->x - p2->x) > EPSILON ?
+          p1->x - p2->x < -EPSILON : p1->y - p2->y < -EPSILON;
 }
 
 inline bool operator!=(PointPtr p1, PointPtr p2) {

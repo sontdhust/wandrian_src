@@ -23,7 +23,7 @@
 #include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
 
 #define T_SIZE 0.5 // Tool size
-#define B_SIZE 4.0 // Default space size
+#define B_SIZE 4.0 // Default space boundary size
 #define WORLD_INSERT_OBSTACLE "<!-- INSERT: Boundary and Obstacles here -->" // Flag at original world file to insert boundary and obstacles into
 
 using namespace wandrian::common;
@@ -36,9 +36,6 @@ double t_size;
 SpacePtr space;
 PointPtr starting_point;
 std::list<PointPtr> path;
-
-// TODO: Choose relevant epsilon value
-const double EPS = 20 * std::numeric_limits<double>::epsilon();
 
 /**
  * Linked libraries to compile: -lglut -lGL (g++)
@@ -93,7 +90,7 @@ void display() {
   }
   glEnd();
 
-  // Environment
+  // Space
   glColor3ub(255, 0, 0);
   draw(space->boundary->get_boundary(), GL_LINE_STRIP);
   for (std::list<PolygonPtr>::iterator obstacle = space->obstacles.begin();
@@ -143,26 +140,28 @@ bool test_see_obstacle(VectorPtr direction, double distance) {
     RectanglePtr boundary = boost::static_pointer_cast<Rectangle>(
         space->boundary);
     if (new_position->x
-        >= boundary->get_center()->x + boundary->get_width() / 2 - EPS
+        >= boundary->get_center()->x + boundary->get_width() / 2 - EPSILON
         || new_position->x
-            <= boundary->get_center()->x - boundary->get_width() / 2 + EPS
+            <= boundary->get_center()->x - boundary->get_width() / 2 + EPSILON
         || new_position->y
-            >= boundary->get_center()->y + boundary->get_height() / 2 - EPS
+            >= boundary->get_center()->y + boundary->get_height() / 2 - EPSILON
         || new_position->y
-            <= boundary->get_center()->y - boundary->get_height() / 2 + EPS) {
+            <= boundary->get_center()->y - boundary->get_height() / 2
+                + EPSILON) {
       return true;
     }
     for (std::list<PolygonPtr>::iterator o = space->obstacles.begin();
         o != space->obstacles.end(); o++) {
       CellPtr obstacle = boost::static_pointer_cast<Cell>(*o);
       if (new_position->x
-          >= obstacle->get_center()->x - obstacle->get_size() / 2 - EPS
+          >= obstacle->get_center()->x - obstacle->get_size() / 2 - EPSILON
           && new_position->x
-              <= obstacle->get_center()->x + obstacle->get_size() / 2 + EPS
+              <= obstacle->get_center()->x + obstacle->get_size() / 2 + EPSILON
           && new_position->y
-              >= obstacle->get_center()->y - obstacle->get_size() / 2 - EPS
+              >= obstacle->get_center()->y - obstacle->get_size() / 2 - EPSILON
           && new_position->y
-              <= obstacle->get_center()->y + obstacle->get_size() / 2 + EPS) {
+              <= obstacle->get_center()->y + obstacle->get_size() / 2
+                  + EPSILON) {
         return true;
       }
     }
@@ -298,12 +297,13 @@ int main(int argc, char **argv) {
                         - (int) (b_size / t_size / (o_size / t_size) / 2.0))
                         + 0.5) * o_size));
     bool valid = true;
-    double EPS = std::numeric_limits<double>::epsilon();
     for (std::list<PolygonPtr>::iterator p = obstacles.begin();
         p != obstacles.end(); p++)
       if ((boost::static_pointer_cast<Cell>(*p))->get_center() == center
-          || (std::abs(center->x - (starting_point->x - t_size / 2)) < EPS
-              && std::abs(center->y - (starting_point->y + t_size / 2)) < EPS)) {
+          || (std::abs(center->x - (starting_point->x - t_size / 2))
+              < SMALL_EPSILON
+              && std::abs(center->y - (starting_point->y + t_size / 2))
+                  < SMALL_EPSILON)) {
         valid = false;
         break;
       };
@@ -325,7 +325,7 @@ int main(int argc, char **argv) {
           + t_size / 2;
           i
               <= boundary->get_center()->x + boundary->get_width() / 2
-                  - t_size / 2 + EPS; i += t_size) {
+                  - t_size / 2 + EPSILON; i += t_size) {
         world_out << "    <model name='cinder_block_boundary_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
@@ -342,7 +342,7 @@ int main(int argc, char **argv) {
           + t_size / 2;
           i
               <= boundary->get_center()->y + boundary->get_height() / 2
-                  - t_size / 2 + EPS; i += t_size) {
+                  - t_size / 2 + EPSILON; i += t_size) {
         world_out << "    <model name='cinder_block_boundary_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
@@ -359,7 +359,7 @@ int main(int argc, char **argv) {
           + t_size / 2;
           i
               <= boundary->get_center()->x + boundary->get_width() / 2
-                  - t_size / 2 + EPS; i += t_size) {
+                  - t_size / 2 + EPSILON; i += t_size) {
         world_out << "    <model name='cinder_block_boundary_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
@@ -376,7 +376,7 @@ int main(int argc, char **argv) {
           + t_size / 2;
           i
               <= boundary->get_center()->y + boundary->get_height() / 2
-                  - t_size / 2 + EPS; i += t_size) {
+                  - t_size / 2 + EPSILON; i += t_size) {
         world_out << "    <model name='cinder_block_boundary_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
