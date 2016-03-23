@@ -146,6 +146,7 @@ void BoustrophedonOnline::bpmove(CellPtr current) {
                       starting_cell->get_center()->y - tool_size)),
               tool_size)));
   bplist.erase(starting_cell);
+  check_rotate = -1;
   straight = 1;
   scan(starting_cell);
 }
@@ -325,8 +326,9 @@ void BoustrophedonOnline::find_bpcell(CellPtr current) {
             PointPtr(
                 new Point(tmp->get_center()->x - tool_size,
                     tmp->get_center()->y)), tool_size));
-    if (state_of(neighbor_E) == OLD)
+    if (state_of(neighbor_E) == OLD){
       goal = check_vertex(neighbor_E);
+    }
 
     CellPtr neighbor_W = CellPtr(
         new Cell(
@@ -335,25 +337,33 @@ void BoustrophedonOnline::find_bpcell(CellPtr current) {
                     tmp->get_center()->y)), tool_size));
     if (state_of(neighbor_W) == OLD
         && check_distance(current, neighbor_W)
-            < check_distance(current, neighbor_E))
+            < check_distance(current, neighbor_E)){
       goal = check_vertex(neighbor_W);
+    }
+      
 
     CellPtr neighbor_N = CellPtr(
         new Cell(
             PointPtr(
                 new Point(tmp->get_center()->x,
                     tmp->get_center()->y + tool_size)), tool_size));
-    if (state_of(neighbor_N) == OLD)
+    if (state_of(neighbor_N) == OLD){
       goal = check_vertex(neighbor_N);
+    }
 
     CellPtr neighbor_S = CellPtr(
         new Cell(
             PointPtr(
                 new Point(tmp->get_center()->x,
                     tmp->get_center()->y - tool_size)), tool_size));
-    if (state_of(neighbor_S) == OLD)
-      goal = check_vertex(neighbor_S);
-
+    if (state_of(neighbor_S) == OLD){
+      if(state_of(neighbor_E) == OLD && check_distance(current, neighbor_E) < check_distance(current, neighbor_S) ){
+        goal = check_vertex(neighbor_S);
+      }
+      if(state_of(neighbor_W) == OLD && check_distance(current, neighbor_W) < check_distance(current, neighbor_S) ){
+        goal = check_vertex(neighbor_S);
+      }
+    }
     std::vector<mygraph_t::vertex_descriptor> p(num_vertices(g));
     std::vector<cost> d(num_vertices(g));
     try {
@@ -376,7 +386,7 @@ void BoustrophedonOnline::find_bpcell(CellPtr current) {
       }
     }
   }
-
+  
   std::cout << std::endl << "Total travel time: " << time << std::endl;
   std::cout << "\033[1;32mNew Starting Cell:\033[0m" << " "
       << starting_cell->get_center()->x << ", "
@@ -389,8 +399,8 @@ void BoustrophedonOnline::find_bpcell(CellPtr current) {
 
 int BoustrophedonOnline::check_vertex(CellPtr current) {
   for (int i = 0; i <= number_neighbor_cell; i++) {
-    if (locations[i].y == current->get_center()->y
-        && locations[i].x == current->get_center()->x)
+    if (std::abs(locations[i].x - current->get_center()->x) < EPSILON 
+        && std::abs(locations[i].y - current->get_center()->y) < EPSILON )
       return i;
   }
   return -1;
