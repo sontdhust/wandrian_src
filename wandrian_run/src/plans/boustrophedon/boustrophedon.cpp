@@ -3,11 +3,11 @@
  *
  */
 
-#include "../../../include/plans/boustrophedon_off/boustrophedon.hpp"
+#include "../../../include/plans/boustrophedon/boustrophedon.hpp"
 
 namespace wandrian {
 namespace plans {
-namespace boustrophedon_off {
+namespace boustrophedon{
 
 Boustrophedon::Boustrophedon() :
     robot_size(0),environment(EnvironmentOffPtr(new Environmentoff(""))) {

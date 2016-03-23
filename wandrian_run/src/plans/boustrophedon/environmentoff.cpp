@@ -1,9 +1,9 @@
 
-#include "../../../include/plans/boustrophedon_off/environmentoff.hpp"
+#include "../../../include/plans/boustrophedon/environmentoff.hpp"
 
 namespace wandrian {
 namespace plans {
-namespace boustrophedon_off {
+namespace boustrophedon{
 
 Environmentoff::Environmentoff(ObstaclePtr environment, std::list<ObstaclePtr> obstacles) :
 		environment(environment), obstacles(obstacles) {

@@ -10,9 +10,9 @@
 
 #include "common/vector.hpp"
 #include "robot.hpp"
-#include "plans/boustrophedon_off/boustrophedon.hpp"
+#include "plans/boustrophedon/boustrophedon.hpp"
 
-using namespace wandrian::plans::boustrophedon_off;
+using namespace wandrian::plans::boustrophedon;
 
 namespace wandrian {
 

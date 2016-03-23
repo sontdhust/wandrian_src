@@ -8,7 +8,7 @@ using namespace wandrian::common;
 
 namespace wandrian {
 namespace plans {
-namespace boustrophedon_off {
+namespace boustrophedon{
 
 class Vertices {
 

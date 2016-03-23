@@ -1,9 +1,9 @@
 
-#include "../../../include/plans/boustrophedon_off/space.hpp"
+#include "../../../include/plans/boustrophedon/space.hpp"
 
 namespace wandrian {
 namespace plans {
-namespace boustrophedon_off {
+namespace boustrophedon {
 
 Space::Space(PointPtr center, double sizex, double sizey) :
     center(center), sizex(sizex), sizey(sizey),status_visited(false) {

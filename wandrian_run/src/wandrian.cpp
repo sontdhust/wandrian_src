@@ -6,7 +6,7 @@
  */
 
 #include "../include/wandrian.hpp"
-#include "../include/plans/boustrophedon_off/boustrophedon.hpp"
+#include "../include/plans/boustrophedon/boustrophedon.hpp"
 
 #define CLOCKWISE true
 #define COUNTERCLOCKWISE false

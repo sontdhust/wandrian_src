@@ -5,11 +5,11 @@
  *      Author: sontd
  */
 
-#include "../../../include/plans/boustrophedon_off/cell.hpp"
+#include "../../../include/plans/boustrophedon/cell.hpp"
 
 namespace wandrian {
 namespace plans {
-namespace boustrophedon_off {
+namespace boustrophedon{
 
 Cell::Cell(PointPtr center, double size) :
     center(center), size(size), parent(CellPtr()) {

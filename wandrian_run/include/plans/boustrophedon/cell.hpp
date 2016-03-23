@@ -14,7 +14,7 @@ using namespace wandrian::common;
 
 namespace wandrian {
 namespace plans {
-namespace boustrophedon_off {
+namespace boustrophedon{
 
 #define OLD_CELL false
 #define NEW_CELL true

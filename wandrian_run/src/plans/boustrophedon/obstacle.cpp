@@ -1,9 +1,9 @@
 
-#include "../../../include/plans/boustrophedon_off/obstacle.hpp"
+#include "../../../include/plans/boustrophedon/obstacle.hpp"
 
 namespace wandrian {
 namespace plans {
-namespace boustrophedon_off {
+namespace boustrophedon{
 
 Obstacle::Obstacle(PointPtr center, double sizex, double sizey) :
     center(center), sizex(sizex), sizey(sizey) {

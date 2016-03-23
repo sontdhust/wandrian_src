@@ -1,9 +1,9 @@
 
-#include "../../../include/plans/boustrophedon_off/vertices.hpp"
+#include "../../../include/plans/boustrophedon/vertices.hpp"
 
 namespace wandrian {
 namespace plans {
-namespace boustrophedon_off {
+namespace boustrophedon{
 
 Vertices::Vertices(PointPtr positions, ObstaclePtr polygon) {
 	   this->positions = positions;

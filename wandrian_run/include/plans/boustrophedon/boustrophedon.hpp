@@ -5,8 +5,8 @@
  *      Author: sontd
  */
 
-#ifndef WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_OFF_BOUSTROPHEDON_HPP_
-#define WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_OFF_BOUSTROPHEDON_HPP_
+#ifndef WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_BOUSTROPHEDON_HPP_
+#define WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_BOUSTROPHEDON_HPP_
 
 #include "../../common/environment.hpp"
 #include "../base_plan.hpp"
@@ -22,7 +22,7 @@ using namespace wandrian::common;
 namespace wandrian {
 namespace plans {
 
-namespace boustrophedon_off {
+namespace boustrophedon{
 
 class Boustrophedon: public BasePlan {
 
