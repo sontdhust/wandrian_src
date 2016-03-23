@@ -36,7 +36,7 @@ public:
   bool initialize();
   void spin();
   void stop();
-  void decelerate(double = 0.1, double = 0.0);
+  void decelerate(double = 0.0, double = 0.0);
 
   std::string get_plan_name();
   double get_tool_size();

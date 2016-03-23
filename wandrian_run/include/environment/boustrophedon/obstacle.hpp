@@ -1,15 +1,14 @@
 
-
-#ifndef WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_OBSTACLE_HPP_
-#define WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_OBSTACLE_HPP_
+#ifndef WANDRIAN_RUN_INCLUDE_ENVIRONMENT_BOUSTROPHEDON_OBSTACLE_HPP_
+#define WANDRIAN_RUN_INCLUDE_ENVIRONMENT_BOUSTROPHEDON_OBSTACLE_HPP_
 
 #include "../../common/polygon.hpp"
 
 using namespace wandrian::common;
 
 namespace wandrian {
-namespace plans {
-namespace boustrophedon{
+namespace environment {
+namespace boustrophedon {
 
 #define OLD_Obstacle false
 #define NEW_Obstacle true
@@ -54,4 +53,4 @@ struct ObstacleComp {
 }
 }
 
-#endif /* WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_Obstacle_HPP_ */
+#endif /* WANDRIAN_RUN_INCLUDE_ENVIRONMENT_BOUSTROPHEDON_Obstacle_HPP_ */

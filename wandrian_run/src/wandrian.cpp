@@ -5,6 +5,7 @@
  *      Author: anhnt
  */
 
+#include <ros/package.h>
 #include "../include/wandrian.hpp"
 #include "../include/plans/spiral_stc/spiral_stc.hpp"
 #include "../include/plans/spiral_stc/full_spiral_stc.hpp"
@@ -102,7 +103,7 @@ void Wandrian::wandrian_run() {
         PointPtr(
             new Point(robot->get_starting_point_x(),
                 robot->get_starting_point_y())), robot->get_tool_size(),
-        "/home/thao/phanthao/GR/workspace/catkin_ws/wandrian/src/wandrian_run/worlds/environment.txt");
+        ros::package::getPath("wandrian_run") + "/worlds/prefered.map");
     boustrophedon->set_behavior_go_to(
         boost::bind(&Wandrian::boustrophedon_go_to, this, _1, _2));
     boustrophedon->cover();

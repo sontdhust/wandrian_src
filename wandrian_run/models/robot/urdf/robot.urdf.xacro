@@ -11,7 +11,7 @@
   <xacro:include filename="$(find wandrian_run)/models/kobuki/urdf/kobuki.urdf.xacro"/>
   <model_kobuki/>
     
-  <!-- Model Hokuyo 
+  <!-- Model Hokuyo -->
   <xacro:include filename="$(find wandrian_run)/models/hokuyo/urdf/hokuyo.urdf.xacro"/>
-  <model_hokuyo parent="base_link"/> -->
+  <model_hokuyo parent="base_link"/>
 </robot>
