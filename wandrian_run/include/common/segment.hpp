@@ -47,10 +47,8 @@ inline PointPtr operator%(SegmentPtr s1, SegmentPtr s2) {
   double bc = s2->p1->y - bm * s2->p1->x;
   // Equation of line b: y = bm * x + bc
 
-  double EPS = std::numeric_limits<double>::epsilon();
   double INF = std::numeric_limits<double>::infinity();
-
-  if ((am == INF && bm == INF) || std::abs(am - bm) < EPS) // Line a is parallel to line b
+  if ((am == INF && bm == INF) || std::abs(am - bm) < SMALL_EPSILON) // Line a is parallel to line b
     return PointPtr();
   else {
     double xi;

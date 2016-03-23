@@ -180,9 +180,6 @@ std::list<PointPtr> Polygon::get_partial_boundary(bool is_upper) {
   PointPtr rightmost = get_rightmost();
   partial_boundary.insert(partial_boundary.end(), leftmost);
 
-  // TODO: Choose relevant epsilon value
-  double EPS = 20 * std::numeric_limits<double>::epsilon();
-
   PointPtr current = leftmost;
   PointPtr previous = PointPtr(new Point(current->x - 1, current->y));
   while (current != rightmost) {
@@ -203,15 +200,17 @@ std::list<PointPtr> Polygon::get_partial_boundary(bool is_upper) {
           std::pow(current->x - (*adjacent)->x, 2)
               + std::pow(current->y - (*adjacent)->y, 2));
       if (is_upper) {
-        a = std::abs(a) <= EPS ? 2 * M_PI : a > 0 ? a : 2 * M_PI + a;
-        if (a - angle < -EPS || (std::abs(a - angle) < EPS && d < distance)) {
+        a = std::abs(a) <= EPSILON ? 2 * M_PI : a > 0 ? a : 2 * M_PI + a;
+        if (a - angle < -EPSILON
+            || (std::abs(a - angle) < EPSILON && d < distance)) {
           angle = a;
           distance = d;
           next = *adjacent;
         }
       } else {
-        a = std::abs(a) <= EPS ? 0 : a > 0 ? a : 2 * M_PI + a;
-        if (a - angle > EPS || (std::abs(a - angle) < EPS && d < distance)) {
+        a = std::abs(a) <= EPSILON ? 0 : a > 0 ? a : 2 * M_PI + a;
+        if (a - angle > EPSILON
+            || (std::abs(a - angle) < EPSILON && d < distance)) {
           angle = a;
           distance = d;
           next = *adjacent;

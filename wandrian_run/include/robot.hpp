@@ -36,6 +36,7 @@ public:
   bool initialize();
   void spin();
   void stop();
+  void decelerate(double = 0.1, double = 0.0);
 
   std::string get_plan_name();
   double get_tool_size();
@@ -46,8 +47,11 @@ public:
   VectorPtr get_current_direction();
   bool* get_obstacles();
   ObstacleMovement get_obstacle_movement();
-  double get_linear_velocity_step();
-  double get_angular_velocity_step();
+  double get_linear_velocity();
+  double get_angular_velocity();
+  double get_epsilon_rotational_orientation();
+  double get_epsilon_motional_orientation();
+  double get_epsilon_position();
   CommunicatorPtr get_communicator();
   void set_behavior_run(boost::function<void()>);
   void set_linear_velocity(double);
@@ -60,13 +64,19 @@ private:
   double tool_size; // arg
   double starting_point_x; // arg
   double starting_point_y; // arg
-  double proportion_ranges_count; // arg
-  double proportion_ranges_sum; // arg
-  double augmentation_factor_range; // arg
   double space_center_x; //arg
   double space_center_y; //arg
   double space_boundary_width; //arg
   double space_boundary_height; //arg
+  double linear_velocity; // arg
+  double angular_velocity; // arg
+  double proportion_ranges_count; // arg
+  double proportion_ranges_sum; // arg
+  double augmentation_factor_range; // arg
+  double epsilon_rotational_orientation; // arg
+  double epsilon_motional_orientation; // arg
+  double epsilon_position; // arg
+
   PointPtr current_position; // odometry subscriber
   VectorPtr current_direction; // odometry subscriber
   bool obstacles[3]; // laser subscriber
