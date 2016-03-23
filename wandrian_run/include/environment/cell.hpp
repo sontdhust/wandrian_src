@@ -37,12 +37,10 @@ typedef boost::shared_ptr<Cell> CellPtr;
 typedef boost::shared_ptr<Cell const> CellConstPtr;
 
 inline bool operator<(CellConstPtr c1, CellConstPtr c2) {
-  // TODO: Choose relevant epsilon value
-  double EPS = 20 * std::numeric_limits<double>::epsilon();
   return
-      std::abs(c1->get_center()->x - c2->get_center()->x) > EPS ?
+      std::abs(c1->get_center()->x - c2->get_center()->x) > EPSILON ?
           (c1->get_center()->x < c2->get_center()->x) :
-          (std::abs(c1->get_center()->y - c2->get_center()->y) > EPS ?
+          (std::abs(c1->get_center()->y - c2->get_center()->y) > EPSILON ?
               (c1->get_center()->y < c2->get_center()->y) :
               c1->get_size() < c2->get_size());
 }

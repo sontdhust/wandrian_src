@@ -155,21 +155,21 @@ void BoustrophedonOnline::scan(CellPtr current) {
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;32mBEGIN:\033[0m "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
   std::cout << "Backtrack list: " << bplist.size() << "\n";
-  std::cout << "Straight: " <<straight <<"\n";
+  std::cout << "Straight: " << straight << "\n";
   VectorPtr orientation = VectorPtr(
       new Vector(
           (current->get_parent()->get_center() - current->get_center())
               / tool_size));
-  
+
   // Quay vector 180 do
   orientation = orientation->rotate_counterclockwise_180();
-  
+
   CellPtr neighbor = CellPtr(
       new Cell(
           PointPtr(new Point(current->get_center() + orientation * tool_size)),
           tool_size));
   if (current->get_center() == starting_cell->get_center()
-      && (see_obstacle(orientation, tool_size / 2) || state_of(neighbor)==OLD )) {
+      && (see_obstacle(orientation, tool_size / 2) || state_of(neighbor) == OLD)) {
     orientation = orientation->rotate_counterclockwise_180();
   }
 
@@ -179,8 +179,7 @@ void BoustrophedonOnline::scan(CellPtr current) {
           PointPtr(new Point(current->get_center() + orientation * tool_size)),
           tool_size));
   if (state_of(neighbor) != OLD
-      && see_obstacle(orientation,
-          tool_size / 2) == false) {
+      && see_obstacle(orientation, tool_size / 2) == false) {
     bplist.insert(neighbor);
   }
 
@@ -222,7 +221,7 @@ void BoustrophedonOnline::scan(CellPtr current) {
           == false) {
     bplist.insert(neighbor_bottom);
   }
-  
+
   // A* search
   int vertex_current = check_vertex(current);
   if (vertex_current != -1) {
@@ -272,7 +271,7 @@ void BoustrophedonOnline::scan(CellPtr current) {
       }
     }
   } else {
-    if (see_obstacle(orientation, tool_size / 2) || state_of(neighbor) == OLD) { // TODO: Check obstacle here
+    if (see_obstacle(orientation, tool_size / 2) || state_of(neighbor) == OLD) {
       std::cout << " \033[1;46m(OBSTACLE)\033[0m\n";
       // Go to next sub-cell
       if (check_rotate == 1) {
@@ -334,23 +333,25 @@ void BoustrophedonOnline::find_bpcell(CellPtr current) {
             PointPtr(
                 new Point(tmp->get_center()->x + tool_size,
                     tmp->get_center()->y)), tool_size));
-    if (state_of(neighbor_W) == OLD && check_distance(current, neighbor_W) < check_distance(current, neighbor_E) )
+    if (state_of(neighbor_W) == OLD
+        && check_distance(current, neighbor_W)
+            < check_distance(current, neighbor_E))
       goal = check_vertex(neighbor_W);
 
     CellPtr neighbor_N = CellPtr(
         new Cell(
             PointPtr(
-                new Point(tmp->get_center()->x ,
+                new Point(tmp->get_center()->x,
                     tmp->get_center()->y + tool_size)), tool_size));
-    if (state_of(neighbor_N) == OLD) 
+    if (state_of(neighbor_N) == OLD)
       goal = check_vertex(neighbor_N);
 
     CellPtr neighbor_S = CellPtr(
         new Cell(
             PointPtr(
-                new Point(tmp->get_center()->x ,
+                new Point(tmp->get_center()->x,
                     tmp->get_center()->y - tool_size)), tool_size));
-    if (state_of(neighbor_S) == OLD) 
+    if (state_of(neighbor_S) == OLD)
       goal = check_vertex(neighbor_S);
 
     std::vector<mygraph_t::vertex_descriptor> p(num_vertices(g));
@@ -394,34 +395,34 @@ int BoustrophedonOnline::check_vertex(CellPtr current) {
   }
   return -1;
 }
-double BoustrophedonOnline::check_distance(CellPtr begin, CellPtr end){
-  return std::abs(end->get_center()->x - begin->get_center()->x) + std::abs(end->get_center()->y - begin->get_center()->y);
+double BoustrophedonOnline::check_distance(CellPtr begin, CellPtr end) {
+  return std::abs(end->get_center()->x - begin->get_center()->x)
+      + std::abs(end->get_center()->y - begin->get_center()->y);
 }
-bool BoustrophedonOnline::find_into_bplist(CellPtr cell){
-  for (std::set<CellPtr>::iterator i = bplist.begin(); i != bplist.end(); i++) {
-    CellPtr tmp = CellPtr(*i);
-    if(tmp->get_center()->x == cell->get_center()->x && tmp->get_center()->y == cell->get_center()->y)
-      return true;
-  }
-  return false;
+bool BoustrophedonOnline::find_into_bplist(CellPtr cell_to_check){
+    return (bplist.find(cell_to_check) != bplist.end()) ? true : false;
 }
 void BoustrophedonOnline::refine_bplist(){
+  std::set<CellPtr, CellComp> tmp_list;
   for (std::set<CellPtr>::iterator i = bplist.begin(); i != bplist.end(); i++) {
     CellPtr tmp = CellPtr(*i);
     CellPtr neighbor_N = CellPtr(
         new Cell(
             PointPtr(
-                new Point(tmp->get_center()->x ,
+                new Point(tmp->get_center()->x,
                     tmp->get_center()->y + tool_size)), tool_size));
 
     CellPtr neighbor_S = CellPtr(
         new Cell(
             PointPtr(
-                new Point(tmp->get_center()->x ,
+                new Point(tmp->get_center()->x,
                     tmp->get_center()->y - tool_size)), tool_size));
 
     if(find_into_bplist(neighbor_N) && find_into_bplist(neighbor_S))
-      bplist.erase(tmp);
+      tmp_list.insert(tmp);
+  }
+  for (std::set<CellPtr>::iterator i = tmp_list.begin(); i != tmp_list.end(); i++) {
+    bplist.erase(CellPtr(*i));
   }
 }
 void BoustrophedonOnline::insert_edge(CellPtr current, CellPtr neighbor,
