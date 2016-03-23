@@ -8,7 +8,7 @@
 #ifndef WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_BOUSTROPHEDON_HPP_
 #define WANDRIAN_RUN_INCLUDE_PLANS_BOUSTROPHEDON_BOUSTROPHEDON_HPP_
 
-#include "../../common/environment.hpp"
+#include "../../common/vector.hpp"
 #include "../base_plan.hpp"
 #include "cell.hpp"
 #include "obstacle.hpp"
@@ -22,24 +22,25 @@ using namespace wandrian::common;
 namespace wandrian {
 namespace plans {
 
-namespace boustrophedon{
+namespace boustrophedon {
 
 class Boustrophedon: public BasePlan {
 
 public:
   Boustrophedon();
   ~Boustrophedon();
-  
+
   void initialize(PointPtr, double, std::string);
 
   void cover();
 
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
-  
+
   void dfs(SpacePtr);
 
-  std::list<SpacePtr> create_list_space(ObstaclePtr , std::list<VerticesPtr>);
-  std::list<VerticesPtr> create_list_vertices(ObstaclePtr, std::list<ObstaclePtr>);
+  std::list<SpacePtr> create_list_space(ObstaclePtr, std::list<VerticesPtr>);
+  std::list<VerticesPtr> create_list_vertices(ObstaclePtr,
+      std::list<ObstaclePtr>);
 
 protected:
   bool go_to(PointPtr, bool);
@@ -51,7 +52,7 @@ private:
   double robot_size; // = 'cell size' / 2
 
   EnvironmentOffPtr environment;
-  
+
   std::set<CellPtr, CellComp> old_cells;
 
   bool go_with(VectorPtr, double);

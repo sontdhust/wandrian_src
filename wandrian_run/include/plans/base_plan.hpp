@@ -11,7 +11,6 @@
 #include <list>
 #include <boost/function.hpp>
 #include "../common/point.hpp"
-#include "../common/vector.hpp"
 
 #define FLEXIBLY true
 #define STRICTLY false
@@ -24,9 +23,11 @@ namespace plans {
 class BasePlan {
 
 public:
+  BasePlan();
   virtual ~BasePlan();
   virtual void cover();
 
+  std::list<PointPtr> get_path();
   void set_behavior_go_to(boost::function<bool(PointPtr, bool)>);
 
 protected:
@@ -35,6 +36,8 @@ protected:
 
   virtual bool go_to(PointPtr, bool);
 };
+
+typedef boost::shared_ptr<BasePlan> BasePlanPtr;
 
 }
 }

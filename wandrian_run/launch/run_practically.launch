@@ -1,0 +1,47 @@
+<launch>
+  <arg name="pn"/>
+  <arg name="ts"/>
+  <arg name="sp_x"/>
+  <arg name="sp_y"/>
+  <arg name="sc_x"/>
+  <arg name="sc_y"/>
+  <arg name="sb_w"/>
+  <arg name="sb_h"/>
+  <arg name="lv"/>
+  <arg name="av"/>
+  <arg name="pr_c"/>
+  <arg name="pr_s"/>
+  <arg name="af_r"/>
+  <arg name="e_ro"/>
+  <arg name="e_mo"/>
+  <arg name="e_p"/>
+
+  <node pkg="wandrian_run" type="run" name="run" output="screen">
+    <remap from="run/power" to="mobile_base/commands/motor_power"/>
+    <remap from="run/velocity" to="mobile_base/commands/velocity"/>
+    <remap from="run/odometry" to="odom"/>
+    <remap from="run/laser" to="scan"/>
+
+    <param name="plan_name" value="$(arg pn)" type="string"/>
+    <param name="tool_size" value="$(arg ts)" type="double"/>
+    <param name="starting_point_x" value="$(arg sp_x)" type="double"/>
+    <param name="starting_point_y" value="$(arg sp_y)" type="double"/>
+    <param name="space_center_x" value="$(arg sc_x)" type="double"/>
+    <param name="space_center_y" value="$(arg sc_y)" type="double"/>
+    <param name="space_boundary_width" value="$(arg sb_w)" type="double"/>
+    <param name="space_boundary_height" value="$(arg sb_h)" type="double"/>
+    <param name="linear_velocity" value="$(arg lv)" type="double"/>
+    <param name="angular_velocity" value="$(arg av)" type="double"/>
+    <param name="proportion_ranges_count" value="$(arg pr_c)" type="double"/>
+    <param name="proportion_ranges_sum" value="$(arg pr_s)" type="double"/>
+    <param name="augmentation_factor_range" value="$(arg af_r)" type="double"/>
+    <param name="epsilon_rotational_orientation" value="$(arg e_ro)" type="double"/>
+    <param name="epsilon_motional_orientation" value="$(arg e_mo)" type="double"/>
+    <param name="epsilon_position" value="$(arg e_p)" type="double"/>
+
+    <param name="linear_velocity_step" value="0.15" type="double"/>
+    <param name="linear_velocity_max" value="1.5" type="double"/>
+    <param name="angular_velocity_step" value="0.75" type="double"/>
+    <param name="angular_velocity_max" value="3" type="double"/>
+  </node>
+</launch>

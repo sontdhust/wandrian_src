@@ -2,129 +2,248 @@
  * wandrian.cpp
  *
  *  Created on: Sep 23, 2015
- *      Author: sontd
+ *      Author: anhnt
  */
 
 #include "../include/wandrian.hpp"
+#include "../include/plans/spiral_stc/spiral_stc.hpp"
+#include "../include/plans/spiral_stc/full_spiral_stc.hpp"
+#include "../include/plans/mstc_online/mstc_online.hpp"
+#include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
 #include "../include/plans/boustrophedon/boustrophedon.hpp"
 
 #define CLOCKWISE true
 #define COUNTERCLOCKWISE false
 
-// TODO: Choose relevant epsilon values
-#define EPS_ORI_TO_ROTATE 0.06
-#define EPS_ORI_TO_MOVE 4 * EPS_ORI_TO_ROTATE
-#define EPS_POS 0.06
+// FIXME: Choose relevant values
+#define EPSILON_ROTATIONAL_ORIENTATION 0.06
+#define EPSILON_MOTIONAL_ORIENTATION 0.24
+#define EPSILON_POSITION 0.06
+
+using namespace wandrian::plans::spiral_stc;
+using namespace wandrian::plans::mstc_online;
+using namespace wandrian::plans::boustrophedon_online;
+using namespace wandrian::plans::boustrophedon;
 
 namespace wandrian {
 
+Wandrian::Wandrian() {
+}
+
+Wandrian::~Wandrian() {
+}
+
 bool Wandrian::initialize() {
-  return core.initialize();
+  robot = RobotPtr(new Robot());
+  return robot->initialize();
 }
 
 void Wandrian::spin() {
-  core.set_behavior_run(boost::bind(&Wandrian::wandrian_run, this));
-  core.spin();
+  robot->set_behavior_run(boost::bind(&Wandrian::wandrian_run, this));
+  robot->spin();
 }
 
 void Wandrian::wandrian_run() {
-
-  if (core.get_plan_name() == "boustrophedon") {
-	  BoustrophedonPtr boustrophedon_cd = BoustrophedonPtr(new Boustrophedon());
-    // std::cout << "\033[1;34mROBOT_SIZE-\033[0m: " << core.get_robot_size()<< "\n";
-    // std::cout << "\033[1;34mENVIRONMENT-\033[0m: " << core.get_environment_size()<< "\n";
-
-    boustrophedon_cd->initialize(
-
-        PointPtr( new Point(core.get_starting_point_x(), core.get_starting_point_y())),
-                 core.get_robot_size(), "/home/thao/phanthao/GR/workspace/catkin_ws/wandrian/src/wandrian_run/worlds/environment.txt");
-    boustrophedon_cd->set_behavior_go_to(
-        boost::bind(&Wandrian::boustrophedon_cd_go_to, this, _1, _2));
-//    boustrophedon_cd->set_behavior_see_obstacle(
-//        boost::bind(&Wandrian::spiral_stc_see_obstacle, this, _1, _2));
-    boustrophedon_cd->cover();
+  if (robot->get_plan_name() == "spiral_stc") {
+    plan = SpiralStcPtr(new SpiralStc());
+    SpiralStcPtr spiral_stc = boost::static_pointer_cast<SpiralStc>(plan);
+    spiral_stc->initialize(
+        PointPtr(
+            new Point(robot->get_starting_point_x(),
+                robot->get_starting_point_y())), robot->get_tool_size());
+    spiral_stc->set_behavior_go_to(
+        boost::bind(&Wandrian::spiral_stc_go_to, this, _1, _2));
+    spiral_stc->set_behavior_see_obstacle(
+        boost::bind(&Wandrian::spiral_stc_see_obstacle, this, _1, _2));
+    spiral_stc->cover();
+  } else if (robot->get_plan_name() == "full_spiral_stc") {
+    plan = FullSpiralStcPtr(new FullSpiralStc());
+    FullSpiralStcPtr full_spiral_stc =
+        boost::static_pointer_cast<FullSpiralStc>(plan);
+    full_spiral_stc->initialize(
+        PointPtr(
+            new Point(robot->get_starting_point_x(),
+                robot->get_starting_point_y())), robot->get_tool_size());
+    full_spiral_stc->set_behavior_go_to(
+        boost::bind(&Wandrian::full_spiral_stc_go_to, this, _1, _2));
+    full_spiral_stc->set_behavior_see_obstacle(
+        boost::bind(&Wandrian::full_spiral_stc_see_obstacle, this, _1, _2));
+    full_spiral_stc->cover();
+  } else if (robot->get_plan_name() == "mstc_online") {
+    plan = MstcOnlinePtr(new MstcOnline());
+    MstcOnlinePtr mstc_online = boost::static_pointer_cast<MstcOnline>(plan);
+    mstc_online->initialize(
+        PointPtr(
+            new Point(robot->get_starting_point_x(),
+                robot->get_starting_point_y())), robot->get_tool_size(),
+        robot->get_communicator());
+    mstc_online->set_behavior_go_to(
+        boost::bind(&Wandrian::mstc_online_go_to, this, _1, _2));
+    mstc_online->set_behavior_see_obstacle(
+        boost::bind(&Wandrian::mstc_online_see_obstacle, this, _1, _2));
+    mstc_online->cover();
+  } else if (robot->get_plan_name() == "boustrophedon_online") {
+    plan = BoustrophedonOnlinePtr(new BoustrophedonOnline());
+    BoustrophedonOnlinePtr boustrophedon_online = boost::static_pointer_cast<
+        BoustrophedonOnline>(plan);
+    boustrophedon_online->initialize(
+        PointPtr(
+            new Point(robot->get_starting_point_x(),
+                robot->get_starting_point_y())), robot->get_tool_size());
+    boustrophedon_online->set_behavior_go_to(
+        boost::bind(&Wandrian::boustrophedon_online_go_to, this, _1, _2));
+    boustrophedon_online->set_behavior_see_obstacle(
+        boost::bind(&Wandrian::boustrophedon_online_see_obstacle, this, _1,
+            _2));
+    boustrophedon_online->cover();
+  } else if (robot->get_plan_name() == "boustrophedon") {
+    BoustrophedonPtr boustrophedon = BoustrophedonPtr(new Boustrophedon());
+    boustrophedon->initialize(
+        PointPtr(
+            new Point(robot->get_starting_point_x(),
+                robot->get_starting_point_y())), robot->get_tool_size(),
+        "/home/thao/phanthao/GR/workspace/catkin_ws/wandrian/src/wandrian_run/worlds/environment.txt");
+    boustrophedon->set_behavior_go_to(
+        boost::bind(&Wandrian::boustrophedon_go_to, this, _1, _2));
+    boustrophedon->cover();
   }
 }
 
-
-bool Wandrian::boustrophedon_cd_go_to(PointPtr position, bool flexibly) {
-  return go_to(position, flexibly);
+bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibility) {
+  return go_to(position, flexibility);
 }
 
-
-bool Wandrian::boustrophedon_cd_see_obstacle(VectorPtr orientation, double step) {
-  // TODO: Correctly check whether obstacle is near or not
-  double angle = *orientation ^ *core.get_current_orientation();
-  return
-      (std::abs(angle) <= M_PI_4) ?
-          core.get_obstacles()[IN_FRONT] :
-          ((angle > M_PI_4) ?
-              core.get_obstacles()[AT_LEFT_SIDE] :
-              core.get_obstacles()[AT_RIGHT_SIDE]);
+bool Wandrian::spiral_stc_see_obstacle(VectorPtr direction, double distance) {
+  PointPtr last_position = *(--plan->get_path().end());
+  PointPtr new_position = last_position + direction * distance;
+  RectanglePtr boundary = robot->get_space_boundary();
+  if (new_position->x
+      >= boundary->get_center()->x + boundary->get_width() / 2 - EPSILON
+      || new_position->x
+          <= boundary->get_center()->x - boundary->get_width() / 2 + EPSILON
+      || new_position->y
+          >= boundary->get_center()->y + boundary->get_height() / 2 - EPSILON
+      || new_position->y
+          <= boundary->get_center()->y - boundary->get_height() / 2 + EPSILON) {
+    return true;
+  }
+  double angle = direction ^ robot->get_current_direction();
+  if (std::abs(angle) <= 3 * M_PI_4)
+    return
+        (std::abs(angle) <= M_PI_4) ?
+            see_obstacle(IN_FRONT, distance) :
+            ((angle > M_PI_4) ?
+                see_obstacle(AT_LEFT_SIDE, distance) :
+                see_obstacle(AT_RIGHT_SIDE, distance));
+  else {
+    rotate_to(direction, STRICTLY);
+    return see_obstacle(IN_FRONT, distance);
+  }
 }
 
+bool Wandrian::full_spiral_stc_go_to(PointPtr position, bool flexibility) {
+  return spiral_stc_go_to(position, flexibility);
+}
 
-bool Wandrian::go_to(PointPtr new_position, bool flexibly) {
+bool Wandrian::full_spiral_stc_see_obstacle(VectorPtr direction,
+    double distance) {
+  return spiral_stc_see_obstacle(direction, distance);
+}
+
+bool Wandrian::mstc_online_go_to(PointPtr position, bool flexibility) {
+  return spiral_stc_go_to(position, flexibility);
+}
+
+bool Wandrian::mstc_online_see_obstacle(VectorPtr direction, double distance) {
+  return spiral_stc_see_obstacle(direction, distance);
+}
+
+bool Wandrian::boustrophedon_online_go_to(PointPtr position, bool flexibility) {
+  return spiral_stc_go_to(position, flexibility);
+}
+
+bool Wandrian::boustrophedon_online_see_obstacle(VectorPtr direction,
+    double distance) {
+  return spiral_stc_see_obstacle(direction, distance);
+}
+
+bool Wandrian::boustrophedon_go_to(PointPtr position, bool flexibility) {
+  return spiral_stc_go_to(position, flexibility);
+}
+
+bool Wandrian::go_to(PointPtr new_position, bool flexibility) {
   bool forward;
-  forward = rotate_to(new_position, flexibly);
+  forward = rotate_to(new_position, flexibility);
+  // Assume there is no obstacle, robot go straight
   go(forward);
+  double epsilon_orientation = robot->get_epsilon_motional_orientation();
+  double epsilon_position = robot->get_epsilon_position();
+  if (epsilon_orientation <= 0)
+    epsilon_orientation = EPSILON_MOTIONAL_ORIENTATION;
+  if (epsilon_position <= 0)
+    epsilon_position = EPSILON_POSITION;
   while (true) {
-    // Check current_position + k * current_orientation == new_position
-    Vector direction_vector = (*new_position - *core.get_current_position())
-        / (*new_position % *core.get_current_position());
+    // TODO: Detect moving obstacle
+    // Check current_position + k * current_direction == new_position
+    VectorPtr direction = (new_position - robot->get_current_position())
+        / (new_position % robot->get_current_position());
     if (forward ?
-        (!(std::abs(direction_vector.x - core.get_current_orientation()->x)
-            < EPS_ORI_TO_MOVE
-            && std::abs(direction_vector.y - core.get_current_orientation()->y)
-                < EPS_ORI_TO_MOVE)) :
-        (!(std::abs(direction_vector.x + core.get_current_orientation()->x)
-            < EPS_ORI_TO_MOVE
-            && std::abs(direction_vector.y + core.get_current_orientation()->y)
-                < EPS_ORI_TO_MOVE))) {
-      core.stop();
-      forward = rotate_to(new_position, flexibly);
+        (!(std::abs(direction->x - robot->get_current_direction()->x)
+            < epsilon_orientation
+            && std::abs(direction->y - robot->get_current_direction()->y)
+                < epsilon_orientation)) :
+        (!(std::abs(direction->x + robot->get_current_direction()->x)
+            < epsilon_orientation
+            && std::abs(direction->y + robot->get_current_direction()->y)
+                < epsilon_orientation))) { // Wrong direction
+      robot->stop();
+      forward = rotate_to(new_position, flexibility);
       go(forward);
     }
-
-    if (!core.get_obstacles()[IN_FRONT]) {
-      if (std::abs(new_position->x - core.get_current_position()->x) < EPS_POS
-          && std::abs(new_position->y - core.get_current_position()->y)
-              < EPS_POS) {
-        core.stop();
-        break;
-      }
-    } else {
-      // Obstacle
-      core.stop();
-      return false;
+    if (std::abs(new_position->x - robot->get_current_position()->x)
+        < epsilon_position
+        && std::abs(new_position->y - robot->get_current_position()->y)
+            < epsilon_position) { // Reached the new position
+      robot->decelerate();
+      break;
     }
   }
   return true;
 }
 
-bool Wandrian::rotate_to(PointPtr new_position, bool flexibly) {
-  VectorPtr new_orientation = VectorPtr(
-      new Vector(
-          (*new_position - *core.get_current_position())
-              / (*new_position % *core.get_current_position())));
-  double angle = *new_orientation ^ *core.get_current_orientation();
+bool Wandrian::see_obstacle(Orientation orientation, double distance) {
+  robot->set_laser_range(distance);
+  return robot->get_obstacles()[orientation];
+}
 
-  bool will_move_forward = !flexibly ? true : std::abs(angle) < M_PI_2;
-  if (angle > EPS_ORI_TO_ROTATE)
+bool Wandrian::rotate_to(PointPtr new_position, bool flexibility) {
+  VectorPtr new_direction = (new_position - robot->get_current_position())
+      / (new_position % robot->get_current_position());
+  return rotate_to(new_direction, flexibility);
+}
+
+bool Wandrian::rotate_to(VectorPtr new_direction, bool flexibility) {
+  double angle = new_direction ^ robot->get_current_direction();
+  double epsilon = robot->get_epsilon_rotational_orientation();
+  if (epsilon <= 0)
+    epsilon = EPSILON_ROTATIONAL_ORIENTATION;
+  bool will_move_forward =
+      (flexibility != FLEXIBLY) ? true : std::abs(angle) < M_PI_2;
+  if (angle > epsilon)
     rotate(will_move_forward ? COUNTERCLOCKWISE : CLOCKWISE);
-  else if (angle < -EPS_ORI_TO_ROTATE)
+  else if (angle < -epsilon)
     rotate(will_move_forward ? CLOCKWISE : COUNTERCLOCKWISE);
   while (true) {
     if (will_move_forward ?
-        (std::abs(new_orientation->x - core.get_current_orientation()->x)
-            < EPS_ORI_TO_ROTATE
-            && std::abs(new_orientation->y - core.get_current_orientation()->y)
-                < EPS_ORI_TO_ROTATE) :
-        (std::abs(new_orientation->x + core.get_current_orientation()->x)
-            < EPS_ORI_TO_ROTATE
-            && std::abs(new_orientation->y + core.get_current_orientation()->y)
-                < EPS_ORI_TO_ROTATE)) {
-      core.stop();
+        (std::abs(new_direction->x - robot->get_current_direction()->x)
+            < epsilon
+            && std::abs(new_direction->y - robot->get_current_direction()->y)
+                < epsilon) :
+        (std::abs(new_direction->x + robot->get_current_direction()->x)
+            < epsilon
+            && std::abs(new_direction->y + robot->get_current_direction()->y)
+                < epsilon)) {
+      robot->stop();
       break;
     }
   }
@@ -132,13 +251,20 @@ bool Wandrian::rotate_to(PointPtr new_position, bool flexibly) {
 }
 
 void Wandrian::go(bool forward) {
-  double linear_vel_step = core.get_linear_velocity_step();
-  core.set_linear_velocity(forward ? linear_vel_step : -linear_vel_step);
+  double linear_velocity = robot->get_linear_velocity();
+  robot->set_linear_velocity(forward ? linear_velocity : -linear_velocity);
 }
 
-void Wandrian::rotate(bool clockwise) {
-  double angular_vel_step = core.get_angular_velocity_step();
-  core.set_angular_velocity(clockwise ? -angular_vel_step : angular_vel_step);
+void Wandrian::rotate(bool rotation_is_clockwise) {
+  double angular_velocity = robot->get_angular_velocity();
+  robot->set_angular_velocity(
+      rotation_is_clockwise ? -angular_velocity : angular_velocity);
+}
+
+void Wandrian::dodge() {
+  while (robot->get_obstacle_movement() == COMING) {
+    robot->stop();
+  }
 }
 
 }

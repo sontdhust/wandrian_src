@@ -10,8 +10,8 @@
 
 #include <stdlib.h>
 #include <cmath>
-#include <limits>
 #include <boost/shared_ptr.hpp>
+#include "global.hpp"
 
 namespace wandrian {
 namespace common {
@@ -20,38 +20,40 @@ struct Point {
 
   double x, y;
 
+  Point();
   Point(double, double);
   Point(const Point&);
+  Point(const boost::shared_ptr<Point>);
 };
 
-typedef boost::shared_ptr<Point const> PointConstPtr;
 typedef boost::shared_ptr<Point> PointPtr;
+typedef boost::shared_ptr<Point const> PointConstPtr;
 
-inline double operator%(const Point &p1, const Point &p2) {
-  return std::sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2));
+inline double operator%(PointPtr p1, PointPtr p2) {
+  return std::sqrt(std::pow(p1->x - p2->x, 2) + std::pow(p1->y - p2->y, 2));
 }
 
-inline bool operator<(const Point &p1, const Point &p2) {
-  // TODO: Choose relevant epsilon value
-  double EPS = 20 * std::numeric_limits<double>::epsilon();
-  return std::abs(p1.x - p2.x) > EPS ? p1.x - p2.x < -EPS : p1.y - p2.y < -EPS;
+inline bool operator<(PointConstPtr p1, PointConstPtr p2) {
+  return
+      std::abs(p1->x - p2->x) > EPSILON ?
+          p1->x - p2->x < -EPSILON : p1->y - p2->y < -EPSILON;
 }
 
-inline bool operator!=(const Point &p1, const Point &p2) {
+inline bool operator!=(PointPtr p1, PointPtr p2) {
   return p1 < p2 || p2 < p1;
 }
 
-inline bool operator==(const Point &p1, const Point &p2) {
+inline bool operator==(PointPtr p1, PointPtr p2) {
   return !(p1 != p2);
 }
 
-inline bool operator>(const Point &p1, const Point &p2) {
+inline bool operator>(PointPtr p1, PointPtr p2) {
   return p1 != p2 && !(p1 < p2);
 }
 
 struct PointComp {
   bool operator()(PointConstPtr p1, PointConstPtr p2) const {
-    return *p1 < *p2;
+    return p1 < p2;
   }
 };
 
