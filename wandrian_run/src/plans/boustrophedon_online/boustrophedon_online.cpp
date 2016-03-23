@@ -399,16 +399,11 @@ double BoustrophedonOnline::check_distance(CellPtr begin, CellPtr end) {
   return std::abs(end->get_center()->x - begin->get_center()->x)
       + std::abs(end->get_center()->y - begin->get_center()->y);
 }
-bool BoustrophedonOnline::find_into_bplist(CellPtr cell) {
-  for (std::set<CellPtr>::iterator i = bplist.begin(); i != bplist.end(); i++) {
-    CellPtr tmp = CellPtr(*i);
-    if (tmp->get_center()->x == cell->get_center()->x
-        && tmp->get_center()->y == cell->get_center()->y)
-      return true;
-  }
-  return false;
+bool BoustrophedonOnline::find_into_bplist(CellPtr cell_to_check){
+    return (bplist.find(cell_to_check) != bplist.end()) ? true : false;
 }
-void BoustrophedonOnline::refine_bplist() {
+void BoustrophedonOnline::refine_bplist(){
+  std::set<CellPtr, CellComp> tmp_list;
   for (std::set<CellPtr>::iterator i = bplist.begin(); i != bplist.end(); i++) {
     CellPtr tmp = CellPtr(*i);
     CellPtr neighbor_N = CellPtr(
@@ -423,8 +418,11 @@ void BoustrophedonOnline::refine_bplist() {
                 new Point(tmp->get_center()->x,
                     tmp->get_center()->y - tool_size)), tool_size));
 
-    if (find_into_bplist(neighbor_N) && find_into_bplist(neighbor_S))
-      bplist.erase(tmp);
+    if(find_into_bplist(neighbor_N) && find_into_bplist(neighbor_S))
+      tmp_list.insert(tmp);
+  }
+  for (std::set<CellPtr>::iterator i = tmp_list.begin(); i != tmp_list.end(); i++) {
+    bplist.erase(CellPtr(*i));
   }
 }
 void BoustrophedonOnline::insert_edge(CellPtr current, CellPtr neighbor,
