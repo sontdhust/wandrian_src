@@ -9,12 +9,13 @@
 #define WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_MSTC_ONLINE_HPP_
 
 #include "../../common/vector.hpp"
-#include "../../environment/identifiable_cell.hpp"
-#include "../../environment/communicator.hpp"
+#include "../../environment/mstc_online/identifiable_cell.hpp"
+#include "../../environment/mstc_online/communicator.hpp"
 #include "../base_plan.hpp"
 
 using namespace wandrian::common;
 using namespace wandrian::environment;
+using namespace wandrian::environment::mstc_online;
 
 namespace wandrian {
 namespace plans {

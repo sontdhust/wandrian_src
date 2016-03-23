@@ -17,10 +17,10 @@
 #include "common/point.hpp"
 #include "common/vector.hpp"
 #include "common/rectangle.hpp"
-#include "environment/communicator.hpp"
+#include "environment/mstc_online/communicator.hpp"
 
 using namespace wandrian::common;
-using namespace wandrian::environment;
+using namespace wandrian::environment::mstc_online;
 
 namespace wandrian {
 

@@ -11,12 +11,13 @@
 #include <boost/tokenizer.hpp>
 #include <algorithm>
 #include <sstream>
-#include "../../include/environment/communicator.hpp"
+#include "../../../include/environment/mstc_online/communicator.hpp"
 
 #define foreach BOOST_FOREACH
 
 namespace wandrian {
 namespace environment {
+namespace mstc_online {
 
 Communicator::Communicator() {
   tool_size = 0.5;
@@ -357,5 +358,6 @@ void Communicator::clear_robots_dead_old_cells(std::string dead_robot_name,
   write_status_message(last_status);
 }
 
+}
 }
 }

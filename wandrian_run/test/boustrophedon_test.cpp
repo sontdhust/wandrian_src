@@ -14,13 +14,11 @@
 #include <boost/next_prior.hpp>
 #include <sstream>
 #include <fstream>
-#include "../include/plans/boustrophedon_off/boustrophedon.hpp"
-
+#include "../include/plans/boustrophedon/boustrophedon.hpp"
 
 #define R_SIZE 0.5 // robot size
 #define E_SIZE 6.0 // default environment size
 #define WORLD_INSERT_OBSTACLE "<!-- INSERT: Bound and Obstacles here -->" // flag at original world file to insert bound and obstacles into
-
 
 double b_size = 0;
 double t_size;

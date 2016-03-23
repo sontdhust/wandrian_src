@@ -5,13 +5,15 @@
  *      Author: sontd
  */
 
-#ifndef WANDRIAN_RUN_INCLUDE_COMMON_SPACE_HPP_
-#define WANDRIAN_RUN_INCLUDE_COMMON_SPACE_HPP_
+#ifndef WANDRIAN_RUN_INCLUDE_ENVIRONMENT_SPACE_HPP_
+#define WANDRIAN_RUN_INCLUDE_ENVIRONMENT_SPACE_HPP_
 
-#include "polygon.hpp"
+#include "../common/polygon.hpp"
+
+using namespace wandrian::common;
 
 namespace wandrian {
-namespace common {
+namespace environment {
 
 struct Space {
 
@@ -26,4 +28,4 @@ typedef boost::shared_ptr<Space> SpacePtr;
 }
 }
 
-#endif /* WANDRIAN_RUN_INCLUDE_COMMON_SPACE_HPP_ */
+#endif /* WANDRIAN_RUN_INCLUDE_ENVIRONMENT_SPACE_HPP_ */
