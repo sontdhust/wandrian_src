@@ -26,14 +26,14 @@ Change to catkin root directory then run:
 ####Run simulator:
 
     $ roslaunch wandrian_run environment.launch world_file:=prefered_full_spiral_stc
-    $ roslaunch wandrian_run run_simulator.launch plan_name:=full_spiral_stc tool_size:=0.5 starting_point_x:=0.75 starting_point_y:=0.25
+    $ roslaunch wandrian_run run_simulator.launch plan_name:=full_spiral_stc tool_size:=0.5 starting_point_x:=0.75 starting_point_y:=0.25 space_boundary_width:=4 space_boundary_height:=4
 
 ####Run practically:
 
     $ roslaunch kobuki_node minimal.launch --screen
     $ sudo chmod a+rw /dev/ttyACM0
     $ rosrun hokuyo_node hokuyo_node
-    $ roslaunch wandrian_run run_practically.launch plan_name:=full_spiral_stc tool_size:=0.4 sp_x:=0.0 sp_y:=0.0 lv:=0.1 av:=0.6 pr_c:=0.5 pr_s:=0.2 af_r:=2.0 sc_x:=0.0 sc_y:=0.0 sb_w:=3.2 sb_h:=3.2
+    $ roslaunch wandrian_run run_practically.launch pn:=full_spiral_stc ts:=0.4 sp_x:=0.2 sp_y:=-0.6 sc_x:=0.0 sc_y:=0.0 sb_w:=4.8 sb_h:=3.2 lv:=0.15 av:=0.75 pr_c:=0.5 pr_s:=0.2 af_r:=2.0 e_ro:=0.06 e_mo:=0.24 e_p:=0.06
 
 ####Running mstc_online:
 
@@ -47,3 +47,6 @@ Change to catkin root directory then run:
 pr_c:=0.4
 pr_s:=0.2
 af_r:=3.0
+e_ro:=0.06
+e_mo:=0.12
+e_p:=0.02
