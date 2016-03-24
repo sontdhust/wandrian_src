@@ -5,11 +5,13 @@
  *      Author: anhnt
  */
 
+#include <ros/package.h>
 #include "../include/wandrian.hpp"
 #include "../include/plans/spiral_stc/spiral_stc.hpp"
 #include "../include/plans/spiral_stc/full_spiral_stc.hpp"
 #include "../include/plans/mstc_online/mstc_online.hpp"
 #include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
+#include "../include/plans/boustrophedon/boustrophedon.hpp"
 
 #define CLOCKWISE true
 #define COUNTERCLOCKWISE false
@@ -22,6 +24,7 @@
 using namespace wandrian::plans::spiral_stc;
 using namespace wandrian::plans::mstc_online;
 using namespace wandrian::plans::boustrophedon_online;
+using namespace wandrian::plans::boustrophedon;
 
 namespace wandrian {
 
@@ -94,6 +97,16 @@ void Wandrian::wandrian_run() {
         boost::bind(&Wandrian::boustrophedon_online_see_obstacle, this, _1,
             _2));
     boustrophedon_online->cover();
+  } else if (robot->get_plan_name() == "boustrophedon") {
+    BoustrophedonPtr boustrophedon = BoustrophedonPtr(new Boustrophedon());
+    boustrophedon->initialize(
+        PointPtr(
+            new Point(robot->get_starting_point_x(),
+                robot->get_starting_point_y())), robot->get_tool_size(),
+        ros::package::getPath("wandrian_run") + "/worlds/prefered.map");
+    boustrophedon->set_behavior_go_to(
+        boost::bind(&Wandrian::boustrophedon_go_to, this, _1, _2));
+    boustrophedon->cover();
   }
 }
 
@@ -153,6 +166,10 @@ bool Wandrian::boustrophedon_online_go_to(PointPtr position, bool flexibility) {
 bool Wandrian::boustrophedon_online_see_obstacle(VectorPtr direction,
     double distance) {
   return spiral_stc_see_obstacle(direction, distance);
+}
+
+bool Wandrian::boustrophedon_go_to(PointPtr position, bool flexibility) {
+  return spiral_stc_go_to(position, flexibility);
 }
 
 bool Wandrian::go_to(PointPtr new_position, bool flexibility) {

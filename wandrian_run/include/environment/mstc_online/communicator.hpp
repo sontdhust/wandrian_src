@@ -5,8 +5,8 @@
  *      Author: manhnh
  */
 
-#ifndef WANDRIAN_RUN_INCLUDE_ENVIRONMENT_COMMUNICATOR_HPP_
-#define WANDRIAN_RUN_INCLUDE_ENVIRONMENT_COMMUNICATOR_HPP_
+#ifndef WANDRIAN_RUN_INCLUDE_ENVIRONMENT_MSTC_ONLINE_COMMUNICATOR_HPP_
+#define WANDRIAN_RUN_INCLUDE_ENVIRONMENT_MSTC_ONLINE_COMMUNICATOR_HPP_
 
 #include <ros/ros.h>
 #include <boost/shared_ptr.hpp>
@@ -17,6 +17,7 @@
 
 namespace wandrian {
 namespace environment {
+namespace mstc_online {
 
 class Communicator {
 
@@ -41,9 +42,13 @@ public:
   void set_robot_name(const std::string&);
   void set_tool_size(double);
 
+  CellPtr& get_current_cell();
+  void set_current_cell(const CellPtr&);
+
 private:
   std::string robot_name;
   double tool_size;
+  CellPtr current_cell;
   std::list<IdentifiableCellPtr> old_cells; // Old cells with list
 
   std::string read_old_cells_message(); // Read old cells data, no update to local old cells
@@ -56,5 +61,6 @@ typedef boost::shared_ptr<Communicator> CommunicatorPtr;
 
 }
 }
+}
 
-#endif /* WANDRIAN_RUN_INCLUDE_ENVIRONMENT_COMMUNICATOR_HPP_ */
+#endif /* WANDRIAN_RUN_INCLUDE_ENVIRONMENT_MSTC_ONLINE_COMMUNICATOR_HPP_ */

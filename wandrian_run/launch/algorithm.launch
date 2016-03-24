@@ -4,6 +4,8 @@
   <arg name="tool_size"/>
   <arg name="starting_point_x"/>
   <arg name="starting_point_y"/>
+  <arg name="space_boundary_width" default="0"/>
+  <arg name="space_boundary_height" default="0"/>
 
   <node pkg="wandrian_run" type="run" name="$(arg robot_name)_algorithm" output="screen">
     <remap from="$(arg robot_name)_algorithm/power" to="$(arg robot_name)/mobile_base/commands/motor_power"/>
@@ -16,7 +18,11 @@
     <param name="tool_size" value="$(arg tool_size)" type="double"/>
     <param name="starting_point_x" value="$(arg starting_point_x)" type="double"/>
     <param name="starting_point_y" value="$(arg starting_point_y)" type="double"/>
+    <param name="space_boundary_width" value="$(arg space_boundary_width)" type="double"/>
+    <param name="space_boundary_height" value="$(arg space_boundary_height)" type="double"/>
 
+    <param name="linear_velocity" value="0.2" type="double"/>
+    <param name="angular_velocity" value="0.4" type="double"/>
     <param name="linear_velocity_step" value="0.2" type="double"/>
     <param name="linear_velocity_max" value="2" type="double"/>
     <param name="angular_velocity_step" value="0.4" type="double"/>
