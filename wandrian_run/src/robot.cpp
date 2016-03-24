@@ -160,6 +160,7 @@ void Robot::spin() {
     is_quitting = true;
     thread_keyboard.cancel();
     thread_run.cancel();
+    thread_status.cancel();
   }
   thread_keyboard.join();
 }
@@ -337,6 +338,9 @@ void Robot::process_keyboard_input(char c) {
   case ' ':
     ROS_INFO_STREAM("[Run]: " << "Start running");
     thread_run.start(&Robot::start_thread_run, *this);
+    if (plan_name == "mstc_online") {
+      thread_status.start(&Robot::start_thread_status, *this);
+    }
     break;
   case 'c':
     if (plan_name == "mstc_online") {
@@ -349,6 +353,28 @@ void Robot::process_keyboard_input(char c) {
     break;
   default:
     break;
+  }
+}
+
+void Robot::start_thread_status() {
+//  int count = 1;
+  double time_counter = 0;
+  clock_t this_time = clock();
+  clock_t last_time = this_time;
+  while (true) {
+    this_time = clock();
+
+    time_counter += (double) (this_time - last_time);
+
+    last_time = this_time;
+
+    if (time_counter > (double) (NUM_SECONDS * CLOCKS_PER_SEC)) {
+      time_counter -= (double) (NUM_SECONDS * CLOCKS_PER_SEC);
+      std::string status = communicator->create_status_message(
+          boost::static_pointer_cast<IdentifiableCell>(
+              communicator->get_current_cell()));
+      communicator->write_status_message(status);
+    }
   }
 }
 
