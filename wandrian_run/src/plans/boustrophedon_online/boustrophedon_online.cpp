@@ -103,7 +103,7 @@ void BoustrophedonOnline::turn_left(CellPtr neighbor_left, CellPtr current,
   std::cout << "\n";
   neighbor_left->set_parent(current);
   old_cells.insert(neighbor_left);
-  go_with(orientation->rotate_counterclockwise_left(), tool_size);
+  go_with(+orientation, tool_size);
   check_rotate = -1;
   bplist.erase(neighbor_left);
   scan(neighbor_left);
@@ -114,7 +114,7 @@ void BoustrophedonOnline::turn_right(CellPtr neighbor_right, CellPtr current,
   std::cout << "\n";
   neighbor_right->set_parent(current);
   old_cells.insert(neighbor_right);
-  go_with(orientation->rotate_counterclockwise_right(), tool_size);
+  go_with(-orientation, tool_size);
   check_rotate = 1;
   bplist.erase(neighbor_right);
   scan(neighbor_right);
@@ -162,7 +162,7 @@ void BoustrophedonOnline::scan(CellPtr current) {
               / tool_size));
 
   // Quay vector 180 do
-  orientation = orientation->rotate_counterclockwise_180();
+  orientation = +(+orientation);
 
   CellPtr neighbor = CellPtr(
       new Cell(
@@ -170,7 +170,7 @@ void BoustrophedonOnline::scan(CellPtr current) {
           tool_size));
   if (current->get_center() == starting_cell->get_center()
       && (see_obstacle(orientation, tool_size / 2) || state_of(neighbor) == OLD)) {
-    orientation = orientation->rotate_counterclockwise_180();
+    orientation = +(+orientation);
   }
 
   // Scan for the first new neighbor of current cell in counterclockwise order
@@ -185,40 +185,29 @@ void BoustrophedonOnline::scan(CellPtr current) {
 
   CellPtr neighbor_left = CellPtr(
       new Cell(
-          PointPtr(
-              new Point(
-                  current->get_center()
-                      + orientation->rotate_counterclockwise_left()
-                          * tool_size)), tool_size));
+          PointPtr(new Point(current->get_center() + +orientation * tool_size)),
+          tool_size));
   if (state_of(neighbor_left) != OLD
-      && see_obstacle(orientation->rotate_counterclockwise_left(),
-          tool_size / 2) == false) {
+      && see_obstacle(+orientation, tool_size / 2) == false) {
     bplist.insert(neighbor_left);
   }
 
   CellPtr neighbor_right = CellPtr(
       new Cell(
-          PointPtr(
-              new Point(
-                  current->get_center()
-                      + orientation->rotate_counterclockwise_right()
-                          * tool_size)), tool_size));
+          PointPtr(new Point(current->get_center() + -orientation * tool_size)),
+          tool_size));
   if (state_of(neighbor_right) != OLD
-      && see_obstacle(orientation->rotate_counterclockwise_right(),
-          tool_size / 2) == false) {
+      && see_obstacle(-orientation, tool_size / 2) == false) {
     bplist.insert(neighbor_right);
   }
-  CellPtr neighbor_bottom =
-      CellPtr(
-          new Cell(
-              PointPtr(
-                  new Point(
-                      *(current->get_center()
-                          + orientation->rotate_counterclockwise_180()
-                              * tool_size))), tool_size));
+  CellPtr neighbor_bottom = CellPtr(
+      new Cell(
+          PointPtr(
+              new Point(
+                  *(current->get_center() + +(+orientation) * tool_size))),
+          tool_size));
   if (state_of(neighbor_bottom) != OLD
-      && see_obstacle(orientation->rotate_counterclockwise_180(), tool_size / 2)
-          == false) {
+      && see_obstacle(+(+orientation), tool_size / 2) == false) {
     bplist.insert(neighbor_bottom);
   }
 
@@ -244,12 +233,12 @@ void BoustrophedonOnline::scan(CellPtr current) {
 
   if (straight == false) {
     if (check_rotate == 1) {
-      if (see_obstacle(orientation->rotate_counterclockwise_right(),
-          tool_size / 2) == false && state_of(neighbor_right) != OLD) {
+      if (see_obstacle(-orientation, tool_size / 2) == false
+          && state_of(neighbor_right) != OLD) {
         straight = true;
         turn_right(neighbor_right, current, orientation);
-      } else if (see_obstacle(orientation->rotate_counterclockwise_left(),
-          tool_size / 2) == false && state_of(neighbor_left) != OLD) {
+      } else if (see_obstacle(+orientation, tool_size / 2) == false
+          && state_of(neighbor_left) != OLD) {
         straight = true;
         turn_left(neighbor_left, current, orientation);
       } else if (see_obstacle(orientation, tool_size / 2) == false
@@ -257,12 +246,12 @@ void BoustrophedonOnline::scan(CellPtr current) {
         go_straight(neighbor, current, orientation);
       }
     } else {
-      if (see_obstacle(orientation->rotate_counterclockwise_left(),
-          tool_size / 2) == false && state_of(neighbor_left) != OLD) {
+      if (see_obstacle(+orientation, tool_size / 2) == false
+          && state_of(neighbor_left) != OLD) {
         straight = true;
         turn_left(neighbor_left, current, orientation);
-      } else if (see_obstacle(orientation->rotate_counterclockwise_right(),
-          tool_size / 2) == false && state_of(neighbor_right) != OLD) {
+      } else if (see_obstacle(-orientation, tool_size / 2) == false
+          && state_of(neighbor_right) != OLD) {
         straight = true;
         turn_right(neighbor_right, current, orientation);
       } else if (see_obstacle(orientation, tool_size / 2) == false
@@ -275,22 +264,22 @@ void BoustrophedonOnline::scan(CellPtr current) {
       std::cout << " \033[1;46m(OBSTACLE)\033[0m\n";
       // Go to next sub-cell
       if (check_rotate == 1) {
-        if (see_obstacle(orientation->rotate_counterclockwise_left(),
-            tool_size / 2) == false && state_of(neighbor_left) != OLD) {
+        if (see_obstacle(+orientation, tool_size / 2) == false
+            && state_of(neighbor_left) != OLD) {
           straight = false;
           turn_left(neighbor_left, current, orientation);
-        } else if (see_obstacle(orientation->rotate_counterclockwise_right(),
-            tool_size / 2) == false && state_of(neighbor_right) != OLD) {
+        } else if (see_obstacle(-orientation, tool_size / 2) == false
+            && state_of(neighbor_right) != OLD) {
           straight = false;
           turn_right(neighbor_right, current, orientation);
         }
       } else if (check_rotate == -1) {
-        if (see_obstacle(orientation->rotate_counterclockwise_right(),
-            tool_size / 2) == false && state_of(neighbor_right) != OLD) {
+        if (see_obstacle(-orientation, tool_size / 2) == false
+            && state_of(neighbor_right) != OLD) {
           straight = false;
           turn_right(neighbor_right, current, orientation);
-        } else if (see_obstacle(orientation->rotate_counterclockwise_left(),
-            tool_size / 2) == false && state_of(neighbor_left) != OLD) {
+        } else if (see_obstacle(+orientation, tool_size / 2) == false
+            && state_of(neighbor_left) != OLD) {
           straight = false;
           turn_left(neighbor_left, current, orientation);
         }
@@ -399,10 +388,10 @@ double BoustrophedonOnline::check_distance(CellPtr begin, CellPtr end) {
   return std::abs(end->get_center()->x - begin->get_center()->x)
       + std::abs(end->get_center()->y - begin->get_center()->y);
 }
-bool BoustrophedonOnline::find_into_bplist(CellPtr cell_to_check){
-    return (bplist.find(cell_to_check) != bplist.end()) ? true : false;
+bool BoustrophedonOnline::find_into_bplist(CellPtr cell_to_check) {
+  return (bplist.find(cell_to_check) != bplist.end()) ? true : false;
 }
-void BoustrophedonOnline::refine_bplist(){
+void BoustrophedonOnline::refine_bplist() {
   std::set<CellPtr, CellComp> tmp_list;
   for (std::set<CellPtr>::iterator i = bplist.begin(); i != bplist.end(); i++) {
     CellPtr tmp = CellPtr(*i);
@@ -418,10 +407,11 @@ void BoustrophedonOnline::refine_bplist(){
                 new Point(tmp->get_center()->x,
                     tmp->get_center()->y - tool_size)), tool_size));
 
-    if(find_into_bplist(neighbor_N) && find_into_bplist(neighbor_S))
+    if (find_into_bplist(neighbor_N) && find_into_bplist(neighbor_S))
       tmp_list.insert(tmp);
   }
-  for (std::set<CellPtr>::iterator i = tmp_list.begin(); i != tmp_list.end(); i++) {
+  for (std::set<CellPtr>::iterator i = tmp_list.begin(); i != tmp_list.end();
+      i++) {
     bplist.erase(CellPtr(*i));
   }
 }
