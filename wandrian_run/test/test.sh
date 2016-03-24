@@ -9,12 +9,12 @@ g++ -c segment.cpp
 g++ -c vector.cpp
 g++ -c polygon.cpp
 g++ -c rectangle.cpp
-g++ -c space.cpp
 
 cd ../environment
 g++ -c cell.cpp
 g++ -c partially_occupiable.cpp
 g++ -c partially_occupiable_cell.cpp
+g++ -c space.cpp
 
 cd ../plans
 g++ -c base_plan.cpp
@@ -29,9 +29,9 @@ g++ -c boustrophedon_online.cpp
 cd ../..
 g++ -o ../wandrian_run \
 ../../test.cpp \
-common/point.o common/vector.o common/segment.o common/polygon.o common/rectangle.o common/space.o \
+common/point.o common/vector.o common/segment.o common/polygon.o common/rectangle.o \
 plans/base_plan.o \
-environment/cell.o environment/partially_occupiable.o environment/partially_occupiable_cell.o \
+environment/cell.o environment/partially_occupiable.o environment/partially_occupiable_cell.o environment/space.o \
 plans/spiral_stc/spiral_stc.o plans/spiral_stc/full_spiral_stc.o \
 plans/boustrophedon_online/boustrophedon_online.o \
 -lglut -lGL

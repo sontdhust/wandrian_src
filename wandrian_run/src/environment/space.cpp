@@ -5,10 +5,10 @@
  *      Author: sontd
  */
 
-#include "../../include/common/space.hpp"
+#include "../../include/environment/space.hpp"
 
 namespace wandrian {
-namespace common {
+namespace environment {
 
 Space::Space(PolygonPtr space, std::list<PolygonPtr> obstacles) :
     boundary(space), obstacles(obstacles) {

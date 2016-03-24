@@ -348,7 +348,6 @@ void Robot::process_keyboard_input(char c) {
     is_quitting = true;
     break;
   default:
-    is_quitting = true;
     break;
   }
 }
@@ -372,7 +371,7 @@ void Robot::start_timer_laser(const ros::TimerEvent&) {
                 + last_direction->get_angle()));
     estimated_laser_ranges.push_back(
         (float) (last_laser_ranges[i]
-            + translation->get_magnitude() * cos(angle ^ -translation)));
+            + translation->get_magnitude() * cos(angle ^ +(+translation))));
   }
   double rotation = current_direction ^ last_direction;
   int rays = rotation / laser_ray;

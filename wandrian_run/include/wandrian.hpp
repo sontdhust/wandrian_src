@@ -29,6 +29,7 @@ private:
 
   // Behaviors
   void wandrian_run();
+
   bool spiral_stc_go_to(PointPtr, bool);
   bool spiral_stc_see_obstacle(VectorPtr, double);
   bool full_spiral_stc_go_to(PointPtr, bool);
@@ -37,6 +38,7 @@ private:
   bool mstc_online_see_obstacle(VectorPtr, double);
   bool boustrophedon_online_go_to(PointPtr, bool);
   bool boustrophedon_online_see_obstacle(VectorPtr, double);
+  bool boustrophedon_go_to(PointPtr, bool);
 
   // Helpers
   bool go_to(PointPtr, bool);
