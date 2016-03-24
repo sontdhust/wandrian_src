@@ -39,12 +39,10 @@ typedef boost::shared_ptr<FreeZone const> FreeZoneConstPtr;
 typedef boost::shared_ptr<FreeZone> FreeZonePtr;
 
 inline bool operator<(const FreeZone &c1, const FreeZone &c2) {
-  // TODO Choose relevant epsilon value
-  double EPS = 20 * std::numeric_limits<double>::epsilon();
   FreeZonePtr Space1 = FreeZonePtr(new FreeZone(c1));
   FreeZonePtr Space2 = FreeZonePtr(new FreeZone(c2));
   return
-      std::abs(Space1->get_center()->x - Space2->get_center()->x) > EPS ?
+      std::abs(Space1->get_center()->x - Space2->get_center()->x) > EPSILON ?
           (Space1->get_center()->x < Space2->get_center()->x) :
           (Space1->get_center()->y < Space2->get_center()->y);
 }

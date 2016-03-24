@@ -1,4 +1,3 @@
-
 #ifndef WANDRIAN_RUN_INCLUDE_ENVIRONMENT_BOUSTROPHEDON_OBSTACLE_HPP_
 #define WANDRIAN_RUN_INCLUDE_ENVIRONMENT_BOUSTROPHEDON_OBSTACLE_HPP_
 
@@ -33,12 +32,11 @@ typedef boost::shared_ptr<Obstacle const> ObstacleConstPtr;
 typedef boost::shared_ptr<Obstacle> ObstaclePtr;
 
 inline bool operator<(const Obstacle &c1, const Obstacle &c2) {
-  // TODO Choose relevant epsilon value
-  double EPS = 20 * std::numeric_limits<double>::epsilon();
   ObstaclePtr Obstacle1 = ObstaclePtr(new Obstacle(c1));
   ObstaclePtr Obstacle2 = ObstaclePtr(new Obstacle(c2));
   return
-      std::abs(Obstacle1->get_center()->x - Obstacle2->get_center()->x) > EPS ?
+      std::abs(Obstacle1->get_center()->x - Obstacle2->get_center()->x)
+          > EPSILON ?
           (Obstacle1->get_center()->x < Obstacle2->get_center()->x) :
           (Obstacle1->get_center()->y < Obstacle2->get_center()->y);
 }

@@ -88,10 +88,10 @@ bool Boustrophedon::go_go(FreeZonePtr space) {
   return true;
 }
 
-bool Boustrophedon::go_with(VectorPtr orientation, double step) {
+bool Boustrophedon::go_with(VectorPtr direction, double step) {
   PointPtr last_position = *(--path.end());
   PointPtr new_position = PointPtr(
-      new Point(last_position + orientation * step * robot_size / 2));
+      new Point(last_position + direction * step * robot_size / 2));
   return go_to(new_position, STRICTLY);
 }
 

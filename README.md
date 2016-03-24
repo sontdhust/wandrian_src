@@ -33,7 +33,7 @@ Change to catkin root directory then run:
     $ roslaunch kobuki_node minimal.launch --screen
     $ sudo chmod a+rw /dev/ttyACM0
     $ rosrun hokuyo_node hokuyo_node
-    $ roslaunch wandrian_run run_practically.launch pn:=full_spiral_stc ts:=0.4 sp_x:=0.2 sp_y:=-0.6 sc_x:=0.0 sc_y:=0.0 sb_w:=4.8 sb_h:=3.2 lv:=0.15 av:=0.75 pr_c:=0.5 pr_s:=0.2 af_r:=2.0 e_ro:=0.06 e_mo:=0.24 e_p:=0.06
+    $ roslaunch wandrian_run run_practically.launch pn:=full_spiral_stc ts:=0.4 sp_x:=0.2 sp_y:=-0.6 sc_x:=0.0 sc_y:=0.0 sb_w:=4.8 sb_h:=3.2 lv:=0.15 av:=0.75 pr_c:=0.5 pr_s:=0.2 af_r:=2.0 e_rd:=0.06 e_md:=0.24 e_p:=0.06
 
 ####Running mstc_online:
 
@@ -47,6 +47,6 @@ Change to catkin root directory then run:
 pr_c:=0.4
 pr_s:=0.2
 af_r:=3.0
-e_ro:=0.06
-e_mo:=0.12
+e_rd:=0.06
+e_md:=0.12
 e_p:=0.02
