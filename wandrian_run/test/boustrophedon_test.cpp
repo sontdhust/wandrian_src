@@ -128,11 +128,11 @@ bool test_go_to(PointPtr position, bool flexibly) {
   return true;
 }
 
-bool test_see_obstacle(VectorPtr orientation, double step) {
+bool test_see_obstacle(VectorPtr direction, double step) {
   // Simulator check obstacle
   PointPtr last_position = *(--tmp_path.end());
   PointPtr new_position = PointPtr(
-      new Point(last_position + orientation * step * R_SIZE / 2));
+      new Point(last_position + direction * step * R_SIZE / 2));
   if (environment) {
     CellPtr space = boost::static_pointer_cast<Cell>(environment->boundary);
     if (new_position->x >= space->get_center()->x + space->get_size() / 2
