@@ -21,7 +21,7 @@ Robot::Robot() :
     tool_size(0), starting_point_x(0), starting_point_y(0), space_center_x(0), space_center_y(
         0), space_boundary_width(0), space_boundary_height(0), linear_velocity(
         0), angular_velocity(0), proportion_ranges_count(0), proportion_ranges_sum(
-        0), augmentation_factor_range(0), epsilon_rotational_orientation(0), epsilon_motional_orientation(
+        0), augmentation_factor_range(0), epsilon_rotational_direction(0), epsilon_motional_direction(
         0), epsilon_position(0), current_position(new Point()), current_direction(
         new Vector()), obstacle_movement(STOPPING), linear_velocity_step(0), linear_velocity_max(
         0), angular_velocity_step(0), angular_velocity_max(0), velocity(
@@ -52,8 +52,8 @@ bool Robot::initialize() {
   nh.getParam("proportion_ranges_count", proportion_ranges_count);
   nh.getParam("proportion_ranges_sum", proportion_ranges_sum);
   nh.getParam("augmentation_factor_range", augmentation_factor_range);
-  nh.getParam("epsilon_rotational_orientation", epsilon_rotational_orientation);
-  nh.getParam("epsilon_motional_orientation", epsilon_motional_orientation);
+  nh.getParam("epsilon_rotational_direction", epsilon_rotational_direction);
+  nh.getParam("epsilon_motional_direction", epsilon_motional_direction);
   nh.getParam("epsilon_position", epsilon_position);
 
   nh.getParam("linear_velocity_step", linear_velocity_step);
@@ -167,13 +167,13 @@ void Robot::spin() {
 
 void Robot::stop() {
   decelerate(0);
+  // Force stop
+  publisher_velocity.publish(velocity);
 }
 
 void Robot::decelerate(double linear_proportion, double angular_proportion) {
   velocity->linear.x *= linear_proportion;
   velocity->angular.z *= angular_proportion;
-  // Force decelerate
-  publisher_velocity.publish(velocity);
 }
 
 std::string Robot::get_plan_name() {
@@ -222,12 +222,12 @@ double Robot::get_angular_velocity() {
   return angular_velocity;
 }
 
-double Robot::get_epsilon_rotational_orientation() {
-  return epsilon_rotational_orientation;
+double Robot::get_epsilon_rotational_direction() {
+  return epsilon_rotational_direction;
 }
 
-double Robot::get_epsilon_motional_orientation() {
-  return epsilon_motional_orientation;
+double Robot::get_epsilon_motional_direction() {
+  return epsilon_motional_direction;
 }
 
 double Robot::get_epsilon_position() {

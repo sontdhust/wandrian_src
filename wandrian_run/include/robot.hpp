@@ -52,8 +52,8 @@ public:
   ObstacleMovement get_obstacle_movement();
   double get_linear_velocity();
   double get_angular_velocity();
-  double get_epsilon_rotational_orientation();
-  double get_epsilon_motional_orientation();
+  double get_epsilon_rotational_direction();
+  double get_epsilon_motional_direction();
   double get_epsilon_position();
   CommunicatorPtr get_communicator();
   void set_behavior_run(boost::function<void()>);
@@ -76,8 +76,8 @@ private:
   double proportion_ranges_count; // arg
   double proportion_ranges_sum; // arg
   double augmentation_factor_range; // arg
-  double epsilon_rotational_orientation; // arg
-  double epsilon_motional_orientation; // arg
+  double epsilon_rotational_direction; // arg
+  double epsilon_motional_direction; // arg
   double epsilon_position; // arg
 
   PointPtr current_position; // odometry subscriber
