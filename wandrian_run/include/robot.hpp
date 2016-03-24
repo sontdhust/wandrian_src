@@ -14,10 +14,13 @@
 #include <geometry_msgs/Twist.h> // For velocity commands
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/LaserScan.h>
+#include <time.h>
 #include "common/point.hpp"
 #include "common/vector.hpp"
 #include "common/rectangle.hpp"
 #include "environment/mstc_online/communicator.hpp"
+
+#define NUM_SECONDS 5  //Loop after 5 seconds
 
 using namespace wandrian::common;
 using namespace wandrian::environment::mstc_online;
@@ -49,8 +52,8 @@ public:
   ObstacleMovement get_obstacle_movement();
   double get_linear_velocity();
   double get_angular_velocity();
-  double get_epsilon_rotational_orientation();
-  double get_epsilon_motional_orientation();
+  double get_epsilon_rotational_direction();
+  double get_epsilon_motional_direction();
   double get_epsilon_position();
   CommunicatorPtr get_communicator();
   void set_behavior_run(boost::function<void()>);
@@ -73,8 +76,8 @@ private:
   double proportion_ranges_count; // arg
   double proportion_ranges_sum; // arg
   double augmentation_factor_range; // arg
-  double epsilon_rotational_orientation; // arg
-  double epsilon_motional_orientation; // arg
+  double epsilon_rotational_direction; // arg
+  double epsilon_motional_direction; // arg
   double epsilon_position; // arg
 
   PointPtr current_position; // odometry subscriber
@@ -105,6 +108,7 @@ private:
   struct termios terminal;
   ecl::Thread thread_keyboard;
   ecl::Thread thread_run;
+  ecl::Thread thread_status; //mstc_online only
   ros::Timer timer_laser;
 
   ros::Publisher publisher_power;
@@ -119,6 +123,7 @@ private:
   void process_keyboard_input(char);
   void start_thread_run();
   void start_timer_laser(const ros::TimerEvent&);
+  void start_thread_status(); //mstc_online only, loop after NUM_SECOND second(s)
 
   // Helpers
   void enable_power();

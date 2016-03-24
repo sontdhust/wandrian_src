@@ -45,8 +45,10 @@ void MstcOnline::cover() {
   communicator->read_message_then_update_old_cells();
   communicator->insert_old_cell(starting_cell);
   std::string message = communicator->create_old_cells_message();
-  std::string status = communicator->create_status_message(starting_cell);
   communicator->write_old_cells_message(message);
+//  communicator->set_current_cell(starting_cell);
+//FIXME
+  std::string status = communicator->create_status_message(starting_cell);
   communicator->write_status_message(status);
   scan(starting_cell);
 }
@@ -64,10 +66,10 @@ bool MstcOnline::go_to(PointPtr position, bool flexibly) {
   return true;
 }
 
-bool MstcOnline::see_obstacle(VectorPtr orientation, double distance) {
+bool MstcOnline::see_obstacle(VectorPtr direction, double distance) {
   bool get_obstacle;
   if (behavior_see_obstacle)
-    get_obstacle = behavior_see_obstacle(orientation, distance);
+    get_obstacle = behavior_see_obstacle(direction, distance);
   else
     get_obstacle = false;
   if (get_obstacle)
@@ -86,48 +88,59 @@ State MstcOnline::state_of(CellPtr cell) {
 
 void MstcOnline::scan(CellPtr current) {
   std::string status;
+  communicator->set_current_cell(current);
+  //FIXME
   status = communicator->create_status_message(
       boost::static_pointer_cast<IdentifiableCell>(current));
   communicator->write_status_message(status);
   communicator->read_message_then_update_old_cells();
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;32mBEGIN:\033[0m "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
-  VectorPtr orientation = (current->get_parent()->get_center()
+  VectorPtr direction = (current->get_parent()->get_center()
       - current->get_center()) / 2 / tool_size;
-  VectorPtr initial_orientation = orientation++;
+  VectorPtr initial_direction = direction++;
   // While current cell has a new obstacle-free neighboring cell
   bool is_starting_cell = current == starting_cell;
   do {
     // Scan for new neighbor of current cell in counterclockwise order
     IdentifiableCellPtr neighbor = IdentifiableCellPtr(
-        new IdentifiableCell(
-            current->get_center() + orientation * 2 * tool_size, 2 * tool_size,
-            communicator->get_robot_name()));
+        new IdentifiableCell(current->get_center() + direction * 2 * tool_size,
+            2 * tool_size, communicator->get_robot_name()));
     std::cout << "  \033[1;33mneighbor:\033[0m " << neighbor->get_center()->x
         << "," << neighbor->get_center()->y;
     communicator->read_message_then_update_old_cells();
-    if (state_of(neighbor) == OLD) { // Old cell
+    if (state_of(neighbor) == OLD) { // Check neighbor with current old cells
       // Go to next sub-cell
       if (communicator->ask_other_robot_still_alive(
           communicator->find_robot_name(neighbor))) {
         // Still alive
-        go_with(++orientation, tool_size);
+        communicator->set_current_cell(current);
+        go_with(++direction, tool_size);
         continue;
       } else {
-        std::cout << "\n";
-        neighbor->set_parent(current);
-        communicator->read_message_then_update_old_cells();
-        communicator->insert_old_cell(neighbor);
-        std::string message = communicator->create_old_cells_message();
-        communicator->write_old_cells_message(message);
-        go_with(orientation++, tool_size);
-        scan(neighbor);
-        continue;
+        // Dead
+        if (state_of(neighbor) == OLD) { // Check again neighbor with new old cells
+          communicator->set_current_cell(current);
+          go_with(++direction, tool_size);
+          continue;
+        } else {
+          std::cout << "\n";
+          neighbor->set_parent(current);
+          communicator->read_message_then_update_old_cells();
+          communicator->insert_old_cell(neighbor);
+          std::string message = communicator->create_old_cells_message();
+          communicator->write_old_cells_message(message);
+          communicator->set_current_cell(current);
+          go_with(direction++, tool_size);
+          scan(neighbor);
+          continue;
+        }
       }
     }
-    if (see_obstacle(orientation, tool_size / 2)) { // Obstacle
+    if (see_obstacle(direction, tool_size / 2)) { // Obstacle
       // Go to next sub-cell
-      go_with(++orientation, tool_size);
+      communicator->set_current_cell(current);
+      go_with(++direction, tool_size);
     } else { // New free neighbor
       std::cout << "\n";
       // Construct a spanning-tree edge
@@ -136,22 +149,33 @@ void MstcOnline::scan(CellPtr current) {
       communicator->insert_old_cell(neighbor);
       std::string message = communicator->create_old_cells_message();
       communicator->write_old_cells_message(message);
-      go_with(orientation++, tool_size);
+      communicator->set_current_cell(current);
+      go_with(direction++, tool_size);
       scan(neighbor);
     }
-  } while (orientation % initial_orientation
+  } while (direction % initial_direction
       != (is_starting_cell ? AT_RIGHT_SIDE : IN_BACK));
   // Back to sub-cell of parent
   if (!is_starting_cell) {
-    go_with(orientation, tool_size);
+    communicator->set_current_cell(current);
+    go_with(direction, tool_size);
   }
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;31mEND:\033[0m "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
 }
 
-bool MstcOnline::go_with(VectorPtr orientation, double distance) {
+bool MstcOnline::go_with(VectorPtr direction, double distance) {
   PointPtr last_position = *(--path.end());
-  PointPtr new_position = last_position + orientation * distance;
+  PointPtr new_position = last_position + direction * distance;
+
+//  CellPtr new_cell = IdentifiableCellPtr(
+//        new IdentifiableCell(
+//            PointPtr(
+//                new Point(new_position->x - tool_size / 2,
+//                    new_position->y + tool_size / 2)), 2 * tool_size,
+//            communicator->get_robot_name()));
+//  communicator->set_current_cell(new_cell);
+
   bool succeed = go_to(new_position, STRICTLY);
   std::cout << "\n";
   return succeed;

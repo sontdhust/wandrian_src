@@ -21,7 +21,7 @@ Robot::Robot() :
     tool_size(0), starting_point_x(0), starting_point_y(0), space_center_x(0), space_center_y(
         0), space_boundary_width(0), space_boundary_height(0), linear_velocity(
         0), angular_velocity(0), proportion_ranges_count(0), proportion_ranges_sum(
-        0), augmentation_factor_range(0), epsilon_rotational_orientation(0), epsilon_motional_orientation(
+        0), augmentation_factor_range(0), epsilon_rotational_direction(0), epsilon_motional_direction(
         0), epsilon_position(0), current_position(new Point()), current_direction(
         new Vector()), obstacle_movement(STOPPING), linear_velocity_step(0), linear_velocity_max(
         0), angular_velocity_step(0), angular_velocity_max(0), velocity(
@@ -52,8 +52,8 @@ bool Robot::initialize() {
   nh.getParam("proportion_ranges_count", proportion_ranges_count);
   nh.getParam("proportion_ranges_sum", proportion_ranges_sum);
   nh.getParam("augmentation_factor_range", augmentation_factor_range);
-  nh.getParam("epsilon_rotational_orientation", epsilon_rotational_orientation);
-  nh.getParam("epsilon_motional_orientation", epsilon_motional_orientation);
+  nh.getParam("epsilon_rotational_direction", epsilon_rotational_direction);
+  nh.getParam("epsilon_motional_direction", epsilon_motional_direction);
   nh.getParam("epsilon_position", epsilon_position);
 
   nh.getParam("linear_velocity_step", linear_velocity_step);
@@ -160,19 +160,20 @@ void Robot::spin() {
     is_quitting = true;
     thread_keyboard.cancel();
     thread_run.cancel();
+    thread_status.cancel();
   }
   thread_keyboard.join();
 }
 
 void Robot::stop() {
   decelerate(0);
+  // Force stop
+  publisher_velocity.publish(velocity);
 }
 
 void Robot::decelerate(double linear_proportion, double angular_proportion) {
   velocity->linear.x *= linear_proportion;
   velocity->angular.z *= angular_proportion;
-  // Force decelerate
-  publisher_velocity.publish(velocity);
 }
 
 std::string Robot::get_plan_name() {
@@ -221,12 +222,12 @@ double Robot::get_angular_velocity() {
   return angular_velocity;
 }
 
-double Robot::get_epsilon_rotational_orientation() {
-  return epsilon_rotational_orientation;
+double Robot::get_epsilon_rotational_direction() {
+  return epsilon_rotational_direction;
 }
 
-double Robot::get_epsilon_motional_orientation() {
-  return epsilon_motional_orientation;
+double Robot::get_epsilon_motional_direction() {
+  return epsilon_motional_direction;
 }
 
 double Robot::get_epsilon_position() {
@@ -337,6 +338,9 @@ void Robot::process_keyboard_input(char c) {
   case ' ':
     ROS_INFO_STREAM("[Run]: " << "Start running");
     thread_run.start(&Robot::start_thread_run, *this);
+    if (plan_name == "mstc_online") {
+      thread_status.start(&Robot::start_thread_status, *this);
+    }
     break;
   case 'c':
     if (plan_name == "mstc_online") {
@@ -349,6 +353,28 @@ void Robot::process_keyboard_input(char c) {
     break;
   default:
     break;
+  }
+}
+
+void Robot::start_thread_status() {
+//  int count = 1;
+  double time_counter = 0;
+  clock_t this_time = clock();
+  clock_t last_time = this_time;
+  while (true) {
+    this_time = clock();
+
+    time_counter += (double) (this_time - last_time);
+
+    last_time = this_time;
+
+    if (time_counter > (double) (NUM_SECONDS * CLOCKS_PER_SEC)) {
+      time_counter -= (double) (NUM_SECONDS * CLOCKS_PER_SEC);
+      std::string status = communicator->create_status_message(
+          boost::static_pointer_cast<IdentifiableCell>(
+              communicator->get_current_cell()));
+      communicator->write_status_message(status);
+    }
   }
 }
 
