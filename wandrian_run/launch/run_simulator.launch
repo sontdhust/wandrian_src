@@ -1,11 +1,11 @@
 <launch>
   <arg name="plan_name"/>
+  <arg name="robot_name" value="mobile_base"/>
   <arg name="tool_size"/>
   <arg name="starting_point_x"/>
   <arg name="starting_point_y"/>
   <arg name="space_boundary_width" default="0"/>
   <arg name="space_boundary_height" default="0"/>
-  <arg name="robot_name" value="mobile_base"/>
 
   <!-- Spawns Kobuki inside a Gazebo simulation -->
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find wandrian_run)/models/robot/urdf/robot.urdf.xacro'"/>
