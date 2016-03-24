@@ -3,8 +3,8 @@
   <arg name="tool_size"/>
   <arg name="starting_point_x"/>
   <arg name="starting_point_y"/>
-  <arg name="space_boundary_width"/>
-  <arg name="space_boundary_height"/>
+  <arg name="space_boundary_width" default="0"/>
+  <arg name="space_boundary_height" default="0"/>
   <arg name="robot_name" value="mobile_base"/>
 
   <!-- Spawns Kobuki inside a Gazebo simulation -->

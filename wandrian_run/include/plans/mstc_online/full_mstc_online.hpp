@@ -8,10 +8,8 @@
 #ifndef WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_FULL_MSTC_ONLINE_HPP_
 #define WANDRIAN_RUN_INCLUDE_PLANS_MSTC_ONLINE_FULL_MSTC_ONLINE_HPP_
 
-#include "../../environment/partially_occupiable_identifiable_cell.hpp"
+#include "../../environment/mstc_online/partially_occupiable_identifiable_cell.hpp"
 #include "mstc_online.hpp"
-
-using namespace wandrian::environment;
 
 namespace wandrian {
 namespace plans {

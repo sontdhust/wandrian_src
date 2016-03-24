@@ -5,14 +5,15 @@
  *      Author: cslab
  */
 
-#include "../../../include/environment/communicator.hpp"
+#include "../../../include/environment/mstc_online/communicator.hpp"
 #include "../../../include/plans/mstc_online/full_mstc_online.hpp"
 
 #define PASS true
 #define DONT_PASS false
-
 #define DIAGONALLY_OPPOSITE_OBSTACLES true
 #define NON_DIAGONALLY_OPPOSITE_OBSTACLES false
+
+using namespace wandrian::environment::mstc_online;
 
 namespace wandrian {
 namespace plans {

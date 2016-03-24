@@ -5,10 +5,11 @@
  *      Author: cslab
  */
 
-#include "../../include/environment/partially_occupiable_identifiable_cell.hpp"
+#include "../../../include/environment/mstc_online/partially_occupiable_identifiable_cell.hpp"
 
 namespace wandrian {
 namespace environment {
+namespace mstc_online {
 
 PartiallyOccupiableIdentifiableCell::PartiallyOccupiableIdentifiableCell(
     PointPtr center, double size, std::string robot_name) :
@@ -22,5 +23,6 @@ PointPtr PartiallyOccupiableIdentifiableCell::get_current_position() {
   return current_position(center, get_size());
 }
 
+}
 }
 }

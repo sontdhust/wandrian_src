@@ -348,7 +348,6 @@ void Robot::process_keyboard_input(char c) {
     is_quitting = true;
     break;
   default:
-    is_quitting = true;
     break;
   }
 }

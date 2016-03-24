@@ -17,10 +17,10 @@
 #include "common/point.hpp"
 #include "common/vector.hpp"
 #include "common/rectangle.hpp"
-#include "environment/communicator.hpp"
+#include "environment/mstc_online/communicator.hpp"
 
 using namespace wandrian::common;
-using namespace wandrian::environment;
+using namespace wandrian::environment::mstc_online;
 
 namespace wandrian {
 
@@ -36,7 +36,7 @@ public:
   bool initialize();
   void spin();
   void stop();
-  void decelerate(double = 0.1, double = 0.0);
+  void decelerate(double = 0.0, double = 0.0);
 
   std::string get_plan_name();
   double get_tool_size();

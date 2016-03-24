@@ -18,7 +18,7 @@
 #include <fstream>
 #include <stdlib.h>
 
-#include "../include/common/space.hpp"
+#include "../include/environment/space.hpp"
 #include "../include/plans/spiral_stc/full_spiral_stc.hpp"
 #include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
 

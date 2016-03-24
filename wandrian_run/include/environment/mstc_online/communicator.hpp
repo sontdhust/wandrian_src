@@ -5,8 +5,8 @@
  *      Author: manhnh
  */
 
-#ifndef WANDRIAN_RUN_INCLUDE_ENVIRONMENT_COMMUNICATOR_HPP_
-#define WANDRIAN_RUN_INCLUDE_ENVIRONMENT_COMMUNICATOR_HPP_
+#ifndef WANDRIAN_RUN_INCLUDE_ENVIRONMENT_MSTC_ONLINE_COMMUNICATOR_HPP_
+#define WANDRIAN_RUN_INCLUDE_ENVIRONMENT_MSTC_ONLINE_COMMUNICATOR_HPP_
 
 #include <ros/ros.h>
 #include <boost/shared_ptr.hpp>
@@ -17,6 +17,7 @@
 
 namespace wandrian {
 namespace environment {
+namespace mstc_online {
 
 class Communicator {
 
@@ -56,5 +57,6 @@ typedef boost::shared_ptr<Communicator> CommunicatorPtr;
 
 }
 }
+}
 
-#endif /* WANDRIAN_RUN_INCLUDE_ENVIRONMENT_COMMUNICATOR_HPP_ */
+#endif /* WANDRIAN_RUN_INCLUDE_ENVIRONMENT_MSTC_ONLINE_COMMUNICATOR_HPP_ */
