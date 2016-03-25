@@ -18,12 +18,13 @@ class Map {
 
 public:
   std::string namefile;
+
   Map(ObstaclePtr, std::list<ObstaclePtr>);
   Map(std::string);
+  int static commaposition(std::string);
 
   ObstaclePtr get_environment();
   std::list<ObstaclePtr> get_obstacles();
-  int static commaposition(std::string);
   void set_environment();
 
 private:

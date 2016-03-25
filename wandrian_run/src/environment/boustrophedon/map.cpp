@@ -13,14 +13,6 @@ Map::Map(std::string namefile) {
   set_environment();
 }
 
-ObstaclePtr Map::get_environment() {
-  return this->environment;
-}
-
-std::list<ObstaclePtr> Map::get_obstacles() {
-
-  return this->obstacles;
-}
 int Map::commaposition(std::string str) {
   for (unsigned int position = 0; position < str.length(); ++position) {
     if (str[position] == ',')
@@ -29,25 +21,26 @@ int Map::commaposition(std::string str) {
   return 0;
 }
 
+ObstaclePtr Map::get_environment() {
+  return this->environment;
+}
+
+std::list<ObstaclePtr> Map::get_obstacles() {
+  return this->obstacles;
+}
+
 void Map::set_environment() {
   std::string size;
   std::string position;
   std::string line;
 
   PointPtr center;
-
-  double sizex, sizey;
-
+  double size_x, size_y;
   int i, flag;
-
   std::fstream myReadFile;
-
   if (this->namefile.compare("") != 0) {
-
     myReadFile.open(this->namefile.c_str());
-
     std::cout << "out" << this->namefile << std::endl;
-
     if (myReadFile.is_open()) {
       std::cout << "Out2" << this->namefile << std::endl;
       int i = 0;
@@ -78,7 +71,6 @@ void Map::set_environment() {
           }
         }
         flag = 0;
-
         std::cout << "Position: " << position << std::endl;
         std::cout << "Size: " << size << std::endl;
         for (unsigned int var = 0; var < position.length(); ++var) {
@@ -87,26 +79,24 @@ void Map::set_environment() {
             break;
           }
         }
-
         flag = commaposition(position);
         center = PointPtr(
             new Point(strtod(position.substr(0, flag).c_str(), NULL),
                 strtod(position.substr(flag + 1, position.length()).c_str(),
-                    NULL)));
+                NULL)));
 
         flag = commaposition(size);
-        sizex = strtod(size.substr(0, flag).c_str(), NULL);
-        sizey = strtod(size.substr(flag + 1, size.length()).c_str(), NULL);
+        size_x = strtod(size.substr(0, flag).c_str(), NULL);
+        size_y = strtod(size.substr(flag + 1, size.length()).c_str(), NULL);
         std::cout << "Position (" << center->x << " ," << center->y << " )"
             << std::endl;
-        std::cout << "Size : x =" << sizex << " y = " << sizey << std::endl;
-
+        std::cout << "Size : x =" << size_x << " y = " << size_y << std::endl;
         if (!this->environment) {
-          this->environment = ObstaclePtr(new Obstacle(center, sizex, sizey));
+          this->environment = ObstaclePtr(new Obstacle(center, size_x, size_y));
           std::cout << "ADD en " << std::endl;
         } else {
           this->obstacles.push_back(
-              ObstaclePtr(new Obstacle(center, sizex, sizey)));
+              ObstaclePtr(new Obstacle(center, size_x, size_y)));
           std::cout << "ADD obstacles " << std::endl;
         }
       }

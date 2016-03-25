@@ -13,24 +13,23 @@ class Vertices {
 
 public:
   Vertices(PointPtr, ObstaclePtr);
-
-  PointPtr get_positions();
-  void set_positions(PointPtr);
-
-  ObstaclePtr get_polygon();
-  void set_polygon(ObstaclePtr);
-
   bool left_compared_center();
   bool upon_compared_center();
 
   static bool compare_vertices(boost::shared_ptr<Vertices>,
       boost::shared_ptr<Vertices>);
-  static bool compare_positionsx(boost::shared_ptr<Vertices>,
+  static bool compare_positions_x(boost::shared_ptr<Vertices>,
       boost::shared_ptr<Vertices>);
-  static bool compare_positionsy(boost::shared_ptr<Vertices>,
+  static bool compare_positions_y(boost::shared_ptr<Vertices>,
       boost::shared_ptr<Vertices>);
+
+  PointPtr get_position();
+  ObstaclePtr get_polygon();
+  void set_positions(PointPtr);
+  void set_polygon(ObstaclePtr);
+
 private:
-  PointPtr positions;
+  PointPtr position;
   ObstaclePtr polygon;
 };
 

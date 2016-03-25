@@ -14,9 +14,9 @@
 #include "../../environment/cell.hpp"
 #include "../../environment/boustrophedon/obstacle.hpp"
 #include "../../environment/boustrophedon/vertices.hpp"
-#include "../../environment/boustrophedon/freezone.hpp"
 #include "../../environment/boustrophedon/map.hpp"
 #include "ros/ros.h"
+#include "../../environment/boustrophedon/free_zone.hpp"
 
 using namespace wandrian::common;
 using namespace wandrian::environment;

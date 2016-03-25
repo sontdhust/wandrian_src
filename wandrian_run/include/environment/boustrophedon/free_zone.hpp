@@ -1,5 +1,5 @@
-#ifndef WANDRIAN_RUN_INCLUDE_ENVIRONMENT_BOUSTROPHEDON_FREEZONE_HPP_
-#define WANDRIAN_RUN_INCLUDE_ENVIRONMENT_BOUSTROPHEDON_FREEZONE_HPP_
+#ifndef WANDRIAN_RUN_INCLUDE_ENVIRONMENT_BOUSTROPHEDON_FREE_ZONE_HPP_
+#define WANDRIAN_RUN_INCLUDE_ENVIRONMENT_BOUSTROPHEDON_FREE_ZONE_HPP_
 
 #include "../../common/polygon.hpp"
 
@@ -13,25 +13,26 @@ class FreeZone: public Polygon {
 
 public:
   std::list<boost::shared_ptr<FreeZone> > children;
-
-  FreeZone(PointPtr, double, double);
-  PointPtr get_center();
-  double get_sizex();
-  double get_sizey();
   bool status_visited;
   PointPtr point_backtrack;
-  void set_point_backtrack(PointPtr);
-  void set_parent(boost::shared_ptr<FreeZone>);
-  boost::shared_ptr<FreeZone> get_parent();
-  static bool compare_positionsx(boost::shared_ptr<FreeZone>,
+
+  FreeZone(PointPtr, double, double);
+  static bool compare_positions_x(boost::shared_ptr<FreeZone>,
       boost::shared_ptr<FreeZone>);
   static bool is_parent(boost::shared_ptr<FreeZone>,
       boost::shared_ptr<FreeZone>);
 
+  PointPtr get_center();
+  double get_size_x();
+  double get_size_y();
+  boost::shared_ptr<FreeZone> get_parent();
+  void set_parent(boost::shared_ptr<FreeZone>);
+  void set_point_backtrack(PointPtr);
+
 private:
   PointPtr center;
-  double sizex;
-  double sizey;
+  double size_x;
+  double size_y;
   boost::shared_ptr<FreeZone> parent;
 };
 
@@ -57,4 +58,4 @@ struct SpaceComp {
 }
 }
 
-#endif /* WANDRIAN_RUN_INCLUDE_ENVIRONMENT_BOUSTROPHEDON_FREEZONE_HPP_ */
+#endif /* WANDRIAN_RUN_INCLUDE_ENVIRONMENT_BOUSTROPHEDON_FREE_ZONE_HPP_ */

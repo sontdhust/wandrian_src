@@ -9,22 +9,19 @@ namespace wandrian {
 namespace environment {
 namespace boustrophedon {
 
-#define OLD_Obstacle false
-#define NEW_Obstacle true
-
 class Obstacle: public Polygon {
 
 public:
-
   Obstacle(PointPtr, double, double);
+
   PointPtr get_center();
-  double get_sizex();
-  double get_sizey();
+  double get_size_x();
+  double get_size_y();
 
 private:
   PointPtr center;
-  double sizex;
-  double sizey;
+  double size_x;
+  double size_y;
 
 };
 
