@@ -8,7 +8,7 @@
 #ifndef WANDRIAN_INCLUDE_ENVIRONMENT_BOUSTROPHEDON_VERTICES_HPP_
 #define WANDRIAN_INCLUDE_ENVIRONMENT_BOUSTROPHEDON_VERTICES_HPP_
 
-#include "../../environment/boustrophedon/obstacle.hpp"
+#include "obstacle.hpp"
 
 using namespace wandrian::common;
 

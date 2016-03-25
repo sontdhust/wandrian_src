@@ -8,9 +8,9 @@
 #include <ros/package.h>
 #include "../include/plans/boustrophedon/boustrophedon.hpp"
 #include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
-#include "../include/plans/mstc_online/mstc_online.hpp"
 #include "../include/plans/spiral_stc/full_spiral_stc.hpp"
 #include "../include/plans/spiral_stc/spiral_stc.hpp"
+#include "../include/plans/mstc/mstc_online.hpp"
 #include "../include/wandrian.hpp"
 
 #define CLOCKWISE true
@@ -22,7 +22,7 @@
 #define EPSILON_POSITION 0.06
 
 using namespace wandrian::plans::spiral_stc;
-using namespace wandrian::plans::mstc_online;
+using namespace wandrian::plans::mstc;
 using namespace wandrian::plans::boustrophedon_online;
 using namespace wandrian::plans::boustrophedon;
 

@@ -9,7 +9,6 @@
 
 #define PASS true
 #define DONT_PASS false
-
 #define DIAGONALLY_OPPOSITE true
 #define NON_DIAGONALLY_OPPOSITE false
 

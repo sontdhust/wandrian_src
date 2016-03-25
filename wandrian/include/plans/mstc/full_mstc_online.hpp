@@ -5,15 +5,15 @@
  *      Author: cslab
  */
 
-#ifndef WANDRIAN_INCLUDE_PLANS_MSTC_ONLINE_FULL_MSTC_ONLINE_HPP_
-#define WANDRIAN_INCLUDE_PLANS_MSTC_ONLINE_FULL_MSTC_ONLINE_HPP_
+#ifndef WANDRIAN_INCLUDE_PLANS_MSTC_FULL_MSTC_ONLINE_HPP_
+#define WANDRIAN_INCLUDE_PLANS_MSTC_FULL_MSTC_ONLINE_HPP_
 
-#include "../../environment/mstc_online/partially_occupiable_identifiable_cell.hpp"
+#include "../../environment/mstc/partially_occupiable_identifiable_cell.hpp"
 #include "mstc_online.hpp"
 
 namespace wandrian {
 namespace plans {
-namespace mstc_online {
+namespace mstc {
 
 class FullMstcOnline: public MstcOnline {
 
@@ -41,4 +41,4 @@ typedef boost::shared_ptr<FullMstcOnline> FullMstcOnlinePtr;
 }
 }
 
-#endif /* WANDRIAN_INCLUDE_PLANS_MSTC_ONLINE_FULL_MSTC_ONLINE_HPP_ */
+#endif /* WANDRIAN_INCLUDE_PLANS_MSTC_FULL_MSTC_ONLINE_HPP_ */
