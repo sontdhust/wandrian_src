@@ -1,0 +1,39 @@
+<launch>
+  <arg name="plan_name"/>
+  <arg name="robot_name" value="mobile_base"/>
+  <arg name="tool_size"/>
+  <arg name="starting_point_x"/>
+  <arg name="starting_point_y"/>
+  <arg name="space_boundary_width" default="0"/>
+  <arg name="space_boundary_height" default="0"/>
+
+  <!-- Spawns Kobuki inside a Gazebo simulation -->
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find wandrian)/models/robot/urdf/robot.urdf.xacro'"/>
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_$(arg robot_name)" args="-x $(arg starting_point_x) -y $(arg starting_point_y) -z 0 -unpause -urdf -param robot_description -model $(arg robot_name)" respawn="false">
+  </node>
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="30.0" />
+  </node>
+  <node pkg="nodelet" type="nodelet" name="$(arg robot_name)_nodelet_manager" args="manager"/>
+  
+  <node pkg="wandrian" type="run" name="run" output="screen">
+    <remap from="run/power" to="mobile_base/commands/motor_power"/>
+    <remap from="run/velocity" to="mobile_base/commands/velocity"/>
+    <remap from="run/odometry" to="odom"/>
+    <remap from="run/laser" to="scan"/>
+
+    <param name="plan_name" value="$(arg plan_name)" type="string"/>
+    <param name="tool_size" value="$(arg tool_size)" type="double"/>
+    <param name="starting_point_x" value="$(arg starting_point_x)" type="double"/>
+    <param name="starting_point_y" value="$(arg starting_point_y)" type="double"/>
+    <param name="space_boundary_width" value="$(arg space_boundary_width)" type="double"/>
+    <param name="space_boundary_height" value="$(arg space_boundary_height)" type="double"/>
+
+    <param name="linear_velocity" value="0.2" type="double"/>
+    <param name="angular_velocity" value="0.4" type="double"/>
+    <param name="linear_velocity_step" value="0.2" type="double"/>
+    <param name="linear_velocity_max" value="2" type="double"/>
+    <param name="angular_velocity_step" value="0.4" type="double"/>
+    <param name="angular_velocity_max" value="1" type="double"/>
+  </node>
+</launch>
