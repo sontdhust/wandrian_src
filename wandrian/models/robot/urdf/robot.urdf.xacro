@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<robot name="kobuki_standalone"
+       xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find wandrian)/models/robot/urdf/common_properties.urdf.xacro"/>
+  
+  <!-- Model Kobuki -->
+  <xacro:include filename="$(find wandrian)/models/kobuki/urdf/kobuki.urdf.xacro"/>
+  <model_kobuki/>
+    
+  <!-- Model Hokuyo -->
+  <xacro:include filename="$(find wandrian)/models/hokuyo/urdf/hokuyo.urdf.xacro"/>
+  <model_hokuyo parent="base_link"/>
+</robot>
