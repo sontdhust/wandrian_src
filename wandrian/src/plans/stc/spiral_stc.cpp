@@ -5,11 +5,11 @@
  *      Author: sontd
  */
 
-#include "../../../include/plans/spiral_stc/spiral_stc.hpp"
+#include "../../../include/plans/stc/spiral_stc.hpp"
 
 namespace wandrian {
 namespace plans {
-namespace spiral_stc {
+namespace stc {
 
 SpiralStc::SpiralStc() :
     tool_size(0) {

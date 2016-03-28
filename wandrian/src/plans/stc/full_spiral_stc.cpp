@@ -5,7 +5,7 @@
  *      Author: cslab
  */
 
-#include "../../../include/plans/spiral_stc/full_spiral_stc.hpp"
+#include "../../../include/plans/stc/full_spiral_stc.hpp"
 
 #define PASS true
 #define DONT_PASS false
@@ -15,7 +15,7 @@
 
 namespace wandrian {
 namespace plans {
-namespace spiral_stc {
+namespace stc {
 
 FullSpiralStc::FullSpiralStc() {
 }

@@ -5,8 +5,8 @@
  *      Author: cslab
  */
 
-#ifndef WANDRIAN_INCLUDE_PLANS_SPIRAL_STC_FULL_SPIRAL_STC_HPP_
-#define WANDRIAN_INCLUDE_PLANS_SPIRAL_STC_FULL_SPIRAL_STC_HPP_
+#ifndef WANDRIAN_INCLUDE_PLANS_STC_FULL_SPIRAL_STC_HPP_
+#define WANDRIAN_INCLUDE_PLANS_STC_FULL_SPIRAL_STC_HPP_
 
 #include "../../environment/partially_occupiable_cell.hpp"
 #include "spiral_stc.hpp"
@@ -15,7 +15,7 @@ using namespace wandrian::environment;
 
 namespace wandrian {
 namespace plans {
-namespace spiral_stc {
+namespace stc {
 
 class FullSpiralStc: public SpiralStc {
 
@@ -43,4 +43,4 @@ typedef boost::shared_ptr<FullSpiralStc> FullSpiralStcPtr;
 }
 }
 
-#endif /* WANDRIAN_INCLUDE_PLANS_SPIRAL_STC_FULL_SPIRAL_STC_HPP_ */
+#endif /* WANDRIAN_INCLUDE_PLANS_STC_FULL_SPIRAL_STC_HPP_ */

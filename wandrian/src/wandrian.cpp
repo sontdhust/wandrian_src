@@ -9,9 +9,9 @@
 #include "../include/plans/boustrophedon/boustrophedon.hpp"
 #include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
 #include "../include/plans/mstc_online/mstc_online.hpp"
-#include "../include/plans/spiral_stc/full_spiral_stc.hpp"
-#include "../include/plans/spiral_stc/spiral_stc.hpp"
+#include "../include/plans/stc/spiral_stc.hpp"
 #include "../include/wandrian.hpp"
+#include "../include/plans/stc/full_spiral_stc.hpp"
 
 #define CLOCKWISE true
 #define COUNTERCLOCKWISE false
@@ -21,7 +21,7 @@
 #define EPSILON_MOTIONAL_DIRECTION 0.24
 #define EPSILON_POSITION 0.06
 
-using namespace wandrian::plans::spiral_stc;
+using namespace wandrian::plans::stc;
 using namespace wandrian::plans::mstc_online;
 using namespace wandrian::plans::boustrophedon_online;
 using namespace wandrian::plans::boustrophedon;

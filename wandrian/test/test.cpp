@@ -19,14 +19,14 @@
 #include <stdlib.h>
 #include "../include/environment/space.hpp"
 #include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
-#include "../include/plans/spiral_stc/full_spiral_stc.hpp"
+#include "../include/plans/stc/full_spiral_stc.hpp"
 
 #define T_SIZE 0.5 // Tool size
 #define B_SIZE 4.0 // Default space boundary size
 #define WORLD_INSERT_OBSTACLE "<!-- INSERT: Boundary and Obstacles here -->" // Flag at original world file to insert boundary and obstacles into
 
 using namespace wandrian::common;
-using namespace wandrian::plans::spiral_stc;
+using namespace wandrian::plans::stc;
 using namespace wandrian::plans::boustrophedon_online;
 
 double b_size = 0;
