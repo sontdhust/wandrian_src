@@ -35,8 +35,8 @@ protected:
 
   bool go_to(PointPtr, bool);
   bool see_obstacle(VectorPtr, double);
-  virtual State state_of(CellPtr);
   virtual void scan(CellPtr);
+  virtual State state_of(CellPtr);
 
 private:
   CellPtr starting_cell;

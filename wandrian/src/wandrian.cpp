@@ -2,16 +2,15 @@
  * wandrian.cpp
  *
  *  Created on: Sep 23, 2015
- *      Author: anhnt
+ *      Author: cslab
  */
 
 #include <ros/package.h>
-#include "../include/plans/boustrophedon/boustrophedon.hpp"
-#include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
-#include "../include/plans/mstc_online/mstc_online.hpp"
-#include "../include/plans/stc/spiral_stc.hpp"
-#include "../include/wandrian.hpp"
 #include "../include/plans/stc/full_spiral_stc.hpp"
+#include "../include/plans/mstc_online/mstc_online.hpp"
+#include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
+#include "../include/plans/boustrophedon/boustrophedon.hpp"
+#include "../include/wandrian.hpp"
 
 #define CLOCKWISE true
 #define COUNTERCLOCKWISE false
