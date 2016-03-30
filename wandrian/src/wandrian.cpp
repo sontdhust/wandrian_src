@@ -2,15 +2,14 @@
  * wandrian.cpp
  *
  *  Created on: Sep 23, 2015
- *      Author: anhnt
+ *      Author: cslab
  */
 
 #include <ros/package.h>
-#include "../include/plans/boustrophedon/boustrophedon.hpp"
-#include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
-#include "../include/plans/spiral_stc/full_spiral_stc.hpp"
-#include "../include/plans/spiral_stc/spiral_stc.hpp"
+#include "../include/plans/stc/full_spiral_stc.hpp"
 #include "../include/plans/mstc/mstc_online.hpp"
+#include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
+#include "../include/plans/boustrophedon/boustrophedon.hpp"
 #include "../include/wandrian.hpp"
 
 #define CLOCKWISE true
@@ -21,7 +20,7 @@
 #define EPSILON_MOTIONAL_DIRECTION 0.24
 #define EPSILON_POSITION 0.06
 
-using namespace wandrian::plans::spiral_stc;
+using namespace wandrian::plans::stc;
 using namespace wandrian::plans::mstc;
 using namespace wandrian::plans::boustrophedon_online;
 using namespace wandrian::plans::boustrophedon;
