@@ -36,6 +36,8 @@ private:
   bool full_spiral_stc_see_obstacle(VectorPtr, double);
   bool mstc_online_go_to(PointPtr, bool);
   bool mstc_online_see_obstacle(VectorPtr, double);
+  bool full_mstc_online_go_to(PointPtr, bool);
+  bool full_mstc_online_see_obstacle(VectorPtr, double);
   bool boustrophedon_online_go_to(PointPtr, bool);
   bool boustrophedon_online_see_obstacle(VectorPtr, double);
   bool boustrophedon_go_to(PointPtr, bool);

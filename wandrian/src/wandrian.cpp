@@ -9,8 +9,7 @@
 #include "../include/plans/boustrophedon/boustrophedon.hpp"
 #include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
 #include "../include/plans/spiral_stc/full_spiral_stc.hpp"
-#include "../include/plans/spiral_stc/spiral_stc.hpp"
-#include "../include/plans/mstc/mstc_online.hpp"
+#include "../include/plans/mstc/full_mstc_online.hpp"
 #include "../include/wandrian.hpp"
 
 #define CLOCKWISE true
@@ -83,6 +82,19 @@ void Wandrian::wandrian_run() {
     mstc_online->set_behavior_see_obstacle(
         boost::bind(&Wandrian::mstc_online_see_obstacle, this, _1, _2));
     mstc_online->cover();
+  } else if (robot->get_plan_name() == "full_mstc_online") {
+    plan = FullMstcOnlinePtr(new FullMstcOnline());
+    FullMstcOnlinePtr full_mstc_online = boost::static_pointer_cast<FullMstcOnline>(plan);
+    full_mstc_online->initialize(
+        PointPtr(
+            new Point(robot->get_starting_point_x(),
+                robot->get_starting_point_y())), robot->get_tool_size(),
+        robot->get_communicator());
+    full_mstc_online->set_behavior_go_to(
+        boost::bind(&Wandrian::full_mstc_online_go_to, this, _1, _2));
+    full_mstc_online->set_behavior_see_obstacle(
+        boost::bind(&Wandrian::full_mstc_online_see_obstacle, this, _1, _2));
+    full_mstc_online->cover();
   } else if (robot->get_plan_name() == "boustrophedon_online") {
     plan = BoustrophedonOnlinePtr(new BoustrophedonOnline());
     BoustrophedonOnlinePtr boustrophedon_online = boost::static_pointer_cast<
@@ -156,6 +168,14 @@ bool Wandrian::mstc_online_go_to(PointPtr position, bool flexibility) {
 }
 
 bool Wandrian::mstc_online_see_obstacle(VectorPtr direction, double distance) {
+  return spiral_stc_see_obstacle(direction, distance);
+}
+
+bool Wandrian::full_mstc_online_go_to(PointPtr position, bool flexibility) {
+  return spiral_stc_go_to(position, flexibility);
+}
+
+bool Wandrian::full_mstc_online_see_obstacle(VectorPtr direction, double distance) {
   return spiral_stc_see_obstacle(direction, distance);
 }
 
