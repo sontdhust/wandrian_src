@@ -5,8 +5,8 @@
  *      Author: sontd
  */
 
-#ifndef WANDRIAN_INCLUDE_PLANS_SPIRAL_STC_SPIRAL_STC_HPP_
-#define WANDRIAN_INCLUDE_PLANS_SPIRAL_STC_SPIRAL_STC_HPP_
+#ifndef WANDRIAN_INCLUDE_PLANS_STC_SPIRAL_STC_HPP_
+#define WANDRIAN_INCLUDE_PLANS_STC_SPIRAL_STC_HPP_
 
 #include "../../common/vector.hpp"
 #include "../../environment/cell.hpp"
@@ -17,7 +17,7 @@ using namespace wandrian::environment;
 
 namespace wandrian {
 namespace plans {
-namespace spiral_stc {
+namespace stc {
 
 class SpiralStc: public BasePlan {
 
@@ -35,8 +35,8 @@ protected:
 
   bool go_to(PointPtr, bool);
   bool see_obstacle(VectorPtr, double);
-  virtual State state_of(CellPtr);
   virtual void scan(CellPtr);
+  virtual State state_of(CellPtr);
 
 private:
   CellPtr starting_cell;
@@ -51,4 +51,4 @@ typedef boost::shared_ptr<SpiralStc> SpiralStcPtr;
 }
 }
 
-#endif /* WANDRIAN_INCLUDE_PLANS_SPIRAL_STC_SPIRAL_STC_HPP_ */
+#endif /* WANDRIAN_INCLUDE_PLANS_STC_SPIRAL_STC_HPP_ */

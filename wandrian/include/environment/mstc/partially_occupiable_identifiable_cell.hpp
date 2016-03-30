@@ -22,7 +22,8 @@ public:
   PartiallyOccupiableIdentifiableCell(PointPtr, double, std::string);
   ~PartiallyOccupiableIdentifiableCell();
 
-  PointPtr get_current_position();
+  PointPtr _center();
+  double _size();
 };
 
 typedef boost::shared_ptr<PartiallyOccupiableIdentifiableCell> PartiallyOccupiableIdentifiableCellPtr;

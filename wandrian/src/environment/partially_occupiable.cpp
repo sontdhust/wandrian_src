@@ -19,6 +19,27 @@ PartiallyOccupiable::PartiallyOccupiable() :
 PartiallyOccupiable::~PartiallyOccupiable() {
 }
 
+PointPtr PartiallyOccupiable::find_position(Quadrant quadrant) {
+  PointPtr center = _center();
+  double size = _size();
+  switch (quadrant) {
+  case I:
+    return PointPtr(new Point(center->x + size / 4, center->y + size / 4));
+  case II:
+    return PointPtr(new Point(center->x - size / 4, center->y + size / 4));
+  case III:
+    return PointPtr(new Point(center->x - size / 4, center->y - size / 4));
+  case IV:
+    return PointPtr(new Point(center->x + size / 4, center->y - size / 4));
+  default:
+    return PointPtr(new Point(center->x, center->y));
+  }
+}
+
+PointPtr PartiallyOccupiable::get_current_position() {
+  return find_position(current_quadrant);
+}
+
 Quadrant PartiallyOccupiable::get_current_quadrant() {
   return current_quadrant;
 }
@@ -34,21 +55,6 @@ void PartiallyOccupiable::set_current_quadrant(Quadrant quadrant) {
 
 void PartiallyOccupiable::set_quadrants_state(Quadrant quadrant, State state) {
   quadrants[quadrant] = state;
-}
-
-PointPtr PartiallyOccupiable::current_position(PointPtr center, double size) {
-  switch (current_quadrant) {
-  case I:
-    return PointPtr(new Point(center->x + size / 4, center->y + size / 4));
-  case II:
-    return PointPtr(new Point(center->x - size / 4, center->y + size / 4));
-  case III:
-    return PointPtr(new Point(center->x - size / 4, center->y - size / 4));
-  case IV:
-    return PointPtr(new Point(center->x + size / 4, center->y - size / 4));
-  default:
-    return PointPtr(new Point(center->x, center->y));
-  }
 }
 
 }
