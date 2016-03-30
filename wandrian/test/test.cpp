@@ -62,8 +62,8 @@ void display() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  glScalef((b_size <= 10 ? 5.0 : 10.0) / b_size,
-      (b_size <= 10 ? 5.0 : 10.0) / b_size, 0);
+  glScalef((b_size <= B_SIZE ? 5.0 : 10.0) / b_size,
+      (b_size <= B_SIZE ? 5.0 : 10.0) / b_size, 0);
 
   // Center point
   glPointSize(4);
@@ -191,7 +191,6 @@ int main(int argc, char **argv) {
   if (argc >= 2) {
     std::istringstream iss(argv[1]);
     if (!(iss >> b_size)) { // Read from input map file
-      b_size = B_SIZE;
       map_input = true;
       std::ifstream map(("../" + std::string(argv[1])).c_str());
       std::string line;
@@ -217,6 +216,7 @@ int main(int argc, char **argv) {
           boost::lexical_cast<double>(
               line.substr(delimiter_pos2 + 1,
                   line.length() - delimiter_pos2 - 1)));
+      b_size = std::max(width, height);
       boundary = RectanglePtr(
           new Rectangle(PointPtr(new Point(center_x, center_y)), width,
               height));
