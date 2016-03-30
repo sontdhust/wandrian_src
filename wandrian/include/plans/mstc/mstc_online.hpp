@@ -9,7 +9,8 @@
 #define WANDRIAN_INCLUDE_PLANS_MSTC_MSTC_ONLINE_HPP_
 
 #include "../../common/vector.hpp"
-#include "../../environment/mstc/communicator.hpp"
+//#include "../../environment/mstc/base_communicator.hpp"
+#include "../../environment/mstc/mstc_communicator.hpp"
 #include "../../environment/mstc/identifiable_cell.hpp"
 #include "../base_plan.hpp"
 
@@ -26,14 +27,14 @@ class MstcOnline: public BasePlan {
 public:
   MstcOnline();
   ~MstcOnline();
-  virtual void initialize(PointPtr, double, CommunicatorPtr);
+  virtual void initialize(PointPtr, double, MstcCommunicatorPtr);
   virtual void cover();
 
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
 
 protected:
   double tool_size; // = 'cell size' / 2
-  CommunicatorPtr communicator;
+  MstcCommunicatorPtr communicator;
 
   bool go_to(PointPtr, bool);
   bool see_obstacle(VectorPtr, double);

@@ -62,7 +62,7 @@ bool Robot::initialize() {
   nh.getParam("angular_velocity_max", angular_velocity_max);
 
   if (plan_name == "mstc_online") {
-    communicator = CommunicatorPtr(new Communicator());
+    communicator = MstcCommunicatorPtr(new MstcCommunicator());
     communicator->set_robot_name(robot_name);
     communicator->set_tool_size(tool_size);
     std::cout << "1. My name is " << communicator->get_robot_name();
@@ -234,8 +234,12 @@ double Robot::get_epsilon_position() {
   return epsilon_position;
 }
 
-CommunicatorPtr Robot::get_communicator() {
-  return communicator;
+BaseCommunicatorPtr Robot::get_communicator() {
+  if (plan_name == "mstc_online") {
+    return boost::static_pointer_cast<MstcCommunicator>(communicator);
+  } else
+// FIXME
+    return boost::static_pointer_cast<MstcCommunicator>(communicator);
 }
 
 void Robot::set_behavior_run(boost::function<void()> behavior_run) {
@@ -344,8 +348,10 @@ void Robot::process_keyboard_input(char c) {
     break;
   case 'c':
     if (plan_name == "mstc_online") {
-      communicator->write_old_cells_message("");
-      communicator->write_status_message("");
+      boost::static_pointer_cast<MstcCommunicator>(communicator)->write_old_cells_message(
+          "");
+      boost::static_pointer_cast<MstcCommunicator>(communicator)->write_status_message(
+          "");
     }
     break;
   case 'q':
@@ -370,10 +376,12 @@ void Robot::start_thread_status() {
 
     if (time_counter > (double) (NUM_SECONDS * CLOCKS_PER_SEC)) {
       time_counter -= (double) (NUM_SECONDS * CLOCKS_PER_SEC);
-      std::string status = communicator->create_status_message(
+      std::string status = boost::static_pointer_cast<MstcCommunicator>(
+          communicator)->create_status_message(
           boost::static_pointer_cast<IdentifiableCell>(
               communicator->get_current_cell()));
-      communicator->write_status_message(status);
+      boost::static_pointer_cast<MstcCommunicator>(communicator)->write_status_message(
+          status);
     }
   }
 }

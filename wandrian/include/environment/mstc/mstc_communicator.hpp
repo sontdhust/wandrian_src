@@ -1,30 +1,31 @@
 /*
- * communicator.hpp
+ * mstc_communicator.hpp
  *
- *  Created on: Dec 15, 2015
+ *  Created on: Mar 30, 2016
  *      Author: manhnh
  */
 
-#ifndef WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_COMMUNICATOR_HPP_
-#define WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_COMMUNICATOR_HPP_
+#ifndef WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_MSTC_COMMUNICATOR_HPP_
+#define WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_MSTC_COMMUNICATOR_HPP_
 
 #include <ros/ros.h>
 #include <boost/shared_ptr.hpp>
 #include <std_msgs/String.h>
 #include <list>
 #include "identifiable_cell.hpp"
+#include "base_communicator.hpp"
 
 namespace wandrian {
 namespace environment {
 namespace mstc {
 
-class Communicator {
+class MstcCommunicator : public BaseCommunicator {
 
 public:
   std::set<IdentifiableCellPtr, CellComp> cells; // Old cells with set. TODO: Remove????
 
-  Communicator();
-  ~Communicator();
+  MstcCommunicator();
+  ~MstcCommunicator();
 
   void write_old_cells_message(std::string); // Write old cells
   void write_status_message(std::string);
@@ -37,17 +38,17 @@ public:
   bool find_old_cell(IdentifiableCellPtr);
   void insert_old_cell(IdentifiableCellPtr);
 
-  std::string get_robot_name() const;
-  void set_robot_name(const std::string&);
-  void set_tool_size(double);
-
-  CellPtr& get_current_cell();
-  void set_current_cell(const CellPtr&);
+//  std::string get_robot_name() const;
+//  void set_robot_name(const std::string&);
+//  void set_tool_size(double);
+//
+//  CellPtr& get_current_cell();
+//  void set_current_cell(const CellPtr&);
 
 private:
-  std::string robot_name;
-  double tool_size;
-  CellPtr current_cell;
+//  std::string robot_name;
+//  double tool_size;
+//  CellPtr current_cell;
   std::list<IdentifiableCellPtr> old_cells; // Old cells with list
 
   std::string read_old_cells_message(); // Read old cells data, no update to local old cells
@@ -56,10 +57,12 @@ private:
   void clear_robots_dead_old_cells(std::string, std::string, std::string);
 };
 
-typedef boost::shared_ptr<Communicator> CommunicatorPtr;
+typedef boost::shared_ptr<MstcCommunicator> MstcCommunicatorPtr;
 
 }
 }
 }
 
-#endif /* WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_COMMUNICATOR_HPP_ */
+
+
+#endif /* WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_MSTC_COMMUNICATOR_HPP_ */

@@ -1,7 +1,7 @@
 /*
- * communicator.cpp
+ * mstc_communicator.cpp
  *
- *  Created on: Dec 15, 2015
+ *  Created on: Mar 30, 2016
  *      Author: manhnh
  */
 
@@ -11,7 +11,8 @@
 #include <boost/tokenizer.hpp>
 #include <algorithm>
 #include <sstream>
-#include "../../../include/environment/mstc/communicator.hpp"
+
+#include "../../../include/environment/mstc/mstc_communicator.hpp"
 
 #define foreach BOOST_FOREACH
 
@@ -19,14 +20,14 @@ namespace wandrian {
 namespace environment {
 namespace mstc {
 
-Communicator::Communicator() {
-  tool_size = 0.5;
+MstcCommunicator::MstcCommunicator() {
+  set_tool_size(0.5);
 }
 
-Communicator::~Communicator() {
+MstcCommunicator::~MstcCommunicator() {
 }
 
-void Communicator::write_old_cells_message(std::string message) {
+void MstcCommunicator::write_old_cells_message(std::string message) {
   // Write old cells
   ROS_INFO("[Writing]My old cells: %s", message.data());
   rosbag::Bag bag;
@@ -37,7 +38,7 @@ void Communicator::write_old_cells_message(std::string message) {
   bag.close();
 }
 
-void Communicator::write_status_message(std::string status) {
+void MstcCommunicator::write_status_message(std::string status) {
   // Write status
   rosbag::Bag status_bag;
   ROS_INFO("[Writing status]Status: %s", status.data());
@@ -48,7 +49,7 @@ void Communicator::write_status_message(std::string status) {
   status_bag.close();
 }
 
-std::string Communicator::create_old_cells_message() {
+std::string MstcCommunicator::create_old_cells_message() {
   std::string messages;
   for (std::list<IdentifiableCellPtr>::iterator item = old_cells.begin();
       item != old_cells.end(); ++item) {
@@ -60,13 +61,13 @@ std::string Communicator::create_old_cells_message() {
   return messages;
 }
 
-std::string Communicator::create_status_message(IdentifiableCellPtr last_cell) {
+std::string MstcCommunicator::create_status_message(IdentifiableCellPtr last_cell) {
   bool check_added = false;
   std::string my_status;
   std::string all_robots_new_status = "";
   std::stringstream status;
   std::string status_from_ros_bag = read_status_message();
-  status << get_robot_name() << "," << last_cell->get_center()->x << ","
+  status << this->get_robot_name() << "," << last_cell->get_center()->x << ","
       << last_cell->get_center()->y << "," << ros::Time::now() << ","
       << "[ALIVE];";
   my_status.append(status.str());
@@ -94,17 +95,17 @@ std::string Communicator::create_status_message(IdentifiableCellPtr last_cell) {
   return all_robots_new_status;
 }
 
-void Communicator::read_message_then_update_old_cells() {
+void MstcCommunicator::read_message_then_update_old_cells() {
   update_old_cells_from_message(read_old_cells_message());
 }
 
-bool Communicator::ask_other_robot_still_alive(
+bool MstcCommunicator::ask_other_robot_still_alive(
     std::string robot_name_want_ask) {
   bool result = true;
   std::string cell_string;
   int i;
   std::string status_string; // When robot is dead, change robot's status to [DEAD] and store to this variable
-  if (robot_name_want_ask == get_robot_name()) {
+  if (robot_name_want_ask == this->get_robot_name()) {
     result = true;
   } else {
     boost::char_separator<char> split_status(";");
@@ -203,7 +204,7 @@ bool Communicator::ask_other_robot_still_alive(
   return result;
 }
 
-std::string Communicator::find_robot_name(IdentifiableCellPtr cell_to_find) {
+std::string MstcCommunicator::find_robot_name(IdentifiableCellPtr cell_to_find) {
   std::string robot_name = "NOT FOUND";
   int i;
   double x;
@@ -234,7 +235,7 @@ std::string Communicator::find_robot_name(IdentifiableCellPtr cell_to_find) {
   return robot_name;
 }
 
-bool Communicator::find_old_cell(IdentifiableCellPtr cell) {
+bool MstcCommunicator::find_old_cell(IdentifiableCellPtr cell) {
   bool value = false;
   for (std::list<IdentifiableCellPtr>::iterator item = old_cells.begin();
       item != old_cells.end(); ++item) {
@@ -247,34 +248,34 @@ bool Communicator::find_old_cell(IdentifiableCellPtr cell) {
   return value;
 }
 
-void Communicator::insert_old_cell(IdentifiableCellPtr cell) {
+void MstcCommunicator::insert_old_cell(IdentifiableCellPtr cell) {
   old_cells.push_back(
       IdentifiableCellPtr(
           new IdentifiableCell(cell->get_center(), cell->get_size(),
-              get_robot_name())));
+              this->get_robot_name())));
 }
 
-std::string Communicator::get_robot_name() const {
-  return robot_name;
-}
+//std::string MstcCommunicator::get_robot_name() const {
+//  return robot_name;
+//}
+//
+//void MstcCommunicator::set_robot_name(const std::string& robot_name) {
+//  this->robot_name = robot_name;
+//}
+//
+//void MstcCommunicator::set_tool_size(double tool_size) {
+//  this->tool_size = tool_size;
+//}
+//
+//CellPtr& MstcCommunicator::get_current_cell() {
+//  return current_cell;
+//}
+//
+//void MstcCommunicator::set_current_cell(const CellPtr& current_cell) {
+//  this->current_cell = current_cell;
+//}
 
-void Communicator::set_robot_name(const std::string& robot_name) {
-  this->robot_name = robot_name;
-}
-
-void Communicator::set_tool_size(double tool_size) {
-  this->tool_size = tool_size;
-}
-
-CellPtr& Communicator::get_current_cell() {
-  return current_cell;
-}
-
-void Communicator::set_current_cell(const CellPtr& current_cell) {
-  this->current_cell = current_cell;
-}
-
-std::string Communicator::read_old_cells_message() {
+std::string MstcCommunicator::read_old_cells_message() {
   rosbag::Bag bag;
   std::string msg;
   bag.open("message.bag", rosbag::bagmode::Read);
@@ -293,7 +294,7 @@ std::string Communicator::read_old_cells_message() {
   return msg;
 }
 
-void Communicator::update_old_cells_from_message(std::string msg) {
+void MstcCommunicator::update_old_cells_from_message(std::string msg) {
   old_cells.clear();
   double x = 0.0;
   double y = 0.0;
@@ -316,14 +317,14 @@ void Communicator::update_old_cells_from_message(std::string msg) {
       i++;
     }
     IdentifiableCellPtr old_cell = IdentifiableCellPtr(
-        new IdentifiableCell(PointPtr(new Point(x, y)), 2 * tool_size,
+        new IdentifiableCell(PointPtr(new Point(x, y)), 2 * this->get_tool_size(),
             robot_name));
     old_cells.push_back(old_cell);
   }
   ROS_INFO("[Reading]My old cells: %s", create_old_cells_message().data());
 }
 
-std::string Communicator::read_status_message() {
+std::string MstcCommunicator::read_status_message() {
   rosbag::Bag bag;
   std::string msg;
   bag.open("status.bag", rosbag::bagmode::Read);
@@ -341,7 +342,7 @@ std::string Communicator::read_status_message() {
   return msg;
 }
 
-void Communicator::clear_robots_dead_old_cells(std::string dead_robot_name,
+void MstcCommunicator::clear_robots_dead_old_cells(std::string dead_robot_name,
     std::string last_cell, std::string last_status) {
 
   old_cells.clear();
@@ -380,7 +381,7 @@ void Communicator::clear_robots_dead_old_cells(std::string dead_robot_name,
         i++;
       }
       IdentifiableCellPtr old_cell = IdentifiableCellPtr(
-          new IdentifiableCell(PointPtr(new Point(x, y)), 2 * tool_size,
+          new IdentifiableCell(PointPtr(new Point(x, y)), 2 * this->get_tool_size(),
               robot_name));
       old_cells.push_back(old_cell);
     }
@@ -401,7 +402,7 @@ void Communicator::clear_robots_dead_old_cells(std::string dead_robot_name,
     i++;
   }
   IdentifiableCellPtr old_cell = IdentifiableCellPtr(
-      new IdentifiableCell(PointPtr(new Point(x, y)), 2 * tool_size,
+      new IdentifiableCell(PointPtr(new Point(x, y)), 2 * this->get_tool_size(),
           robot_name));
   old_cells.push_back(old_cell);
 
@@ -413,3 +414,5 @@ void Communicator::clear_robots_dead_old_cells(std::string dead_robot_name,
 }
 }
 }
+
+

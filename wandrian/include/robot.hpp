@@ -18,7 +18,8 @@
 #include "common/point.hpp"
 #include "common/rectangle.hpp"
 #include "common/vector.hpp"
-#include "environment/mstc/communicator.hpp"
+#include "environment/mstc/base_communicator.hpp"
+#include "environment/mstc/mstc_communicator.hpp"
 
 #define NUM_SECONDS 5  // Loop after 5 seconds
 
@@ -55,7 +56,7 @@ public:
   double get_epsilon_rotational_direction();
   double get_epsilon_motional_direction();
   double get_epsilon_position();
-  CommunicatorPtr get_communicator();
+  BaseCommunicatorPtr get_communicator();
   void set_behavior_run(boost::function<void()>);
   void set_linear_velocity(double);
   void set_angular_velocity(double);
@@ -88,7 +89,7 @@ private:
   double linear_velocity_max; // param
   double angular_velocity_step; // param
   double angular_velocity_max; // param
-  CommunicatorPtr communicator;
+  BaseCommunicatorPtr communicator;
 
   boost::function<void()> behavior_run;
   geometry_msgs::TwistPtr velocity;

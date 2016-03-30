@@ -20,7 +20,7 @@ MstcOnline::~MstcOnline() {
 }
 
 void MstcOnline::initialize(PointPtr starting_point, double tool_size,
-    CommunicatorPtr communicator) {
+    MstcCommunicatorPtr communicator) {
   communicator->set_tool_size(tool_size);
   this->tool_size = tool_size;
   this->communicator = communicator;
