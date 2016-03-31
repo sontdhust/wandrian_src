@@ -12,8 +12,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <iostream>
-
-#include "../../environment/boustrophedon/obstacle.hpp"
+#include "obstacle.hpp"
 
 using namespace wandrian::common;
 

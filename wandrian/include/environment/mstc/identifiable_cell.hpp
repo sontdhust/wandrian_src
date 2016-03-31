@@ -5,15 +5,15 @@
  *      Author: cslab
  */
 
-#ifndef WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_ONLINE_IDENTIFIABLE_CELL_HPP_
-#define WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_ONLINE_IDENTIFIABLE_CELL_HPP_
+#ifndef WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_IDENTIFIABLE_CELL_HPP_
+#define WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_IDENTIFIABLE_CELL_HPP_
 
-#include "../../environment/cell.hpp"
-#include "../../environment/mstc_online/identifiable.hpp"
+#include "../cell.hpp"
+#include "identifiable.hpp"
 
 namespace wandrian {
 namespace environment {
-namespace mstc_online {
+namespace mstc {
 
 class IdentifiableCell: public Cell, public Identifiable {
 
@@ -29,4 +29,4 @@ typedef boost::shared_ptr<IdentifiableCell const> IdentifiableCellConstPtr;
 }
 }
 
-#endif /* WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_ONLINE_IDENTIFIABLE_CELL_HPP_ */
+#endif /* WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_IDENTIFIABLE_CELL_HPP_ */

@@ -15,16 +15,15 @@
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/LaserScan.h>
 #include <time.h>
-
 #include "common/point.hpp"
 #include "common/rectangle.hpp"
 #include "common/vector.hpp"
-#include "environment/mstc_online/communicator.hpp"
+#include "environment/mstc/communicator.hpp"
 
 #define NUM_SECONDS 5  // Loop after 5 seconds
 
 using namespace wandrian::common;
-using namespace wandrian::environment::mstc_online;
+using namespace wandrian::environment::mstc;
 
 namespace wandrian {
 
