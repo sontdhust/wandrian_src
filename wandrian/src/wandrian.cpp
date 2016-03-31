@@ -114,7 +114,7 @@ bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibility) {
 }
 
 bool Wandrian::spiral_stc_see_obstacle(VectorPtr direction, double distance) {
-  PointPtr last_position = *(--plan->get_path().end());
+  PointPtr last_position = plan->get_path().back();
   PointPtr new_position = last_position + direction * distance;
   RectanglePtr boundary = robot->get_space_boundary();
   if (new_position->x

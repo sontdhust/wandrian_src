@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <iostream>
-#include "../../common/rectangle.hpp"
+#include "../map.hpp"
 
 using namespace wandrian::common;
 
@@ -20,22 +20,17 @@ namespace wandrian {
 namespace environment {
 namespace boustrophedon {
 
-class ExtendedMap {
+class ExtendedMap: public Map {
 
 public:
-  std::string file_name;
-
   ExtendedMap(RectanglePtr, std::list<RectanglePtr>);
   ExtendedMap(std::string);
+  ~ExtendedMap();
+
+protected:
   void build();
 
-  RectanglePtr get_boundary();
-  std::list<RectanglePtr> get_obstacles();
-
 private:
-  RectanglePtr environment;
-  std::list<RectanglePtr> obstacles;
-
   int static comma_position(std::string);
 
 };

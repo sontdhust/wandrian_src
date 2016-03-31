@@ -42,12 +42,12 @@ public:
 
 protected:
   bool go_to(PointPtr, bool);
-  bool go_go(SpacePtr);
+  bool go_into(SpacePtr);
 
 private:
   CellPtr starting_cell;
   double robot_size; // = 'cell size' / 2
-  ExtendedMapPtr environment;
+  ExtendedMapPtr map;
   std::set<CellPtr, CellComp> old_cells;
 
   bool go_with(VectorPtr, double);

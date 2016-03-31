@@ -12,7 +12,7 @@ namespace plans {
 namespace boustrophedon {
 
 Boustrophedon::Boustrophedon() :
-    robot_size(0), environment(ExtendedMapPtr(new ExtendedMap(""))) {
+    robot_size(0) {
 }
 
 Boustrophedon::~Boustrophedon() {
@@ -23,8 +23,7 @@ Boustrophedon::~Boustrophedon() {
 void Boustrophedon::initialize(PointPtr starting_point, double robot_size,
     std::string namefile) {
   this->robot_size = robot_size;
-  this->environment = ExtendedMapPtr(new ExtendedMap(namefile));
-
+  this->map = ExtendedMapPtr(new ExtendedMap(namefile));
   path.insert(path.end(), starting_point);
 }
 
@@ -42,7 +41,7 @@ bool Boustrophedon::go_to(PointPtr position, bool flexibly) {
   return true;
 }
 
-bool Boustrophedon::go_go(SpacePtr space) {
+bool Boustrophedon::go_into(SpacePtr space) {
   // TODO: size x bang so le lan robotsize?
   double x = (space->get_center()->x * 2 - space->get_size_x() + robot_size)
       / 2;
@@ -104,7 +103,7 @@ void Boustrophedon::dfs(SpacePtr space) {
   space->status_visited = true;
   double x, y;
   std::cout << "Visit Space" << space->get_size_x() << std::endl;
-  go_go(space);
+  go_into(space);
 
   for (inspectLC = space->children.begin(); inspectLC != space->children.end();
       ++inspectLC) {
@@ -390,12 +389,12 @@ void Boustrophedon::boustrophedon_cd() {
   std::list<SpacePtr>::iterator inspectLS;
   std::list<SpacePtr>::iterator inspectLS_child;
   int i, j;
-  std::cout << environment->file_name << std::endl;
+  std::cout << map->get_file_name() << std::endl;
 
   // Create vertices
-  list_vertices = create_list_vertices(environment->get_boundary(),
-      environment->get_obstacles());
-  list_space = create_list_space(environment->get_boundary(), list_vertices);
+  list_vertices = create_list_vertices(map->get_boundary(),
+      map->get_obstacles());
+  list_space = create_list_space(map->get_boundary(), list_vertices);
 
   // TODO: Create list space
   std::cout << " " << std::endl;

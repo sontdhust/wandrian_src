@@ -8,19 +8,33 @@
 #ifndef WANDRIAN_INCLUDE_ENVIRONMENT_MAP_HPP_
 #define WANDRIAN_INCLUDE_ENVIRONMENT_MAP_HPP_
 
-#include "../common/polygon.hpp"
+#include "../common/rectangle.hpp"
 
 using namespace wandrian::common;
 
 namespace wandrian {
 namespace environment {
 
-struct Map {
+class Map {
 
-  PolygonPtr boundary;
-  std::list<PolygonPtr> obstacles;
+public:
+  Map(RectanglePtr, std::list<RectanglePtr>);
+  Map(std::string);
+  virtual ~Map();
 
-  Map(PolygonPtr, std::list<PolygonPtr>);
+  RectanglePtr get_boundary();
+  std::list<RectanglePtr> get_obstacles();
+  std::string get_file_name();
+
+protected:
+  RectanglePtr boundary;
+  std::list<RectanglePtr> obstacles;
+  std::string file_name;
+
+  virtual void build();
+
+private:
+  void initialize();
 };
 
 typedef boost::shared_ptr<Map> MapPtr;

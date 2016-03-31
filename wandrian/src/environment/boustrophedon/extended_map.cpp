@@ -11,14 +11,17 @@ namespace wandrian {
 namespace environment {
 namespace boustrophedon {
 
-ExtendedMap::ExtendedMap(RectanglePtr environment,
+ExtendedMap::ExtendedMap(RectanglePtr boundary,
     std::list<RectanglePtr> obstacles) :
-    environment(environment), obstacles(obstacles) {
+    Map(boundary, obstacles) {
 }
 
-ExtendedMap::ExtendedMap(std::string namefile) {
-  this->file_name = namefile;
+ExtendedMap::ExtendedMap(std::string file_name) :
+    Map(file_name) {
   build();
+}
+
+ExtendedMap::~ExtendedMap() {
 }
 
 void ExtendedMap::build() {
@@ -83,9 +86,8 @@ void ExtendedMap::build() {
         std::cout << "Position (" << center->x << " ," << center->y << " )"
             << std::endl;
         std::cout << "Size : x =" << size_x << " y = " << size_y << std::endl;
-        if (!this->environment) {
-          this->environment = RectanglePtr(
-              new Rectangle(center, size_x, size_y));
+        if (!this->boundary) {
+          this->boundary = RectanglePtr(new Rectangle(center, size_x, size_y));
           std::cout << "ADD en " << std::endl;
         } else {
           this->obstacles.push_back(
@@ -99,14 +101,6 @@ void ExtendedMap::build() {
 
     myReadFile.close();
   }
-}
-
-RectanglePtr ExtendedMap::get_boundary() {
-  return this->environment;
-}
-
-std::list<RectanglePtr> ExtendedMap::get_obstacles() {
-  return this->obstacles;
 }
 
 int ExtendedMap::comma_position(std::string str) {

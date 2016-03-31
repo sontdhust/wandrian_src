@@ -77,7 +77,7 @@ void display() {
   glPointSize(b_size <= 8 ? 2 : 1);
   glColor3ub(255, 255, 255);
   glBegin(GL_POINTS);
-  RectanglePtr boundary = boost::static_pointer_cast<Rectangle>(map->boundary);
+  RectanglePtr boundary = map->get_boundary();
   for (double i = boundary->get_center()->x - boundary->get_width() / 2.0;
       i <= boundary->get_center()->x + boundary->get_width() / 2.0;
       i += t_size * 2.0) {
@@ -92,9 +92,10 @@ void display() {
 
   // Space
   glColor3ub(255, 0, 0);
-  draw(map->boundary->get_boundary(), GL_LINE_STRIP);
-  for (std::list<PolygonPtr>::iterator obstacle = map->obstacles.begin();
-      obstacle != map->obstacles.end(); obstacle++) {
+  draw(map->get_boundary()->get_boundary(), GL_LINE_STRIP);
+  std::list<RectanglePtr> obstacles = map->get_obstacles();
+  for (std::list<RectanglePtr>::iterator obstacle = obstacles.begin();
+      obstacle != obstacles.end(); obstacle++) {
     draw((*obstacle)->get_boundary(), GL_POLYGON);
   }
 
@@ -118,12 +119,13 @@ void display() {
 }
 
 void print_space() {
-  RectanglePtr boundary = boost::static_pointer_cast<Rectangle>(map->boundary);
+  RectanglePtr boundary = map->get_boundary();
   std::cout << boundary->get_center()->x << " " << boundary->get_center()->y
       << " " << boundary->get_width() << " " << boundary->get_height() << "\n";
   std::cout << starting_point->x << " " << starting_point->y << "\n\n";
-  for (std::list<PolygonPtr>::iterator o = map->obstacles.begin();
-      o != map->obstacles.end(); o++) {
+  std::list<RectanglePtr> obstacles = map->get_obstacles();
+  for (std::list<RectanglePtr>::iterator o = obstacles.begin();
+      o != obstacles.end(); o++) {
     PointPtr c = (boost::static_pointer_cast<Cell>(*o))->get_center();
     std::cout << c->x << " " << c->y << "\n";
   }
@@ -150,8 +152,7 @@ bool test_see_obstacle(VectorPtr direction, double distance) {
   PointPtr last_position = path.back();
   PointPtr new_position = last_position + direction * distance;
   if (map) {
-    RectanglePtr boundary = boost::static_pointer_cast<Rectangle>(
-        map->boundary);
+    RectanglePtr boundary = map->get_boundary();
     if (new_position->x
         >= boundary->get_center()->x + boundary->get_width() / 2 - EPSILON
         || new_position->x
@@ -163,8 +164,9 @@ bool test_see_obstacle(VectorPtr direction, double distance) {
                 + EPSILON) {
       return true;
     }
-    for (std::list<PolygonPtr>::iterator o = map->obstacles.begin();
-        o != map->obstacles.end(); o++) {
+    std::list<RectanglePtr> obstacles = map->get_obstacles();
+    for (std::list<RectanglePtr>::iterator o = obstacles.begin();
+        o != obstacles.end(); o++) {
       CellPtr obstacle = boost::static_pointer_cast<Cell>(*o);
       if (new_position->x
           >= obstacle->get_center()->x - obstacle->get_size() / 2 - EPSILON
@@ -251,7 +253,7 @@ int main(int argc, char **argv) {
   } else {
     b_size = B_SIZE;
   }
-  std::list<PolygonPtr> obstacles;
+  std::list<RectanglePtr> obstacles;
 
   // Tool size
   if (argc >= 3) {
@@ -310,7 +312,7 @@ int main(int argc, char **argv) {
                         - (int) (b_size / t_size / (o_size / t_size) / 2.0))
                         + 0.5) * o_size));
     bool valid = true;
-    for (std::list<PolygonPtr>::iterator o = obstacles.begin();
+    for (std::list<RectanglePtr>::iterator o = obstacles.begin();
         o != obstacles.end(); o++)
       if ((boost::static_pointer_cast<Cell>(*o))->get_center() == center
           || (std::abs(center->x - (starting_point->x - t_size / 2))
@@ -403,7 +405,7 @@ int main(int argc, char **argv) {
       }
       n = 1;
       // Obstacles
-      for (std::list<PolygonPtr>::iterator o = obstacles.begin();
+      for (std::list<RectanglePtr>::iterator o = obstacles.begin();
           o != obstacles.end(); o++) {
         CellPtr cell = boost::static_pointer_cast<Cell>(*o);
         PointPtr c = cell->get_center();

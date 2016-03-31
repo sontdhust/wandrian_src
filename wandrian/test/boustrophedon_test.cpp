@@ -26,7 +26,7 @@ using namespace wandrian::plans::boustrophedon;
 
 double e_size = 0;
 
-MapPtr environment;
+MapPtr map;
 PointPtr starting_point;
 std::list<PointPtr> tmp_path;
 /**
@@ -42,9 +42,9 @@ void draw(std::list<PointPtr> points, int type) {
   glVertex2d((*points.begin())->x, (*points.begin())->y);
   glEnd();
 }
-void draw_t(std::list<PointPtr> points, int type) {
-  glBegin(type);
 
+void draw_path(std::list<PointPtr> points, int type) {
+  glBegin(type);
   for (std::list<PointPtr>::iterator p = points.begin(); p != points.end();
       p++) {
     glVertex2d((*p)->x, (*p)->y);
@@ -86,10 +86,10 @@ void display() {
 
   // Environment
   glColor3ub(255, 0, 0);
-  draw(environment->boundary->get_boundary(), GL_LINE_STRIP);
-  for (std::list<PolygonPtr>::iterator obstacle =
-      environment->obstacles.begin(); obstacle != environment->obstacles.end();
-      obstacle++) {
+  draw(map->get_boundary()->get_boundary(), GL_LINE_STRIP);
+  std::list<RectanglePtr> obstacles = map->get_obstacles();
+  for (std::list<RectanglePtr>::iterator obstacle = obstacles.begin();
+      obstacle != obstacles.end(); obstacle++) {
     draw((*obstacle)->get_boundary(), GL_POLYGON);
   }
 
@@ -102,7 +102,7 @@ void display() {
 
   // Boustrophedon covering path
   glColor3ub(0, 255, 0);
-  draw_t(tmp_path, GL_LINE_STRIP);
+  draw_path(tmp_path, GL_LINE_STRIP);
 
   glRasterPos2i(0, -11);
   std::stringstream ss;
@@ -133,16 +133,17 @@ bool test_see_obstacle(VectorPtr direction, double step) {
   PointPtr last_position = *(--tmp_path.end());
   PointPtr new_position = PointPtr(
       new Point(last_position + direction * step * R_SIZE / 2));
-  if (environment) {
-    CellPtr space = boost::static_pointer_cast<Cell>(environment->boundary);
+  if (map) {
+    CellPtr space = boost::static_pointer_cast<Cell>(map->get_boundary());
     if (new_position->x >= space->get_center()->x + space->get_size() / 2
         || new_position->x <= space->get_center()->x - space->get_size() / 2
         || new_position->y >= space->get_center()->y + space->get_size() / 2
         || new_position->y <= space->get_center()->y - space->get_size() / 2) {
       return true;
     }
-    for (std::list<PolygonPtr>::iterator o = environment->obstacles.begin();
-        o != environment->obstacles.end(); o++) {
+    std::list<RectanglePtr> obstacles = map->get_obstacles();
+    for (std::list<RectanglePtr>::iterator o = obstacles.begin();
+        o != obstacles.end(); o++) {
       CellPtr obstacle = boost::static_pointer_cast<Cell>(*o);
       if (new_position->x
           >= obstacle->get_center()->x - obstacle->get_size() / 2
@@ -171,16 +172,11 @@ int main(int argc, char **argv) {
   }
 
   CellPtr space = CellPtr(new Cell(PointPtr(new Point(0, 0)), e_size));
-
-  std::list<PolygonPtr> obstacles;
-
+  std::list<RectanglePtr> obstacles;
   std::srand(std::time(0));
-
   starting_point = PointPtr(
       new Point(-(e_size - R_SIZE) / 2, -(e_size - R_SIZE) / 2));
-
   int r = std::rand() % (int) (e_size * e_size / 16) + e_size * e_size / 8;
-
   obstacles.insert(obstacles.end(),
       CellPtr(new Cell(PointPtr(new Point(-1.5, 0.5)), 2 * R_SIZE)));
   obstacles.insert(obstacles.end(),
@@ -256,7 +252,7 @@ int main(int argc, char **argv) {
       n = 1;
 //      double o_size = 4 * R_SIZE;
       // Obstacles
-      for (std::list<PolygonPtr>::iterator o = obstacles.begin();
+      for (std::list<RectanglePtr>::iterator o = obstacles.begin();
           o != obstacles.end(); o++) {
 
         PointPtr p = (boost::static_pointer_cast<Cell>(*o))->get_center();
@@ -290,7 +286,7 @@ int main(int argc, char **argv) {
   world_in.close();
   world_out.close();
 
-  environment = MapPtr(new Map(space, obstacles));
+  map = MapPtr(new Map(space, obstacles));
   BoustrophedonPtr boustrophedon = BoustrophedonPtr(new Boustrophedon());
   boustrophedon->initialize(starting_point, R_SIZE,
       "../../worlds/prefered.map");
