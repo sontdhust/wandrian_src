@@ -38,6 +38,7 @@ Robot::~Robot() {
 bool Robot::initialize() {
   ros::NodeHandle nh("~");
 
+  nh.getParam("map_name", map_name);
   nh.getParam("plan_name", plan_name);
   nh.getParam("robot_name", robot_name);
   nh.getParam("tool_size", tool_size);
@@ -174,6 +175,10 @@ void Robot::stop() {
 void Robot::decelerate(double linear_proportion, double angular_proportion) {
   velocity->linear.x *= linear_proportion;
   velocity->angular.z *= angular_proportion;
+}
+
+std::string Robot::get_map_name() {
+  return map_name;
 }
 
 std::string Robot::get_plan_name() {

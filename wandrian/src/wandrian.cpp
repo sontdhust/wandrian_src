@@ -2,15 +2,14 @@
  * wandrian.cpp
  *
  *  Created on: Sep 23, 2015
- *      Author: anhnt
+ *      Author: cslab
  */
 
 #include <ros/package.h>
-#include "../include/plans/boustrophedon/boustrophedon.hpp"
+#include "../include/plans/stc/full_spiral_stc.hpp"
+#include "../include/plans/mstc/mstc_online.hpp"
 #include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
-#include "../include/plans/mstc_online/mstc_online.hpp"
-#include "../include/plans/spiral_stc/full_spiral_stc.hpp"
-#include "../include/plans/spiral_stc/spiral_stc.hpp"
+#include "../include/plans/boustrophedon/boustrophedon.hpp"
 #include "../include/wandrian.hpp"
 
 #define CLOCKWISE true
@@ -21,8 +20,8 @@
 #define EPSILON_MOTIONAL_DIRECTION 0.24
 #define EPSILON_POSITION 0.06
 
-using namespace wandrian::plans::spiral_stc;
-using namespace wandrian::plans::mstc_online;
+using namespace wandrian::plans::stc;
+using namespace wandrian::plans::mstc;
 using namespace wandrian::plans::boustrophedon_online;
 using namespace wandrian::plans::boustrophedon;
 
@@ -103,7 +102,8 @@ void Wandrian::wandrian_run() {
         PointPtr(
             new Point(robot->get_starting_point_x(),
                 robot->get_starting_point_y())), robot->get_tool_size(),
-        ros::package::getPath("wandrian") + "/worlds/prefered.map");
+        ros::package::getPath("wandrian") + "/worlds/" + robot->get_map_name()
+            + ".map");
     boustrophedon->set_behavior_go_to(
         boost::bind(&Wandrian::boustrophedon_go_to, this, _1, _2));
     boustrophedon->cover();
@@ -115,7 +115,7 @@ bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibility) {
 }
 
 bool Wandrian::spiral_stc_see_obstacle(VectorPtr direction, double distance) {
-  PointPtr last_position = *(--plan->get_path().end());
+  PointPtr last_position = plan->get_path().back();
   PointPtr new_position = last_position + direction * distance;
   RectanglePtr boundary = robot->get_space_boundary();
   if (new_position->x

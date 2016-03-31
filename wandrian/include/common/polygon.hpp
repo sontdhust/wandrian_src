@@ -11,7 +11,6 @@
 #include <map>
 #include <set>
 #include <list>
-
 #include "point.hpp"
 
 namespace wandrian {

@@ -12,7 +12,7 @@ namespace plans {
 namespace boustrophedon {
 
 Boustrophedon::Boustrophedon() :
-    robot_size(0), environment(MapPtr(new Map(""))) {
+    robot_size(0) {
 }
 
 Boustrophedon::~Boustrophedon() {
@@ -23,8 +23,7 @@ Boustrophedon::~Boustrophedon() {
 void Boustrophedon::initialize(PointPtr starting_point, double robot_size,
     std::string namefile) {
   this->robot_size = robot_size;
-  this->environment = MapPtr(new Map(namefile));
-
+  this->map = ExtendedMapPtr(new ExtendedMap(namefile));
   path.insert(path.end(), starting_point);
 }
 
@@ -42,7 +41,7 @@ bool Boustrophedon::go_to(PointPtr position, bool flexibly) {
   return true;
 }
 
-bool Boustrophedon::go_go(FreeZonePtr space) {
+bool Boustrophedon::go_into(SpacePtr space) {
   // TODO: size x bang so le lan robotsize?
   double x = (space->get_center()->x * 2 - space->get_size_x() + robot_size)
       / 2;
@@ -99,12 +98,12 @@ bool Boustrophedon::go_with(VectorPtr direction, double step) {
   return go_to(new_position, STRICTLY);
 }
 
-void Boustrophedon::dfs(FreeZonePtr space) {
-  std::list<FreeZonePtr>::iterator inspectLC;
+void Boustrophedon::dfs(SpacePtr space) {
+  std::list<SpacePtr>::iterator inspectLC;
   space->status_visited = true;
   double x, y;
   std::cout << "Visit Space" << space->get_size_x() << std::endl;
-  go_go(space);
+  go_into(space);
 
   for (inspectLC = space->children.begin(); inspectLC != space->children.end();
       ++inspectLC) {
@@ -134,14 +133,14 @@ void Boustrophedon::dfs(FreeZonePtr space) {
   }
 }
 
-std::list<FreeZonePtr> Boustrophedon::create_list_space(ObstaclePtr environment,
+std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
     std::list<VerticesPtr> list_vertices) {
   std::list<VerticesPtr> listvertices_temp;
   std::list<VerticesPtr>::iterator inspectLV;
   std::list<VerticesPtr>::iterator inspectLVT;
-  std::list<FreeZonePtr> list_space;
-  std::list<FreeZonePtr>::iterator inspectLS;
-  std::list<FreeZonePtr>::iterator inspectLS_temp;
+  std::list<SpacePtr> list_space;
+  std::list<SpacePtr>::iterator inspectLS;
+  std::list<SpacePtr>::iterator inspectLS_temp;
   PointPtr center_temp;
   int i = 1, j = 1;
   double size_x = 0, size_y = 0;
@@ -201,8 +200,7 @@ std::list<FreeZonePtr> Boustrophedon::create_list_space(ObstaclePtr environment,
             new Point((*inspectLVT)->get_position()->x + size_x / 2,
                 (*inspectLVT)->get_position()->y - size_y / 2));
 
-        list_space.push_back(
-            FreeZonePtr(new FreeZone(center_temp, size_x, size_y)));
+        list_space.push_back(SpacePtr(new Space(center_temp, size_x, size_y)));
 
         // Remove : two vetices space left
         listvertices_temp.remove(vertices_previous);
@@ -215,17 +213,18 @@ std::list<FreeZonePtr> Boustrophedon::create_list_space(ObstaclePtr environment,
                     PointPtr(
                         new Point(center_temp->x + size_x / 2,
                             center_temp->y + size_y / 2)),
-                    ObstaclePtr(new Obstacle(center_temp, size_x, size_y)))));
+                    RectanglePtr(new Rectangle(center_temp, size_x, size_y)))));
 
         if ((*inspectLV)->get_position()->y
-            != environment->get_center()->y - environment->get_size_y() / 2) {
+            != environment->get_center()->y - environment->get_height() / 2) {
           listvertices_temp.push_back(
               VerticesPtr(
                   new Vertices(
                       PointPtr(
                           new Point(center_temp->x + size_x / 2,
                               center_temp->y - size_y / 2)),
-                      ObstaclePtr(new Obstacle(center_temp, size_x, size_y)))));
+                      RectanglePtr(
+                          new Rectangle(center_temp, size_x, size_y)))));
           listvertices_temp.push_back(*inspectLV);
         }
         ++inspectLV;
@@ -235,9 +234,9 @@ std::list<FreeZonePtr> Boustrophedon::create_list_space(ObstaclePtr environment,
       }
     } else {
       if (((*inspectLV)->get_position()->y
-          == environment->get_center()->y - environment->get_size_y() / 2)
+          == environment->get_center()->y - environment->get_height() / 2)
           || ((*inspectLV)->get_position()->y
-              == environment->get_center()->y + environment->get_size_y() / 2)) {
+              == environment->get_center()->y + environment->get_height() / 2)) {
         listvertices_temp.push_back(*inspectLV);
         ++inspectLV;
         ++j;
@@ -274,8 +273,7 @@ std::list<FreeZonePtr> Boustrophedon::create_list_space(ObstaclePtr environment,
       center_temp = PointPtr(
           new Point(vertices_previous->get_position()->x + size_x / 2,
               vertices_previous->get_position()->y + size_y / 2));
-      list_space.push_back(
-          FreeZonePtr(new FreeZone(center_temp, size_x, size_y)));
+      list_space.push_back(SpacePtr(new Space(center_temp, size_x, size_y)));
 
       // Remove : two vetices space left
       listvertices_temp.remove(vertices_previous);
@@ -287,7 +285,7 @@ std::list<FreeZonePtr> Boustrophedon::create_list_space(ObstaclePtr environment,
                     PointPtr(
                         new Point(center_temp->x + size_x / 2,
                             center_temp->y + size_y / 2)),
-                    ObstaclePtr(new Obstacle(center_temp, size_x, size_y)))));
+                    RectanglePtr(new Rectangle(center_temp, size_x, size_y)))));
         std::cout << center_temp->x + size_x / 2 << center_temp->y + size_y / 2
             << std::endl;
       } else {
@@ -297,21 +295,21 @@ std::list<FreeZonePtr> Boustrophedon::create_list_space(ObstaclePtr environment,
                     PointPtr(
                         new Point(center_temp->x + size_x / 2,
                             center_temp->y - size_y / 2)),
-                    ObstaclePtr(new Obstacle(center_temp, size_x, size_y)))));
+                    RectanglePtr(new Rectangle(center_temp, size_x, size_y)))));
       }
       if ((*inspectLV)->get_position()->x
-          == environment->get_center()->x + environment->get_size_x() / 2) {
+          == environment->get_center()->x + environment->get_width() / 2) {
         ++inspectLV;
         ++j;
       }
     }
   }
-  list_space.sort(FreeZone::compare_positions_x);
+  list_space.sort(Space::compare_positions_x);
   for (inspectLS = --list_space.end(), i = 1; inspectLS != list_space.end();
       --inspectLS) {
     for (inspectLS_temp = --list_space.end(), i = 1;
         inspectLS_temp != list_space.end(); --inspectLS_temp) {
-      if (FreeZone::is_parent(*inspectLS_temp, *inspectLS)) {
+      if (Space::is_parent(*inspectLS_temp, *inspectLS)) {
         std::cout << " Parent (" << (*inspectLS_temp)->get_center()->x << " ,"
             << (*inspectLS_temp)->get_center()->y << ")" << std::endl;
         std::cout << "Children (" << (*inspectLS)->get_center()->x << " ,"
@@ -326,16 +324,16 @@ std::list<FreeZonePtr> Boustrophedon::create_list_space(ObstaclePtr environment,
 }
 
 std::list<VerticesPtr> Boustrophedon::create_list_vertices(
-    ObstaclePtr environment, std::list<ObstaclePtr> listobstacle) {
+    RectanglePtr environment, std::list<RectanglePtr> listobstacle) {
   std::list<PointPtr> list_point;
   std::list<PointPtr>::iterator inspectLP;
   std::list<VerticesPtr> list_vertices;
   std::list<VerticesPtr>::iterator inspectLV;
-  std::list<ObstaclePtr>::iterator inspectLO;
+  std::list<RectanglePtr>::iterator inspectLO;
   int i = 1, j = 1;
   std::cout << "Environment : 0(" << environment->get_center()->x << " ,"
       << environment->get_center()->y << ")" << " Size:" << "("
-      << environment->get_size_x() << " ," << environment->get_size_y() << ")"
+      << environment->get_width() << " ," << environment->get_height() << ")"
       << std::endl;
 
   // Create list vertices
@@ -387,16 +385,16 @@ void Boustrophedon::boustrophedon_cd() {
   //  std::list<ObstaclePtr>::iterator inspectLO;
   //  ObstaclePtr environment;
   std::list<VerticesPtr> list_vertices;
-  std::list<FreeZonePtr> list_space;
-  std::list<FreeZonePtr>::iterator inspectLS;
-  std::list<FreeZonePtr>::iterator inspectLS_child;
+  std::list<SpacePtr> list_space;
+  std::list<SpacePtr>::iterator inspectLS;
+  std::list<SpacePtr>::iterator inspectLS_child;
   int i, j;
-  std::cout << environment->namefile << std::endl;
+  std::cout << map->get_file_name() << std::endl;
 
   // Create vertices
-  list_vertices = create_list_vertices(environment->get_environment(),
-      environment->get_obstacles());
-  list_space = create_list_space(environment->get_environment(), list_vertices);
+  list_vertices = create_list_vertices(map->get_boundary(),
+      map->get_obstacles());
+  list_space = create_list_space(map->get_boundary(), list_vertices);
 
   // TODO: Create list space
   std::cout << " " << std::endl;

@@ -1,42 +1,30 @@
 /*
- * map.cpp
+ * extended_map.cpp
  *
  *  Created on: Mar 25, 2016
  *      Author: cslab
  */
 
-#include "../../../include/environment/boustrophedon/map.hpp"
+#include "../../../include/environment/boustrophedon/extended_map.hpp"
 
 namespace wandrian {
 namespace environment {
 namespace boustrophedon {
 
-Map::Map(ObstaclePtr environment, std::list<ObstaclePtr> obstacles) :
-    environment(environment), obstacles(obstacles) {
+ExtendedMap::ExtendedMap(RectanglePtr boundary,
+    std::list<RectanglePtr> obstacles) :
+    Map(boundary, obstacles) {
 }
 
-Map::Map(std::string namefile) {
-  this->namefile = namefile;
-  set_environment();
+ExtendedMap::ExtendedMap(std::string file_name) :
+    Map(file_name) {
+  build();
 }
 
-int Map::commaposition(std::string str) {
-  for (unsigned int position = 0; position < str.length(); ++position) {
-    if (str[position] == ',')
-      return position;
-  }
-  return 0;
+ExtendedMap::~ExtendedMap() {
 }
 
-ObstaclePtr Map::get_environment() {
-  return this->environment;
-}
-
-std::list<ObstaclePtr> Map::get_obstacles() {
-  return this->obstacles;
-}
-
-void Map::set_environment() {
+void ExtendedMap::build() {
   std::string size;
   std::string position;
   std::string line;
@@ -45,11 +33,11 @@ void Map::set_environment() {
   double size_x, size_y;
   int i, flag;
   std::fstream myReadFile;
-  if (this->namefile.compare("") != 0) {
-    myReadFile.open(this->namefile.c_str());
-    std::cout << "out" << this->namefile << std::endl;
+  if (this->file_name.compare("") != 0) {
+    myReadFile.open(this->file_name.c_str());
+    std::cout << "out" << this->file_name << std::endl;
     if (myReadFile.is_open()) {
-      std::cout << "Out2" << this->namefile << std::endl;
+      std::cout << "Out2" << this->file_name << std::endl;
       int i = 0;
       int flag = 0;
       while (getline(myReadFile, line) != NULL) {
@@ -86,24 +74,24 @@ void Map::set_environment() {
             break;
           }
         }
-        flag = commaposition(position);
+        flag = comma_position(position);
         center = PointPtr(
             new Point(strtod(position.substr(0, flag).c_str(), NULL),
                 strtod(position.substr(flag + 1, position.length()).c_str(),
                 NULL)));
 
-        flag = commaposition(size);
+        flag = comma_position(size);
         size_x = strtod(size.substr(0, flag).c_str(), NULL);
         size_y = strtod(size.substr(flag + 1, size.length()).c_str(), NULL);
         std::cout << "Position (" << center->x << " ," << center->y << " )"
             << std::endl;
         std::cout << "Size : x =" << size_x << " y = " << size_y << std::endl;
-        if (!this->environment) {
-          this->environment = ObstaclePtr(new Obstacle(center, size_x, size_y));
+        if (!this->boundary) {
+          this->boundary = RectanglePtr(new Rectangle(center, size_x, size_y));
           std::cout << "ADD en " << std::endl;
         } else {
           this->obstacles.push_back(
-              ObstaclePtr(new Obstacle(center, size_x, size_y)));
+              RectanglePtr(new Rectangle(center, size_x, size_y)));
           std::cout << "ADD obstacles " << std::endl;
         }
       }
@@ -113,6 +101,14 @@ void Map::set_environment() {
 
     myReadFile.close();
   }
+}
+
+int ExtendedMap::comma_position(std::string str) {
+  for (unsigned int position = 0; position < str.length(); ++position) {
+    if (str[position] == ',')
+      return position;
+  }
+  return 0;
 }
 
 }

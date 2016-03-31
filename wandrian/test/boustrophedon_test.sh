@@ -12,12 +12,11 @@ g++ -c rectangle.cpp
 
 cd ../environment
 g++ -c cell.cpp
-g++ -c space.cpp
+g++ -c map.cpp
 
 cd boustrophedon
-g++ -c freezone.cpp
-g++ -c map.cpp
-g++ -c obstacle.cpp
+g++ -c space.cpp
+g++ -c extended_map.cpp
 g++ -c vertices.cpp
 
 cd ../../plans
@@ -31,8 +30,8 @@ g++ -o ../wandrian \
 ../../boustrophedon_test.cpp \
 common/point.o common/vector.o common/segment.o common/polygon.o common/rectangle.o \
 plans/base_plan.o \
-environment/cell.o environment/space.o \
-environment/boustrophedon/freezone.o environment/boustrophedon/map.o environment/boustrophedon/obstacle.o environment/boustrophedon/vertices.o \
+environment/cell.o environment/map.o \
+environment/boustrophedon/space.o environment/boustrophedon/extended_map.o environment/boustrophedon/vertices.o \
 plans/boustrophedon/boustrophedon.o \
 -lglut -lGL
 cd ..
