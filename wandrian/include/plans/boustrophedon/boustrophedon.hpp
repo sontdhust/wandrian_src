@@ -11,10 +11,10 @@
 #include <list>
 #include <ros/ros.h>
 #include "../../common/vector.hpp"
+#include "../../common/rectangle.hpp"
 #include "../../environment/cell.hpp"
-#include "../../environment/boustrophedon/free_zone.hpp"
-#include "../../environment/boustrophedon/map.hpp"
-#include "../../environment/boustrophedon/obstacle.hpp"
+#include "../../environment/boustrophedon/extended_map.hpp"
+#include "../../environment/boustrophedon/space.hpp"
 #include "../../environment/boustrophedon/vertices.hpp"
 #include "../base_plan.hpp"
 
@@ -33,21 +33,21 @@ public:
   ~Boustrophedon();
   void initialize(PointPtr, double, std::string);
   void cover();
-  void dfs(FreeZonePtr);
-  std::list<FreeZonePtr> create_list_space(ObstaclePtr, std::list<VerticesPtr>);
-  std::list<VerticesPtr> create_list_vertices(ObstaclePtr,
-      std::list<ObstaclePtr>);
+  void dfs(SpacePtr);
+  std::list<SpacePtr> create_list_space(RectanglePtr, std::list<VerticesPtr>);
+  std::list<VerticesPtr> create_list_vertices(RectanglePtr,
+      std::list<RectanglePtr>);
 
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
 
 protected:
   bool go_to(PointPtr, bool);
-  bool go_go(FreeZonePtr);
+  bool go_into(SpacePtr);
 
 private:
   CellPtr starting_cell;
   double robot_size; // = 'cell size' / 2
-  MapPtr environment;
+  ExtendedMapPtr map;
   std::set<CellPtr, CellComp> old_cells;
 
   bool go_with(VectorPtr, double);

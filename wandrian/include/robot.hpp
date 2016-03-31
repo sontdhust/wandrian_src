@@ -15,16 +15,15 @@
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/LaserScan.h>
 #include <time.h>
-
 #include "common/point.hpp"
 #include "common/rectangle.hpp"
 #include "common/vector.hpp"
-#include "environment/mstc_online/communicator.hpp"
+#include "environment/mstc/communicator.hpp"
 
 #define NUM_SECONDS 5  // Loop after 5 seconds
 
 using namespace wandrian::common;
-using namespace wandrian::environment::mstc_online;
+using namespace wandrian::environment::mstc;
 
 namespace wandrian {
 
@@ -42,6 +41,7 @@ public:
   void stop();
   void decelerate(double = 0.0, double = 0.0);
 
+  std::string get_map_name();
   std::string get_plan_name();
   double get_tool_size();
   double get_starting_point_x();
@@ -63,6 +63,7 @@ public:
   void set_laser_range(double);
 
 private:
+  std::string map_name; // arg
   std::string plan_name; // arg
   std::string robot_name; // arg
   double tool_size; // arg

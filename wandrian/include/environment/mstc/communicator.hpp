@@ -5,19 +5,18 @@
  *      Author: manhnh
  */
 
-#ifndef WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_ONLINE_COMMUNICATOR_HPP_
-#define WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_ONLINE_COMMUNICATOR_HPP_
+#ifndef WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_COMMUNICATOR_HPP_
+#define WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_COMMUNICATOR_HPP_
 
 #include <ros/ros.h>
 #include <boost/shared_ptr.hpp>
 #include <std_msgs/String.h>
 #include <list>
-
-#include "../../environment/mstc_online/identifiable_cell.hpp"
+#include "identifiable_cell.hpp"
 
 namespace wandrian {
 namespace environment {
-namespace mstc_online {
+namespace mstc {
 
 class Communicator {
 
@@ -63,4 +62,4 @@ typedef boost::shared_ptr<Communicator> CommunicatorPtr;
 }
 }
 
-#endif /* WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_ONLINE_COMMUNICATOR_HPP_ */
+#endif /* WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_COMMUNICATOR_HPP_ */

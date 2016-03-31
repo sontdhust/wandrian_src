@@ -1,4 +1,5 @@
 <launch>
+  <arg name="map_name" default=""/>
   <arg name="plan_name"/>
   <arg name="robot_name" value="mobile_base"/>
   <arg name="tool_size"/>
@@ -22,6 +23,7 @@
     <remap from="run/odometry" to="odom"/>
     <remap from="run/laser" to="scan"/>
 
+    <param name="map_name" value="$(arg map_name)" type="string"/>
     <param name="plan_name" value="$(arg plan_name)" type="string"/>
     <param name="tool_size" value="$(arg tool_size)" type="double"/>
     <param name="starting_point_x" value="$(arg starting_point_x)" type="double"/>

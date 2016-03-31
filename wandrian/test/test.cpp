@@ -6,6 +6,7 @@
  */
 
 #include <GL/glut.h>
+#include <GL/freeglut.h>
 #include <limits>
 #include <set>
 #include <ctime>
@@ -17,22 +18,23 @@
 #include <sstream>
 #include <fstream>
 #include <stdlib.h>
-#include "../include/environment/space.hpp"
+
+#include "../include/environment/map.hpp"
 #include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
-#include "../include/plans/spiral_stc/full_spiral_stc.hpp"
+#include "../include/plans/stc/full_scan_stc.hpp"
 
 #define T_SIZE 0.5 // Tool size
 #define B_SIZE 4.0 // Default space boundary size
 #define WORLD_INSERT_OBSTACLE "<!-- INSERT: Boundary and Obstacles here -->" // Flag at original world file to insert boundary and obstacles into
 
 using namespace wandrian::common;
-using namespace wandrian::plans::spiral_stc;
+using namespace wandrian::plans::stc;
 using namespace wandrian::plans::boustrophedon_online;
 
 double b_size = 0;
 double t_size;
 
-SpacePtr space;
+MapPtr map;
 PointPtr starting_point;
 std::list<PointPtr> path;
 
@@ -61,8 +63,8 @@ void display() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  glScalef((b_size <= 20 ? 5.0 : 10.0) / b_size,
-      (b_size <= 20 ? 5.0 : 10.0) / b_size, 0);
+  glScalef((b_size <= B_SIZE ? 5.0 : 10.0) / b_size,
+      (b_size <= B_SIZE ? 5.0 : 10.0) / b_size, 0);
 
   // Center point
   glPointSize(4);
@@ -75,8 +77,7 @@ void display() {
   glPointSize(b_size <= 8 ? 2 : 1);
   glColor3ub(255, 255, 255);
   glBegin(GL_POINTS);
-  RectanglePtr boundary = boost::static_pointer_cast<Rectangle>(
-      space->boundary);
+  RectanglePtr boundary = map->get_boundary();
   for (double i = boundary->get_center()->x - boundary->get_width() / 2.0;
       i <= boundary->get_center()->x + boundary->get_width() / 2.0;
       i += t_size * 2.0) {
@@ -91,9 +92,10 @@ void display() {
 
   // Space
   glColor3ub(255, 0, 0);
-  draw(space->boundary->get_boundary(), GL_LINE_STRIP);
-  for (std::list<PolygonPtr>::iterator obstacle = space->obstacles.begin();
-      obstacle != space->obstacles.end(); obstacle++) {
+  draw(map->get_boundary()->get_boundary(), GL_LINE_STRIP);
+  std::list<RectanglePtr> obstacles = map->get_obstacles();
+  for (std::list<RectanglePtr>::iterator obstacle = obstacles.begin();
+      obstacle != obstacles.end(); obstacle++) {
     draw((*obstacle)->get_boundary(), GL_POLYGON);
   }
 
@@ -116,12 +118,26 @@ void display() {
   glutSwapBuffers();
 }
 
+void print_space() {
+  RectanglePtr boundary = map->get_boundary();
+  std::cout << boundary->get_center()->x << " " << boundary->get_center()->y
+      << " " << boundary->get_width() << " " << boundary->get_height() << "\n";
+  std::cout << starting_point->x << " " << starting_point->y << "\n\n";
+  std::list<RectanglePtr> obstacles = map->get_obstacles();
+  for (std::list<RectanglePtr>::iterator o = obstacles.begin();
+      o != obstacles.end(); o++) {
+    PointPtr c = (boost::static_pointer_cast<Cell>(*o))->get_center();
+    std::cout << c->x << " " << c->y << "\n";
+  }
+}
+
 int run(int argc, char **argv) {
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
   glutInitWindowSize(600, 600);
   glutCreateWindow("Environment");
   glutDisplayFunc(display);
+  glutCloseFunc(print_space);
   glutMainLoop();
   return 0;
 }
@@ -133,11 +149,10 @@ bool test_go_to(PointPtr position, bool) {
 
 bool test_see_obstacle(VectorPtr direction, double distance) {
   // Simulator check obstacle
-  PointPtr last_position = *(--path.end());
+  PointPtr last_position = path.back();
   PointPtr new_position = last_position + direction * distance;
-  if (space) {
-    RectanglePtr boundary = boost::static_pointer_cast<Rectangle>(
-        space->boundary);
+  if (map) {
+    RectanglePtr boundary = map->get_boundary();
     if (new_position->x
         >= boundary->get_center()->x + boundary->get_width() / 2 - EPSILON
         || new_position->x
@@ -149,8 +164,9 @@ bool test_see_obstacle(VectorPtr direction, double distance) {
                 + EPSILON) {
       return true;
     }
-    for (std::list<PolygonPtr>::iterator o = space->obstacles.begin();
-        o != space->obstacles.end(); o++) {
+    std::list<RectanglePtr> obstacles = map->get_obstacles();
+    for (std::list<RectanglePtr>::iterator o = obstacles.begin();
+        o != obstacles.end(); o++) {
       CellPtr obstacle = boost::static_pointer_cast<Cell>(*o);
       if (new_position->x
           >= obstacle->get_center()->x - obstacle->get_size() / 2 - EPSILON
@@ -176,7 +192,6 @@ int main(int argc, char **argv) {
   if (argc >= 2) {
     std::istringstream iss(argv[1]);
     if (!(iss >> b_size)) { // Read from input map file
-      b_size = B_SIZE;
       map_input = true;
       std::ifstream map(("../" + std::string(argv[1])).c_str());
       std::string line;
@@ -202,6 +217,7 @@ int main(int argc, char **argv) {
           boost::lexical_cast<double>(
               line.substr(delimiter_pos2 + 1,
                   line.length() - delimiter_pos2 - 1)));
+      b_size = std::max(width, height);
       boundary = RectanglePtr(
           new Rectangle(PointPtr(new Point(center_x, center_y)), width,
               height));
@@ -237,7 +253,7 @@ int main(int argc, char **argv) {
   } else {
     b_size = B_SIZE;
   }
-  std::list<PolygonPtr> obstacles;
+  std::list<RectanglePtr> obstacles;
 
   // Tool size
   if (argc >= 3) {
@@ -296,9 +312,9 @@ int main(int argc, char **argv) {
                         - (int) (b_size / t_size / (o_size / t_size) / 2.0))
                         + 0.5) * o_size));
     bool valid = true;
-    for (std::list<PolygonPtr>::iterator p = obstacles.begin();
-        p != obstacles.end(); p++)
-      if ((boost::static_pointer_cast<Cell>(*p))->get_center() == center
+    for (std::list<RectanglePtr>::iterator o = obstacles.begin();
+        o != obstacles.end(); o++)
+      if ((boost::static_pointer_cast<Cell>(*o))->get_center() == center
           || (std::abs(center->x - (starting_point->x - t_size / 2))
               < SMALL_EPSILON
               && std::abs(center->y - (starting_point->y + t_size / 2))
@@ -389,7 +405,7 @@ int main(int argc, char **argv) {
       }
       n = 1;
       // Obstacles
-      for (std::list<PolygonPtr>::iterator o = obstacles.begin();
+      for (std::list<RectanglePtr>::iterator o = obstacles.begin();
           o != obstacles.end(); o++) {
         CellPtr cell = boost::static_pointer_cast<Cell>(*o);
         PointPtr c = cell->get_center();
@@ -419,7 +435,8 @@ int main(int argc, char **argv) {
   world_in.close();
   world_out.close();
 
-  space = SpacePtr(new Space(boundary, obstacles));
+  map = MapPtr(new Map(boundary, obstacles));
+  print_space();
   if (argc >= 5) {
     if (std::string(argv[4]) == "spiral_stc") {
       SpiralStcPtr plan_spiral_stc = SpiralStcPtr(new SpiralStc());
@@ -439,6 +456,14 @@ int main(int argc, char **argv) {
       plan_full_spiral_stc->set_behavior_see_obstacle(
           boost::bind(&test_see_obstacle, _1, _2));
       plan_full_spiral_stc->cover();
+    } else if (std::string(argv[4]) == "full_scan_stc") {
+      FullScanStcPtr plan_full_scan_stc = FullScanStcPtr(new FullScanStc());
+      plan_full_scan_stc->initialize(starting_point, t_size);
+      path.insert(path.end(), starting_point);
+      plan_full_scan_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
+      plan_full_scan_stc->set_behavior_see_obstacle(
+          boost::bind(&test_see_obstacle, _1, _2));
+      plan_full_scan_stc->cover();
     } else if (std::string(argv[4]) == "boustrophedon_online") {
       BoustrophedonOnlinePtr plan_boustrophedon_online = BoustrophedonOnlinePtr(
           new BoustrophedonOnline());

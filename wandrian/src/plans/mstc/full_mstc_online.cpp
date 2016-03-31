@@ -1,111 +1,120 @@
 /*
- * full_spiral_stc.cpp
+ * full_mstc_online.cpp
  *
  *  Created on: Dec 3, 2015
  *      Author: cslab
  */
 
-#include "../../../include/plans/spiral_stc/full_spiral_stc.hpp"
+#include "../../../include/plans/mstc/full_mstc_online.hpp"
+#include "../../../include/environment/mstc/communicator.hpp"
 
 #define PASS true
 #define DONT_PASS false
+#define DIAGONALLY_OPPOSITE_OBSTACLES true
+#define NON_DIAGONALLY_OPPOSITE_OBSTACLES false
 
-#define DIAGONALLY_OPPOSITE true
-#define NON_DIAGONALLY_OPPOSITE false
+using namespace wandrian::environment::mstc;
 
 namespace wandrian {
 namespace plans {
-namespace spiral_stc {
+namespace mstc {
 
-FullSpiralStc::FullSpiralStc() {
+FullMstcOnline::FullMstcOnline() {
 }
 
-FullSpiralStc::~FullSpiralStc() {
+FullMstcOnline::~FullMstcOnline() {
 }
 
-void FullSpiralStc::initialize(PointPtr starting_point, double tool_size) {
+void FullMstcOnline::initialize(PointPtr starting_point, double tool_size,
+    CommunicatorPtr communicator) {
   this->tool_size = tool_size;
+  this->communicator = communicator;
   // Initialize starting_cell
-  starting_cell = PartiallyOccupiableCellPtr(
-      new PartiallyOccupiableCell(
+  starting_cell = PartiallyOccupiableIdentifiableCellPtr(
+      new PartiallyOccupiableIdentifiableCell(
           PointPtr(
               new Point(starting_point->x - tool_size / 2,
-                  starting_point->y + tool_size / 2)), 2 * tool_size));
+                  starting_point->y + tool_size / 2)), 2 * tool_size,
+          communicator->get_robot_name()));
   starting_cell->set_parent(
-      PartiallyOccupiableCellPtr(
-          new PartiallyOccupiableCell(
+      PartiallyOccupiableIdentifiableCellPtr(
+          new PartiallyOccupiableIdentifiableCell(
               PointPtr(
                   new Point(starting_cell->get_center()->x,
                       starting_cell->get_center()->y - 2 * tool_size)),
-              2 * tool_size)));
+              2 * tool_size, communicator->get_robot_name())));
   path.insert(path.end(), starting_point);
 }
 
-void FullSpiralStc::cover() {
-  old_cells.insert(starting_cell);
+void FullMstcOnline::cover() {
+  communicator->cells.insert(starting_cell);
   starting_cell->set_current_quadrant(IV);
   scan(starting_cell);
 }
 
-State FullSpiralStc::state_of(CellPtr cell) {
-  State state = (old_cells.find(cell) != old_cells.end()) ? OLD : NEW;
+State FullMstcOnline::state_of(CellPtr cell) {
+  State state =
+      (communicator->cells.find(
+          boost::static_pointer_cast<IdentifiableCell>(cell))
+          != communicator->cells.end()) ? OLD : NEW;
   if (state == OLD)
     std::cout << " \033[1;45m(OLD)\033[0m\n";
   return state;
 }
 
-void FullSpiralStc::scan(CellPtr current) {
+void FullMstcOnline::scan(CellPtr current) {
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;32mBEGIN:\033[0m "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
-  VectorPtr direction = (current->get_parent()->get_center()
+  VectorPtr orientation = (current->get_parent()->get_center()
       - current->get_center()) / 2 / tool_size;
-  VectorPtr initial_direction = direction++;
+  VectorPtr initial_orientation = orientation++;
   // Check current cell has diagonally opposite obstacles or not
-  PartiallyOccupiableCellPtr c = boost::static_pointer_cast<
-      PartiallyOccupiableCell>(current);
+  PartiallyOccupiableIdentifiableCellPtr c = boost::dynamic_pointer_cast<
+      PartiallyOccupiableIdentifiableCell>(current);
   Quadrant q = c->get_current_quadrant();
-  Orientation orientation;
+  Orientation o;
   if (q == I)
-    orientation = AT_LEFT_SIDE;
+    o = AT_LEFT_SIDE;
   else if (q == II)
-    orientation = IN_BACK;
+    o = IN_BACK;
   else if (q == III)
-    orientation = AT_RIGHT_SIDE;
+    o = AT_RIGHT_SIDE;
   else if (q == IV)
-    orientation = IN_FRONT;
-  c->set_quadrants_state(+q,
-      see_obstacle(~orientation, tool_size / 2) ? OBSTACLE : NEW);
+    o = IN_FRONT;
+  c->set_quadrants_state(+q, see_obstacle(~o, tool_size / 2) ? OBSTACLE : NEW);
   c->set_quadrants_state(-q,
-      see_obstacle(~++orientation, tool_size / 2) ? OBSTACLE : NEW);
+      see_obstacle(~++o, tool_size / 2) ? OBSTACLE : NEW);
   // While current cell has a new obstacle-free neighboring cell
   bool is_starting_cell = current == starting_cell;
   do {
     // Scan for new neighbor of current cell in counterclockwise order
-    PartiallyOccupiableCellPtr neighbor = PartiallyOccupiableCellPtr(
-        new PartiallyOccupiableCell(
-            current->get_center() + direction * 2 * tool_size, 2 * tool_size));
+    PartiallyOccupiableIdentifiableCellPtr neighbor =
+        PartiallyOccupiableIdentifiableCellPtr(
+            new PartiallyOccupiableIdentifiableCell(
+                current->get_center() + orientation * 2 * tool_size,
+                2 * tool_size, communicator->get_robot_name()));
     std::cout << "  \033[1;33mneighbor:\033[0m " << neighbor->get_center()->x
         << "," << neighbor->get_center()->y;
     if (state_of(neighbor) == OLD
-        && (state_of_subcells_of(neighbor, ~direction)
-            == NON_DIAGONALLY_OPPOSITE)) { // Old cell
+        && (state_of_subcells_of(neighbor, ~orientation)
+            == NON_DIAGONALLY_OPPOSITE_OBSTACLES)) { // Old cell
       // Go to next sub-cell
       go_from(current, DONT_PASS, neighbor);
       continue;
     } else {
-      // Go to free sub-cell of neighbor
+      // Go with absolute orientation
       bool succeed = go_from(current, PASS, neighbor);
       if (!succeed) { // Obstacle
       } else { // New free neighbor
         // Construct a spanning-tree edge
         neighbor->set_parent(current);
-        old_cells.insert(neighbor);
+        communicator->cells.insert(neighbor);
         scan(neighbor);
       }
     }
-  } while (direction++ % initial_direction
+  } while (orientation++ % initial_orientation
       != (is_starting_cell ? IN_BACK : AT_LEFT_SIDE));
-  // Back to sub-cell of parent
+  // Back to sub-cell of parent (need to check sub-cell of parent is occupied or not)
   if (!is_starting_cell) {
     go_from(current, PASS, current->get_parent());
   }
@@ -113,46 +122,46 @@ void FullSpiralStc::scan(CellPtr current) {
       << current->get_center()->x << "," << current->get_center()->y << "\n";
 }
 
-bool FullSpiralStc::go_from(CellPtr current, bool need_to_pass, CellPtr next) {
-  VectorPtr direction = (next->get_center() - current->get_center())
+bool FullMstcOnline::go_from(CellPtr current, bool pass, CellPtr next) {
+  VectorPtr orientation = (next->get_center() - current->get_center())
       / (2 * tool_size);
-  PartiallyOccupiableCellPtr c = boost::static_pointer_cast<
-      PartiallyOccupiableCell>(current);
-  PartiallyOccupiableCellPtr n = boost::static_pointer_cast<
-      PartiallyOccupiableCell>(next);
+  PartiallyOccupiableIdentifiableCellPtr c = boost::dynamic_pointer_cast<
+      PartiallyOccupiableIdentifiableCell>(current);
+  PartiallyOccupiableIdentifiableCellPtr n = boost::dynamic_pointer_cast<
+      PartiallyOccupiableIdentifiableCell>(next);
   Quadrant quadrant = c->get_current_quadrant();
   Quadrant q;
   Quadrant q1;
   Quadrant q2;
   Quadrant q3;
   Quadrant q4;
-  if (~direction == AT_RIGHT_SIDE)
+  if (~orientation == AT_RIGHT_SIDE)
     q = IV;
-  else if (~direction == IN_FRONT)
+  else if (~orientation == IN_FRONT)
     q = I;
-  else if (~direction == AT_LEFT_SIDE)
+  else if (~orientation == AT_LEFT_SIDE)
     q = II;
-  else if (~direction == IN_BACK)
+  else if (~orientation == IN_BACK)
     q = III;
   q1 = q;
   q2 = ++q;
   q3 = ++q;
   q4 = ++q;
   if (quadrant == q1 || quadrant == q2) {
-    if (!see_obstacle(direction, tool_size / 2)) {
-      if (need_to_pass == DONT_PASS)
+    if (!see_obstacle(orientation, tool_size / 2)) {
+      if (pass == DONT_PASS)
         return true;
       bool succeed = visit(next, quadrant == q1 ? q4 : q3, STRICTLY);
       std::cout << "\n";
       return succeed;
     } else {
       n->set_quadrants_state(q1 ? q4 : q3, OBSTACLE);
-      if (!see_obstacle(quadrant == q1 ? ++direction : --direction,
+      if (!see_obstacle(quadrant == q1 ? ++orientation : --orientation,
           tool_size / 2)) {
         visit(current, quadrant == q1 ? q2 : q1, STRICTLY);
-        if (!see_obstacle(quadrant == q1 ? --direction : ++direction,
+        if (!see_obstacle(quadrant == q1 ? --orientation : ++orientation,
             tool_size / 2)) {
-          if (need_to_pass == DONT_PASS)
+          if (pass == DONT_PASS)
             return true;
           bool succeed = visit(next, quadrant == q1 ? q3 : q4, STRICTLY);
           std::cout << "\n";
@@ -167,18 +176,18 @@ bool FullSpiralStc::go_from(CellPtr current, bool need_to_pass, CellPtr next) {
       }
     }
   } else if (quadrant == q4 || quadrant == q3) {
-    if (!see_obstacle(direction, tool_size / 2)) {
+    if (!see_obstacle(orientation, tool_size / 2)) {
       visit(c, quadrant == q4 ? q1 : q2, STRICTLY);
-      return go_from(c, need_to_pass, next);
+      return go_from(c, pass, next);
     } else {
       c->set_quadrants_state(quadrant == q4 ? q1 : q2, OBSTACLE);
-      if (!see_obstacle(quadrant == q4 ? ++direction : --direction,
+      if (!see_obstacle(quadrant == q4 ? ++orientation : --orientation,
           tool_size / 2)) {
         visit(c, quadrant == q4 ? q3 : q4, STRICTLY);
-        if (!see_obstacle(quadrant == q4 ? --direction : ++direction,
+        if (!see_obstacle(quadrant == q4 ? --orientation : ++orientation,
             tool_size / 2)) {
           visit(c, quadrant == q4 ? q2 : q1, STRICTLY);
-          return go_from(c, need_to_pass, next);
+          return go_from(c, pass, next);
         } else {
           c->set_quadrants_state(quadrant == q4 ? q2 : q1, OBSTACLE);
           return false;
@@ -192,17 +201,19 @@ bool FullSpiralStc::go_from(CellPtr current, bool need_to_pass, CellPtr next) {
     return false;
 }
 
-bool FullSpiralStc::visit(CellPtr cell, Quadrant quadrant, bool flexibility) {
-  PartiallyOccupiableCellPtr c = boost::static_pointer_cast<
-      PartiallyOccupiableCell>(cell);
+bool FullMstcOnline::visit(CellPtr cell, Quadrant quadrant, bool flexibly) {
+  PartiallyOccupiableIdentifiableCellPtr c = boost::dynamic_pointer_cast<
+      PartiallyOccupiableIdentifiableCell>(cell);
   c->set_current_quadrant(quadrant);
-  return go_to(c->get_current_position(), flexibility);
+  return go_to(c->get_current_position(), flexibly);
 }
 
-bool FullSpiralStc::state_of_subcells_of(CellPtr cell,
+bool FullMstcOnline::state_of_subcells_of(CellPtr cell,
     Orientation orientation) {
-  PartiallyOccupiableCellPtr c = boost::static_pointer_cast<
-      PartiallyOccupiableCell>(*old_cells.find(cell));
+  PartiallyOccupiableIdentifiableCellPtr c = boost::dynamic_pointer_cast<
+      PartiallyOccupiableIdentifiableCell>(
+      *communicator->cells.find(
+          boost::static_pointer_cast<IdentifiableCell>(cell)));
   Quadrant q;
   if (orientation == AT_LEFT_SIDE)
     q = I;
@@ -217,8 +228,8 @@ bool FullSpiralStc::state_of_subcells_of(CellPtr cell,
           && c->get_quadrants()[-q] == OBSTACLE)
           || (c->get_quadrants()[--q] == NEW
               && c->get_quadrants()[+q] == OBSTACLE
-              && c->get_quadrants()[-q] == OBSTACLE) ? DIAGONALLY_OPPOSITE :
-      NON_DIAGONALLY_OPPOSITE;
+              && c->get_quadrants()[-q] == OBSTACLE) ?
+          DIAGONALLY_OPPOSITE_OBSTACLES : NON_DIAGONALLY_OPPOSITE_OBSTACLES;
 }
 
 }

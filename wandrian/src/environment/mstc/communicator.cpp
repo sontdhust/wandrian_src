@@ -11,13 +11,13 @@
 #include <boost/tokenizer.hpp>
 #include <algorithm>
 #include <sstream>
-#include "../../../include/environment/mstc_online/communicator.hpp"
+#include "../../../include/environment/mstc/communicator.hpp"
 
 #define foreach BOOST_FOREACH
 
 namespace wandrian {
 namespace environment {
-namespace mstc_online {
+namespace mstc {
 
 Communicator::Communicator() {
   tool_size = 0.5;

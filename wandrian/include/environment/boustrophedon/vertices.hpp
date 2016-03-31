@@ -8,7 +8,7 @@
 #ifndef WANDRIAN_INCLUDE_ENVIRONMENT_BOUSTROPHEDON_VERTICES_HPP_
 #define WANDRIAN_INCLUDE_ENVIRONMENT_BOUSTROPHEDON_VERTICES_HPP_
 
-#include "../../environment/boustrophedon/obstacle.hpp"
+#include "../../common/rectangle.hpp"
 
 using namespace wandrian::common;
 
@@ -19,7 +19,7 @@ namespace boustrophedon {
 class Vertices {
 
 public:
-  Vertices(PointPtr, ObstaclePtr);
+  Vertices(PointPtr, RectanglePtr);
   bool left_compared_center();
   bool upon_compared_center();
 
@@ -31,13 +31,13 @@ public:
       boost::shared_ptr<Vertices>);
 
   PointPtr get_position();
-  ObstaclePtr get_polygon();
+  RectanglePtr get_polygon();
   void set_positions(PointPtr);
-  void set_polygon(ObstaclePtr);
+  void set_polygon(RectanglePtr);
 
 private:
   PointPtr position;
-  ObstaclePtr polygon;
+  RectanglePtr polygon;
 };
 
 typedef boost::shared_ptr<Vertices const> VerticesConstPtr;

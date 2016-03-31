@@ -5,21 +5,21 @@
  *      Author: manhnh
  */
 
-#ifndef WANDRIAN_INCLUDE_PLANS_MSTC_ONLINE_MSTC_ONLINE_HPP_
-#define WANDRIAN_INCLUDE_PLANS_MSTC_ONLINE_MSTC_ONLINE_HPP_
+#ifndef WANDRIAN_INCLUDE_PLANS_MSTC_MSTC_ONLINE_HPP_
+#define WANDRIAN_INCLUDE_PLANS_MSTC_MSTC_ONLINE_HPP_
 
 #include "../../common/vector.hpp"
-#include "../../environment/mstc_online/identifiable_cell.hpp"
-#include "../../environment/mstc_online/communicator.hpp"
+#include "../../environment/mstc/communicator.hpp"
+#include "../../environment/mstc/identifiable_cell.hpp"
 #include "../base_plan.hpp"
 
 using namespace wandrian::common;
 using namespace wandrian::environment;
-using namespace wandrian::environment::mstc_online;
+using namespace wandrian::environment::mstc;
 
 namespace wandrian {
 namespace plans {
-namespace mstc_online {
+namespace mstc {
 
 class MstcOnline: public BasePlan {
 
@@ -53,4 +53,4 @@ typedef boost::shared_ptr<MstcOnline> MstcOnlinePtr;
 }
 }
 
-#endif /* WANDRIAN_INCLUDE_PLANS_MSTC_ONLINE_MSTC_ONLINE_HPP_ */
+#endif /* WANDRIAN_INCLUDE_PLANS_MSTC_MSTC_ONLINE_HPP_ */
