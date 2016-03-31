@@ -33,11 +33,11 @@ void ExtendedMap::build() {
   double size_x, size_y;
   int i, flag;
   std::fstream myReadFile;
-  if (this->file_name.compare("") != 0) {
-    myReadFile.open(this->file_name.c_str());
-    std::cout << "out" << this->file_name << std::endl;
+  if (this->map_path.compare("") != 0) {
+    myReadFile.open(this->map_path.c_str());
+    std::cout << "out" << this->map_path << std::endl;
     if (myReadFile.is_open()) {
-      std::cout << "Out2" << this->file_name << std::endl;
+      std::cout << "Out2" << this->map_path << std::endl;
       int i = 0;
       int flag = 0;
       while (getline(myReadFile, line) != NULL) {

@@ -108,6 +108,7 @@ void Wandrian::wandrian_run() {
         boost::bind(&Wandrian::boustrophedon_go_to, this, _1, _2));
     boustrophedon->cover();
   }
+  robot->stop();
 }
 
 bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibility) {
@@ -197,7 +198,6 @@ bool Wandrian::go_to(PointPtr new_position, bool flexibility) {
             < epsilon_direction
             && std::abs(direction->y + robot->get_current_direction()->y)
                 < epsilon_direction))) { // Wrong direction
-      robot->stop();
       forward = rotate_to(new_position, flexibility);
       go(forward);
     }
@@ -205,7 +205,6 @@ bool Wandrian::go_to(PointPtr new_position, bool flexibility) {
         < epsilon_position
         && std::abs(new_position->y - robot->get_current_position()->y)
             < epsilon_position) { // Reached the new position
-      robot->stop();
       break;
     }
   }
@@ -218,6 +217,7 @@ bool Wandrian::see_obstacle(Orientation orientation, double distance) {
 }
 
 bool Wandrian::rotate_to(PointPtr new_position, bool flexibility) {
+  robot->stop();
   VectorPtr new_direction = (new_position - robot->get_current_position())
       / (new_position % robot->get_current_position());
   return rotate_to(new_direction, flexibility);

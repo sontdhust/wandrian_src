@@ -14,8 +14,8 @@ Map::Map(RectanglePtr boundary, std::list<RectanglePtr> obstacles) :
     boundary(boundary), obstacles(obstacles) {
 }
 
-Map::Map(std::string file_name) {
-  this->file_name = file_name;
+Map::Map(std::string map_path) {
+  this->map_path = map_path;
   initialize();
 }
 
@@ -30,8 +30,8 @@ std::list<RectanglePtr> Map::get_obstacles() {
   return obstacles;
 }
 
-std::string Map::get_file_name() {
-  return file_name;
+std::string Map::get_map_path() {
+  return map_path;
 }
 
 void Map::build() {

@@ -389,7 +389,7 @@ void Boustrophedon::boustrophedon_cd() {
   std::list<SpacePtr>::iterator inspectLS;
   std::list<SpacePtr>::iterator inspectLS_child;
   int i, j;
-  std::cout << map->get_file_name() << std::endl;
+  std::cout << map->get_map_path() << std::endl;
 
   // Create vertices
   list_vertices = create_list_vertices(map->get_boundary(),

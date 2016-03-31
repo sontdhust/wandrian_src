@@ -167,14 +167,10 @@ void Robot::spin() {
 }
 
 void Robot::stop() {
-  decelerate(0);
+  velocity->linear.x *= 0;
+  velocity->angular.z *= 0;
   // Force stop
   publisher_velocity.publish(velocity);
-}
-
-void Robot::decelerate(double linear_proportion, double angular_proportion) {
-  velocity->linear.x *= linear_proportion;
-  velocity->angular.z *= angular_proportion;
 }
 
 std::string Robot::get_map_name() {

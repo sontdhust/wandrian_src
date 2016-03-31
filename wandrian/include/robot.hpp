@@ -39,7 +39,6 @@ public:
   bool initialize();
   void spin();
   void stop();
-  void decelerate(double = 0.0, double = 0.0);
 
   std::string get_map_name();
   std::string get_plan_name();
