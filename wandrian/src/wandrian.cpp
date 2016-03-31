@@ -102,7 +102,8 @@ void Wandrian::wandrian_run() {
         PointPtr(
             new Point(robot->get_starting_point_x(),
                 robot->get_starting_point_y())), robot->get_tool_size(),
-        ros::package::getPath("wandrian") + "/worlds/prefered.map");
+        ros::package::getPath("wandrian") + "/worlds/" + robot->get_map_name()
+            + ".map");
     boustrophedon->set_behavior_go_to(
         boost::bind(&Wandrian::boustrophedon_go_to, this, _1, _2));
     boustrophedon->cover();
