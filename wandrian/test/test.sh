@@ -14,7 +14,7 @@ cd ../environment
 g++ -c cell.cpp
 g++ -c partially_occupiable.cpp
 g++ -c partially_occupiable_cell.cpp
-g++ -c space.cpp
+g++ -c map.cpp
 
 cd ../plans
 g++ -c base_plan.cpp
@@ -32,7 +32,7 @@ g++ -o ../wandrian \
 ../../test.cpp \
 common/point.o common/vector.o common/segment.o common/polygon.o common/rectangle.o \
 plans/base_plan.o \
-environment/cell.o environment/partially_occupiable.o environment/partially_occupiable_cell.o environment/space.o \
+environment/cell.o environment/partially_occupiable.o environment/partially_occupiable_cell.o environment/map.o \
 plans/stc/spiral_stc.o plans/stc/full_spiral_stc.o plans/stc/full_scan_stc.o \
 plans/boustrophedon_online/boustrophedon_online.o \
 -lglut -lGL

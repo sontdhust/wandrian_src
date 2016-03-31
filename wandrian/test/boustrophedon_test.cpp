@@ -14,7 +14,7 @@
 #include <boost/next_prior.hpp>
 #include <sstream>
 #include <fstream>
-#include "../include/environment/space.hpp"
+#include "../include/environment/map.hpp"
 #include "../include/plans/boustrophedon/boustrophedon.hpp"
 
 #define R_SIZE 0.5 // robot size
@@ -26,7 +26,7 @@ using namespace wandrian::plans::boustrophedon;
 
 double e_size = 0;
 
-SpacePtr environment;
+MapPtr environment;
 PointPtr starting_point;
 std::list<PointPtr> tmp_path;
 /**
@@ -290,7 +290,7 @@ int main(int argc, char **argv) {
   world_in.close();
   world_out.close();
 
-  environment = SpacePtr(new Space(space, obstacles));
+  environment = MapPtr(new Map(space, obstacles));
   BoustrophedonPtr boustrophedon = BoustrophedonPtr(new Boustrophedon());
   boustrophedon->initialize(starting_point, R_SIZE,
       "../../worlds/prefered.map");
