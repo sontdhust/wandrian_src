@@ -26,7 +26,9 @@ void Boustrophedon::initialize(PointPtr starting_point, double robot_size,
   this->map = ExtendedMapPtr(new ExtendedMap(namefile));
   path.insert(path.end(), starting_point);
 }
-
+ExtendedMapPtr Boustrophedon::get_map(){
+	return map;
+}
 void Boustrophedon::cover() {
   // old_cells.insert(starting_cell);
   boustrophedon_cd();
@@ -341,7 +343,7 @@ std::list<VerticesPtr> Boustrophedon::create_list_vertices(
       ++inspectLO) {
     std::cout << "Obstacle " << i++ << ":O(" << (*inspectLO)->get_center()->x
         << " , " << (*inspectLO)->get_center()->y << ")" << std::endl;
-    list_point = (*inspectLO)->get_boundary();
+    list_point = (*inspectLO)->get_points();
 
     for (inspectLP = list_point.begin(), j = 1; inspectLP != list_point.end();
         ++inspectLP) {
@@ -354,7 +356,7 @@ std::list<VerticesPtr> Boustrophedon::create_list_vertices(
   }
 
   // Add vertices enviroment
-  list_point = environment->get_boundary();
+  list_point = environment->get_points();
   for (inspectLP = list_point.begin(); inspectLP != list_point.end();
       ++inspectLP) {
     std::cout << "O" << (*inspectLP)->x << (*inspectLP)->y << std::endl;
