@@ -186,6 +186,8 @@ bool test_see_obstacle(VectorPtr direction, double distance) {
 }
 
 int main(int argc, char **argv) {
+  std::srand(std::time(0));
+
   // Boundary size and obstacle center
   RectanglePtr boundary;
   bool map_input = false;
@@ -202,120 +204,52 @@ int main(int argc, char **argv) {
   double o_size;
   int number_of_obstacles;
   const double r = 0.2;
-  bool obstacle_size_input = false;
-  std::istringstream iss2(argv[2]);
-  if (!(iss2 >> o_size)) {
-    obstacle_size_input = true;
-  } else {
-    obstacle_size_input = false;
+  if (!map_input) {
+    std::istringstream iss2(argv[2]);
+    iss2 >> o_size;
     double n = 0.75 * r * (b_size * b_size) / (o_size * o_size);
     number_of_obstacles = n
         + ((int) (0.25 * n) != 0 ? std::rand() % (int) (0.25 * n) : 0);
   }
 
   // Tool size
-  std::istringstream iss3(argv[3]);
+  std::istringstream iss3(argv[map_input ? 2 : 3]);
   if (!(iss3 >> t_size)) {
     t_size = T_SIZE;
   }
 
-  // Read center point of obstacles from input file
-  std::vector<PointPtr> obstacle_centers;
-  std::vector<double> obstacle_sizes;
-  bool global_obstacle_size = true;
+  std::list<RectanglePtr> obstacles;
   if (map_input) {
-    std::ifstream map(("../" + std::string(argv[1])).c_str());
-    std::string line;
-    // Boundary size
-    std::getline(map, line, '\n');
-    int delim_pos1;
-    int delim_pos2;
-    int delim_pos3;
-    delim_pos1 = line.find(" ");
-    delim_pos2 = line.find(" ", delim_pos1 + 1);
-    double center_x = boost::lexical_cast<double>(
-        boost::lexical_cast<double>(line.substr(0, delim_pos1)));
-    double center_y = boost::lexical_cast<double>(
-        boost::lexical_cast<double>(
-            line.substr(delim_pos1 + 1, delim_pos2 - delim_pos1 - 1)));
-    delim_pos1 = delim_pos2;
-    delim_pos2 = line.find(" ", delim_pos1 + 1);
-    delim_pos3 = line.find(" ", delim_pos2 + 1);
-    global_obstacle_size = !obstacle_size_input
-        || (delim_pos3 != std::string::npos);
-    double width = boost::lexical_cast<double>(
-        boost::lexical_cast<double>(
-            line.substr(delim_pos1 + 1, delim_pos2 - delim_pos1 - 1)));
-    double height = boost::lexical_cast<double>(
-        boost::lexical_cast<double>(
-            line.substr(delim_pos2 + 1,
-                (obstacle_size_input && global_obstacle_size ?
-                    delim_pos3 : line.length()) - delim_pos2 - 1)));
-    b_size = std::max(width, height);
-    boundary = RectanglePtr(
-        new Rectangle(PointPtr(new Point(center_x, center_y)), width, height));
-    if (obstacle_size_input && global_obstacle_size)
-      o_size = boost::lexical_cast<double>(
-          boost::lexical_cast<double>(
-              line.substr(delim_pos3 + 1, line.length() - delim_pos3 - 1)));
-    // Center point of obstacles
-    while (std::getline(map, line, '\n')) {
-      if (line == "" || line.substr(0, 1) == "#")
-        continue;
-      double center_point_x;
-      double center_point_y;
-      int d_pos1 = line.find(" ");
-      int d_pos2 = line.find(" ", d_pos1 + 1);
-      center_point_x = boost::lexical_cast<double>(line.substr(0, d_pos1));
-      center_point_y = boost::lexical_cast<double>(
-          line.substr(d_pos1 + 1,
-              (obstacle_size_input && !global_obstacle_size ?
-                  d_pos2 : line.length()) - d_pos1 - 1));
-      obstacle_centers.push_back(
-          PointPtr(new Point(center_point_x, center_point_y)));
-      if (obstacle_size_input && !global_obstacle_size) {
-        obstacle_sizes.push_back(
-            boost::lexical_cast<double>(
-                line.substr(d_pos2 + 1, line.length() - d_pos2 - 1)));
+    map = MapPtr(new Map("../" + std::string(argv[1])));
+    boundary = map->get_boundary();
+    obstacles = map->get_obstacles();
+  } else {
+    // Generate obstacles
+    for (int i = 0; i <= (number_of_obstacles); i++) {
+      PointPtr center = PointPtr(
+          new Point(
+              ((std::rand()
+                  % (int) (boundary->get_width() / t_size / (o_size / t_size))
+                  - (int) (boundary->get_width() / t_size / (o_size / t_size)
+                      / 2.0)) + 0.5) * o_size,
+              ((std::rand()
+                  % (int) (boundary->get_height() / t_size / (o_size / t_size))
+                  - (int) (boundary->get_height() / t_size / (o_size / t_size)
+                      / 2.0)) + 0.5) * o_size));
+      bool valid = true;
+      for (std::list<RectanglePtr>::iterator o = obstacles.begin();
+          o != obstacles.end(); o++)
+        if ((boost::static_pointer_cast<Cell>(*o))->get_center() == center) {
+          valid = false;
+          break;
+        };
+      if (valid) {
+        obstacles.insert(obstacles.end(), CellPtr(new Cell(center, o_size)));
       }
     }
+    map = MapPtr(new Map(boundary, obstacles));
   }
-
-  // Generate obstacles
-  std::list<RectanglePtr> obstacles;
-  std::srand(std::time(0));
-  for (int i = 0;
-      i <= (map_input ? (int) obstacle_centers.size() - 1 : number_of_obstacles);
-      i++) {
-    PointPtr center =
-        map_input ?
-            obstacle_centers[i] :
-            PointPtr(
-                new Point(
-                    ((std::rand()
-                        % (int) (boundary->get_width() / t_size
-                            / (o_size / t_size))
-                        - (int) (boundary->get_width() / t_size
-                            / (o_size / t_size) / 2.0)) + 0.5) * o_size,
-                    ((std::rand()
-                        % (int) (boundary->get_height() / t_size
-                            / (o_size / t_size))
-                        - (int) (boundary->get_height() / t_size
-                            / (o_size / t_size) / 2.0)) + 0.5) * o_size));
-    bool valid = true;
-    for (std::list<RectanglePtr>::iterator o = obstacles.begin();
-        o != obstacles.end(); o++)
-      if ((boost::static_pointer_cast<Cell>(*o))->get_center() == center) {
-        valid = false;
-        break;
-      };
-    if (valid) {
-      obstacles.insert(obstacles.end(),
-          CellPtr(
-              new Cell(center,
-                  global_obstacle_size ? o_size : obstacle_sizes[i])));
-    }
-  }
+  b_size = std::max(boundary->get_width(), boundary->get_height());
 
   // Write output world file
   std::ifstream world_in("../../worlds/empty.world");
@@ -427,15 +361,15 @@ int main(int argc, char **argv) {
   world_out.close();
 
   // Starting point
-  std::istringstream iss4(argv[4]);
+  std::istringstream iss4(argv[map_input ? 3 : 4]);
   double starting_point_x;
   double starting_point_y;
   std::string plan_name;
   if (iss4 >> starting_point_x) {
-    std::istringstream iss5(argv[5]);
+    std::istringstream iss5(argv[map_input ? 4 : 5]);
     iss5 >> starting_point_y;
     starting_point = PointPtr(new Point(starting_point_x, starting_point_y));
-    plan_name = std::string(argv[6]);
+    plan_name = std::string(argv[map_input ? 5 : 6]);
   } else {
     starting_point = PointPtr(
         new Point(
@@ -448,7 +382,6 @@ int main(int argc, char **argv) {
     plan_name = iss4.str();
   }
 
-  map = MapPtr(new Map(boundary, obstacles));
   print_space();
   if (plan_name == "spiral_stc") {
     SpiralStcPtr plan_spiral_stc = SpiralStcPtr(new SpiralStc());
