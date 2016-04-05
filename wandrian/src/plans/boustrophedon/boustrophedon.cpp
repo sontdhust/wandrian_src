@@ -44,7 +44,6 @@ bool Boustrophedon::go_to(PointPtr position, bool flexibly) {
 }
 
 bool Boustrophedon::go_into(SpacePtr space) {
-  // TODO: size x bang so le lan robotsize?
   double x = (space->get_center()->x * 2 - space->get_size_x() + robot_size)
       / 2;
   double y = (space->get_center()->y * 2 - space->get_size_y() + robot_size)
@@ -301,7 +300,7 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
       }
     }
   }
-
+  list_space.sort(Space::compare_positions_x);
   for (inspectLS = list_space.begin(), i = 1; inspectLS != list_space.end();
       ++inspectLS) {
 	  std::cout<<(*inspectLS)->get_center()->x<<","<<(*inspectLS)->get_center()->y<<std::endl;
@@ -391,7 +390,7 @@ void Boustrophedon::boustrophedon_cd() {
       map->get_obstacles());
   list_space = create_list_space(map->get_boundary(), list_vertices);
 
-  // TODO: Create list space
+  // Create list space
   std::cout << " " << std::endl;
   for (inspectLS = list_space.begin(), i = 1; inspectLS != list_space.end();
       ++inspectLS) {

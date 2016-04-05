@@ -32,6 +32,7 @@ protected:
 
 private:
   int static comma_position(std::string);
+  PointPtr create_point_to_string(std::string);
 
 };
 
