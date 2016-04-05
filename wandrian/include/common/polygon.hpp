@@ -11,7 +11,6 @@
 #include <map>
 #include <set>
 #include <list>
-
 #include "point.hpp"
 
 namespace wandrian {
@@ -23,6 +22,7 @@ public:
   Polygon();
   Polygon(std::list<PointPtr>);
   ~Polygon();
+  std::list<PointPtr> get_points();
   std::list<PointPtr> get_boundary();
 
 protected:

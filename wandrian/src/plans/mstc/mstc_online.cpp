@@ -5,13 +5,12 @@
  *      Author: manhnh
  */
 
-#include "../../../include/plans/mstc_online/mstc_online.hpp"
-
 #include <algorithm>
+#include "../../../include/plans/mstc/mstc_online.hpp"
 
 namespace wandrian {
 namespace plans {
-namespace mstc_online {
+namespace mstc {
 
 MstcOnline::MstcOnline() :
     tool_size(0) {

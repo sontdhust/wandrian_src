@@ -5,11 +5,11 @@
  *      Author: cslab
  */
 
-#include "../../../include/environment/mstc_online/identifiable_cell.hpp"
+#include "../../../include/environment/mstc/identifiable_cell.hpp"
 
 namespace wandrian {
 namespace environment {
-namespace mstc_online {
+namespace mstc {
 
 IdentifiableCell::IdentifiableCell(PointPtr center, double size,
     std::string robot_name) :

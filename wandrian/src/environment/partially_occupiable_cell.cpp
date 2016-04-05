@@ -17,8 +17,12 @@ PartiallyOccupiableCell::PartiallyOccupiableCell(PointPtr center, double size) :
 PartiallyOccupiableCell::~PartiallyOccupiableCell() {
 }
 
-PointPtr PartiallyOccupiableCell::get_current_position() {
-  return current_position(center, get_size());
+PointPtr PartiallyOccupiableCell::_center() {
+  return get_center();
+}
+
+double PartiallyOccupiableCell::_size() {
+  return get_size();
 }
 
 }

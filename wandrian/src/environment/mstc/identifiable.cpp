@@ -5,11 +5,11 @@
  *      Author: sontd
  */
 
-#include "../../../include/environment/mstc_online/identifiable.hpp"
+#include "../../../include/environment/mstc/identifiable.hpp"
 
 namespace wandrian {
 namespace environment {
-namespace mstc_online {
+namespace mstc {
 
 Identifiable::Identifiable(std::string robot_name) :
     robot_name(robot_name) {

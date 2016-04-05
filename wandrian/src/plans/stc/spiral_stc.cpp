@@ -5,11 +5,11 @@
  *      Author: sontd
  */
 
-#include "../../../include/plans/spiral_stc/spiral_stc.hpp"
+#include "../../../include/plans/stc/spiral_stc.hpp"
 
 namespace wandrian {
 namespace plans {
-namespace spiral_stc {
+namespace stc {
 
 SpiralStc::SpiralStc() :
     tool_size(0) {
@@ -65,13 +65,6 @@ bool SpiralStc::see_obstacle(VectorPtr direction, double distance) {
   return get_obstacle;
 }
 
-State SpiralStc::state_of(CellPtr cell) {
-  State state = (old_cells.find(cell) != old_cells.end()) ? OLD : NEW;
-  if (state == OLD)
-    std::cout << " \033[1;45m(OLD)\033[0m\n";
-  return state;
-}
-
 void SpiralStc::scan(CellPtr current) {
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;32mBEGIN:\033[0m "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
@@ -88,12 +81,12 @@ void SpiralStc::scan(CellPtr current) {
     std::cout << "  \033[1;33mneighbor:\033[0m " << neighbor->get_center()->x
         << "," << neighbor->get_center()->y;
     if (state_of(neighbor) == OLD) { // Old cell
-      // Go to next sub-cell
+      // Go to next subcell
       go_with(++direction, tool_size);
       continue;
     }
     if (see_obstacle(direction, tool_size / 2)) { // Obstacle
-      // Go to next sub-cell
+      // Go to next subcell
       go_with(++direction, tool_size);
     } else { // New free neighbor
       std::cout << "\n";
@@ -105,7 +98,7 @@ void SpiralStc::scan(CellPtr current) {
     }
   } while (direction % initial_direction
       != (is_starting_cell ? AT_RIGHT_SIDE : IN_BACK));
-  // Back to sub-cell of parent
+  // Back to subcell of parent
   if (!is_starting_cell) {
     go_with(direction, tool_size);
   }
@@ -113,8 +106,15 @@ void SpiralStc::scan(CellPtr current) {
       << current->get_center()->x << "," << current->get_center()->y << "\n";
 }
 
+State SpiralStc::state_of(CellPtr cell) {
+  State state = (old_cells.find(cell) != old_cells.end()) ? OLD : NEW;
+  if (state == OLD)
+    std::cout << " \033[1;45m(OLD)\033[0m\n";
+  return state;
+}
+
 bool SpiralStc::go_with(VectorPtr direction, double distance) {
-  PointPtr last_position = *(--path.end());
+  PointPtr last_position = path.back();
   PointPtr new_position = last_position + direction * distance;
   bool succeed = go_to(new_position, STRICTLY);
   std::cout << "\n";

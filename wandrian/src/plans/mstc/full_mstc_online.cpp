@@ -5,19 +5,19 @@
  *      Author: cslab
  */
 
-#include "../../../include/environment/mstc_online/communicator.hpp"
-#include "../../../include/plans/mstc_online/full_mstc_online.hpp"
+#include "../../../include/plans/mstc/full_mstc_online.hpp"
+#include "../../../include/environment/mstc/communicator.hpp"
 
 #define PASS true
 #define DONT_PASS false
 #define DIAGONALLY_OPPOSITE_OBSTACLES true
 #define NON_DIAGONALLY_OPPOSITE_OBSTACLES false
 
-using namespace wandrian::environment::mstc_online;
+using namespace wandrian::environment::mstc;
 
 namespace wandrian {
 namespace plans {
-namespace mstc_online {
+namespace mstc {
 
 FullMstcOnline::FullMstcOnline() {
 }
