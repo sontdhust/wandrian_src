@@ -102,12 +102,12 @@ void Wandrian::wandrian_run() {
         PointPtr(
             new Point(robot->get_starting_point_x(),
                 robot->get_starting_point_y())), robot->get_tool_size(),
-        ros::package::getPath("wandrian") + "/worlds/" + robot->get_map_name()
-            + ".map");
+        find_map_path());
     boustrophedon->set_behavior_go_to(
         boost::bind(&Wandrian::boustrophedon_go_to, this, _1, _2));
     boustrophedon->cover();
   }
+  robot->stop();
 }
 
 bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibility) {
@@ -115,19 +115,45 @@ bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibility) {
 }
 
 bool Wandrian::spiral_stc_see_obstacle(VectorPtr direction, double distance) {
+  RectanglePtr boundary;
+  std::list<RectanglePtr> obstacles;
   PointPtr last_position = plan->get_path().back();
   PointPtr new_position = last_position + direction * distance;
-  RectanglePtr boundary = robot->get_space_boundary();
-  if (new_position->x
-      >= boundary->get_center()->x + boundary->get_width() / 2 - EPSILON
-      || new_position->x
-          <= boundary->get_center()->x - boundary->get_width() / 2 + EPSILON
-      || new_position->y
-          >= boundary->get_center()->y + boundary->get_height() / 2 - EPSILON
-      || new_position->y
-          <= boundary->get_center()->y - boundary->get_height() / 2 + EPSILON) {
-    return true;
+  if (robot->get_map_name() != "") { // Offline map
+    MapPtr map = MapPtr(new Map(find_map_path()));
+    boundary = map->get_boundary();
+    obstacles = map->get_obstacles();
+  } else {
+    boundary = robot->get_map_boundary();
   }
+  if (boundary)
+    if (new_position->x
+        >= boundary->get_center()->x + boundary->get_width() / 2 - EPSILON
+        || new_position->x
+            <= boundary->get_center()->x - boundary->get_width() / 2 + EPSILON
+        || new_position->y
+            >= boundary->get_center()->y + boundary->get_height() / 2 - EPSILON
+        || new_position->y
+            <= boundary->get_center()->y - boundary->get_height() / 2
+                + EPSILON) {
+      return true;
+    }
+  if (obstacles.size() > 0)
+    for (std::list<RectanglePtr>::iterator o = obstacles.begin();
+        o != obstacles.end(); o++) {
+      CellPtr obstacle = boost::static_pointer_cast<Cell>(*o);
+      if (new_position->x
+          >= obstacle->get_center()->x - obstacle->get_size() / 2 - EPSILON
+          && new_position->x
+              <= obstacle->get_center()->x + obstacle->get_size() / 2 + EPSILON
+          && new_position->y
+              >= obstacle->get_center()->y - obstacle->get_size() / 2 - EPSILON
+          && new_position->y
+              <= obstacle->get_center()->y + obstacle->get_size() / 2
+                  + EPSILON) {
+        return true;
+      }
+    }
   double angle = direction ^ robot->get_current_direction();
   if (std::abs(angle) <= 3 * M_PI_4)
     return
@@ -197,7 +223,6 @@ bool Wandrian::go_to(PointPtr new_position, bool flexibility) {
             < epsilon_direction
             && std::abs(direction->y + robot->get_current_direction()->y)
                 < epsilon_direction))) { // Wrong direction
-      robot->stop();
       forward = rotate_to(new_position, flexibility);
       go(forward);
     }
@@ -205,7 +230,6 @@ bool Wandrian::go_to(PointPtr new_position, bool flexibility) {
         < epsilon_position
         && std::abs(new_position->y - robot->get_current_position()->y)
             < epsilon_position) { // Reached the new position
-      robot->stop();
       break;
     }
   }
@@ -230,10 +254,14 @@ bool Wandrian::rotate_to(VectorPtr new_direction, bool flexibility) {
     epsilon = EPSILON_ROTATIONAL_DIRECTION;
   bool will_move_forward =
       (flexibility != FLEXIBLY) ? true : std::abs(angle) < M_PI_2;
-  if (angle > epsilon)
+  if (angle > epsilon) {
+    robot->stop();
     rotate(will_move_forward ? COUNTERCLOCKWISE : CLOCKWISE);
-  else if (angle < -epsilon)
+  } else if (angle < -epsilon) {
+    robot->stop();
     rotate(will_move_forward ? CLOCKWISE : COUNTERCLOCKWISE);
+  } else
+    return true;
   while (true) {
     if (will_move_forward ?
         (std::abs(new_direction->x - robot->get_current_direction()->x)
@@ -266,6 +294,11 @@ void Wandrian::dodge() {
   while (robot->get_obstacle_movement() == COMING) {
     robot->stop();
   }
+}
+
+std::string Wandrian::find_map_path() {
+  return ros::package::getPath("wandrian") + "/worlds/" + robot->get_map_name()
+      + ".map";
 }
 
 }

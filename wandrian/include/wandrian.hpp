@@ -48,6 +48,7 @@ private:
   void go(bool);
   void rotate(bool);
   void dodge();
+  std::string find_map_path();
 };
 
 typedef boost::shared_ptr<Wandrian> WandrianPtr;

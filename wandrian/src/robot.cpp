@@ -18,8 +18,8 @@
 namespace wandrian {
 
 Robot::Robot() :
-    tool_size(0), starting_point_x(0), starting_point_y(0), space_center_x(0), space_center_y(
-        0), space_boundary_width(0), space_boundary_height(0), linear_velocity(
+    map_center_x(0), map_center_y(0), map_boundary_width(0), map_boundary_height(
+        0), tool_size(0), starting_point_x(0), starting_point_y(0), linear_velocity(
         0), angular_velocity(0), proportion_ranges_count(0), proportion_ranges_sum(
         0), augmentation_factor_range(0), epsilon_rotational_direction(0), epsilon_motional_direction(
         0), epsilon_position(0), current_position(new Point()), current_direction(
@@ -39,15 +39,15 @@ bool Robot::initialize() {
   ros::NodeHandle nh("~");
 
   nh.getParam("map_name", map_name);
-  nh.getParam("plan_name", plan_name);
-  nh.getParam("robot_name", robot_name);
+  nh.getParam("map_center_x", map_center_x);
+  nh.getParam("map_center_y", map_center_y);
+  nh.getParam("map_boundary_width", map_boundary_width);
+  nh.getParam("map_boundary_height", map_boundary_height);
   nh.getParam("tool_size", tool_size);
   nh.getParam("starting_point_x", starting_point_x);
   nh.getParam("starting_point_y", starting_point_y);
-  nh.getParam("space_center_x", space_center_x);
-  nh.getParam("space_center_y", space_center_y);
-  nh.getParam("space_boundary_width", space_boundary_width);
-  nh.getParam("space_boundary_height", space_boundary_height);
+  nh.getParam("plan_name", plan_name);
+  nh.getParam("robot_name", robot_name);
   nh.getParam("linear_velocity", linear_velocity);
   nh.getParam("angular_velocity", angular_velocity);
   nh.getParam("proportion_ranges_count", proportion_ranges_count);
@@ -167,22 +167,20 @@ void Robot::spin() {
 }
 
 void Robot::stop() {
-  decelerate(0);
+  velocity->linear.x *= 0;
+  velocity->angular.z *= 0;
   // Force stop
   publisher_velocity.publish(velocity);
-}
-
-void Robot::decelerate(double linear_proportion, double angular_proportion) {
-  velocity->linear.x *= linear_proportion;
-  velocity->angular.z *= angular_proportion;
 }
 
 std::string Robot::get_map_name() {
   return map_name;
 }
 
-std::string Robot::get_plan_name() {
-  return plan_name;
+RectanglePtr Robot::get_map_boundary() {
+  return RectanglePtr(
+      new Rectangle(PointPtr(new Point(map_center_x, map_center_y)),
+          map_boundary_width, map_boundary_height));
 }
 
 double Robot::get_tool_size() {
@@ -197,10 +195,8 @@ double Robot::get_starting_point_y() {
   return starting_point_y;
 }
 
-RectanglePtr Robot::get_space_boundary() {
-  return RectanglePtr(
-      new Rectangle(PointPtr(new Point(space_center_x, space_center_y)),
-          space_boundary_width, space_boundary_height));
+std::string Robot::get_plan_name() {
+  return plan_name;
 }
 
 PointPtr Robot::get_current_position() {
