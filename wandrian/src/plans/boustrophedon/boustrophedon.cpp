@@ -24,6 +24,7 @@ void Boustrophedon::initialize(PointPtr starting_point, double robot_size,
     std::string namefile) {
   this->robot_size = robot_size;
   this->map = ExtendedMapPtr(new ExtendedMap(namefile));
+  this->map->build();
   path.insert(path.end(), starting_point);
 }
 ExtendedMapPtr Boustrophedon::get_map() {
@@ -388,7 +389,7 @@ void Boustrophedon::boustrophedon_cd() {
   std::list<SpacePtr>::iterator inspectLS;
   std::list<SpacePtr>::iterator inspectLS_child;
   int i, j;
-  std::cout << map->get_file_name() << std::endl;
+  std::cout << map->get_map_path() << std::endl;
 
   // Create vertices
   list_vertices = create_list_vertices(map->get_boundary(),

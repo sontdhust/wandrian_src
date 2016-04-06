@@ -26,8 +26,6 @@ public:
   ExtendedMap(RectanglePtr, std::list<RectanglePtr>);
   ExtendedMap(std::string);
   ~ExtendedMap();
-
-protected:
   void build();
 
 private:

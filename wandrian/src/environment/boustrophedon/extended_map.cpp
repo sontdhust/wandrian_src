@@ -16,9 +16,8 @@ ExtendedMap::ExtendedMap(RectanglePtr boundary,
     Map(boundary, obstacles) {
 }
 
-ExtendedMap::ExtendedMap(std::string file_name) :
-    Map(file_name) {
-  build();
+ExtendedMap::ExtendedMap(std::string map_path) :
+    Map(map_path) {
 }
 
 ExtendedMap::~ExtendedMap() {
@@ -34,8 +33,8 @@ void ExtendedMap::build() {
   int i, flag;
   std::fstream read_file;
   std::size_t flag_start, flag_end;
-  if (this->file_name.compare("") != 0) {
-    read_file.open(this->file_name.c_str());
+  if (this->map_path.compare("") != 0) {
+    read_file.open(this->map_path.c_str());
     if (read_file.is_open()) {
       int i = 1;
       int flag = 0;
