@@ -1,11 +1,12 @@
 <launch>
-  <arg name="plan_name"/>
-  <arg name="robot_name" value="mobile_base"/>
+  <arg name="map_name" default=""/>
+  <arg name="map_boundary_width" default="0"/>
+  <arg name="map_boundary_height" default="0"/>
   <arg name="tool_size"/>
   <arg name="starting_point_x"/>
   <arg name="starting_point_y"/>
-  <arg name="space_boundary_width" default="0"/>
-  <arg name="space_boundary_height" default="0"/>
+  <arg name="plan_name"/>
+  <arg name="robot_name" value="mobile_base"/>
 
   <!-- Spawns Kobuki inside a Gazebo simulation -->
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find wandrian)/models/robot/urdf/robot.urdf.xacro'"/>
@@ -22,12 +23,13 @@
     <remap from="run/odometry" to="odom"/>
     <remap from="run/laser" to="scan"/>
 
-    <param name="plan_name" value="$(arg plan_name)" type="string"/>
+    <param name="map_name" value="$(arg map_name)" type="string"/>
+    <param name="map_boundary_width" value="$(arg map_boundary_width)" type="double"/>
+    <param name="map_boundary_height" value="$(arg map_boundary_height)" type="double"/>
     <param name="tool_size" value="$(arg tool_size)" type="double"/>
     <param name="starting_point_x" value="$(arg starting_point_x)" type="double"/>
     <param name="starting_point_y" value="$(arg starting_point_y)" type="double"/>
-    <param name="space_boundary_width" value="$(arg space_boundary_width)" type="double"/>
-    <param name="space_boundary_height" value="$(arg space_boundary_height)" type="double"/>
+    <param name="plan_name" value="$(arg plan_name)" type="string"/>
 
     <param name="linear_velocity" value="0.2" type="double"/>
     <param name="angular_velocity" value="0.4" type="double"/>

@@ -76,7 +76,7 @@ void FullSpiralStc::scan(CellPtr current) {
             current->get_center() + direction * 2 * tool_size, 2 * tool_size));
     std::cout << "  \033[1;33mneighbor:\033[0m " << neighbor->get_center()->x
         << "," << neighbor->get_center()->y;
-    go_from(current, DONT_PASS, neighbor); // Full Scan-STC preparing
+    // go_from(current, DONT_PASS, neighbor); // Full Scan-STC preparing
     if (should_go_to(neighbor, direction)) {
       // Go to free subcell of neighbor
       bool succeed = go_from(current, PASS, neighbor);
