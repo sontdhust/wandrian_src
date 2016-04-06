@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <cmath>
 #include <boost/shared_ptr.hpp>
-
 #include "global.hpp"
 
 namespace wandrian {

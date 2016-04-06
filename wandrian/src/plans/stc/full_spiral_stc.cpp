@@ -5,17 +5,14 @@
  *      Author: cslab
  */
 
-#include "../../../include/plans/spiral_stc/full_spiral_stc.hpp"
+#include "../../../include/plans/stc/full_spiral_stc.hpp"
 
 #define PASS true
 #define DONT_PASS false
 
-#define DIAGONALLY_OPPOSITE true
-#define NON_DIAGONALLY_OPPOSITE false
-
 namespace wandrian {
 namespace plans {
-namespace spiral_stc {
+namespace stc {
 
 FullSpiralStc::FullSpiralStc() {
 }
@@ -45,13 +42,6 @@ void FullSpiralStc::cover() {
   old_cells.insert(starting_cell);
   starting_cell->set_current_quadrant(IV);
   scan(starting_cell);
-}
-
-State FullSpiralStc::state_of(CellPtr cell) {
-  State state = (old_cells.find(cell) != old_cells.end()) ? OLD : NEW;
-  if (state == OLD)
-    std::cout << " \033[1;45m(OLD)\033[0m\n";
-  return state;
 }
 
 void FullSpiralStc::scan(CellPtr current) {
@@ -86,14 +76,9 @@ void FullSpiralStc::scan(CellPtr current) {
             current->get_center() + direction * 2 * tool_size, 2 * tool_size));
     std::cout << "  \033[1;33mneighbor:\033[0m " << neighbor->get_center()->x
         << "," << neighbor->get_center()->y;
-    if (state_of(neighbor) == OLD
-        && (state_of_subcells_of(neighbor, ~direction)
-            == NON_DIAGONALLY_OPPOSITE)) { // Old cell
-      // Go to next sub-cell
-      go_from(current, DONT_PASS, neighbor);
-      continue;
-    } else {
-      // Go to free sub-cell of neighbor
+    // go_from(current, DONT_PASS, neighbor); // Full Scan-STC preparing
+    if (should_go_to(neighbor, direction)) {
+      // Go to free subcell of neighbor
       bool succeed = go_from(current, PASS, neighbor);
       if (!succeed) { // Obstacle
       } else { // New free neighbor
@@ -102,15 +87,57 @@ void FullSpiralStc::scan(CellPtr current) {
         old_cells.insert(neighbor);
         scan(neighbor);
       }
+    } else {
+      // Go to next subcell
+      go_from(current, DONT_PASS, neighbor);
+      continue;
     }
   } while (direction++ % initial_direction
       != (is_starting_cell ? IN_BACK : AT_LEFT_SIDE));
-  // Back to sub-cell of parent
+  // Back to subcell of parent
   if (!is_starting_cell) {
     go_from(current, PASS, current->get_parent());
   }
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;31mEND:\033[0m "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
+}
+
+State FullSpiralStc::state_of(CellPtr cell) {
+  State state = (old_cells.find(cell) != old_cells.end()) ? OLD : NEW;
+  if (state == OLD)
+    std::cout << " \033[1;45m(OLD)\033[0m\n";
+  return state;
+}
+
+bool FullSpiralStc::state_of_subcells_of(CellPtr cell,
+    Orientation orientation) {
+  std::set<CellPtr, CellComp>::iterator i = old_cells.find(cell);
+  if (i == old_cells.end()) // Assume new cell is diagonally occupied by opposite subcells
+    return DIAGONALLY_OPPOSITE;
+  PartiallyOccupiableCellPtr c = boost::static_pointer_cast<
+      PartiallyOccupiableCell>(*i);
+  Quadrant q;
+  if (orientation == AT_LEFT_SIDE)
+    q = I;
+  else if (orientation == IN_BACK)
+    q = II;
+  else if (orientation == AT_RIGHT_SIDE)
+    q = III;
+  else if (orientation == IN_FRONT)
+    q = IV;
+  return
+      (c->get_quadrants()[q] == NEW && c->get_quadrants()[+q] == OBSTACLE
+          && c->get_quadrants()[-q] == OBSTACLE)
+          || (c->get_quadrants()[--q] == NEW
+              && c->get_quadrants()[+q] == OBSTACLE
+              && c->get_quadrants()[-q] == OBSTACLE) ?
+      DIAGONALLY_OPPOSITE :
+                                                       NON_DIAGONALLY_OPPOSITE;
+}
+
+bool FullSpiralStc::should_go_to(CellPtr neighbor, VectorPtr direction) {
+  return (state_of(neighbor) != OLD)
+      || (state_of_subcells_of(neighbor, ~direction) == DIAGONALLY_OPPOSITE);
 }
 
 bool FullSpiralStc::go_from(CellPtr current, bool need_to_pass, CellPtr next) {
@@ -197,28 +224,6 @@ bool FullSpiralStc::visit(CellPtr cell, Quadrant quadrant, bool flexibility) {
       PartiallyOccupiableCell>(cell);
   c->set_current_quadrant(quadrant);
   return go_to(c->get_current_position(), flexibility);
-}
-
-bool FullSpiralStc::state_of_subcells_of(CellPtr cell,
-    Orientation orientation) {
-  PartiallyOccupiableCellPtr c = boost::static_pointer_cast<
-      PartiallyOccupiableCell>(*old_cells.find(cell));
-  Quadrant q;
-  if (orientation == AT_LEFT_SIDE)
-    q = I;
-  else if (orientation == IN_BACK)
-    q = II;
-  else if (orientation == AT_RIGHT_SIDE)
-    q = III;
-  else if (orientation == IN_FRONT)
-    q = IV;
-  return
-      (c->get_quadrants()[q] == NEW && c->get_quadrants()[+q] == OBSTACLE
-          && c->get_quadrants()[-q] == OBSTACLE)
-          || (c->get_quadrants()[--q] == NEW
-              && c->get_quadrants()[+q] == OBSTACLE
-              && c->get_quadrants()[-q] == OBSTACLE) ? DIAGONALLY_OPPOSITE :
-      NON_DIAGONALLY_OPPOSITE;
 }
 
 }

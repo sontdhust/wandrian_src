@@ -20,7 +20,8 @@ public:
   PartiallyOccupiableCell(PointPtr, double);
   ~PartiallyOccupiableCell();
 
-  PointPtr get_current_position();
+  PointPtr _center();
+  double _size();
 };
 
 typedef boost::shared_ptr<PartiallyOccupiableCell> PartiallyOccupiableCellPtr;

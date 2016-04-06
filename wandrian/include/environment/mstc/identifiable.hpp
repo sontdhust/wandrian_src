@@ -5,14 +5,14 @@
  *      Author: sontd
  */
 
-#ifndef WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_ONLINE_IDENTIFIABLE_HPP_
-#define WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_ONLINE_IDENTIFIABLE_HPP_
+#ifndef WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_IDENTIFIABLE_HPP_
+#define WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_IDENTIFIABLE_HPP_
 
 #include <string>
 
 namespace wandrian {
 namespace environment {
-namespace mstc_online {
+namespace mstc {
 
 class Identifiable {
 
@@ -30,4 +30,4 @@ private:
 }
 }
 
-#endif /* WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_ONLINE_IDENTIFIABLE_HPP_ */
+#endif /* WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_IDENTIFIABLE_HPP_ */

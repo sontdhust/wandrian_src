@@ -8,6 +8,7 @@
 #ifndef WANDRIAN_INCLUDE_ENVIRONMENT_PARTIALLY_OCCUPIABLE_HPP_
 #define WANDRIAN_INCLUDE_ENVIRONMENT_PARTIALLY_OCCUPIABLE_HPP_
 
+#include "../common/vector.hpp"
 #include "cell.hpp"
 
 namespace wandrian {
@@ -66,19 +67,36 @@ inline Quadrant operator--(Quadrant &q) {
   return q;
 }
 
+inline Quadrant operator&(Orientation o) {
+  switch (o) {
+  case AT_RIGHT_SIDE:
+    return I;
+  case IN_FRONT:
+    return II;
+  case AT_LEFT_SIDE:
+    return III;
+  case IN_BACK:
+    return IV;
+  }
+  return I;
+}
+
 class PartiallyOccupiable {
 
 public:
   PartiallyOccupiable();
-  ~PartiallyOccupiable();
+  virtual ~PartiallyOccupiable();
+  PointPtr find_position(Quadrant);
 
+  PointPtr get_current_position();
   Quadrant get_current_quadrant();
   State* get_quadrants();
   void set_current_quadrant(Quadrant);
   void set_quadrants_state(Quadrant, State);
 
 protected:
-  PointPtr current_position(PointPtr, double);
+  virtual PointPtr _center() = 0;
+  virtual double _size() = 0;
 
 private:
   Quadrant current_quadrant;
