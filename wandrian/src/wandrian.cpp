@@ -121,6 +121,7 @@ bool Wandrian::spiral_stc_see_obstacle(VectorPtr direction, double distance) {
   PointPtr new_position = last_position + direction * distance;
   if (robot->get_map_name() != "") { // Offline map
     MapPtr map = MapPtr(new Map(find_map_path()));
+    map->build();
     boundary = map->get_boundary();
     obstacles = map->get_obstacles();
   } else {

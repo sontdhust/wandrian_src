@@ -16,9 +16,8 @@ ExtendedMap::ExtendedMap(RectanglePtr boundary,
     Map(boundary, obstacles) {
 }
 
-ExtendedMap::ExtendedMap(std::string file_name) :
-    Map(file_name) {
-  build();
+ExtendedMap::ExtendedMap(std::string map_path) :
+    Map(map_path) {
 }
 
 ExtendedMap::~ExtendedMap() {

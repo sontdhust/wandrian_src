@@ -221,6 +221,7 @@ int main(int argc, char **argv) {
   std::list<RectanglePtr> obstacles;
   if (map_input) {
     map = MapPtr(new Map("../" + std::string(argv[1])));
+    map->build();
     boundary = map->get_boundary();
     obstacles = map->get_obstacles();
   } else {

@@ -24,6 +24,7 @@ void Boustrophedon::initialize(PointPtr starting_point, double robot_size,
     std::string namefile) {
   this->robot_size = robot_size;
   this->map = ExtendedMapPtr(new ExtendedMap(namefile));
+  this->map->build();
   path.insert(path.end(), starting_point);
 }
 ExtendedMapPtr Boustrophedon::get_map() {
