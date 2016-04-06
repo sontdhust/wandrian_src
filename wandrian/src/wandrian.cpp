@@ -44,7 +44,7 @@ void Wandrian::spin() {
 }
 
 void Wandrian::wandrian_run() {
-  if (robot->get_plan_name() == "spiral_stc") {
+  if (robot->get_plan_name() == "ss") {
     plan = SpiralStcPtr(new SpiralStc());
     SpiralStcPtr spiral_stc = boost::static_pointer_cast<SpiralStc>(plan);
     spiral_stc->initialize(
@@ -56,7 +56,7 @@ void Wandrian::wandrian_run() {
     spiral_stc->set_behavior_see_obstacle(
         boost::bind(&Wandrian::spiral_stc_see_obstacle, this, _1, _2));
     spiral_stc->cover();
-  } else if (robot->get_plan_name() == "full_spiral_stc") {
+  } else if (robot->get_plan_name() == "fss") {
     plan = FullSpiralStcPtr(new FullSpiralStc());
     FullSpiralStcPtr full_spiral_stc =
         boost::static_pointer_cast<FullSpiralStc>(plan);
@@ -69,7 +69,7 @@ void Wandrian::wandrian_run() {
     full_spiral_stc->set_behavior_see_obstacle(
         boost::bind(&Wandrian::full_spiral_stc_see_obstacle, this, _1, _2));
     full_spiral_stc->cover();
-  } else if (robot->get_plan_name() == "mstc_online") {
+  } else if (robot->get_plan_name() == "mo") {
     plan = MstcOnlinePtr(new MstcOnline());
     MstcOnlinePtr mstc_online = boost::static_pointer_cast<MstcOnline>(plan);
     mstc_online->initialize(
@@ -82,7 +82,7 @@ void Wandrian::wandrian_run() {
     mstc_online->set_behavior_see_obstacle(
         boost::bind(&Wandrian::mstc_online_see_obstacle, this, _1, _2));
     mstc_online->cover();
-  } else if (robot->get_plan_name() == "boustrophedon_online") {
+  } else if (robot->get_plan_name() == "bo") {
     plan = BoustrophedonOnlinePtr(new BoustrophedonOnline());
     BoustrophedonOnlinePtr boustrophedon_online = boost::static_pointer_cast<
         BoustrophedonOnline>(plan);
@@ -96,7 +96,7 @@ void Wandrian::wandrian_run() {
         boost::bind(&Wandrian::boustrophedon_online_see_obstacle, this, _1,
             _2));
     boustrophedon_online->cover();
-  } else if (robot->get_plan_name() == "boustrophedon") {
+  } else if (robot->get_plan_name() == "b") {
     BoustrophedonPtr boustrophedon = BoustrophedonPtr(new Boustrophedon());
     boustrophedon->initialize(
         PointPtr(
@@ -286,9 +286,10 @@ void Wandrian::go(bool forward) {
 }
 
 void Wandrian::rotate(bool rotation_is_clockwise) {
-  double angular_velocity = robot->get_angular_velocity();
   robot->set_angular_velocity(
-      rotation_is_clockwise ? -angular_velocity : angular_velocity);
+      rotation_is_clockwise ?
+          -robot->get_negative_angular_velocity() :
+          robot->get_positive_angular_velocity());
 }
 
 void Wandrian::dodge() {

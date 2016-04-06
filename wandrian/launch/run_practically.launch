@@ -9,7 +9,8 @@
   <arg name="sp_y"/>
   <arg name="pn"/>
   <arg name="lv"/>
-  <arg name="av"/>
+  <arg name="pav"/>
+  <arg name="nav"/>
   <arg name="pr_c"/>
   <arg name="pr_s"/>
   <arg name="af_r"/>
@@ -33,7 +34,8 @@
     <param name="starting_point_y" value="$(arg sp_y)" type="double"/>
     <param name="plan_name" value="$(arg pn)" type="string"/>
     <param name="linear_velocity" value="$(arg lv)" type="double"/>
-    <param name="angular_velocity" value="$(arg av)" type="double"/>
+    <param name="positive_angular_velocity" value="$(arg pav)" type="double"/>
+    <param name="negative_angular_velocity" value="$(arg nav)" type="double"/>
     <param name="proportion_ranges_count" value="$(arg pr_c)" type="double"/>
     <param name="proportion_ranges_sum" value="$(arg pr_s)" type="double"/>
     <param name="augmentation_factor_range" value="$(arg af_r)" type="double"/>

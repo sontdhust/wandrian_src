@@ -51,7 +51,8 @@ public:
   bool* get_obstacles();
   ObstacleMovement get_obstacle_movement();
   double get_linear_velocity();
-  double get_angular_velocity();
+  double get_positive_angular_velocity();
+  double get_negative_angular_velocity();
   double get_epsilon_rotational_direction();
   double get_epsilon_motional_direction();
   double get_epsilon_position();
@@ -73,7 +74,8 @@ private:
   std::string plan_name; // arg
   std::string robot_name; // arg
   double linear_velocity; // arg
-  double angular_velocity; // arg
+  double positive_angular_velocity; // arg
+  double negative_angular_velocity; // arg
   double proportion_ranges_count; // arg
   double proportion_ranges_sum; // arg
   double augmentation_factor_range; // arg
