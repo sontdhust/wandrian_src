@@ -29,13 +29,13 @@ void ExtendedMap::build() {
   std::string position;
   std::string line;
   std::list<PointPtr> list_point_temp;
-  PointPtr center,temp_point;
+  PointPtr center, temp_point;
   double size_x, size_y;
   int i, flag;
   std::fstream read_file;
   std::size_t flag_start, flag_end;
   if (this->file_name.compare("") != 0) {
-	read_file.open(this->file_name.c_str());
+    read_file.open(this->file_name.c_str());
     if (read_file.is_open()) {
       int i = 1;
       int flag = 0;
@@ -44,40 +44,46 @@ void ExtendedMap::build() {
         position = "";
         size = "";
         flag_start = -1;
-        std::cout <<"\n Point: "<< i++<<std::endl;
-        while(line.find("(", flag_start+1) <line.length()){
-        	flag_start = line.find("(", flag_start+1);
-            flag_end = line.find(")", flag_start+1);
-            std::cout <<"Point : "<< line.substr(flag_start+1, flag_end - flag_start-1)<<std::endl;
-            temp_point = create_point_to_string(line.substr(flag_start+1, flag_end - flag_start-1));
-            list_point_temp.push_back(temp_point);
-            std::cout<<"Temp Point: ("<< temp_point->x <<", "<< temp_point->y<<")"<<std::endl;
+        std::cout << "\n Point: " << i++ << std::endl;
+        while (line.find("(", flag_start + 1) < line.length()) {
+          flag_start = line.find("(", flag_start + 1);
+          flag_end = line.find(")", flag_start + 1);
+          std::cout << "Point : "
+              << line.substr(flag_start + 1, flag_end - flag_start - 1)
+              << std::endl;
+          temp_point = create_point_to_string(
+              line.substr(flag_start + 1, flag_end - flag_start - 1));
+          list_point_temp.push_back(temp_point);
+          std::cout << "Temp Point: (" << temp_point->x << ", " << temp_point->y
+              << ")" << std::endl;
         }
-        i=0;
-        for(std::list<PointPtr>::iterator u = list_point_temp.begin();
-        		u != list_point_temp.end(); ++u){
+        i = 0;
+        for (std::list<PointPtr>::iterator u = list_point_temp.begin();
+            u != list_point_temp.end(); ++u) {
 
-        	std::cout<<"( "<<(*u)->x <<", " <<(*u)->y <<" )"<<std::endl;
+          std::cout << "( " << (*u)->x << ", " << (*u)->y << " )" << std::endl;
 
-        	if(i==0){
-        		size_y = (*u)->y;
-        	}
-        	if(i==1){
-        		size_x = (*u)->x;
-        		size_y = (*u)->y - size_y;
-        	}
-        	if(i==2){
-        		size_x = (*u)->x - size_x;
-        	}
-        	i++;
-        	if(i==4){
-        		std::cout<<size_x<<" "<<size_y<<std::endl;
-        	    std::cout<<"Temp Point: ("<< (*u)->x <<", "<< (*u)->y<<")"<<std::endl;
-                center = PointPtr(
-                    new Point((*u)->x -size_x/2,(*u)->y + size_y/2 ));
-        	}
+          if (i == 0) {
+            size_y = (*u)->y;
+          }
+          if (i == 1) {
+            size_x = (*u)->x;
+            size_y = (*u)->y - size_y;
+          }
+          if (i == 2) {
+            size_x = (*u)->x - size_x;
+          }
+          i++;
+          if (i == 4) {
+            std::cout << size_x << " " << size_y << std::endl;
+            std::cout << "Temp Point: (" << (*u)->x << ", " << (*u)->y << ")"
+                << std::endl;
+            center = PointPtr(
+                new Point((*u)->x - size_x / 2, (*u)->y + size_y / 2));
+          }
         }
-        std::cout<<"Center: ("<<center->x <<", "<<center->y<<")"<<std::endl;
+        std::cout << "Center: (" << center->x << ", " << center->y << ")"
+            << std::endl;
 
         if (!this->boundary) {
           this->boundary = RectanglePtr(new Rectangle(center, size_x, size_y));
@@ -88,7 +94,7 @@ void ExtendedMap::build() {
           std::cout << "ADD obstacles " << std::endl;
         }
 
-       list_point_temp.clear();
+        list_point_temp.clear();
       }
     } else {
       std::cout << "Can't open file " << std::endl;
@@ -105,13 +111,13 @@ int ExtendedMap::comma_position(std::string str) {
   return 0;
 }
 
-PointPtr ExtendedMap::create_point_to_string(std::string str){
-    int flag;
-    flag = str.find(",");
-    return PointPtr(
-        new Point(strtod(str.substr(0, flag).c_str(), NULL),
-            strtod(str.substr(flag + 1, str.length()).c_str(),
-            NULL)));
+PointPtr ExtendedMap::create_point_to_string(std::string str) {
+  int flag;
+  flag = str.find(",");
+  return PointPtr(
+      new Point(strtod(str.substr(0, flag).c_str(), NULL),
+          strtod(str.substr(flag + 1, str.length()).c_str(),
+          NULL)));
 }
 
 }

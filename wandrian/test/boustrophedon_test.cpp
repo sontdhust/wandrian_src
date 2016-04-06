@@ -172,7 +172,7 @@ int main(int argc, char **argv) {
   }
   BoustrophedonPtr boustrophedon = BoustrophedonPtr(new Boustrophedon());
   boustrophedon->initialize(starting_point, R_SIZE,
-      "../../worlds/prefered.map");
+      "../../worlds/prefered_boustrophedon.map");
   map = boustrophedon->get_map();
 
   CellPtr space = CellPtr(new Cell(PointPtr(new Point(0, 0)), e_size));
@@ -260,10 +260,10 @@ int main(int argc, char **argv) {
         double w = (boost::static_pointer_cast<Rectangle>(*o))->get_width();
         int c = 1;
 
-       // double x = p->x - R_SIZE * (w / R_SIZE / 2.0 - 1.0 / 2.0);
-        double x = p->x - w/2 + R_SIZE/2 ;
+        // double x = p->x - R_SIZE * (w / R_SIZE / 2.0 - 1.0 / 2.0);
+        double x = p->x - w / 2 + R_SIZE / 2;
 
-        for (int i = 1; i <= (int) (w /R_SIZE); i++) {
+        for (int i = 1; i <= (int) (w / R_SIZE); i++) {
 
           for (double y = p->y - R_SIZE * (h / R_SIZE / 2.0 - 1.0 / 4.0);
               y <= p->y + R_SIZE * (h / R_SIZE / 2.0 - 1.0 / 4.0);
@@ -288,8 +288,6 @@ int main(int argc, char **argv) {
   }
   world_in.close();
   world_out.close();
-
-
 
   tmp_path.insert(tmp_path.end(), starting_point);
   boustrophedon->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
