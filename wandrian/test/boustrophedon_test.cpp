@@ -170,6 +170,10 @@ int main(int argc, char **argv) {
   } else {
     e_size = E_SIZE;
   }
+  BoustrophedonPtr boustrophedon = BoustrophedonPtr(new Boustrophedon());
+  boustrophedon->initialize(starting_point, R_SIZE,
+      "../../worlds/prefered_boustrophedon.map");
+  map = boustrophedon->get_map();
 
   CellPtr space = CellPtr(new Cell(PointPtr(new Point(0, 0)), e_size));
   std::list<RectanglePtr> obstacles;
@@ -177,16 +181,12 @@ int main(int argc, char **argv) {
   starting_point = PointPtr(
       new Point(-(e_size - R_SIZE) / 2, -(e_size - R_SIZE) / 2));
   int r = std::rand() % (int) (e_size * e_size / 16) + e_size * e_size / 8;
-  obstacles.insert(obstacles.end(),
-      CellPtr(new Cell(PointPtr(new Point(-1.5, 0.5)), 2 * R_SIZE)));
-  obstacles.insert(obstacles.end(),
-      CellPtr(new Cell(PointPtr(new Point(-1.5, -0.5)), 2 * R_SIZE)));
-  obstacles.insert(obstacles.end(),
-      CellPtr(new Cell(PointPtr(new Point(2, -2)), 4 * R_SIZE)));
 
   std::ifstream world_in("../../worlds/empty.world");
   std::ofstream world_out("../../worlds/tmp.world");
   std::string line;
+
+  obstacles = map->get_obstacles();
 
   while (std::getline(world_in, line, '\n')) {
     world_out << line << '\n';
@@ -255,15 +255,18 @@ int main(int argc, char **argv) {
       for (std::list<RectanglePtr>::iterator o = obstacles.begin();
           o != obstacles.end(); o++) {
 
-        PointPtr p = (boost::static_pointer_cast<Cell>(*o))->get_center();
-        double s = (boost::static_pointer_cast<Cell>(*o))->get_size();
+        PointPtr p = (boost::static_pointer_cast<Rectangle>(*o))->get_center();
+        double h = (boost::static_pointer_cast<Rectangle>(*o))->get_height();
+        double w = (boost::static_pointer_cast<Rectangle>(*o))->get_width();
         int c = 1;
 
-        double x = p->x - R_SIZE * (s / R_SIZE / 2.0 - 1.0 / 2.0);
-        for (int i = 1; i <= (int) (s / R_SIZE); i++) {
+        // double x = p->x - R_SIZE * (w / R_SIZE / 2.0 - 1.0 / 2.0);
+        double x = p->x - w / 2 + R_SIZE / 2;
 
-          for (double y = p->y - R_SIZE * (s / R_SIZE / 2.0 - 1.0 / 4.0);
-              y <= p->y + R_SIZE * (s / R_SIZE / 2.0 - 1.0 / 4.0);
+        for (int i = 1; i <= (int) (w / R_SIZE); i++) {
+
+          for (double y = p->y - R_SIZE * (h / R_SIZE / 2.0 - 1.0 / 4.0);
+              y <= p->y + R_SIZE * (h / R_SIZE / 2.0 - 1.0 / 4.0);
               y += R_SIZE / 2.0) {
 
             world_out << "    <model name='cinder_block_obstacle_" << n << "_"
@@ -286,10 +289,6 @@ int main(int argc, char **argv) {
   world_in.close();
   world_out.close();
 
-  map = MapPtr(new Map(space, obstacles));
-  BoustrophedonPtr boustrophedon = BoustrophedonPtr(new Boustrophedon());
-  boustrophedon->initialize(starting_point, R_SIZE,
-      "../../worlds/prefered.map");
   tmp_path.insert(tmp_path.end(), starting_point);
   boustrophedon->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
 

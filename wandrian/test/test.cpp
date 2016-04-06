@@ -121,14 +121,15 @@ void display() {
 void print_space() {
   RectanglePtr boundary = map->get_boundary();
   std::cout << boundary->get_center()->x << " " << boundary->get_center()->y
-      << " " << boundary->get_width() << " " << boundary->get_height() << "\n";
-  std::cout << starting_point->x << " " << starting_point->y << "\n\n";
+      << " " << boundary->get_width() << " " << boundary->get_height()
+      << "\n\n";
   std::list<RectanglePtr> obstacles = map->get_obstacles();
   for (std::list<RectanglePtr>::iterator o = obstacles.begin();
       o != obstacles.end(); o++) {
     PointPtr c = (boost::static_pointer_cast<Cell>(*o))->get_center();
     std::cout << c->x << " " << c->y << "\n";
   }
+  std::cout << "\n# " << starting_point->x << " " << starting_point->y << "\n";
 }
 
 int run(int argc, char **argv) {
@@ -185,148 +186,73 @@ bool test_see_obstacle(VectorPtr direction, double distance) {
 }
 
 int main(int argc, char **argv) {
-  bool map_input = false;
-  RectanglePtr boundary;
-  std::vector<PointPtr> obstacle_centers;
-  // Boundary size and obstacle center from input map
-  if (argc >= 2) {
-    std::istringstream iss(argv[1]);
-    if (!(iss >> b_size)) { // Read from input map file
-      map_input = true;
-      std::ifstream map(("../" + std::string(argv[1])).c_str());
-      std::string line;
-      // Boundary size
-      std::getline(map, line, '\n');
-      int delimiter_pos1;
-      int delimiter_pos2;
-      delimiter_pos1 = line.find(" ");
-      double center_x = boost::lexical_cast<double>(
-          boost::lexical_cast<double>(line.substr(0, delimiter_pos1)));
-      delimiter_pos2 = line.find(" ", delimiter_pos1 + 1);
-      double center_y = boost::lexical_cast<double>(
-          boost::lexical_cast<double>(
-              line.substr(delimiter_pos1 + 1,
-                  delimiter_pos2 - delimiter_pos1 - 1)));
-      delimiter_pos1 = delimiter_pos2;
-      delimiter_pos2 = line.find(" ", delimiter_pos1 + 1);
-      double width = boost::lexical_cast<double>(
-          boost::lexical_cast<double>(
-              line.substr(delimiter_pos1 + 1,
-                  delimiter_pos2 - delimiter_pos1 - 1)));
-      double height = boost::lexical_cast<double>(
-          boost::lexical_cast<double>(
-              line.substr(delimiter_pos2 + 1,
-                  line.length() - delimiter_pos2 - 1)));
-      b_size = std::max(width, height);
-      boundary = RectanglePtr(
-          new Rectangle(PointPtr(new Point(center_x, center_y)), width,
-              height));
-      // Starting point
-      double starting_point_x;
-      double starting_point_y;
-      std::getline(map, line, '\n');
-      int delimiter_pos = line.find(" ");
-      starting_point_x = boost::lexical_cast<double>(
-          line.substr(0, delimiter_pos));
-      starting_point_y = boost::lexical_cast<double>(
-          line.substr(delimiter_pos + 1, line.length() - delimiter_pos - 1));
-      starting_point = PointPtr(new Point(starting_point_x, starting_point_y));
-      // Center point of obstacles
-      while (std::getline(map, line, '\n')) {
-        if (line == "")
-          continue;
-        double center_point_x;
-        double center_point_y;
-        int delimiter_pos = line.find(" ");
-        center_point_x = boost::lexical_cast<double>(
-            line.substr(0, delimiter_pos));
-        center_point_y = boost::lexical_cast<double>(
-            line.substr(delimiter_pos + 1, line.length() - delimiter_pos - 1));
-        obstacle_centers.push_back(
-            PointPtr(new Point(center_point_x, center_point_y)));
-      }
-    } else {
-      map_input = false;
-      boundary = RectanglePtr(
-          new Rectangle(PointPtr(new Point(0, 0)), b_size, b_size));
-    }
-  } else {
-    b_size = B_SIZE;
-  }
-  std::list<RectanglePtr> obstacles;
-
-  // Tool size
-  if (argc >= 3) {
-    std::istringstream iss(argv[2]);
-    if (!(iss >> t_size)) {
-      t_size = T_SIZE;
-    }
-  } else {
-    t_size = T_SIZE;
-  }
-
   std::srand(std::time(0));
-  if (!map_input)
-    starting_point = PointPtr(
-        new Point(
-            (std::rand() % (int) (b_size / t_size / 2.0)
-                - (int) (b_size / t_size / 4.0)) * t_size / 0.5 + t_size
-                + t_size / 2.0,
-            (std::rand() % (int) (b_size / t_size / 2.0)
-                - (int) (b_size / t_size / 4.0)) * t_size / 0.5 + t_size
-                - t_size / 2.0));
+
+  // Boundary size and obstacle center
+  RectanglePtr boundary;
+  bool map_input = false;
+  std::istringstream iss1(argv[1]);
+  if (!(iss1 >> b_size)) { // Read from input map file
+    map_input = true;
+  } else {
+    map_input = false;
+    boundary = RectanglePtr(
+        new Rectangle(PointPtr(new Point(0, 0)), b_size, b_size));
+  }
 
   // Obstacle size
   double o_size;
   int number_of_obstacles;
-  double r = 0.2;
-  if (argc >= 4) {
-    std::istringstream iss(argv[3]);
-    if (!(iss >> o_size)) {
-      o_size = 2.0 * t_size;
-      number_of_obstacles = 0;
-    } else {
-      double n = 0.75 * r * (b_size * b_size) / (o_size * o_size);
-      number_of_obstacles = n
-          + ((int) (0.25 * n) != 0 ? std::rand() % (int) (0.25 * n) : 0);
-    }
-  } else {
-    o_size = 2.0 * t_size;
+  const double r = 0.2;
+  if (!map_input) {
+    std::istringstream iss2(argv[2]);
+    iss2 >> o_size;
     double n = 0.75 * r * (b_size * b_size) / (o_size * o_size);
     number_of_obstacles = n
         + ((int) (0.25 * n) != 0 ? std::rand() % (int) (0.25 * n) : 0);
   }
 
-  for (int i = 0;
-      i <= (map_input ? (int) obstacle_centers.size() - 1 : number_of_obstacles);
-      i++) {
-    PointPtr center =
-        map_input ?
-            obstacle_centers[i] :
-            PointPtr(
-                new Point(
-                    ((std::rand() % (int) (b_size / t_size / (o_size / t_size))
-                        - (int) (b_size / t_size / (o_size / t_size) / 2.0))
-                        + 0.5) * o_size,
-                    ((std::rand() % (int) (b_size / t_size / (o_size / t_size))
-                        - (int) (b_size / t_size / (o_size / t_size) / 2.0))
-                        + 0.5) * o_size));
-    bool valid = true;
-    for (std::list<RectanglePtr>::iterator o = obstacles.begin();
-        o != obstacles.end(); o++)
-      if ((boost::static_pointer_cast<Cell>(*o))->get_center() == center
-          || (std::abs(center->x - (starting_point->x - t_size / 2))
-              < SMALL_EPSILON
-              && std::abs(center->y - (starting_point->y + t_size / 2))
-                  < SMALL_EPSILON)) {
-        valid = false;
-        break;
-      };
-    if (valid) {
-      obstacles.insert(obstacles.end(), CellPtr(new Cell(center, o_size)));
-    }
+  // Tool size
+  std::istringstream iss3(argv[map_input ? 2 : 3]);
+  if (!(iss3 >> t_size)) {
+    t_size = T_SIZE;
   }
 
+  std::list<RectanglePtr> obstacles;
+  if (map_input) {
+    map = MapPtr(new Map("../" + std::string(argv[1])));
+    map->build();
+    boundary = map->get_boundary();
+    obstacles = map->get_obstacles();
+  } else {
+    // Generate obstacles
+    for (int i = 0; i <= (number_of_obstacles); i++) {
+      PointPtr center = PointPtr(
+          new Point(
+              ((std::rand()
+                  % (int) (boundary->get_width() / t_size / (o_size / t_size))
+                  - (int) (boundary->get_width() / t_size / (o_size / t_size)
+                      / 2.0)) + 0.5) * o_size,
+              ((std::rand()
+                  % (int) (boundary->get_height() / t_size / (o_size / t_size))
+                  - (int) (boundary->get_height() / t_size / (o_size / t_size)
+                      / 2.0)) + 0.5) * o_size));
+      bool valid = true;
+      for (std::list<RectanglePtr>::iterator o = obstacles.begin();
+          o != obstacles.end(); o++)
+        if ((boost::static_pointer_cast<Cell>(*o))->get_center() == center) {
+          valid = false;
+          break;
+        };
+      if (valid) {
+        obstacles.insert(obstacles.end(), CellPtr(new Cell(center, o_size)));
+      }
+    }
+    map = MapPtr(new Map(boundary, obstacles));
+  }
+  b_size = std::max(boundary->get_width(), boundary->get_height());
+
+  // Write output world file
   std::ifstream world_in("../../worlds/empty.world");
   std::ofstream world_out("../../worlds/tmp.world");
   std::string line;
@@ -435,47 +361,66 @@ int main(int argc, char **argv) {
   world_in.close();
   world_out.close();
 
-  map = MapPtr(new Map(boundary, obstacles));
-  print_space();
-  if (argc >= 5) {
-    if (std::string(argv[4]) == "spiral_stc") {
-      SpiralStcPtr plan_spiral_stc = SpiralStcPtr(new SpiralStc());
-      plan_spiral_stc->initialize(starting_point, t_size);
-      path.insert(path.end(), starting_point);
-      plan_spiral_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
-      plan_spiral_stc->set_behavior_see_obstacle(
-          boost::bind(&test_see_obstacle, _1, _2));
-      plan_spiral_stc->cover();
-    } else if (std::string(argv[4]) == "full_spiral_stc") {
-      FullSpiralStcPtr plan_full_spiral_stc = FullSpiralStcPtr(
-          new FullSpiralStc());
-      plan_full_spiral_stc->initialize(starting_point, t_size);
-      path.insert(path.end(), starting_point);
-      plan_full_spiral_stc->set_behavior_go_to(
-          boost::bind(&test_go_to, _1, _2));
-      plan_full_spiral_stc->set_behavior_see_obstacle(
-          boost::bind(&test_see_obstacle, _1, _2));
-      plan_full_spiral_stc->cover();
-    } else if (std::string(argv[4]) == "full_scan_stc") {
-      FullScanStcPtr plan_full_scan_stc = FullScanStcPtr(new FullScanStc());
-      plan_full_scan_stc->initialize(starting_point, t_size);
-      path.insert(path.end(), starting_point);
-      plan_full_scan_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
-      plan_full_scan_stc->set_behavior_see_obstacle(
-          boost::bind(&test_see_obstacle, _1, _2));
-      plan_full_scan_stc->cover();
-    } else if (std::string(argv[4]) == "boustrophedon_online") {
-      BoustrophedonOnlinePtr plan_boustrophedon_online = BoustrophedonOnlinePtr(
-          new BoustrophedonOnline());
-      plan_boustrophedon_online->initialize(starting_point, t_size);
-      path.insert(path.end(), starting_point);
-      plan_boustrophedon_online->set_behavior_go_to(
-          boost::bind(&test_go_to, _1, _2));
-      plan_boustrophedon_online->set_behavior_see_obstacle(
-          boost::bind(&test_see_obstacle, _1, _2));
-      plan_boustrophedon_online->cover();
-    }
+  // Starting point
+  std::istringstream iss4(argv[map_input ? 3 : 4]);
+  double starting_point_x;
+  double starting_point_y;
+  std::string plan_name;
+  if (iss4 >> starting_point_x) {
+    std::istringstream iss5(argv[map_input ? 4 : 5]);
+    iss5 >> starting_point_y;
+    starting_point = PointPtr(new Point(starting_point_x, starting_point_y));
+    plan_name = std::string(argv[map_input ? 5 : 6]);
+  } else {
+    starting_point = PointPtr(
+        new Point(
+            (std::rand() % (int) (boundary->get_width() / t_size / 2.0)
+                - (int) (boundary->get_width() / t_size / 4.0)) * t_size / 0.5
+                + t_size + t_size / 2.0,
+            (std::rand() % (int) (boundary->get_height() / t_size / 2.0)
+                - (int) (boundary->get_height() / t_size / 4.0)) * t_size / 0.5
+                + t_size - t_size / 2.0));
+    plan_name = iss4.str();
   }
+
+  print_space();
+  if (plan_name == "spiral_stc") {
+    SpiralStcPtr plan_spiral_stc = SpiralStcPtr(new SpiralStc());
+    plan_spiral_stc->initialize(starting_point, t_size);
+    path.insert(path.end(), starting_point);
+    plan_spiral_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
+    plan_spiral_stc->set_behavior_see_obstacle(
+        boost::bind(&test_see_obstacle, _1, _2));
+    plan_spiral_stc->cover();
+  } else if (plan_name == "full_spiral_stc") {
+    FullSpiralStcPtr plan_full_spiral_stc = FullSpiralStcPtr(
+        new FullSpiralStc());
+    plan_full_spiral_stc->initialize(starting_point, t_size);
+    path.insert(path.end(), starting_point);
+    plan_full_spiral_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
+    plan_full_spiral_stc->set_behavior_see_obstacle(
+        boost::bind(&test_see_obstacle, _1, _2));
+    plan_full_spiral_stc->cover();
+  } else if (plan_name == "full_scan_stc") {
+    FullScanStcPtr plan_full_scan_stc = FullScanStcPtr(new FullScanStc());
+    plan_full_scan_stc->initialize(starting_point, t_size);
+    path.insert(path.end(), starting_point);
+    plan_full_scan_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
+    plan_full_scan_stc->set_behavior_see_obstacle(
+        boost::bind(&test_see_obstacle, _1, _2));
+    plan_full_scan_stc->cover();
+  } else if (plan_name == "boustrophedon_online") {
+    BoustrophedonOnlinePtr plan_boustrophedon_online = BoustrophedonOnlinePtr(
+        new BoustrophedonOnline());
+    plan_boustrophedon_online->initialize(starting_point, t_size);
+    path.insert(path.end(), starting_point);
+    plan_boustrophedon_online->set_behavior_go_to(
+        boost::bind(&test_go_to, _1, _2));
+    plan_boustrophedon_online->set_behavior_see_obstacle(
+        boost::bind(&test_see_obstacle, _1, _2));
+    plan_boustrophedon_online->cover();
+  }
+
   run(argc, argv);
   return 0;
 }

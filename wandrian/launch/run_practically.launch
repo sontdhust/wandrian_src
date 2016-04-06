@@ -1,13 +1,13 @@
 <launch>
   <arg name="mn" default=""/>
-  <arg name="pn"/>
+  <arg name="mc_x" default="0"/>
+  <arg name="mc_y" default="0"/>
+  <arg name="mb_w" default="0"/>
+  <arg name="mb_h" default="0"/>
   <arg name="ts"/>
   <arg name="sp_x"/>
   <arg name="sp_y"/>
-  <arg name="sc_x"/>
-  <arg name="sc_y"/>
-  <arg name="sb_w" default="0"/>
-  <arg name="sb_h" default="0"/>
+  <arg name="pn"/>
   <arg name="lv"/>
   <arg name="av"/>
   <arg name="pr_c"/>
@@ -24,14 +24,14 @@
     <remap from="run/laser" to="scan"/>
 
     <param name="map_name" value="$(arg mn)" type="string"/>
-    <param name="plan_name" value="$(arg pn)" type="string"/>
+    <param name="map_center_x" value="$(arg mc_x)" type="double"/>
+    <param name="map_center_y" value="$(arg mc_y)" type="double"/>
+    <param name="map_boundary_width" value="$(arg mb_w)" type="double"/>
+    <param name="map_boundary_height" value="$(arg mb_h)" type="double"/>
     <param name="tool_size" value="$(arg ts)" type="double"/>
     <param name="starting_point_x" value="$(arg sp_x)" type="double"/>
     <param name="starting_point_y" value="$(arg sp_y)" type="double"/>
-    <param name="space_center_x" value="$(arg sc_x)" type="double"/>
-    <param name="space_center_y" value="$(arg sc_y)" type="double"/>
-    <param name="space_boundary_width" value="$(arg sb_w)" type="double"/>
-    <param name="space_boundary_height" value="$(arg sb_h)" type="double"/>
+    <param name="plan_name" value="$(arg pn)" type="string"/>
     <param name="linear_velocity" value="$(arg lv)" type="double"/>
     <param name="angular_velocity" value="$(arg av)" type="double"/>
     <param name="proportion_ranges_count" value="$(arg pr_c)" type="double"/>

@@ -26,12 +26,11 @@ public:
   ExtendedMap(RectanglePtr, std::list<RectanglePtr>);
   ExtendedMap(std::string);
   ~ExtendedMap();
-
-protected:
   void build();
 
 private:
   int static comma_position(std::string);
+  PointPtr create_point_to_string(std::string);
 
 };
 
