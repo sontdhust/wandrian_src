@@ -34,12 +34,12 @@ public:
   void initialize(PointPtr, double, std::string);
   void cover();
   void dfs(SpacePtr);
+  ExtendedMapPtr get_map();
   std::list<SpacePtr> create_list_space(RectanglePtr, std::list<VerticesPtr>);
   std::list<VerticesPtr> create_list_vertices(RectanglePtr,
       std::list<RectanglePtr>);
 
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
-
 protected:
   bool go_to(PointPtr, bool);
   bool go_into(SpacePtr);
