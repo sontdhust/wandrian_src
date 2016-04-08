@@ -26,6 +26,7 @@ public:
 private:
   RobotPtr robot;
   BasePlanPtr plan;
+  int count_step;
 
   // Behaviors
   void wandrian_run();

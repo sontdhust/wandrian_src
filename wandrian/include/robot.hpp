@@ -56,6 +56,7 @@ public:
   double get_epsilon_rotational_direction();
   double get_epsilon_motional_direction();
   double get_epsilon_position();
+  double get_deviation_position();
   CommunicatorPtr get_communicator();
   void set_behavior_run(boost::function<void()>);
   void set_linear_velocity(double);
@@ -82,6 +83,7 @@ private:
   double epsilon_rotational_direction; // arg
   double epsilon_motional_direction; // arg
   double epsilon_position; // arg
+  double deviation_position; // arg
 
   PointPtr current_position; // odometry subscriber
   VectorPtr current_direction; // odometry subscriber

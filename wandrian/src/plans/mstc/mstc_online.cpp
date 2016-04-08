@@ -154,7 +154,7 @@ void MstcOnline::scan(CellPtr current) {
       scan(neighbor);
     }
   } while (direction % initial_direction
-      != (is_starting_cell ? AT_RIGHT_SIDE : IN_BACK));
+      != (is_starting_cell ? AT_LEFT_SIDE : IN_FRONT));
   // Back to sub-cell of parent
   if (!is_starting_cell) {
     communicator->set_current_cell(current);

@@ -93,7 +93,7 @@ void FullSpiralStc::scan(CellPtr current) {
       continue;
     }
   } while (direction++ % initial_direction
-      != (is_starting_cell ? IN_BACK : AT_LEFT_SIDE));
+      != (is_starting_cell ? IN_FRONT : AT_RIGHT_SIDE));
   // Back to subcell of parent
   if (!is_starting_cell) {
     go_from(current, PASS, current->get_parent());

@@ -97,7 +97,7 @@ void SpiralStc::scan(CellPtr current) {
       scan(neighbor);
     }
   } while (direction % initial_direction
-      != (is_starting_cell ? AT_RIGHT_SIDE : IN_BACK));
+      != (is_starting_cell ? AT_LEFT_SIDE : IN_FRONT));
   // Back to subcell of parent
   if (!is_starting_cell) {
     go_with(direction, tool_size);

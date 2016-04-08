@@ -36,7 +36,10 @@ double t_size;
 
 MapPtr map;
 PointPtr starting_point;
+std::list<PointPtr> tmp_path;
 std::list<PointPtr> path;
+
+double count_step = 0;
 
 /**
  * Linked libraries to compile: -lglut -lGL (g++)
@@ -113,7 +116,7 @@ void display() {
 
   // Covering path
   glColor3ub(0, 255, 0);
-  draw(path, GL_LINE_STRIP);
+  draw(tmp_path, GL_LINE_STRIP);
 
   glutSwapBuffers();
 }
@@ -144,7 +147,15 @@ int run(int argc, char **argv) {
 }
 
 bool test_go_to(PointPtr position, bool) {
+  PointPtr last_position = path.back();
+  VectorPtr direction = (position - last_position) / (position % last_position);
+  double deviation_position = 0;
+  PointPtr new_position = position
+      + (deviation_position > 0 ? +direction : -direction)
+          * std::abs(deviation_position) * count_step;
+  count_step++;
   path.insert(path.end(), position);
+  path.insert(tmp_path.end(), new_position);
   return true;
 }
 
@@ -388,6 +399,7 @@ int main(int argc, char **argv) {
     SpiralStcPtr plan_spiral_stc = SpiralStcPtr(new SpiralStc());
     plan_spiral_stc->initialize(starting_point, t_size);
     path.insert(path.end(), starting_point);
+    tmp_path.insert(tmp_path.end(), starting_point);
     plan_spiral_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
     plan_spiral_stc->set_behavior_see_obstacle(
         boost::bind(&test_see_obstacle, _1, _2));
@@ -397,6 +409,7 @@ int main(int argc, char **argv) {
         new FullSpiralStc());
     plan_full_spiral_stc->initialize(starting_point, t_size);
     path.insert(path.end(), starting_point);
+    tmp_path.insert(tmp_path.end(), starting_point);
     plan_full_spiral_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
     plan_full_spiral_stc->set_behavior_see_obstacle(
         boost::bind(&test_see_obstacle, _1, _2));
@@ -405,6 +418,7 @@ int main(int argc, char **argv) {
     FullScanStcPtr plan_full_scan_stc = FullScanStcPtr(new FullScanStc());
     plan_full_scan_stc->initialize(starting_point, t_size);
     path.insert(path.end(), starting_point);
+    tmp_path.insert(tmp_path.end(), starting_point);
     plan_full_scan_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
     plan_full_scan_stc->set_behavior_see_obstacle(
         boost::bind(&test_see_obstacle, _1, _2));
@@ -414,6 +428,7 @@ int main(int argc, char **argv) {
         new BoustrophedonOnline());
     plan_boustrophedon_online->initialize(starting_point, t_size);
     path.insert(path.end(), starting_point);
+    tmp_path.insert(tmp_path.end(), starting_point);
     plan_boustrophedon_online->set_behavior_go_to(
         boost::bind(&test_go_to, _1, _2));
     plan_boustrophedon_online->set_behavior_see_obstacle(

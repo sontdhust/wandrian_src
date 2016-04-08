@@ -27,7 +27,8 @@ using namespace wandrian::plans::boustrophedon;
 
 namespace wandrian {
 
-Wandrian::Wandrian() {
+Wandrian::Wandrian() :
+    count_step(0) {
 }
 
 Wandrian::~Wandrian() {
@@ -117,8 +118,7 @@ bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibility) {
 bool Wandrian::spiral_stc_see_obstacle(VectorPtr direction, double distance) {
   RectanglePtr boundary;
   std::list<RectanglePtr> obstacles;
-  PointPtr last_position = plan->get_path().back();
-  PointPtr new_position = last_position + direction * distance;
+  PointPtr new_position = plan->get_path().back() + direction * distance;
   if (robot->get_map_name() != "") { // Offline map
     MapPtr map = MapPtr(new Map(find_map_path()));
     map->build();
@@ -199,10 +199,18 @@ bool Wandrian::boustrophedon_go_to(PointPtr position, bool flexibility) {
   return spiral_stc_go_to(position, flexibility);
 }
 
-bool Wandrian::go_to(PointPtr new_position, bool flexibility) {
+bool Wandrian::go_to(PointPtr position, bool flexibility) {
+  double deviation_position = robot->get_deviation_position();
+  PointPtr last_position = *(----(plan->get_path().end()));
+  VectorPtr direction =
+      ((position - last_position) / (position % last_position));
+  PointPtr new_position = position
+      + (deviation_position > 0 ? +direction : -direction)
+          * std::abs(deviation_position) * count_step;
+  std::cout << "    (" << new_position->x << "," << new_position->y << ")  ";
   bool forward;
   forward = rotate_to(new_position, flexibility);
-  // Assume there is no obstacle, robot go straight
+  // Assume there is no obstacles, robot go straight
   go(forward);
   double epsilon_direction = robot->get_epsilon_motional_direction();
   double epsilon_position = robot->get_epsilon_position();
@@ -261,8 +269,10 @@ bool Wandrian::rotate_to(VectorPtr new_direction, bool flexibility) {
   } else if (angle < -epsilon) {
     robot->stop();
     rotate(will_move_forward ? CLOCKWISE : COUNTERCLOCKWISE);
-  } else
+  } else {
+    count_step++;
     return true;
+  }
   while (true) {
     if (will_move_forward ?
         (std::abs(new_direction->x - robot->get_current_direction()->x)
