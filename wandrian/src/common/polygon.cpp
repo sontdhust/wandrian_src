@@ -45,6 +45,10 @@ Polygon::~Polygon() {
   }
 }
 
+std::list<PointPtr> Polygon::get_points() {
+  return points;
+}
+
 std::list<PointPtr> Polygon::get_boundary() {
   std::list<PointPtr> boundary;
   std::list<PointPtr> upper_boundary = get_upper_boundary();

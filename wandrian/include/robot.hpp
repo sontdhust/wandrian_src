@@ -40,13 +40,13 @@ public:
   bool initialize();
   void spin();
   void stop();
-  void decelerate(double = 0.0, double = 0.0);
 
-  std::string get_plan_name();
+  std::string get_map_name();
+  RectanglePtr get_map_boundary();
   double get_tool_size();
   double get_starting_point_x();
   double get_starting_point_y();
-  RectanglePtr get_space_boundary();
+  std::string get_plan_name();
   PointPtr get_current_position();
   VectorPtr get_current_direction();
   bool* get_obstacles();
@@ -63,15 +63,16 @@ public:
   void set_laser_range(double);
 
 private:
-  std::string plan_name; // arg
-  std::string robot_name; // arg
+  std::string map_name; // arg
+  double map_center_x; // arg
+  double map_center_y; // arg
+  double map_boundary_width; // arg
+  double map_boundary_height; // arg
   double tool_size; // arg
   double starting_point_x; // arg
   double starting_point_y; // arg
-  double space_center_x; // arg
-  double space_center_y; // arg
-  double space_boundary_width; // arg
-  double space_boundary_height; // arg
+  std::string plan_name; // arg
+  std::string robot_name; // arg
   double linear_velocity; // arg
   double angular_velocity; // arg
   double proportion_ranges_count; // arg

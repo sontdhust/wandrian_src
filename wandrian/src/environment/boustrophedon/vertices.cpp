@@ -11,7 +11,7 @@ namespace wandrian {
 namespace environment {
 namespace boustrophedon {
 
-Vertices::Vertices(PointPtr positions, ObstaclePtr polygon) {
+Vertices::Vertices(PointPtr positions, RectanglePtr polygon) {
   this->position = positions;
   this->polygon = polygon;
 }
@@ -54,7 +54,7 @@ PointPtr Vertices::get_position() {
   return position;
 }
 
-ObstaclePtr Vertices::get_polygon() {
+RectanglePtr Vertices::get_polygon() {
   return polygon;
 }
 
@@ -62,7 +62,7 @@ void Vertices::set_positions(PointPtr positions) {
   this->position = positions;
 }
 
-void Vertices::set_polygon(ObstaclePtr polygon) {
+void Vertices::set_polygon(RectanglePtr polygon) {
   this->polygon = polygon;
 }
 
