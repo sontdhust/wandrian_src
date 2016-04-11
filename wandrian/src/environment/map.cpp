@@ -20,7 +20,6 @@ Map::Map(RectanglePtr boundary, std::list<RectanglePtr> obstacles) :
 
 Map::Map(std::string map_path) {
   this->map_path = map_path;
-  initialize();
 }
 
 Map::~Map() {
@@ -114,10 +113,6 @@ void Map::build() {
                   global_obstacle_size ? o_size : obstacle_sizes[i])));
     }
   }
-}
-
-void Map::initialize() {
-  build();
 }
 
 }

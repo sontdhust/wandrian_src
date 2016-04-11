@@ -21,6 +21,7 @@ public:
   Map(RectanglePtr, std::list<RectanglePtr>);
   Map(std::string);
   virtual ~Map();
+  virtual void build();
 
   RectanglePtr get_boundary();
   std::list<RectanglePtr> get_obstacles();
@@ -30,11 +31,6 @@ protected:
   RectanglePtr boundary;
   std::list<RectanglePtr> obstacles;
   std::string map_path;
-
-  virtual void build();
-
-private:
-  void initialize();
 };
 
 typedef boost::shared_ptr<Map> MapPtr;
