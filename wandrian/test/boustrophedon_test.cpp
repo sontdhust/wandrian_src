@@ -28,7 +28,7 @@ double e_size = 0;
 
 MapPtr map;
 PointPtr starting_point;
-std::list<PointPtr> tmp_path;
+std::list<PointPtr> actual_path;
 /**
  * Linked libraries to compile: -lglut -lGL (g++)
  */
@@ -102,7 +102,7 @@ void display() {
 
   // Boustrophedon covering path
   glColor3ub(0, 255, 0);
-  draw_path(tmp_path, GL_LINE_STRIP);
+  draw_path(actual_path, GL_LINE_STRIP);
 
   glRasterPos2i(0, -11);
   std::stringstream ss;
@@ -124,13 +124,13 @@ int run(int argc, char **argv) {
 }
 
 bool test_go_to(PointPtr position, bool flexibly) {
-  tmp_path.insert(tmp_path.end(), position);
+  actual_path.insert(actual_path.end(), position);
   return true;
 }
 
 bool test_see_obstacle(VectorPtr direction, double step) {
   // Simulator check obstacle
-  PointPtr last_position = *(--tmp_path.end());
+  PointPtr last_position = *(--actual_path.end());
   PointPtr new_position = PointPtr(
       new Point(last_position + direction * step * R_SIZE / 2));
   if (map) {
@@ -289,7 +289,7 @@ int main(int argc, char **argv) {
   world_in.close();
   world_out.close();
 
-  tmp_path.insert(tmp_path.end(), starting_point);
+  actual_path.insert(actual_path.end(), starting_point);
   boustrophedon->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
 
   boustrophedon->cover();

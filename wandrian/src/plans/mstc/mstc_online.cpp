@@ -58,12 +58,9 @@ void MstcOnline::set_behavior_see_obstacle(
   this->behavior_see_obstacle = behavior_see_obstacle;
 }
 
-bool MstcOnline::go_to(PointPtr position, bool flexibly) {
+bool MstcOnline::go_to(PointPtr position, bool flexibility) {
   std::cout << "    pos: " << position->x << "," << position->y;
-  path.insert(path.end(), position);
-  if (behavior_go_to)
-    return behavior_go_to(position, flexibly);
-  return true;
+  return BasePlan::go_to(position, flexibility);
 }
 
 bool MstcOnline::see_obstacle(VectorPtr direction, double distance) {

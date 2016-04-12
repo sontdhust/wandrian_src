@@ -32,8 +32,13 @@ void BasePlan::set_behavior_go_to(
 
 bool BasePlan::go_to(PointPtr position, bool flexibility) {
   // Override this method
-  if (behavior_go_to)
-    return behavior_go_to(position, flexibility);
+  if (behavior_go_to) {
+    bool successful = behavior_go_to(position, flexibility);
+    if (successful)
+      path.insert(path.end(), position);
+    return successful;
+  }
+  path.insert(path.end(), position);
   return true;
 }
 

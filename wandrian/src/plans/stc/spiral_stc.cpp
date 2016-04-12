@@ -48,10 +48,7 @@ void SpiralStc::set_behavior_see_obstacle(
 
 bool SpiralStc::go_to(PointPtr position, bool flexibility) {
   std::cout << "    pos: " << position->x << "," << position->y;
-  path.insert(path.end(), position);
-  if (behavior_go_to)
-    return behavior_go_to(position, flexibility);
-  return true;
+  return BasePlan::go_to(position, flexibility);
 }
 
 bool SpiralStc::see_obstacle(VectorPtr direction, double distance) {
@@ -116,9 +113,9 @@ State SpiralStc::state_of(CellPtr cell) {
 bool SpiralStc::go_with(VectorPtr direction, double distance) {
   PointPtr last_position = path.back();
   PointPtr new_position = last_position + direction * distance;
-  bool succeed = go_to(new_position, STRICTLY);
+  bool successful = go_to(new_position, STRICTLY);
   std::cout << "\n";
-  return succeed;
+  return successful;
 }
 
 }

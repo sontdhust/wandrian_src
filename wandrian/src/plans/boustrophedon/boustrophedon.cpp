@@ -35,13 +35,9 @@ void Boustrophedon::cover() {
   boustrophedon_cd();
 }
 
-bool Boustrophedon::go_to(PointPtr position, bool flexibly) {
+bool Boustrophedon::go_to(PointPtr position, bool flexibility) {
   std::cout << "    pos: " << position->x << "," << position->y << "\n";
-  path.insert(path.end(), position);
-
-  if (behavior_go_to)
-    return behavior_go_to(position, flexibly);
-  return true;
+  return BasePlan::go_to(position, flexibility);
 }
 
 bool Boustrophedon::go_into(SpacePtr space) {

@@ -27,6 +27,7 @@ private:
   RobotPtr robot;
   BasePlanPtr plan;
   int count_step;
+  std::list<PointPtr> actual_path;
 
   // Behaviors
   void wandrian_run();

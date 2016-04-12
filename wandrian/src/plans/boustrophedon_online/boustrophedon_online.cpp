@@ -52,13 +52,9 @@ void BoustrophedonOnline::set_behavior_see_obstacle(
   this->behavior_see_obstacle = behavior_see_obstacle;
 }
 
-bool BoustrophedonOnline::go_to(PointPtr position, bool flexibly) {
+bool BoustrophedonOnline::go_to(PointPtr position, bool flexibility) {
   std::cout << "    pos: " << position->x << "," << position->y << "\n";
-  path.insert(path.end(), position);
-
-  if (behavior_go_to)
-    return behavior_go_to(position, flexibly);
-  return true;
+  return BasePlan::go_to(position, flexibility);
 }
 
 bool BoustrophedonOnline::go_to_bpcell(PointPtr position, bool flexibly) {

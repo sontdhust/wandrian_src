@@ -33,10 +33,11 @@ using namespace wandrian::plans::boustrophedon_online;
 
 double b_size = 0;
 double t_size;
+double d_position = 0;
 
 MapPtr map;
 PointPtr starting_point;
-std::list<PointPtr> tmp_path;
+std::list<PointPtr> actual_path;
 std::list<PointPtr> path;
 
 double count_step = 0;
@@ -116,7 +117,9 @@ void display() {
 
   // Covering path
   glColor3ub(0, 255, 0);
-  draw(tmp_path, GL_LINE_STRIP);
+  draw(path, GL_LINE_STRIP);
+  glColor3ub(0, 255, 255);
+  draw(actual_path, GL_LINE_STRIP);
 
   glutSwapBuffers();
 }
@@ -149,13 +152,14 @@ int run(int argc, char **argv) {
 bool test_go_to(PointPtr position, bool) {
   PointPtr last_position = path.back();
   VectorPtr direction = (position - last_position) / (position % last_position);
-  double deviation_position = 0;
-  PointPtr new_position = position
-      + (deviation_position > 0 ? +direction : -direction)
-          * std::abs(deviation_position) * count_step;
-  count_step++;
+  if (path.size() >= 3
+      && direction % (last_position - *(----path.end())) != IN_FRONT)
+    count_step++;
+  PointPtr actual_position = actual_path.back() + (position - last_position)
+      + (d_position > 0 ? +direction : -direction) * std::abs(d_position)
+          * count_step;
   path.insert(path.end(), position);
-  path.insert(tmp_path.end(), new_position);
+  actual_path.insert(actual_path.end(), actual_position);
   return true;
 }
 
@@ -394,12 +398,17 @@ int main(int argc, char **argv) {
     plan_name = iss4.str();
   }
 
+  if (argc >= (map_input ? 7 : 8)) {
+    std::istringstream iss6(argv[map_input ? 6 : 7]);
+    iss6 >> d_position;
+  }
+
   print_space();
+  path.insert(path.end(), starting_point);
+  actual_path.insert(actual_path.end(), starting_point);
   if (plan_name == "spiral_stc") {
     SpiralStcPtr plan_spiral_stc = SpiralStcPtr(new SpiralStc());
     plan_spiral_stc->initialize(starting_point, t_size);
-    path.insert(path.end(), starting_point);
-    tmp_path.insert(tmp_path.end(), starting_point);
     plan_spiral_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
     plan_spiral_stc->set_behavior_see_obstacle(
         boost::bind(&test_see_obstacle, _1, _2));
@@ -408,8 +417,6 @@ int main(int argc, char **argv) {
     FullSpiralStcPtr plan_full_spiral_stc = FullSpiralStcPtr(
         new FullSpiralStc());
     plan_full_spiral_stc->initialize(starting_point, t_size);
-    path.insert(path.end(), starting_point);
-    tmp_path.insert(tmp_path.end(), starting_point);
     plan_full_spiral_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
     plan_full_spiral_stc->set_behavior_see_obstacle(
         boost::bind(&test_see_obstacle, _1, _2));
@@ -417,8 +424,6 @@ int main(int argc, char **argv) {
   } else if (plan_name == "full_scan_stc") {
     FullScanStcPtr plan_full_scan_stc = FullScanStcPtr(new FullScanStc());
     plan_full_scan_stc->initialize(starting_point, t_size);
-    path.insert(path.end(), starting_point);
-    tmp_path.insert(tmp_path.end(), starting_point);
     plan_full_scan_stc->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
     plan_full_scan_stc->set_behavior_see_obstacle(
         boost::bind(&test_see_obstacle, _1, _2));
@@ -427,8 +432,6 @@ int main(int argc, char **argv) {
     BoustrophedonOnlinePtr plan_boustrophedon_online = BoustrophedonOnlinePtr(
         new BoustrophedonOnline());
     plan_boustrophedon_online->initialize(starting_point, t_size);
-    path.insert(path.end(), starting_point);
-    tmp_path.insert(tmp_path.end(), starting_point);
     plan_boustrophedon_online->set_behavior_go_to(
         boost::bind(&test_go_to, _1, _2));
     plan_boustrophedon_online->set_behavior_see_obstacle(
