@@ -19,6 +19,7 @@
 #define EPSILON_ROTATIONAL_DIRECTION 0.06
 #define EPSILON_MOTIONAL_DIRECTION 0.24
 #define EPSILON_POSITION 0.06
+#define THRESHOLD_STEP_COUNT 4
 
 using namespace wandrian::plans::stc;
 using namespace wandrian::plans::mstc;
@@ -28,7 +29,7 @@ using namespace wandrian::plans::boustrophedon;
 namespace wandrian {
 
 Wandrian::Wandrian() :
-    count_step(0) {
+    step_count(0), deviation_linear_count(0), deviation_angular_count(0) {
 }
 
 Wandrian::~Wandrian() {
@@ -188,14 +189,15 @@ bool Wandrian::boustrophedon_go_to(PointPtr position, bool flexibility) {
 }
 
 bool Wandrian::go_to(PointPtr position, bool flexibility) {
-  double deviation_position = robot->get_deviation_position();
+  double deviation_linear_position = robot->get_deviation_linear_position();
+  double deviation_angular_position = robot->get_deviation_angular_position();
   PointPtr last_position = plan->get_path().back();
   VectorPtr direction = (position - last_position) / (position % last_position);
   PointPtr actual_position = actual_path.back() + (position - last_position)
-      + (deviation_position > 0 ? +direction : -direction)
-          * std::abs(deviation_position) * count_step;
-  std::cout << "    (" << actual_position->x << "," << actual_position->y
-      << ")  ";
+      + direction * deviation_linear_position * deviation_linear_count
+      + (deviation_angular_position > 0 ? +direction : -direction)
+          * std::abs(deviation_angular_position) * deviation_angular_count;
+  std::cout << " (" << actual_position->x << "," << actual_position->y << ")";
   bool forward;
   forward = rotate_to(actual_position, flexibility);
   // Assume there is no obstacles, robot go straight
@@ -231,6 +233,8 @@ bool Wandrian::go_to(PointPtr position, bool flexibility) {
     }
   }
   actual_path.insert(actual_path.end(), actual_position);
+  std::cout << " [" << robot->get_current_position()->x << ","
+      << robot->get_current_position()->y << "]\n";
   return true;
 }
 
@@ -253,13 +257,22 @@ bool Wandrian::rotate_to(VectorPtr direction, bool flexibility) {
   bool will_move_forward =
       (flexibility != FLEXIBLY) ? true : std::abs(angle) < M_PI_2;
   if (angle > epsilon) {
+    step_count = 0;
+    deviation_linear_count = 0;
     robot->stop();
     rotate(will_move_forward ? COUNTERCLOCKWISE : CLOCKWISE);
   } else if (angle < -epsilon) {
+    step_count = 0;
+    deviation_linear_count = 0;
     robot->stop();
     rotate(will_move_forward ? CLOCKWISE : COUNTERCLOCKWISE);
   } else {
-    count_step++;
+    if (step_count < THRESHOLD_STEP_COUNT) {
+      step_count++;
+      deviation_angular_count++;
+    } else {
+      deviation_linear_count++;
+    }
     return true;
   }
   while (true) {

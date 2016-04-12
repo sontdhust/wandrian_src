@@ -17,7 +17,8 @@
   <arg name="e_rd"/>
   <arg name="e_md"/>
   <arg name="e_p"/>
-  <arg name="d_p" default="0"/>
+  <arg name="d_lp" default="0"/>
+  <arg name="d_ap" default="0"/>
 
   <node pkg="wandrian" type="run" name="run" output="screen">
     <remap from="run/power" to="mobile_base/commands/motor_power"/>
@@ -43,7 +44,8 @@
     <param name="epsilon_rotational_direction" value="$(arg e_rd)" type="double"/>
     <param name="epsilon_motional_direction" value="$(arg e_md)" type="double"/>
     <param name="epsilon_position" value="$(arg e_p)" type="double"/>
-    <param name="deviation_position" value="$(arg d_p)" type="double"/>
+    <param name="deviation_linear_position" value="$(arg d_lp)" type="double"/>
+    <param name="deviation_angular_position" value="$(arg d_ap)" type="double"/>
 
     <param name="linear_velocity_step" value="0.15" type="double"/>
     <param name="linear_velocity_max" value="1.5" type="double"/>

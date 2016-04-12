@@ -58,7 +58,7 @@ bool SpiralStc::see_obstacle(VectorPtr direction, double distance) {
   else
     get_obstacle = false;
   if (get_obstacle)
-    std::cout << " \033[1;46m(OBSTACLE)\033[0m\n";
+    std::cout << "      \033[1;46m(OBSTACLE)\033[0m\n";
   return get_obstacle;
 }
 

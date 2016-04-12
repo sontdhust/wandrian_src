@@ -26,7 +26,9 @@ public:
 private:
   RobotPtr robot;
   BasePlanPtr plan;
-  int count_step;
+  int step_count;
+  int deviation_linear_count;
+  int deviation_angular_count;
   std::list<PointPtr> actual_path;
 
   // Behaviors

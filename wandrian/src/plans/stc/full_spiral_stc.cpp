@@ -106,6 +106,8 @@ State FullSpiralStc::state_of(CellPtr cell) {
   State state = (old_cells.find(cell) != old_cells.end()) ? OLD : NEW;
   if (state == OLD)
     std::cout << " \033[1;45m(OLD)\033[0m\n";
+  else
+    std::cout << "\n";
   return state;
 }
 
