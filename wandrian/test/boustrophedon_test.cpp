@@ -17,7 +17,7 @@
 #include "../include/environment/map.hpp"
 #include "../include/plans/boustrophedon/boustrophedon.hpp"
 
-#define R_SIZE 0.5 // robot size
+#define R_SIZE 0.4 // robot size
 #define E_SIZE 6.0 // default environment size
 #define WORLD_INSERT_OBSTACLE "<!-- INSERT: Boundary and Obstacles here -->" // flag at original world file to insert bound and obstacles into
 
