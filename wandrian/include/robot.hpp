@@ -58,6 +58,8 @@ public:
   double get_epsilon_position();
   double get_deviation_linear_position();
   double get_deviation_angular_position();
+  int get_threshold_linear_step_count();
+  int get_threshold_angular_step_count();
   CommunicatorPtr get_communicator();
   void set_behavior_run(boost::function<void()>);
   void set_linear_velocity(double);
@@ -86,6 +88,8 @@ private:
   double epsilon_position; // arg
   double deviation_linear_position; // arg
   double deviation_angular_position; // arg
+  int threshold_linear_step_count; // arg
+  int threshold_angular_step_count; // arg
 
   PointPtr current_position; // odometry subscriber
   VectorPtr current_direction; // odometry subscriber

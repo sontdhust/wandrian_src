@@ -19,7 +19,6 @@
 #define EPSILON_ROTATIONAL_DIRECTION 0.06
 #define EPSILON_MOTIONAL_DIRECTION 0.24
 #define EPSILON_POSITION 0.06
-#define THRESHOLD_STEP_COUNT 4
 
 using namespace wandrian::plans::stc;
 using namespace wandrian::plans::mstc;
@@ -267,11 +266,12 @@ bool Wandrian::rotate_to(VectorPtr direction, bool flexibility) {
     robot->stop();
     rotate(will_move_forward ? CLOCKWISE : COUNTERCLOCKWISE);
   } else {
-    if (step_count < THRESHOLD_STEP_COUNT) {
+    if (step_count > robot->get_threshold_linear_step_count()) {
+      deviation_linear_count++;
+    }
+    if (step_count < robot->get_threshold_angular_step_count()) {
       step_count++;
       deviation_angular_count++;
-    } else {
-      deviation_linear_count++;
     }
     return true;
   }
