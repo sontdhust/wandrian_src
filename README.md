@@ -57,4 +57,6 @@ Change to catkin root directory then run:
 
 ####Prefered command:
     roslaunch kobuki_node minimal.launch --screen
-    roslaunch wandrian run_practically.launch mn:=prefered ts:=0.4 sp_x:=0.6 sp_y:=-0.6 pn:=fss lv:=0.18 pav:=1.1 nav:=0.9 pr_c:=0.4 pr_s:=0.2 af_r:=3.0 e_rd:=0.12 e_md:=0.48 e_p:=0.04 d_lp:=-0.005 d_ap:=0.01 t_lsc:=4 t_asc:=4
+    sudo chmod a+rw /dev/ttyACM0
+    rosrun hokuyo_node hokuyo_node
+    roslaunch wandrian run_practically.launch mn:=prefered ts:=0.5 sp_x:=0.25 sp_y:=-0.25 pn:=fss lv:=0.22 pav:=1.2 nav:=1 pr_c:=0.4 pr_s:=0.2 af_r:=2.5 e_rd:=0.12 e_md:=0.48 e_p:=0.04 d_lp:=-0.007 d_ap:=0.0003 t_lsc:=0 t_asc:=2

@@ -106,7 +106,7 @@ bool Robot::initialize() {
   velocity->angular.z = 0.0;
   laser_range = tool_size / 2;
 
-  ecl::MilliSleep millisleep;
+  ecl::MilliSleep milliSleep;
   int count = 0;
   bool connected = false;
   while (!connected) {
@@ -121,7 +121,7 @@ bool Robot::initialize() {
       ROS_FATAL_STREAM(
           "[Connection]: Could not connect, trying again after 500ms...");
       try {
-        millisleep(500);
+        milliSleep(500);
       } catch (ecl::StandardException &e) {
         ROS_ERROR_STREAM("Waiting has been interrupted.");
         ROS_DEBUG_STREAM(e.what());
@@ -283,6 +283,8 @@ void Robot::set_laser_range(double laser_range) {
 }
 
 void Robot::run() {
+  ecl::MilliSleep milliSleep;
+  milliSleep(15000);
   if (behavior_run)
     behavior_run();
 }
@@ -363,6 +365,7 @@ void Robot::process_keyboard_input(char c) {
     break;
   }
   case 'r':
+  case 'z':
     ROS_INFO_STREAM("[Run]: " << "Start running");
     thread_run.start(&Robot::start_thread_run, *this);
     if (plan_name == "mstc_online") {

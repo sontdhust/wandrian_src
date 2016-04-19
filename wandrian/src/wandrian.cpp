@@ -127,7 +127,7 @@ bool Wandrian::spiral_stc_see_obstacle(VectorPtr direction, double distance) {
                 + EPSILON) {
       return true;
     }
-  if (obstacles.size() > 0)
+  if (obstacles.size() > 0) { // Offline
     for (std::list<RectanglePtr>::iterator o = obstacles.begin();
         o != obstacles.end(); o++) {
       CellPtr obstacle = boost::static_pointer_cast<Cell>(*o);
@@ -143,17 +143,20 @@ bool Wandrian::spiral_stc_see_obstacle(VectorPtr direction, double distance) {
         return true;
       }
     }
-  double angle = direction ^ robot->get_current_direction();
-  if (std::abs(angle) <= 3 * M_PI_4)
-    return
-        (std::abs(angle) <= M_PI_4) ?
-            see_obstacle(IN_FRONT, distance) :
-            ((angle > M_PI_4) ?
-                see_obstacle(AT_LEFT_SIDE, distance) :
-                see_obstacle(AT_RIGHT_SIDE, distance));
-  else {
-    rotate_to(direction, STRICTLY);
-    return see_obstacle(IN_FRONT, distance);
+    return false;
+  } else { // Online
+    double angle = direction ^ robot->get_current_direction();
+    if (std::abs(angle) <= 3 * M_PI_4)
+      return
+          (std::abs(angle) <= M_PI_4) ?
+              see_obstacle(IN_FRONT, distance) :
+              ((angle > M_PI_4) ?
+                  see_obstacle(AT_LEFT_SIDE, distance) :
+                  see_obstacle(AT_RIGHT_SIDE, distance));
+    else {
+      rotate_to(direction, STRICTLY);
+      return see_obstacle(IN_FRONT, distance);
+    }
   }
 }
 
@@ -256,13 +259,11 @@ bool Wandrian::rotate_to(VectorPtr direction, bool flexibility) {
   bool will_move_forward =
       (flexibility != FLEXIBLY) ? true : std::abs(angle) < M_PI_2;
   if (angle > epsilon) {
-    step_count = 0;
-    deviation_linear_count = 0;
+    step_count = 1;
     robot->stop();
     rotate(will_move_forward ? COUNTERCLOCKWISE : CLOCKWISE);
   } else if (angle < -epsilon) {
-    step_count = 0;
-    deviation_linear_count = 0;
+    step_count = 1;
     robot->stop();
     rotate(will_move_forward ? CLOCKWISE : COUNTERCLOCKWISE);
   } else {
