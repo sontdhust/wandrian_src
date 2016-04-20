@@ -89,7 +89,9 @@ void Wandrian::wandrian_run() {
             _2));
     boustrophedon_online->cover();
   } else if (robot->get_plan_name() == "b") {
-    BoustrophedonPtr boustrophedon = BoustrophedonPtr(new Boustrophedon());
+    plan = BoustrophedonPtr(new Boustrophedon());
+    BoustrophedonPtr boustrophedon = boost::static_pointer_cast<Boustrophedon>(
+        plan);
     boustrophedon->initialize(starting_point, robot->get_tool_size(),
         find_map_path());
     boustrophedon->set_behavior_go_to(

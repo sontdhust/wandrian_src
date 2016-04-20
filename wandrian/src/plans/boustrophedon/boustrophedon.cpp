@@ -27,9 +27,11 @@ void Boustrophedon::initialize(PointPtr starting_point, double robot_size,
   this->map->build();
   path.insert(path.end(), starting_point);
 }
+
 ExtendedMapPtr Boustrophedon::get_map() {
   return map;
 }
+
 void Boustrophedon::cover() {
   // old_cells.insert(starting_cell);
   boustrophedon_cd();
@@ -48,7 +50,6 @@ bool Boustrophedon::go_into(SpacePtr space) {
 
   PointPtr starting_point = PointPtr(new Point(x, y));
   go_to(starting_point, STRICTLY);
-
   std::cout << "\033[1;34mLast_position-\033[0m\033[1;31m\033[0m: "
       << starting_point->x << "," << starting_point->y << "\n";
   std::cout << "\033[1;34mSize_Space-\033[0m\033[1;31m\033[0m: "
@@ -56,22 +57,20 @@ bool Boustrophedon::go_into(SpacePtr space) {
 
   PointPtr last_position;
   PointPtr new_position;
-
   double flag;
-
   flag = robot_size;
   for (int i = 0; i < int(space->get_size_x() / robot_size + EPSILON); ++i) {
-
     if (i != 0) {
-      last_position = *(--path.end());
+      last_position = path.back();
       new_position = PointPtr(
           new Point(last_position->x + robot_size, last_position->y));
       go_to(new_position, STRICTLY);
     }
     std::cout << "\033[1;34mNumber_line-\033[0m\033[1;31m\033[0m: " << i
         << "\n";
-    for (int j = 0; j < int(space->get_size_y() / robot_size - 1 + EPSILON); ++j) {
-      last_position = *(--path.end());
+    for (int j = 0; j < int(space->get_size_y() / robot_size - 1 + EPSILON);
+        ++j) {
+      last_position = path.back();
       new_position = PointPtr(
           new Point(last_position->x, last_position->y + flag));
       go_to(new_position, STRICTLY);
@@ -79,13 +78,6 @@ bool Boustrophedon::go_into(SpacePtr space) {
     flag = -flag;
   }
   return true;
-}
-
-bool Boustrophedon::go_with(VectorPtr direction, double step) {
-  PointPtr last_position = *(--path.end());
-  PointPtr new_position = PointPtr(
-      new Point(last_position + direction * step * robot_size / 2));
-  return go_to(new_position, STRICTLY);
 }
 
 void Boustrophedon::dfs(SpacePtr space) {
@@ -99,18 +91,24 @@ void Boustrophedon::dfs(SpacePtr space) {
       ++inspectLC) {
     if ((*inspectLC)->status_visited == false) {
       go_to((*inspectLC)->point_backtrack, STRICTLY);
-      go_to(PointPtr(new Point((*inspectLC)->point_backtrack->x + robot_size,
-    		  	  	  	  	   (*inspectLC)->point_backtrack->y)), STRICTLY);
+      go_to(
+          PointPtr(
+              new Point((*inspectLC)->point_backtrack->x + robot_size,
+                  (*inspectLC)->point_backtrack->y)), STRICTLY);
       dfs(*inspectLC);
-
-      go_to(PointPtr(new Point((*inspectLC)->point_backtrack->x + robot_size,
-       		  	  	  	  	   (*inspectLC)->point_backtrack->y)), STRICTLY);
+      go_to(
+          PointPtr(
+              new Point((*inspectLC)->point_backtrack->x + robot_size,
+                  (*inspectLC)->point_backtrack->y)), STRICTLY);
       go_to((*inspectLC)->point_backtrack, STRICTLY);
     }
   }
-  if(space->point_backtrack){
-	 go_to(PointPtr(new Point(space->get_center()->x + space->get_size_x()/2 - robot_size/2,
-	     		  	  	  	  	   space->point_backtrack->y)), STRICTLY);
+  if (space->point_backtrack) {
+    go_to(
+        PointPtr(
+            new Point(
+                space->get_center()->x + space->get_size_x() / 2
+                    - robot_size / 2, space->point_backtrack->y)), STRICTLY);
   }
 }
 
@@ -173,63 +171,57 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
         }
         break;
       }
-        std::cout << "Into1" << std::endl;
-        // Create space
-        size_x = (*inspectLV)->get_position()->x
-            - (*inspectLVT)->get_position()->x;
-        size_y = (*inspectLVT)->get_position()->y
-            - vertices_previous->get_position()->y;
+      std::cout << "Into1" << std::endl;
+      // Create space
+      size_x = (*inspectLV)->get_position()->x
+          - (*inspectLVT)->get_position()->x;
+      size_y = (*inspectLVT)->get_position()->y
+          - vertices_previous->get_position()->y;
 
-        center_temp = PointPtr(
-            new Point((*inspectLVT)->get_position()->x + size_x / 2,
-                (*inspectLVT)->get_position()->y - size_y / 2));
-        std::cout << "Create Space:" << size_x << "," << size_y << std::endl;
-        std::cout << "Center Space:" << center_temp->x << "," << center_temp->y
-            << std::endl;
+      center_temp = PointPtr(
+          new Point((*inspectLVT)->get_position()->x + size_x / 2,
+              (*inspectLVT)->get_position()->y - size_y / 2));
+      std::cout << "Create Space:" << size_x << "," << size_y << std::endl;
+      std::cout << "Center Space:" << center_temp->x << "," << center_temp->y
+          << std::endl;
 
-        // Remove : two vetices space left
-        listvertices_temp.remove(vertices_previous);
-        listvertices_temp.remove(*inspectLVT);
+      // Remove : two vetices space left
+      listvertices_temp.remove(vertices_previous);
+      listvertices_temp.remove(*inspectLVT);
 
-        // Push: two vertices space right
-
-        if ((*inspectLV)->get_position()->y
-            != environment->get_center()->y + environment->get_height() / 2) {
-          listvertices_temp.push_back(
-              VerticesPtr(
-                  new Vertices(
-                      PointPtr(
-                          new Point(center_temp->x + size_x / 2,
-                              center_temp->y + size_y / 2)),
-                      RectanglePtr(
-                          new Rectangle(center_temp, size_x, size_y)))));
-          listvertices_temp.push_back(*inspectLV);
-        }
-        ++inspectLV;
-        ++j;
-        if ((*inspectLV)->get_position()->y
-            != environment->get_center()->y - environment->get_height() / 2) {
-          listvertices_temp.push_back(
-              VerticesPtr(
-                  new Vertices(
-                      PointPtr(
-                          new Point(center_temp->x + size_x / 2,
-                              center_temp->y - size_y / 2)),
-                      RectanglePtr(
-                          new Rectangle(center_temp, size_x, size_y)))));
-          listvertices_temp.push_back(*inspectLV);
-        }
-    } else {
-      if((fabs((*inspectLV)->get_position()->x
-    	 - environment->get_center()->x - environment->get_width()/2) < EPSILON)
-      	 ){
-    	  std::cout<<"One"<<"\n";
-    	  if((*inspectLV)->upon_compared_center()){
-    		  std::cout<<"Two"<<"\n";
-    		  continue;
-    	  }
+      // Push: two vertices space right
+      if ((*inspectLV)->get_position()->y
+          != environment->get_center()->y + environment->get_height() / 2) {
+        listvertices_temp.push_back(
+            VerticesPtr(
+                new Vertices(
+                    PointPtr(
+                        new Point(center_temp->x + size_x / 2,
+                            center_temp->y + size_y / 2)),
+                    RectanglePtr(new Rectangle(center_temp, size_x, size_y)))));
+        listvertices_temp.push_back(*inspectLV);
       }
-      std::cout<<"Three"<<"\n";
+      ++inspectLV;
+      ++j;
+      if ((*inspectLV)->get_position()->y
+          != environment->get_center()->y - environment->get_height() / 2) {
+        listvertices_temp.push_back(
+            VerticesPtr(
+                new Vertices(
+                    PointPtr(
+                        new Point(center_temp->x + size_x / 2,
+                            center_temp->y - size_y / 2)),
+                    RectanglePtr(new Rectangle(center_temp, size_x, size_y)))));
+        listvertices_temp.push_back(*inspectLV);
+      }
+    } else {
+      if ((fabs(
+          (*inspectLV)->get_position()->x - environment->get_center()->x
+              - environment->get_width() / 2) < EPSILON)) {
+        if ((*inspectLV)->upon_compared_center()) {
+          continue;
+        }
+      }
       if (((*inspectLV)->get_position()->y
           == environment->get_center()->y - environment->get_height() / 2)
           || ((*inspectLV)->get_position()->y
@@ -237,16 +229,13 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
         listvertices_temp.push_back(*inspectLV);
         continue;
       }
-      std::cout<<"For"<<"\n";
       inspectLVT = --listvertices_temp.end();
-      std::cout<<"Fix"<<"\n";
-//      if ((*inspectLV)->get_position()->y == (*inspectLVT)->get_position()->y) {
-//        listvertices_temp.push_back(*inspectLV);
-//        ++inspectLV;
-//        ++j;
-//        continue;
-//      }
-      std::cout<<"Six"<<"\n";
+      //      if ((*inspectLV)->get_position()->y == (*inspectLVT)->get_position()->y) {
+      //        listvertices_temp.push_back(*inspectLV);
+      //        ++inspectLV;
+      //        ++j;
+      //        continue;
+      //      }
       for (inspectLVT = listvertices_temp.begin();
           inspectLVT != listvertices_temp.end(); ++inspectLVT) {
         std::cout << "V current " << (*inspectLV)->get_position()->y
@@ -274,7 +263,6 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
       std::cout << "Create Space:" << size_x << "," << size_y << std::endl;
       std::cout << "Center Space:" << center_temp->x << "," << center_temp->y
           << std::endl;
-
 
       // Remove : two vetices space left
       listvertices_temp.remove(vertices_previous);
@@ -304,17 +292,17 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
         ++j;
       }
     }
-    if((size_x != 0)&&(size_y !=0)){
-    	list_space.push_back(SpacePtr(new Space(center_temp, size_x, size_y)));
+    if ((size_x != 0) && (size_y != 0)) {
+      list_space.push_back(SpacePtr(new Space(center_temp, size_x, size_y)));
     }
   }
 
-  std::cout<<"Starting add parent!"<<"\n";
+  std::cout << "Starting add parent!" << "\n";
   list_space.sort(Space::compare_positions_x);
-  std::cout<<list_space.size()<<"\n";
+  std::cout << list_space.size() << "\n";
   for (inspectLS = --list_space.end(), i = 1; inspectLS != list_space.end();
       --inspectLS) {
-    std::cout <<"Space "<< (*inspectLS)->get_center()->x << ","
+    std::cout << "Space " << (*inspectLS)->get_center()->x << ","
         << (*inspectLS)->get_center()->y << std::endl;
     for (inspectLS_temp = list_space.begin(), i = 1;
         inspectLS_temp != list_space.end(); ++inspectLS_temp) {
@@ -325,10 +313,11 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
             << (*inspectLS)->get_center()->y << ")" << std::endl;
         (*inspectLS_temp)->children.push_back(*inspectLS);
         (*inspectLS)->set_parent(*inspectLS_temp);
-        (*inspectLS)->set_point_backtrack(*inspectLS_temp, *inspectLS,robot_size);
+        (*inspectLS)->set_point_backtrack(*inspectLS_temp, *inspectLS,
+            robot_size);
         break;
       }
-      std::cout<<"Find \n";
+      std::cout << "Find \n";
     }
   }
   return list_space;
@@ -389,20 +378,20 @@ std::list<VerticesPtr> Boustrophedon::create_list_vertices(
 }
 
 void Boustrophedon::boustrophedon_cd() {
-
   std::list<VerticesPtr> list_vertices;
   std::list<SpacePtr> list_space;
   std::list<SpacePtr>::iterator inspectLS;
   std::list<SpacePtr>::iterator inspectLS_child;
-  std::list<VerticesPtr>::iterator u ;
+  std::list<VerticesPtr>::iterator u;
   int i, j;
   PointPtr point_temp;
 
   // Create vertices
   list_vertices = create_list_vertices(map->get_boundary(),
       map->get_obstacles());
-  for(u = list_vertices.begin(), i=1; u!= list_vertices.end();++u){
-	  std::cout<<"V "<<i++<<" ( "<<(*u)->get_position()->x<<", "<<(*u)->get_position()->y<<" )\n";
+  for (u = list_vertices.begin(), i = 1; u != list_vertices.end(); ++u) {
+    std::cout << "V " << i++ << " ( " << (*u)->get_position()->x << ", "
+        << (*u)->get_position()->y << " )\n";
   }
   list_space = create_list_space(map->get_boundary(), list_vertices);
 
@@ -430,13 +419,12 @@ void Boustrophedon::boustrophedon_cd() {
   for (inspectLS = list_space.begin(), i = 1; inspectLS != list_space.end();
       ++inspectLS) {
     std::cout << "Space:" << ": " << std::endl;
-
     if ((*inspectLS)->status_visited == false) {
       dfs(*inspectLS);
     }
   }
-
 }
+
 }
 }
 }
