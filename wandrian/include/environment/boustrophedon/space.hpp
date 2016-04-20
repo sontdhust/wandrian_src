@@ -33,7 +33,8 @@ public:
   double get_size_y();
   boost::shared_ptr<Space> get_parent();
   void set_parent(boost::shared_ptr<Space>);
-  void set_point_backtrack(PointPtr);
+  void set_point_backtrack(boost::shared_ptr<Space>, boost::shared_ptr<Space>,
+		  double robot_size);
 
 private:
   PointPtr center;
