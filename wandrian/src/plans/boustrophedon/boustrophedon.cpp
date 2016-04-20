@@ -220,15 +220,15 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
           listvertices_temp.push_back(*inspectLV);
         }
     } else {
-      if((fabs((*inspectLV)->get_position()->x
-    	 - environment->get_center()->x - environment->get_width()/2) < EPSILON)
-      	 ){
-    	  std::cout<<"One"<<"\n";
-    	  if((*inspectLV)->upon_compared_center()){
-    		  std::cout<<"Two"<<"\n";
-    		  continue;
-    	  }
-      }
+      // if((fabs((*inspectLV)->get_position()->x
+    	 // - environment->get_center()->x - environment->get_width()/2) < EPSILON)
+      // 	 ){
+    	 //  std::cout<<"One"<<"\n";
+    	 //  if((*inspectLV)->upon_compared_center()){
+    		//   std::cout<<"Two"<<"\n";
+    		//   continue;
+    	 //  }
+      // }
       std::cout<<"Three"<<"\n";
       if (((*inspectLV)->get_position()->y
           == environment->get_center()->y - environment->get_height() / 2)

@@ -187,7 +187,7 @@ int main(int argc, char **argv) {
 
   BoustrophedonPtr boustrophedon = BoustrophedonPtr(new Boustrophedon());
   boustrophedon->initialize(starting_point, r_size,
-      "../../worlds/prefered_boustrophedon.map");
+      "../../worlds/prefered_b.map");
   map = boustrophedon->get_map();
 
   CellPtr space = CellPtr(new Cell(PointPtr(new Point(0, 0)), e_size));
