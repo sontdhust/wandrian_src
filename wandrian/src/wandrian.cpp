@@ -97,6 +97,7 @@ void Wandrian::wandrian_run() {
             _2));
     boustrophedon_online->cover();
   } else if (robot->get_plan_name() == "boustrophedon") {
+
     BoustrophedonPtr boustrophedon = BoustrophedonPtr(new Boustrophedon());
     boustrophedon->initialize(
         PointPtr(

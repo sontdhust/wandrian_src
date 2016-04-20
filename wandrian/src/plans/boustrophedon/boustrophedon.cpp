@@ -183,13 +183,11 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
             - (*inspectLVT)->get_position()->x;
         size_y = (*inspectLVT)->get_position()->y
             - vertices_previous->get_position()->y;
-        if(center_temp){
-        std::cout << "Center Space:" << center_temp->x << "," << center_temp->y
-                    << std::endl;}
 
         center_temp = PointPtr(
             new Point((*inspectLVT)->get_position()->x + size_x / 2,
                 (*inspectLVT)->get_position()->y - size_y / 2));
+        std::cout << "Create Space:" << size_x << "," << size_y << std::endl;
         std::cout << "Center Space:" << center_temp->x << "," << center_temp->y
             << std::endl;
 
@@ -314,7 +312,8 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
     	list_space.push_back(SpacePtr(new Space(center_temp, size_x, size_y)));
     }
   }
-std::cout<<"Starting add parent!"<<"\n";
+
+  std::cout<<"Starting add parent!"<<"\n";
   list_space.sort(Space::compare_positions_x);
   std::cout<<list_space.size()<<"\n";
   for (inspectLS = --list_space.end(), i = 1; inspectLS != list_space.end();
@@ -376,8 +375,6 @@ std::list<VerticesPtr> Boustrophedon::create_list_vertices(
     std::cout << "O" << (*inspectLP)->x << (*inspectLP)->y << std::endl;
     for (inspectLV = list_vertices.begin(), j = 0;
         inspectLV != list_vertices.end(); ++inspectLV) {
-      std::cout << "V" << (*inspectLV)->get_position()->x << " "
-          << (*inspectLV)->get_position()->y << std::endl;
       if (((*inspectLV)->get_position()->x == (*inspectLP)->x)
           && ((*inspectLV)->get_position()->y == (*inspectLP)->y)) {
         j = 1;
@@ -401,13 +398,16 @@ void Boustrophedon::boustrophedon_cd() {
   std::list<SpacePtr> list_space;
   std::list<SpacePtr>::iterator inspectLS;
   std::list<SpacePtr>::iterator inspectLS_child;
+  std::list<VerticesPtr>::iterator u ;
   int i, j;
   PointPtr point_temp;
-  std::cout << map->get_map_path() << std::endl;
 
   // Create vertices
   list_vertices = create_list_vertices(map->get_boundary(),
       map->get_obstacles());
+  for(u = list_vertices.begin(), i=1; u!= list_vertices.end();++u){
+	  std::cout<<"V "<<i++<<" ( "<<(*u)->get_position()->x<<", "<<(*u)->get_position()->y<<" )\n";
+  }
   list_space = create_list_space(map->get_boundary(), list_vertices);
 
   // Create list space

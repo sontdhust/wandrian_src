@@ -17,7 +17,7 @@
 #include "../include/environment/map.hpp"
 #include "../include/plans/boustrophedon/boustrophedon.hpp"
 
-#define R_SIZE 0.4 // robot size
+#define R_SIZE 0.5 // robot size
 #define E_SIZE 6.0 // default environment size
 #define WORLD_INSERT_OBSTACLE "<!-- INSERT: Boundary and Obstacles here -->" // flag at original world file to insert bound and obstacles into
 
@@ -166,7 +166,7 @@ bool test_see_obstacle(VectorPtr direction, double step) {
 }
 
 int main(int argc, char **argv) {
-	//TODO: edit boustrophedon
+
   if (argc >= 2) {
     std::istringstream iss(argv[1]);
     if (!(iss >> e_size)
@@ -176,16 +176,12 @@ int main(int argc, char **argv) {
   } else {
     e_size = E_SIZE;
   }
-  std::cout << "ROBOT_SIZE:1"<< r_size <<std::endl;
   if(argc >= 3){
   	std::istringstream iss(argv[2]);
   	if(!(iss >> r_size)){
-  		std::cout << "ROBOT_SIZE2:"<< r_size <<std::endl;
   		r_size = R_SIZE;
   	}
-  	std::cout << "ROBOT_SIZE3:"<< r_size <<std::endl;
   }else{
-	  std::cout << "ROBOT_SIZE4:"<< r_size <<std::endl;
 	  r_size = R_SIZE;
   }
 
