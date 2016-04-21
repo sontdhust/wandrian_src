@@ -50,7 +50,6 @@ private:
   ExtendedMapPtr map;
   std::set<CellPtr, CellComp> old_cells;
 
-  bool go_with(VectorPtr, double);
   void boustrophedon_cd();
   bool check(CellPtr);
 };
