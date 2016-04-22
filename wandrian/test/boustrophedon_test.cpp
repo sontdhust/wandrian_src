@@ -28,7 +28,7 @@ double e_size = 0;
 double r_size = 0;
 MapPtr map;
 PointPtr starting_point;
-std::list<PointPtr> tmp_path;
+std::list<PointPtr> actual_path;
 /**
  * Linked libraries to compile: -lglut -lGL (g++)
  */
@@ -77,16 +77,16 @@ void display() {
   glColor3ub(255, 255, 255);
   glBegin(GL_POINTS);
   RectanglePtr boundary = map->get_boundary();
-    for (double i = boundary->get_center()->x - boundary->get_width() / 2.0;
-        i <= boundary->get_center()->x + boundary->get_width() / 2.0;
-        i += r_size * 2.0) {
-      for (double j = boundary->get_center()->y - boundary->get_height() / 2.0;
-          j <= boundary->get_center()->y + boundary->get_height() / 2.0;
-          j += r_size * 2.0) {
-        if (i != 0 || j != 0)
-          glVertex2d(i, j);
-      }
+  for (double i = boundary->get_center()->x - boundary->get_width() / 2.0;
+      i <= boundary->get_center()->x + boundary->get_width() / 2.0;
+      i += r_size * 2.0) {
+    for (double j = boundary->get_center()->y - boundary->get_height() / 2.0;
+        j <= boundary->get_center()->y + boundary->get_height() / 2.0;
+        j += r_size * 2.0) {
+      if (i != 0 || j != 0)
+        glVertex2d(i, j);
     }
+  }
   glEnd();
 
   // Environment
@@ -107,7 +107,7 @@ void display() {
 
   // Boustrophedon covering path
   glColor3ub(0, 255, 0);
-  draw_path(tmp_path, GL_LINE_STRIP);
+  draw_path(actual_path, GL_LINE_STRIP);
 
   glRasterPos2i(0, -11);
   std::stringstream ss;
@@ -129,13 +129,13 @@ int run(int argc, char **argv) {
 }
 
 bool test_go_to(PointPtr position, bool flexibly) {
-  tmp_path.insert(tmp_path.end(), position);
+  actual_path.insert(actual_path.end(), position);
   return true;
 }
 
 bool test_see_obstacle(VectorPtr direction, double step) {
   // Simulator check obstacle
-  PointPtr last_position = *(--tmp_path.end());
+  PointPtr last_position = *(--actual_path.end());
   PointPtr new_position = PointPtr(
       new Point(last_position + direction * step * r_size / 2));
   if (map) {
@@ -176,26 +176,29 @@ int main(int argc, char **argv) {
   } else {
     e_size = E_SIZE;
   }
-  if(argc >= 3){
-  	std::istringstream iss(argv[2]);
-  	if(!(iss >> r_size)){
-  		r_size = R_SIZE;
-  	}
-  }else{
-	  r_size = R_SIZE;
+  if (argc >= 3) {
+    std::istringstream iss(argv[2]);
+    if (!(iss >> r_size)) {
+      r_size = R_SIZE;
+    }
+  } else {
+    r_size = R_SIZE;
   }
 
   BoustrophedonPtr boustrophedon = BoustrophedonPtr(new Boustrophedon());
   boustrophedon->initialize(starting_point, r_size,
-      "../../worlds/prefered_boustrophedon.map");
+      "../../worlds/prefered_b.map");
   map = boustrophedon->get_map();
 
   CellPtr space = CellPtr(new Cell(PointPtr(new Point(0, 0)), e_size));
   std::list<RectanglePtr> obstacles;
   std::srand(std::time(0));
   starting_point = PointPtr(
-      new Point((map->get_boundary()->get_center()->x * 2 - map->get_boundary()->get_width()  + r_size) / 2,
-    		  	(map->get_boundary()->get_center()->y *2 - map->get_boundary()->get_height() + r_size) / 2));
+      new Point(
+          (map->get_boundary()->get_center()->x * 2
+              - map->get_boundary()->get_width() + r_size) / 2,
+          (map->get_boundary()->get_center()->y * 2
+              - map->get_boundary()->get_height() + r_size) / 2));
   int r = std::rand() % (int) (e_size * e_size / 16) + e_size * e_size / 8;
 
   std::ifstream world_in("../../worlds/empty.world");
@@ -305,7 +308,7 @@ int main(int argc, char **argv) {
   world_in.close();
   world_out.close();
 
-  //tmp_path.insert(tmp_path.end(), starting_point);
+  actual_path.insert(actual_path.end(), starting_point);
   boustrophedon->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
 
   boustrophedon->cover();

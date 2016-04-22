@@ -94,13 +94,13 @@ inline double operator^(VectorPtr v1, VectorPtr v2) {
 inline Orientation operator%(VectorPtr v1, VectorPtr v2) {
   double angle = v1 ^ v2;
   if (std::abs(angle) >= 3 * M_PI_4)
-    return IN_FRONT;
-  else if (std::abs(angle) <= M_PI_4)
     return IN_BACK;
+  else if (std::abs(angle) <= M_PI_4)
+    return IN_FRONT;
   else if (angle > 0)
-    return AT_RIGHT_SIDE;
-  else
     return AT_LEFT_SIDE;
+  else
+    return AT_RIGHT_SIDE;
 }
 
 inline VectorPtr operator+(VectorPtr v) {

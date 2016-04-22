@@ -79,8 +79,8 @@ void FullSpiralStc::scan(CellPtr current) {
     // go_from(current, DONT_PASS, neighbor); // Full Scan-STC preparing
     if (should_go_to(neighbor, direction)) {
       // Go to free subcell of neighbor
-      bool succeed = go_from(current, PASS, neighbor);
-      if (!succeed) { // Obstacle
+      bool successful = go_from(current, PASS, neighbor);
+      if (!successful) { // Obstacle
       } else { // New free neighbor
         // Construct a spanning-tree edge
         neighbor->set_parent(current);
@@ -93,7 +93,7 @@ void FullSpiralStc::scan(CellPtr current) {
       continue;
     }
   } while (direction++ % initial_direction
-      != (is_starting_cell ? IN_BACK : AT_LEFT_SIDE));
+      != (is_starting_cell ? IN_FRONT : AT_RIGHT_SIDE));
   // Back to subcell of parent
   if (!is_starting_cell) {
     go_from(current, PASS, current->get_parent());
@@ -106,6 +106,8 @@ State FullSpiralStc::state_of(CellPtr cell) {
   State state = (old_cells.find(cell) != old_cells.end()) ? OLD : NEW;
   if (state == OLD)
     std::cout << " \033[1;45m(OLD)\033[0m\n";
+  else
+    std::cout << "\n";
   return state;
 }
 
@@ -169,9 +171,9 @@ bool FullSpiralStc::go_from(CellPtr current, bool need_to_pass, CellPtr next) {
     if (!see_obstacle(direction, tool_size / 2)) {
       if (need_to_pass == DONT_PASS)
         return true;
-      bool succeed = visit(next, quadrant == q1 ? q4 : q3, STRICTLY);
+      bool successful = visit(next, quadrant == q1 ? q4 : q3, STRICTLY);
       std::cout << "\n";
-      return succeed;
+      return successful;
     } else {
       n->set_quadrants_state(q1 ? q4 : q3, OBSTACLE);
       if (!see_obstacle(quadrant == q1 ? ++direction : --direction,
@@ -181,9 +183,9 @@ bool FullSpiralStc::go_from(CellPtr current, bool need_to_pass, CellPtr next) {
             tool_size / 2)) {
           if (need_to_pass == DONT_PASS)
             return true;
-          bool succeed = visit(next, quadrant == q1 ? q3 : q4, STRICTLY);
+          bool successful = visit(next, quadrant == q1 ? q3 : q4, STRICTLY);
           std::cout << "\n";
-          return succeed;
+          return successful;
         } else {
           n->set_quadrants_state(q1 ? q3 : q4, OBSTACLE);
           return false;

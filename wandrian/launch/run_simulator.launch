@@ -32,7 +32,8 @@
     <param name="plan_name" value="$(arg plan_name)" type="string"/>
 
     <param name="linear_velocity" value="0.2" type="double"/>
-    <param name="angular_velocity" value="0.4" type="double"/>
+    <param name="positive_angular_velocity" value="0.4" type="double"/>
+    <param name="negative_angular_velocity" value="0.4" type="double"/>
     <param name="linear_velocity_step" value="0.2" type="double"/>
     <param name="linear_velocity_max" value="2" type="double"/>
     <param name="angular_velocity_step" value="0.4" type="double"/>

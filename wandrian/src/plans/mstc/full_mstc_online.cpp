@@ -113,7 +113,7 @@ void FullMstcOnline::scan(CellPtr current) {
       }
     }
   } while (orientation++ % initial_orientation
-      != (is_starting_cell ? IN_BACK : AT_LEFT_SIDE));
+      != (is_starting_cell ? IN_FRONT : AT_RIGHT_SIDE));
   // Back to sub-cell of parent (need to check sub-cell of parent is occupied or not)
   if (!is_starting_cell) {
     go_from(current, PASS, current->get_parent());

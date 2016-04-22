@@ -51,10 +51,15 @@ public:
   bool* get_obstacles();
   ObstacleMovement get_obstacle_movement();
   double get_linear_velocity();
-  double get_angular_velocity();
+  double get_positive_angular_velocity();
+  double get_negative_angular_velocity();
   double get_epsilon_rotational_direction();
   double get_epsilon_motional_direction();
   double get_epsilon_position();
+  double get_deviation_linear_position();
+  double get_deviation_angular_position();
+  int get_threshold_linear_step_count();
+  int get_threshold_angular_step_count();
   CommunicatorPtr get_communicator();
   void set_behavior_run(boost::function<void()>);
   void set_linear_velocity(double);
@@ -73,13 +78,18 @@ private:
   std::string plan_name; // arg
   std::string robot_name; // arg
   double linear_velocity; // arg
-  double angular_velocity; // arg
+  double positive_angular_velocity; // arg
+  double negative_angular_velocity; // arg
   double proportion_ranges_count; // arg
   double proportion_ranges_sum; // arg
   double augmentation_factor_range; // arg
   double epsilon_rotational_direction; // arg
   double epsilon_motional_direction; // arg
   double epsilon_position; // arg
+  double deviation_linear_position; // arg
+  double deviation_angular_position; // arg
+  int threshold_linear_step_count; // arg
+  int threshold_angular_step_count; // arg
 
   PointPtr current_position; // odometry subscriber
   VectorPtr current_direction; // odometry subscriber
