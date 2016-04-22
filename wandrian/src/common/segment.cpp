@@ -25,9 +25,7 @@ Segment::~Segment() {
 }
 
 void Segment::construct(PointPtr p1, PointPtr p2) {
-  if (p1 == p2)
-    throw std::invalid_argument("Two end points of segment are coincident");
-  else if (p1 < p2) {
+  if (p1 == p2 || p1 < p2) {
     this->p1 = p1;
     this->p2 = p2;
   } else {

@@ -39,6 +39,12 @@ inline bool operator<(PointConstPtr p1, PointConstPtr p2) {
           p1->x - p2->x < -EPSILON : p1->y - p2->y < -EPSILON;
 }
 
+inline bool operator<(PointPtr p1, PointPtr p2) {
+  return
+      std::abs(p1->x - p2->x) > EPSILON ?
+          p1->x - p2->x < -EPSILON : p1->y - p2->y < -EPSILON;
+}
+
 inline bool operator!=(PointPtr p1, PointPtr p2) {
   return p1 < p2 || p2 < p1;
 }

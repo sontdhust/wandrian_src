@@ -196,6 +196,9 @@ bool Wandrian::go_to(PointPtr position, bool flexibility) {
   double deviation_linear_position = robot->get_deviation_linear_position();
   double deviation_angular_position = robot->get_deviation_angular_position();
   PointPtr last_position = plan->get_path().back();
+  if (position == last_position) {
+    return true;
+  }
   VectorPtr direction = (position - last_position) / (position % last_position);
   PointPtr actual_position = actual_path.back() + (position - last_position)
       + direction * deviation_linear_position * deviation_linear_count
