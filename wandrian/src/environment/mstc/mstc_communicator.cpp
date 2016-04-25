@@ -21,6 +21,7 @@ namespace environment {
 namespace mstc {
 
 MstcCommunicator::MstcCommunicator() {
+  is_backtracking = false;
   set_tool_size(0.5);
 }
 
@@ -61,7 +62,8 @@ std::string MstcCommunicator::create_old_cells_message() {
   return messages;
 }
 
-std::string MstcCommunicator::create_status_message(IdentifiableCellPtr last_cell) {
+std::string MstcCommunicator::create_status_message(
+    IdentifiableCellPtr last_cell) {
   bool check_added = false;
   std::string my_status;
   std::string all_robots_new_status = "";
@@ -146,7 +148,8 @@ bool MstcCommunicator::ask_other_robot_still_alive(
               // Robot was dead
               result = false;
               status_string.append("[DEAD];");
-              cell_string.append(get_robot_name());
+//              cell_string.append(get_robot_name());
+              cell_string.append("DEAD_ROBOT");
               cell_string.append(";");
 
               // Update all status
@@ -172,7 +175,8 @@ bool MstcCommunicator::ask_other_robot_still_alive(
               status_string.append(information);
               // Robot was dead
               result = false;
-              cell_string.append(get_robot_name());
+//              cell_string.append(get_robot_name());
+              cell_string.append("DEAD_ROBOT");
               cell_string.append(";");
 
               // Update all status
@@ -204,7 +208,8 @@ bool MstcCommunicator::ask_other_robot_still_alive(
   return result;
 }
 
-std::string MstcCommunicator::find_robot_name(IdentifiableCellPtr cell_to_find) {
+std::string MstcCommunicator::find_robot_name(
+    IdentifiableCellPtr cell_to_find) {
   std::string robot_name = "NOT FOUND";
   int i;
   double x;
@@ -255,26 +260,6 @@ void MstcCommunicator::insert_old_cell(IdentifiableCellPtr cell) {
               this->get_robot_name())));
 }
 
-//std::string MstcCommunicator::get_robot_name() const {
-//  return robot_name;
-//}
-//
-//void MstcCommunicator::set_robot_name(const std::string& robot_name) {
-//  this->robot_name = robot_name;
-//}
-//
-//void MstcCommunicator::set_tool_size(double tool_size) {
-//  this->tool_size = tool_size;
-//}
-//
-//CellPtr& MstcCommunicator::get_current_cell() {
-//  return current_cell;
-//}
-//
-//void MstcCommunicator::set_current_cell(const CellPtr& current_cell) {
-//  this->current_cell = current_cell;
-//}
-
 std::string MstcCommunicator::read_old_cells_message() {
   rosbag::Bag bag;
   std::string msg;
@@ -317,8 +302,8 @@ void MstcCommunicator::update_old_cells_from_message(std::string msg) {
       i++;
     }
     IdentifiableCellPtr old_cell = IdentifiableCellPtr(
-        new IdentifiableCell(PointPtr(new Point(x, y)), 2 * this->get_tool_size(),
-            robot_name));
+        new IdentifiableCell(PointPtr(new Point(x, y)),
+            2 * this->get_tool_size(), robot_name));
     old_cells.push_back(old_cell);
   }
   ROS_INFO("[Reading]My old cells: %s", create_old_cells_message().data());
@@ -381,8 +366,8 @@ void MstcCommunicator::clear_robots_dead_old_cells(std::string dead_robot_name,
         i++;
       }
       IdentifiableCellPtr old_cell = IdentifiableCellPtr(
-          new IdentifiableCell(PointPtr(new Point(x, y)), 2 * this->get_tool_size(),
-              robot_name));
+          new IdentifiableCell(PointPtr(new Point(x, y)),
+              2 * this->get_tool_size(), robot_name));
       old_cells.push_back(old_cell);
     }
   }
@@ -411,8 +396,93 @@ void MstcCommunicator::clear_robots_dead_old_cells(std::string dead_robot_name,
   write_status_message(last_status);
 }
 
-}
-}
+bool MstcCommunicator::isIsBacktracking() const {
+  return is_backtracking;
 }
 
+void MstcCommunicator::setIsBacktracking(bool isBacktracking) {
+  is_backtracking = isBacktracking;
+}
+
+// Start handle obstacle
+
+void MstcCommunicator::write_obstacle_message(std::string message) {
+  ROS_INFO("[Writing]My obstacle cells: %s", message.data());
+  rosbag::Bag bag;
+  bag.open("obstacle.bag", rosbag::bagmode::Write);
+  std_msgs::String str;
+  str.data = message.data();
+  bag.write("obstacle_publisher", ros::Time::now(), str);
+  bag.close();
+}
+
+void MstcCommunicator::read_obstacle_message() {
+  rosbag::Bag bag;
+  std::string msg;
+
+  bag.open("obstacle.bag", rosbag::bagmode::Read);
+  std::vector<std::string> topics;
+  topics.push_back(std::string("obstacle_publisher"));
+
+  rosbag::View view(bag, rosbag::TopicQuery(topics));
+  foreach(rosbag::MessageInstance const m, view) {
+    std_msgs::String::ConstPtr s = m.instantiate<std_msgs::String>();
+    if (s != NULL) {
+      msg.append(s->data.c_str());
+    }
+  }
+
+  bag.close();
+  ROS_INFO("[Reading]Ros bag obstacle cells: %s", msg.data());
+  update_obstacle_cells_from_message(msg);
+}
+
+std::string MstcCommunicator::create_message_from_obstacle_cells() {
+  std::string msg;
+  std::set<IdentifiableCellPtr, CellComp> temp_obstacle_cells = this->obstacle_cells;
+  // for (int i = 0; i <= temp_old_cells.size(); i++) {
+  while (temp_obstacle_cells.size() != 0) {
+    IdentifiableCellPtr temp_cell = *temp_obstacle_cells.begin();
+    std::stringstream tmp;
+    tmp << temp_cell->get_center()->x << "," << temp_cell->get_center()->y
+        << ";";
+    msg.append(tmp.str());
+    temp_obstacle_cells.erase(temp_cell);
+  }
+  return msg;
+}
+
+void MstcCommunicator::update_obstacle_cells_from_message(std::string msg) {
+  double x = 0.0;
+  double y = 0.0;
+  IdentifiableCellPtr temp_cell;
+  int i;
+  boost::char_separator<char> split_obstacle_cells(";");
+  boost::char_separator<char> split_point(",");
+  boost::tokenizer<boost::char_separator<char> > tokens(msg, split_obstacle_cells);
+  BOOST_FOREACH (const std::string& cell, tokens) {
+    boost::tokenizer<boost::char_separator<char> > tokens(cell, split_point);
+    i = 1;
+    BOOST_FOREACH (const std::string& coordinates, tokens) {
+      if (i == 1) {
+        x = atof(coordinates.c_str());
+      } else if (i == 2) {
+        y = atof(coordinates.c_str());
+      }
+      i++;
+    }
+    // temp_cell = IdentifiableCellPtr(new Cell(PointPtr(new Point(x, y)), 2 * get_tool_size()));
+    temp_cell = IdentifiableCellPtr(
+        new IdentifiableCell(PointPtr(new Point(x, y)),
+            2 * this->get_tool_size(), robot_name));
+    this->obstacle_cells.insert(temp_cell);
+  }
+  ROS_INFO("[Reading]My obstacle cells: %s", create_message_from_obstacle_cells().data());
+}
+
+// End handle obstacle
+
+}
+}
+}
 

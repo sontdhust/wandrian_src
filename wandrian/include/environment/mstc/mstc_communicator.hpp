@@ -22,8 +22,6 @@ namespace mstc {
 class MstcCommunicator : public BaseCommunicator {
 
 public:
-  std::set<IdentifiableCellPtr, CellComp> cells; // Old cells with set. TODO: Remove????
-
   MstcCommunicator();
   ~MstcCommunicator();
 
@@ -38,23 +36,25 @@ public:
   bool find_old_cell(IdentifiableCellPtr);
   void insert_old_cell(IdentifiableCellPtr);
 
-//  std::string get_robot_name() const;
-//  void set_robot_name(const std::string&);
-//  void set_tool_size(double);
-//
-//  CellPtr& get_current_cell();
-//  void set_current_cell(const CellPtr&);
-
-private:
-//  std::string robot_name;
-//  double tool_size;
-//  CellPtr current_cell;
-  std::list<IdentifiableCellPtr> old_cells; // Old cells with list
-
   std::string read_old_cells_message(); // Read old cells data, no update to local old cells
   void update_old_cells_from_message(std::string);
   std::string read_status_message(); // Read status data from ros bag
   void clear_robots_dead_old_cells(std::string, std::string, std::string);
+
+  bool isIsBacktracking() const; // Check backtracking in function scan() of mstc_online.cpp
+  void setIsBacktracking(bool isBacktracking = false);
+
+  void write_obstacle_message(std::string);
+  void read_obstacle_message();
+  std::string create_message_from_obstacle_cells();
+  void update_obstacle_cells_from_message(std::string);
+
+  std::set<IdentifiableCellPtr, CellComp> obstacle_cells;
+
+private:
+  std::list<IdentifiableCellPtr> old_cells; // Old cells with list
+  std::set<IdentifiableCellPtr, CellComp> backtrack_cells;
+  bool is_backtracking;
 };
 
 typedef boost::shared_ptr<MstcCommunicator> MstcCommunicatorPtr;
