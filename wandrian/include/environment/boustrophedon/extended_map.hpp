@@ -27,6 +27,7 @@ public:
   ExtendedMap(std::string);
   ~ExtendedMap();
   void build();
+  int number_space_need_visit;
 
 private:
   int static comma_position(std::string);

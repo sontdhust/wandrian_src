@@ -86,7 +86,7 @@ void Boustrophedon::dfs(SpacePtr space) {
   double x, y;
   std::cout << "Visit Space" << space->get_size_x() << std::endl;
   go_into(space);
-
+  map->number_space_need_visit--;
   for (inspectLC = space->children.begin(); inspectLC != space->children.end();
       ++inspectLC) {
     if ((*inspectLC)->status_visited == false) {
@@ -96,14 +96,16 @@ void Boustrophedon::dfs(SpacePtr space) {
               new Point((*inspectLC)->point_backtrack->x + robot_size,
                   (*inspectLC)->point_backtrack->y)), STRICTLY);
       dfs(*inspectLC);
-      go_to(
-          PointPtr(
-              new Point((*inspectLC)->point_backtrack->x + robot_size,
-                  (*inspectLC)->point_backtrack->y)), STRICTLY);
-      go_to((*inspectLC)->point_backtrack, STRICTLY);
+      if(map->number_space_need_visit > 1){
+    	  go_to(
+    	        PointPtr(
+    	        new Point((*inspectLC)->point_backtrack->x + robot_size,
+    	                  (*inspectLC)->point_backtrack->y)), STRICTLY);
+    	  go_to((*inspectLC)->point_backtrack, STRICTLY);
+      }
     }
   }
-  if (space->point_backtrack) {
+  if ((space->point_backtrack)&&(map->number_space_need_visit > 1)) {
     go_to(
         PointPtr(
             new Point(
@@ -415,7 +417,7 @@ void Boustrophedon::boustrophedon_cd() {
     }
     std::cout << " " << std::endl;
   }
-
+  map->number_space_need_visit = list_space.size();
   for (inspectLS = list_space.begin(), i = 1; inspectLS != list_space.end();
       ++inspectLS) {
     std::cout << "Space:" << ": " << std::endl;
