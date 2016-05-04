@@ -48,14 +48,17 @@ void MstcOnline::initialize(PointPtr starting_point, double tool_size,
 }
 
 void MstcOnline::cover() {
+  communicator->get_old_cells_message_from_server();
   communicator->read_message_then_update_old_cells();
   communicator->insert_old_cell(starting_cell);
   std::string message = communicator->create_old_cells_message();
   communicator->write_old_cells_message(message);
+  communicator->send_save_message_to_server(communicator->create_old_cells_message_to_send_to_server(message));
   //  communicator->set_current_cell(starting_cell);
   // FIXME
   std::string status = communicator->create_status_message(starting_cell);
   communicator->write_status_message(status);
+  communicator->send_save_message_to_server(communicator->create_status_message_to_send_to_server(status));
   old_cells_for_backtrack.insert(starting_cell);
   scan(starting_cell);
 }
@@ -101,6 +104,8 @@ void MstcOnline::scan(CellPtr current) {
   status = communicator->create_status_message(
       boost::static_pointer_cast<IdentifiableCell>(current));
   communicator->write_status_message(status);
+  communicator->send_save_message_to_server(communicator->create_status_message_to_send_to_server(status));
+  communicator->get_old_cells_message_from_server();
   communicator->read_message_then_update_old_cells();
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;32mBEGIN:\033[0m "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
@@ -163,6 +168,7 @@ void MstcOnline::scan(CellPtr current) {
             2 * tool_size, communicator->get_robot_name()));
     std::cout << "  \033[1;33mneighbor:\033[0m " << neighbor->get_center()->x
         << "," << neighbor->get_center()->y;
+    communicator->get_old_cells_message_from_server();
     communicator->read_message_then_update_old_cells();
     if (state_of(neighbor) == OLD) { // Check neighbor with current old cells
       // Go to next sub-cell
@@ -181,10 +187,12 @@ void MstcOnline::scan(CellPtr current) {
         } else {
           std::cout << "\n";
           neighbor->set_parent(current);
+          communicator->get_old_cells_message_from_server();
           communicator->read_message_then_update_old_cells();
           communicator->insert_old_cell(neighbor);
           std::string message = communicator->create_old_cells_message();
           communicator->write_old_cells_message(message);
+          communicator->send_save_message_to_server(communicator->create_old_cells_message_to_send_to_server(message));
           communicator->set_current_cell(current);
           old_cells_for_backtrack.insert(old_cells_for_backtrack.end(),
               neighbor);
@@ -208,10 +216,12 @@ void MstcOnline::scan(CellPtr current) {
       std::cout << "\n";
       // Construct a spanning-tree edge
       neighbor->set_parent(current);
+      communicator->get_old_cells_message_from_server();
       communicator->read_message_then_update_old_cells();
       communicator->insert_old_cell(neighbor);
       std::string message = communicator->create_old_cells_message();
       communicator->write_old_cells_message(message);
+      communicator->send_save_message_to_server(communicator->create_old_cells_message_to_send_to_server(message));
       communicator->set_current_cell(current);
       old_cells_for_backtrack.insert(old_cells_for_backtrack.end(), neighbor);
       go_with(direction++, tool_size);

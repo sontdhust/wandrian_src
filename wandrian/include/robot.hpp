@@ -47,6 +47,7 @@ public:
   double get_starting_point_x();
   double get_starting_point_y();
   std::string get_plan_name();
+  std::string get_ip_server();
   PointPtr get_current_position();
   VectorPtr get_current_direction();
   bool* get_obstacles();
@@ -73,6 +74,7 @@ private:
   double starting_point_y; // arg
   std::string plan_name; // arg
   std::string robot_name; // arg
+  std::string ip_server; // arg
   double linear_velocity; // arg
   double angular_velocity; // arg
   double proportion_ranges_count; // arg

@@ -439,7 +439,8 @@ void MstcCommunicator::read_obstacle_message() {
 
 std::string MstcCommunicator::create_message_from_obstacle_cells() {
   std::string msg;
-  std::set<IdentifiableCellPtr, CellComp> temp_obstacle_cells = this->obstacle_cells;
+  std::set<IdentifiableCellPtr, CellComp> temp_obstacle_cells =
+      this->obstacle_cells;
   // for (int i = 0; i <= temp_old_cells.size(); i++) {
   while (temp_obstacle_cells.size() != 0) {
     IdentifiableCellPtr temp_cell = *temp_obstacle_cells.begin();
@@ -459,7 +460,8 @@ void MstcCommunicator::update_obstacle_cells_from_message(std::string msg) {
   int i;
   boost::char_separator<char> split_obstacle_cells(";");
   boost::char_separator<char> split_point(",");
-  boost::tokenizer<boost::char_separator<char> > tokens(msg, split_obstacle_cells);
+  boost::tokenizer<boost::char_separator<char> > tokens(msg,
+      split_obstacle_cells);
   BOOST_FOREACH (const std::string& cell, tokens) {
     boost::tokenizer<boost::char_separator<char> > tokens(cell, split_point);
     i = 1;
@@ -477,10 +479,160 @@ void MstcCommunicator::update_obstacle_cells_from_message(std::string msg) {
             2 * this->get_tool_size(), robot_name));
     this->obstacle_cells.insert(temp_cell);
   }
-  ROS_INFO("[Reading]My obstacle cells: %s", create_message_from_obstacle_cells().data());
+  ROS_INFO("[Reading]My obstacle cells: %s",
+      create_message_from_obstacle_cells().data());
 }
 
 // End handle obstacle
+
+int MstcCommunicator::connect_server(std::string ip_server) {
+  char *sendMes = (char *) malloc(MAX_SIZE);
+  char *recvMes = (char *) malloc(MAX_SIZE);
+  strcpy(sendMes, "");
+  strcpy(recvMes, "");
+  int countTotalRecvData = 0, countTotalSendData = 0, countRecvData = 0,
+      countSendData = 0;
+  printf("Creat a socket, please wait...\n");
+  if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+    printf("Socket retrieve failed!\n");
+    return 1;
+  } else
+    printf("Socket retrieve success!...\n");
+  memset(&server, '0', sizeof(server));
+  server.sin_family = AF_INET;
+  server.sin_addr.s_addr = inet_addr(ip_server.c_str());
+  server.sin_port = htons(5678);
+  if (connect(sockfd, (struct sockaddr *) &server, sizeof(server)) == -1) {
+    printf("Connect failed!\n");
+    return 1;
+  } else
+    printf("Connected. Ready to communicate with server!\n");
+  return 0;
+}
+
+void MstcCommunicator::disconnect_server() {
+  shutdown(sockfd, 2);
+}
+
+std::string MstcCommunicator::create_status_message_to_send_to_server(std::string origin_message) {
+  std::string output_message = "[SAVE_STATUS]|" + origin_message;
+  return output_message;
+}
+
+std::string MstcCommunicator::create_old_cells_message_to_send_to_server(std::string origin_message) {
+  std::string output_message = "[SAVE_OLD_CELLS]|" + origin_message;
+  return output_message;
+}
+
+int MstcCommunicator::send_save_message_to_server(std::string message) {
+  char *sendMes = (char *) malloc(MAX_SIZE);
+  char *recvMes = (char *) malloc(MAX_SIZE);
+
+  strcpy(sendMes, message.c_str());
+  strcpy(recvMes, "");
+  countSendData = send(sockfd, sendMes, strlen(sendMes), 0);
+  if (countSendData == -1) {
+    printf("Send data failed!\n");
+    return 1;
+  } else {
+    countTotalSendData = countTotalSendData + countSendData;
+    countRecvData = recv(sockfd, recvMes, 2000, 0);
+    if (countRecvData == -1) {
+      printf("Receive data failed!\n");
+      return 1;
+    } else {
+      countTotalRecvData = countTotalRecvData + countRecvData;
+      printf("Server reply: %s\n", recvMes);
+      recvMes = (char *) malloc(MAX_SIZE);
+      strcpy(recvMes, "");
+    }
+  }
+  return 0;
+}
+
+int MstcCommunicator::get_status_message_from_server() {
+  char *sendMes = (char *) malloc(MAX_SIZE);
+  char *recvMes = (char *) malloc(MAX_SIZE);
+  std::string new_status;
+
+  strcpy(sendMes, "[GIVE_ME_STATUS]|");
+  strcpy(recvMes, "");
+  countSendData = send(sockfd, sendMes, strlen(sendMes), 0);
+  if (countSendData == -1) {
+    printf("Send data failed!\n");
+    return 1;
+  } else {
+    countTotalSendData = countTotalSendData + countSendData;
+    countRecvData = recv(sockfd, recvMes, 2000, 0);
+    if (countRecvData == -1) {
+      printf("Receive data failed!\n");
+      return 1;
+    } else {
+      countTotalRecvData = countTotalRecvData + countRecvData;
+      // printf("Server reply: %s\n", recvMes);
+      new_status.assign(recvMes, countRecvData);
+      // recvMes = (char *) malloc(MAX_SIZE);
+      // strcpy(recvMes, "");
+      boost::char_separator<char> split_str("|");
+      int i = 1;
+      boost::tokenizer<boost::char_separator<char> > tokens(new_status,
+          split_str);
+      BOOST_FOREACH (const std::string& mess, tokens) {
+        {
+          if (i == 1) {
+            // Do nothing
+          } else if (i == 2) {
+            write_status_message(mess);
+          }
+          i++;
+        }
+      }
+    }
+  }
+  return 0;
+}
+
+int MstcCommunicator::get_old_cells_message_from_server() {
+  char *sendMes = (char *) malloc(MAX_SIZE);
+  char *recvMes = (char *) malloc(MAX_SIZE);
+  std::string new_status;
+
+  strcpy(sendMes, "[GIVE_ME_OLD_CELLS]|");
+  strcpy(recvMes, "");
+  countSendData = send(sockfd, sendMes, strlen(sendMes), 0);
+  if (countSendData == -1) {
+    printf("Send data failed!\n");
+    return 1;
+  } else {
+    countTotalSendData = countTotalSendData + countSendData;
+    countRecvData = recv(sockfd, recvMes, 2000, 0);
+    if (countRecvData == -1) {
+      printf("Receive data failed!\n");
+      return 1;
+    } else {
+      countTotalRecvData = countTotalRecvData + countRecvData;
+      // printf("Server reply: %s\n", recvMes);
+      new_status.assign(recvMes, countRecvData);
+      // recvMes = (char *) malloc(MAX_SIZE);
+      // strcpy(recvMes, "");
+      boost::char_separator<char> split_str("|");
+      int i = 1;
+      boost::tokenizer<boost::char_separator<char> > tokens(new_status,
+          split_str);
+      BOOST_FOREACH (const std::string& mess, tokens) {
+        {
+          if (i == 1) {
+            // Do nothing
+          } else if (i == 2) {
+            write_old_cells_message(mess);
+          }
+          i++;
+        }
+      }
+    }
+  }
+  return 0;
+}
 
 }
 }

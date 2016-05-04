@@ -15,6 +15,23 @@
 #include "identifiable_cell.hpp"
 #include "base_communicator.hpp"
 
+#include <stdio.h>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdlib.h>
+
+#include <ros/ros.h>
+#include <arpa/inet.h>
+
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+#define MAX_SIZE 2000
+
 namespace wandrian {
 namespace environment {
 namespace mstc {
@@ -51,10 +68,24 @@ public:
 
   std::set<IdentifiableCellPtr, CellComp> obstacle_cells;
 
+  int connect_server(std::string);
+  void disconnect_server();
+  std::string create_status_message_to_send_to_server(std::string);
+  std::string create_old_cells_message_to_send_to_server(std::string);
+  int send_save_message_to_server(std::string);
+  int get_status_message_from_server();
+  int get_old_cells_message_from_server();
+
 private:
   std::list<IdentifiableCellPtr> old_cells; // Old cells with list
   std::set<IdentifiableCellPtr, CellComp> backtrack_cells;
   bool is_backtracking;
+  struct sockaddr_in server;
+  int sockfd;
+  int countTotalRecvData;
+  int countTotalSendData;
+  int countRecvData;
+  int countSendData;
 };
 
 typedef boost::shared_ptr<MstcCommunicator> MstcCommunicatorPtr;

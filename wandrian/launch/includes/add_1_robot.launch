@@ -1,0 +1,19 @@
+<launch>
+  <arg name="starting_point_x_robot"/>
+  <arg name="starting_point_y_robot"/>
+
+  <!-- No namespace here as we will share this description. 
+       Access with slash at the beginning -->
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find wandrian)/models/robot/urdf/robot.urdf.xacro'"/>
+
+  <!-- BEGIN ROBOT-->
+  <group ns="robot">
+    <param name="tf_prefix" value="robot1_tf" />
+    <include file="$(find wandrian)/launch/includes/robot.launch" >
+      <!-- <arg name="init_pose" value="-x 1 -y 1 -z 0" /> -->
+      <arg name="starting_point_x" value="$(arg starting_point_x_robot)"></arg>
+      <arg name="starting_point_y" value="$(arg starting_point_y_robot)"></arg>
+      <arg name="robot_name" value="robot1" />
+    </include>
+  </group>
+</launch>

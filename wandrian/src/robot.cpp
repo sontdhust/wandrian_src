@@ -48,6 +48,7 @@ bool Robot::initialize() {
   nh.getParam("starting_point_y", starting_point_y);
   nh.getParam("plan_name", plan_name);
   nh.getParam("robot_name", robot_name);
+  nh.getParam("ip_server", ip_server);
   nh.getParam("linear_velocity", linear_velocity);
   nh.getParam("angular_velocity", angular_velocity);
   nh.getParam("proportion_ranges_count", proportion_ranges_count);
@@ -199,6 +200,10 @@ std::string Robot::get_plan_name() {
   return plan_name;
 }
 
+std::string Robot::get_ip_server() {
+  return ip_server;
+}
+
 PointPtr Robot::get_current_position() {
   return current_position;
 }
@@ -341,6 +346,7 @@ void Robot::process_keyboard_input(char c) {
   }
   case 'r':
   case ' ':
+    boost::static_pointer_cast<MstcCommunicator>(communicator)->connect_server(get_ip_server());
     ROS_INFO_STREAM("[Run]: " << "Start running");
     thread_run.start(&Robot::start_thread_run, *this);
     if (plan_name == "mstc_online") {
@@ -356,6 +362,7 @@ void Robot::process_keyboard_input(char c) {
     }
     break;
   case 'q':
+    boost::static_pointer_cast<MstcCommunicator>(communicator)->disconnect_server();
     is_quitting = true;
     break;
   default:
@@ -383,6 +390,9 @@ void Robot::start_thread_status() {
               communicator->get_current_cell()));
       boost::static_pointer_cast<MstcCommunicator>(communicator)->write_status_message(
           status);
+      boost::static_pointer_cast<MstcCommunicator>(communicator)->send_save_message_to_server(
+          boost::static_pointer_cast<MstcCommunicator>(communicator)->create_status_message_to_send_to_server(
+              status));
     }
   }
 }

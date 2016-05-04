@@ -4,7 +4,6 @@
   <arg name="tool_size"/>
   <arg name="starting_point_x"/>
   <arg name="starting_point_y"/>
-  <arg name="ip_server"/>
   <arg name="map_boundary_width" default="0"/>
   <arg name="map_boundary_height" default="0"/>
 
