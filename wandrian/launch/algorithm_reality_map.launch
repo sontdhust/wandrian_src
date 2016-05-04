@@ -21,6 +21,7 @@
     <param name="starting_point_y" value="$(arg starting_point_y)" type="double"/>
     <param name="map_boundary_width" value="$(arg map_boundary_width)" type="double"/>
     <param name="map_boundary_height" value="$(arg map_boundary_height)" type="double"/>
+    <param name="ip_server" value="$(arg ip_server)" type="string"/>
 
     <param name="linear_velocity" value="0.2" type="double"/>
     <param name="angular_velocity" value="0.4" type="double"/>

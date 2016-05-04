@@ -37,26 +37,34 @@ Change to catkin root directory then run:
 
 ####Running mstc_online:
 
+######1 robots (2 PC):
+    $ roslaunch wandrian environment.launch world_file:=prefered_mstc_online_for_show
+    $ roslaunch wandrian add_1_robot.launch starting_point_x_robot:=-1.25 starting_point_y_robot:=-1.75
+    $ roslaunch wandrian add_1_robot.launch starting_point_x_robot:=1.75 starting_point_y_robot:=0.25
+    $ roslaunch wandrian algorithm_simulator.launch plan_name:=mstc_online robot_name:=robot1 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=-1.75 map_boundary_width:=4.0 map_boundary_height:=4.0 ip_server:=x.x.x.x
+    $ roslaunch wandrian algorithm_simulator.launch plan_name:=mstc_online robot_name:=robot2 tool_size:=0.5 starting_point_x:=1.75 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0 ip_server:=x.x.x.x
+
+
 ######2 robots:
     $ roslaunch wandrian environment.launch world_file:=prefered_mstc_online_for_show
     $ roslaunch wandrian add_2_robots.launch starting_point_x_robot1:=-1.25 starting_point_y_robot1:=-1.75 starting_point_x_robot2:=1.75 starting_point_y_robot2:=0.25
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot1 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=-1.75 map_boundary_width:=4.0 map_boundary_height:=4.0
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot2 tool_size:=0.5 starting_point_x:=1.75 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
+    $ roslaunch wandrian algorithm_simulator.launch plan_name:=mstc_online robot_name:=robot1 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=-1.75 map_boundary_width:=4.0 map_boundary_height:=4.0
+    $ roslaunch wandrian algorithm_simulator.launch plan_name:=mstc_online robot_name:=robot2 tool_size:=0.5 starting_point_x:=1.75 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
 
 ######3 robots:
     $ roslaunch wandrian environment.launch world_file:=prefered_mstc_online_for_show
     $ roslaunch wandrian add_3_robots.launch starting_point_x_robot1:=-1.25 starting_point_y_robot1:=-1.75 starting_point_x_robot2:=1.75 starting_point_y_robot2:=0.25 starting_point_x_robot3:=-1.25 starting_point_y_robot3:=0.25
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot1 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=-1.75 map_boundary_width:=4.0 map_boundary_height:=4.0
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot2 tool_size:=0.5 starting_point_x:=1.75 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot3 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
+    $ roslaunch wandrian algorithm_simulator.launch plan_name:=mstc_online robot_name:=robot1 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=-1.75 map_boundary_width:=4.0 map_boundary_height:=4.0
+    $ roslaunch wandrian algorithm_simulator.launch plan_name:=mstc_online robot_name:=robot2 tool_size:=0.5 starting_point_x:=1.75 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
+    $ roslaunch wandrian algorithm_simulator.launch plan_name:=mstc_online robot_name:=robot3 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
 
 ######4 robots:
     $ roslaunch wandrian environment.launch world_file:=prefered_mstc_online_for_show
     $ roslaunch wandrian add_4_robots.launch starting_point_x_robot1:=-1.25 starting_point_y_robot1:=-1.75 starting_point_x_robot2:=1.75 starting_point_y_robot2:=0.25 starting_point_x_robot3:=-1.25 starting_point_y_robot3:=0.25 starting_point_x_robot4:=-1.25 starting_point_y_robot4:=1.25
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot1 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=-1.75 map_boundary_width:=4.0 map_boundary_height:=4.0
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot2 tool_size:=0.5 starting_point_x:=1.75 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot3 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot4 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=1.25 map_boundary_width:=4.0 map_boundary_height:=4.0
+    $ roslaunch wandrian algorithm_simulator.launch plan_name:=mstc_online robot_name:=robot1 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=-1.75 map_boundary_width:=4.0 map_boundary_height:=4.0
+    $ roslaunch wandrian algorithm_simulator.launch plan_name:=mstc_online robot_name:=robot2 tool_size:=0.5 starting_point_x:=1.75 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
+    $ roslaunch wandrian algorithm_simulator.launch plan_name:=mstc_online robot_name:=robot3 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
+    $ roslaunch wandrian algorithm_simulator.launch plan_name:=mstc_online robot_name:=robot4 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=1.25 map_boundary_width:=4.0 map_boundary_height:=4.0
 
 ####Prefered arguments:
 
