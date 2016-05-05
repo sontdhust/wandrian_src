@@ -58,8 +58,8 @@ public:
   std::string read_status_message(); // Read status data from ros bag
   void clear_robots_dead_old_cells(std::string, std::string, std::string);
 
-  bool isIsBacktracking() const; // Check backtracking in function scan() of mstc_online.cpp
-  void setIsBacktracking(bool isBacktracking = false);
+  bool get_is_backtracking() const; // Check backtracking in function scan() of mstc_online.cpp
+  void set_is_backtracking(bool = false);
 
   void write_obstacle_message(std::string);
   void read_obstacle_message();

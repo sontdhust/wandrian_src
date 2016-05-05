@@ -116,7 +116,9 @@ int main(int argc, char* argv[]) {
         message = (char*) malloc(MAX_SIZE);
         strcpy(message, "");
         countRecvData = recv(fd, message, 2000, 0);
-        printf("Message from client in port %d: %s\n", fd, message);
+        if (strcmp(message, "") != 0){
+          printf("Message from client in port %d: %s\n", fd, message);
+        }
         if (countRecvData == -1) {
           printf("Receive data failed!\n");
           shutdown(fd, 2);
@@ -160,37 +162,53 @@ int main(int argc, char* argv[]) {
           boost::tokenizer<boost::char_separator<char> > tokens(str_mess,
               split_str);
           BOOST_FOREACH (const std::string& tmp_str, tokens) {
-            {
-              if (i == 1) {
-                if (tmp_str == "[SAVE_STATUS]") {
-                  check_action = 1;
-                } else if (tmp_str == "[SAVE_OLD_CELLS]") {
-                  check_action = 2;
-                } else if (tmp_str == "[GIVE_ME_STATUS]") {
-                  check_action = 3;
-                } else if (tmp_str == "[GIVE_ME_OLD_CELLS]") {
-                  check_action = 4;
-                }
-              } else if (i == 2) {
-                switch (check_action) {
-                case 1:
-                  status = tmp_str;
-                  strcpy(message, "OK");
-                  break;
-                case 2:
-                  old_cells = tmp_str;
-                  strcpy(message, "OK");
-                  break;
-                case 3:
-                  strcpy(message, status.c_str());
-                  break;
-                case 4:
-                  strcpy(message, old_cells.c_str());
-                  break;
-                }
+            std::cout << "TMP data" << tmp_str << "\n";
+            if (i == 1) {
+              if (tmp_str == "[SAVE_STATUS]") {
+                check_action = 1;
+              } else if (tmp_str == "[SAVE_OLD_CELLS]") {
+                check_action = 2;
+              } else if (tmp_str == "[GIVE_ME_STATUS]") {
+                check_action = 3;
+              } else if (tmp_str == "[GIVE_ME_OLD_CELLS]") {
+                check_action = 4;
               }
-              i++;
+            } else if (i == 2) {
+              std::cout << "Check action = " << check_action << "\n";
+              switch (check_action) {
+              case 1:
+                std::cout << "Status in server" << status << "\n";
+                if (status.find(tmp_str) != std::string::npos) {
+                  // Found
+                  status = tmp_str;
+                } else {
+                  // Not found
+                  status += tmp_str;
+                }
+                strcpy(message, "OK");
+                break;
+              case 2:
+                std::cout << "OLD CELLS in server" << old_cells << "\n";
+                if (tmp_str.find(old_cells) != std::string::npos) {
+                  // Found
+                  old_cells = tmp_str;
+                } else {
+                  // Not found
+                  old_cells += tmp_str;
+                }
+                strcpy(message, "OK");
+                break;
+              case 3:
+                std::cout << "Status in server" << status << "\n";
+                strcpy(message, status.c_str());
+                break;
+              case 4:
+                std::cout << "OLD CELLS in server" << old_cells << "\n";
+                strcpy(message, old_cells.c_str());
+                break;
+              }
             }
+            i++;
           }
           countSendData = send(fd, message, strlen(message), 0);
           // message=malloc(MAX_SIZE);

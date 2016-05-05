@@ -411,11 +411,11 @@ void MstcCommunicator::clear_robots_dead_old_cells(std::string dead_robot_name,
   write_status_message(last_status);
 }
 
-bool MstcCommunicator::isIsBacktracking() const {
+bool MstcCommunicator::get_is_backtracking() const {
   return is_backtracking;
 }
 
-void MstcCommunicator::setIsBacktracking(bool isBacktracking) {
+void MstcCommunicator::set_is_backtracking(bool isBacktracking) {
   is_backtracking = isBacktracking;
 }
 
@@ -577,7 +577,7 @@ int MstcCommunicator::get_status_message_from_server() {
   char *recvMes = (char *) malloc(MAX_SIZE);
   std::string new_status;
 
-  strcpy(sendMes, "[GIVE_ME_STATUS]|");
+  strcpy(sendMes, "[GIVE_ME_STATUS]|_");
   strcpy(recvMes, "");
   countSendData = send(sockfd, sendMes, strlen(sendMes), 0);
   if (countSendData == -1) {
@@ -595,20 +595,21 @@ int MstcCommunicator::get_status_message_from_server() {
       new_status.assign(recvMes, countRecvData);
       // recvMes = (char *) malloc(MAX_SIZE);
       // strcpy(recvMes, "");
-      boost::char_separator<char> split_str("|");
-      int i = 1;
-      boost::tokenizer<boost::char_separator<char> > tokens(new_status,
-          split_str);
-      BOOST_FOREACH (const std::string& mess, tokens) {
-        {
-          if (i == 1) {
-            // Do nothing
-          } else if (i == 2) {
-            write_status_message(mess);
-          }
-          i++;
-        }
-      }
+      // boost::char_separator<char> split_str("|");
+      // int i = 1;
+      // boost::tokenizer<boost::char_separator<char> > tokens(new_status,
+      //     split_str);
+      // BOOST_FOREACH (const std::string& mess, tokens) {
+      //   {
+      //     if (i == 1) {
+      //       // Do nothing
+      //     } else if (i == 2) {
+      //       write_status_message(mess);
+      //     }
+      //     i++;
+      //   }
+      // }
+      write_status_message(new_status);
     }
   }
   return 0;
@@ -617,9 +618,9 @@ int MstcCommunicator::get_status_message_from_server() {
 int MstcCommunicator::get_old_cells_message_from_server() {
   char *sendMes = (char *) malloc(MAX_SIZE);
   char *recvMes = (char *) malloc(MAX_SIZE);
-  std::string new_status;
+  std::string new_old_cells;
 
-  strcpy(sendMes, "[GIVE_ME_OLD_CELLS]|");
+  strcpy(sendMes, "[GIVE_ME_OLD_CELLS]|_");
   strcpy(recvMes, "");
   countSendData = send(sockfd, sendMes, strlen(sendMes), 0);
   if (countSendData == -1) {
@@ -634,23 +635,25 @@ int MstcCommunicator::get_old_cells_message_from_server() {
     } else {
       countTotalRecvData = countTotalRecvData + countRecvData;
       // printf("Server reply: %s\n", recvMes);
-      new_status.assign(recvMes, countRecvData);
+      new_old_cells.assign(recvMes, countRecvData);
       // recvMes = (char *) malloc(MAX_SIZE);
       // strcpy(recvMes, "");
-      boost::char_separator<char> split_str("|");
-      int i = 1;
-      boost::tokenizer<boost::char_separator<char> > tokens(new_status,
-          split_str);
-      BOOST_FOREACH (const std::string& mess, tokens) {
-        {
-          if (i == 1) {
-            // Do nothing
-          } else if (i == 2) {
-            write_old_cells_message(mess);
-          }
-          i++;
-        }
-      }
+
+      // boost::char_separator<char> split_str("|");
+      // int i = 1;
+      // boost::tokenizer<boost::char_separator<char> > tokens(new_old_cells,
+      //     split_str);
+      // BOOST_FOREACH (const std::string& mess, tokens) {
+      //   {
+      //     if (i == 1) {
+      //       // Do nothing
+      //     } else if (i == 2) {
+      //       write_old_cells_message(mess);
+      //     }
+      //     i++;
+      //   }
+      // }
+      write_old_cells_message(new_old_cells);
     }
   }
   return 0;
