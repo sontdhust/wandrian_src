@@ -8,7 +8,7 @@
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find wandrian)/models/robot/urdf/robot.urdf.xacro'"/>
 
   <!-- BEGIN ROBOT-->
-  <group ns="robot">
+  <group ns="$(arg robot_name)">
     <param name="tf_prefix" value="robot_tf" />
     <include file="$(find wandrian)/launch/includes/robot.launch" >
       <!-- <arg name="init_pose" value="-x 1 -y 1 -z 0" /> -->

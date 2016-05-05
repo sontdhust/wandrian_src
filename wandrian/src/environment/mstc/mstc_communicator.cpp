@@ -23,6 +23,11 @@ namespace mstc {
 MstcCommunicator::MstcCommunicator() {
   is_backtracking = false;
   set_tool_size(0.5);
+  countRecvData = 0;
+  countSendData = 0;
+  countTotalRecvData = 0;
+  countTotalSendData = 0;
+  sockfd = 0;
 }
 
 MstcCommunicator::~MstcCommunicator() {
@@ -263,7 +268,12 @@ void MstcCommunicator::insert_old_cell(IdentifiableCellPtr cell) {
 std::string MstcCommunicator::read_old_cells_message() {
   rosbag::Bag bag;
   std::string msg;
-  bag.open("message.bag", rosbag::bagmode::Read);
+  try {
+    bag.open("message.bag", rosbag::bagmode::Read);
+  } catch (rosbag::BagIOException &e) {
+    write_old_cells_message("");
+    bag.open("message.bag", rosbag::bagmode::Read);
+  }
   std::vector<std::string> topics;
   topics.push_back(std::string("publisher_communication"));
 
@@ -310,20 +320,25 @@ void MstcCommunicator::update_old_cells_from_message(std::string msg) {
 }
 
 std::string MstcCommunicator::read_status_message() {
-  rosbag::Bag bag;
+  rosbag::Bag status_bag;
   std::string msg;
-  bag.open("status.bag", rosbag::bagmode::Read);
+  try {
+    status_bag.open("status.bag", rosbag::bagmode::Read);
+  } catch (rosbag::BagIOException &e) {
+    write_status_message("");
+    status_bag.open("status.bag", rosbag::bagmode::Read);
+  }
   std::vector<std::string> topics;
   topics.push_back(std::string("status_publisher"));
 
-  rosbag::View view(bag, rosbag::TopicQuery(topics));
+  rosbag::View view(status_bag, rosbag::TopicQuery(topics));
   foreach(rosbag::MessageInstance const m, view) {
     std_msgs::String::ConstPtr s = m.instantiate<std_msgs::String>();
     if (s != NULL) {
       msg.append(s->data.c_str());
     }
   }
-  bag.close();
+  status_bag.close();
   return msg;
 }
 
@@ -408,23 +423,28 @@ void MstcCommunicator::setIsBacktracking(bool isBacktracking) {
 
 void MstcCommunicator::write_obstacle_message(std::string message) {
   ROS_INFO("[Writing]My obstacle cells: %s", message.data());
-  rosbag::Bag bag;
-  bag.open("obstacle.bag", rosbag::bagmode::Write);
-  std_msgs::String str;
-  str.data = message.data();
-  bag.write("obstacle_publisher", ros::Time::now(), str);
-  bag.close();
+  rosbag::Bag obstacle_bag;
+  obstacle_bag.open("obstacle.bag", rosbag::bagmode::Write);
+  std_msgs::String str_obstacle;
+  str_obstacle.data = message.data();
+  obstacle_bag.write("obstacle_publisher", ros::Time::now(), str_obstacle);
+  obstacle_bag.close();
 }
 
 void MstcCommunicator::read_obstacle_message() {
-  rosbag::Bag bag;
+  ROS_INFO("I am Here");
+  rosbag::Bag obstacle_bag;
   std::string msg;
-
-  bag.open("obstacle.bag", rosbag::bagmode::Read);
+  try {
+    obstacle_bag.open("obstacle.bag", rosbag::bagmode::Read);
+  } catch (rosbag::BagIOException &e) {
+    write_obstacle_message("");
+    obstacle_bag.open("obstacle.bag", rosbag::bagmode::Read);
+  }
   std::vector<std::string> topics;
   topics.push_back(std::string("obstacle_publisher"));
 
-  rosbag::View view(bag, rosbag::TopicQuery(topics));
+  rosbag::View view(obstacle_bag, rosbag::TopicQuery(topics));
   foreach(rosbag::MessageInstance const m, view) {
     std_msgs::String::ConstPtr s = m.instantiate<std_msgs::String>();
     if (s != NULL) {
@@ -432,7 +452,7 @@ void MstcCommunicator::read_obstacle_message() {
     }
   }
 
-  bag.close();
+  obstacle_bag.close();
   ROS_INFO("[Reading]Ros bag obstacle cells: %s", msg.data());
   update_obstacle_cells_from_message(msg);
 }
@@ -514,12 +534,14 @@ void MstcCommunicator::disconnect_server() {
   shutdown(sockfd, 2);
 }
 
-std::string MstcCommunicator::create_status_message_to_send_to_server(std::string origin_message) {
+std::string MstcCommunicator::create_status_message_to_send_to_server(
+    std::string origin_message) {
   std::string output_message = "[SAVE_STATUS]|" + origin_message;
   return output_message;
 }
 
-std::string MstcCommunicator::create_old_cells_message_to_send_to_server(std::string origin_message) {
+std::string MstcCommunicator::create_old_cells_message_to_send_to_server(
+    std::string origin_message) {
   std::string output_message = "[SAVE_OLD_CELLS]|" + origin_message;
   return output_message;
 }
@@ -632,6 +654,14 @@ int MstcCommunicator::get_old_cells_message_from_server() {
     }
   }
   return 0;
+}
+
+const std::string& MstcCommunicator::get_ip_server() const {
+  return ip_server;
+}
+
+void MstcCommunicator::set_ip_server(const std::string& ipServer) {
+  ip_server = ipServer;
 }
 
 }

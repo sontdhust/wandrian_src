@@ -8,3 +8,6 @@
 # Temp files
 tmp/
 tmp.*
+
+# out file
+*.out

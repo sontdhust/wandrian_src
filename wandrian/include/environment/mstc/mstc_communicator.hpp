@@ -36,7 +36,7 @@ namespace wandrian {
 namespace environment {
 namespace mstc {
 
-class MstcCommunicator : public BaseCommunicator {
+class MstcCommunicator: public BaseCommunicator {
 
 public:
   MstcCommunicator();
@@ -76,6 +76,9 @@ public:
   int get_status_message_from_server();
   int get_old_cells_message_from_server();
 
+  const std::string& get_ip_server() const;
+  void set_ip_server(const std::string&);
+
 private:
   std::list<IdentifiableCellPtr> old_cells; // Old cells with list
   std::set<IdentifiableCellPtr, CellComp> backtrack_cells;
@@ -86,6 +89,7 @@ private:
   int countTotalSendData;
   int countRecvData;
   int countSendData;
+  std::string ip_server;
 };
 
 typedef boost::shared_ptr<MstcCommunicator> MstcCommunicatorPtr;
@@ -93,7 +97,5 @@ typedef boost::shared_ptr<MstcCommunicator> MstcCommunicatorPtr;
 }
 }
 }
-
-
 
 #endif /* WANDRIAN_INCLUDE_ENVIRONMENT_MSTC_MSTC_COMMUNICATOR_HPP_ */

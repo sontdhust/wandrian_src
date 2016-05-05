@@ -67,6 +67,8 @@ bool Robot::initialize() {
     communicator = MstcCommunicatorPtr(new MstcCommunicator());
     communicator->set_robot_name(robot_name);
     communicator->set_tool_size(tool_size);
+    boost::static_pointer_cast<MstcCommunicator>(communicator)->set_ip_server(
+        ip_server);
     std::cout << "1. My name is " << communicator->get_robot_name();
     std::cout << "2. My name is " << robot_name;
     std::cout << "3. Other information: " << plan_name << starting_point_x
@@ -346,7 +348,11 @@ void Robot::process_keyboard_input(char c) {
   }
   case 'r':
   case ' ':
-    boost::static_pointer_cast<MstcCommunicator>(communicator)->connect_server(get_ip_server());
+    if (boost::static_pointer_cast<MstcCommunicator>(communicator)->get_ip_server()
+        != "no_need") {
+      boost::static_pointer_cast<MstcCommunicator>(communicator)->connect_server(
+          get_ip_server());
+    }
     ROS_INFO_STREAM("[Run]: " << "Start running");
     thread_run.start(&Robot::start_thread_run, *this);
     if (plan_name == "mstc_online") {
@@ -359,10 +365,15 @@ void Robot::process_keyboard_input(char c) {
           "");
       boost::static_pointer_cast<MstcCommunicator>(communicator)->write_status_message(
           "");
+      boost::static_pointer_cast<MstcCommunicator>(communicator)->write_obstacle_message(
+          "");
     }
     break;
   case 'q':
-    boost::static_pointer_cast<MstcCommunicator>(communicator)->disconnect_server();
+    if (boost::static_pointer_cast<MstcCommunicator>(communicator)->get_ip_server()
+        != "no_need") {
+      boost::static_pointer_cast<MstcCommunicator>(communicator)->disconnect_server();
+    }
     is_quitting = true;
     break;
   default:
