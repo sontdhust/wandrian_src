@@ -18,7 +18,7 @@
 #include "../include/plans/boustrophedon/boustrophedon.hpp"
 
 #define R_SIZE 0.5 // robot size
-#define E_SIZE 6.0 // default environment size
+#define E_SIZE 4.0 // default environment size
 #define WORLD_INSERT_OBSTACLE "<!-- INSERT: Boundary and Obstacles here -->" // flag at original world file to insert bound and obstacles into
 
 using namespace wandrian::environment;
@@ -166,7 +166,7 @@ bool test_see_obstacle(VectorPtr direction, double step) {
 }
 
 int main(int argc, char **argv) {
-
+  RectanglePtr  boundary;
   if (argc >= 2) {
     std::istringstream iss(argv[1]);
     if (!(iss >> e_size)
@@ -176,6 +176,7 @@ int main(int argc, char **argv) {
   } else {
     e_size = E_SIZE;
   }
+  std::cout<<"E size :"<< E_SIZE<<"e size"<<e_size <<std::cout;
   if (argc >= 3) {
     std::istringstream iss(argv[2]);
     if (!(iss >> r_size)) {
@@ -206,63 +207,74 @@ int main(int argc, char **argv) {
   std::string line;
 
   obstacles = map->get_obstacles();
-
+  boundary = map->get_boundary();
   while (std::getline(world_in, line, '\n')) {
     world_out << line << '\n';
     if (line.find(WORLD_INSERT_OBSTACLE) != std::string::npos) {
       int n;
-      n = 1;
-      // Upper bound
-      for (double i = -e_size / 2 + r_size / 2; i <= e_size / 2 - r_size / 2;
-          i += r_size) {
-        world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
+      for (double i = boundary->get_center()->x - boundary->get_width() / 2
+          + r_size / 2;
+          i
+              <= boundary->get_center()->x + boundary->get_width() / 2
+                  - r_size / 2 + EPSILON; i += r_size) {
+        world_out << "    <model name='cinder_block_boundary_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
         world_out << "      </include>\n";
-        world_out << "      <pose>" << i << " " << (e_size / 2 + r_size / 4)
-            << " 0 0 0 0</pose>\n";
+        world_out << "      <pose>" << i << " "
+            << (boundary->get_center()->y + boundary->get_height() / 2
+                + r_size / 4) << " 0 0 0 0</pose>\n";
         world_out << "      <static>1</static>\n";
         world_out << "    </model>\n";
         n++;
       }
-
-      // Right bound
-      for (double i = -e_size / 2 + r_size / 2; i <= e_size / 2 - r_size / 2;
-          i += r_size) {
-        world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
+      // Right boundary
+      for (double i = boundary->get_center()->y - boundary->get_height() / 2
+          + r_size / 2;
+          i
+              <= boundary->get_center()->y + boundary->get_height() / 2
+                  - r_size / 2 + EPSILON; i += r_size) {
+        world_out << "    <model name='cinder_block_boundary_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
         world_out << "      </include>\n";
-        world_out << "      <pose>" << (e_size / 2 + r_size / 4) << " " << -i
-            << " 0 0 0 " << M_PI_2 << "</pose>\n";
+        world_out << "      <pose>"
+            << (boundary->get_center()->x + boundary->get_width() / 2
+                + r_size / 4) << " " << i << " 0 0 0 " << M_PI_2 << "</pose>\n";
         world_out << "      <static>1</static>\n";
         world_out << "    </model>\n";
         n++;
       }
-
-      // Lower bound
-      for (double i = -e_size / 2 + r_size / 2; i <= e_size / 2 - r_size / 2;
-          i += r_size) {
-        world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
+      // Lower boundary
+      for (double i = boundary->get_center()->x - boundary->get_width() / 2
+          + r_size / 2;
+          i
+              <= boundary->get_center()->x + boundary->get_width() / 2
+                  - r_size / 2 + EPSILON; i += r_size) {
+        world_out << "    <model name='cinder_block_boundary_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
         world_out << "      </include>\n";
-        world_out << "      <pose>" << -i << " " << -(e_size / 2 + r_size / 4)
-            << " 0 0 0 0</pose>\n";
+        world_out << "      <pose>" << i << " "
+            << (boundary->get_center()->y - boundary->get_height() / 2
+                - r_size / 4) << " 0 0 0 0</pose>\n";
         world_out << "      <static>1</static>\n";
         world_out << "    </model>\n";
         n++;
       }
-
-      // Left bound
-      for (double i = -e_size / 2 + r_size / 2; i <= e_size / 2 - r_size / 2;
-          i += r_size) {
-        world_out << "    <model name='cinder_block_bound_" << n << "'>\n";
+      // Left boundary
+      for (double i = boundary->get_center()->y - boundary->get_height() / 2
+          + r_size / 2;
+          i
+              <= boundary->get_center()->y + boundary->get_height() / 2
+                  - r_size / 2 + EPSILON; i += r_size) {
+        world_out << "    <model name='cinder_block_boundary_" << n << "'>\n";
         world_out << "      <include>\n";
         world_out << "        <uri>model://cinder_block</uri>\n";
         world_out << "      </include>\n";
-        world_out << "      <pose>" << -(e_size / 2 + r_size / 4) << " " << i
-            << " 0 0 0 " << M_PI_2 << "</pose>\n";
+        world_out << "      <pose>"
+            << (boundary->get_center()->x - boundary->get_width() / 2
+                - r_size / 4) << " " << i << " 0 0 0 " << M_PI_2 << "</pose>\n";
         world_out << "      <static>1</static>\n";
         world_out << "    </model>\n";
         n++;

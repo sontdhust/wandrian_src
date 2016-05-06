@@ -11,6 +11,7 @@
 #include <list>
 #include <ros/ros.h>
 #include "../../common/vector.hpp"
+#include "../../common/segment.hpp"
 #include "../../common/rectangle.hpp"
 #include "../../environment/cell.hpp"
 #include "../../environment/boustrophedon/extended_map.hpp"
@@ -37,7 +38,7 @@ public:
   ExtendedMapPtr get_map();
   std::list<SpacePtr> create_list_space(RectanglePtr, std::list<VerticesPtr>);
   std::list<VerticesPtr> create_list_vertices(RectanglePtr,
-      std::list<RectanglePtr>);
+      std::list<PolygonPtr>);
 
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
 protected:

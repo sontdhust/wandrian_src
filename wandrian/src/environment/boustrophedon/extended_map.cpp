@@ -11,13 +11,12 @@ namespace wandrian {
 namespace environment {
 namespace boustrophedon {
 
-ExtendedMap::ExtendedMap(RectanglePtr boundary,
-    std::list<RectanglePtr> obstacles) :
-    Map(boundary, obstacles) {
+ExtendedMap::ExtendedMap(RectanglePtr boundary,std::list<RectanglePtr> obstacles)
+:Map(boundary, obstacles),number_space_need_visit(0) {
 }
 
 ExtendedMap::ExtendedMap(std::string map_path) :
-    Map(map_path) {
+    Map(map_path),number_space_need_visit(0)  {
 }
 
 ExtendedMap::~ExtendedMap() {
@@ -50,32 +49,32 @@ void ExtendedMap::build() {
               line.substr(flag_start + 1, flag_end - flag_start - 1));
           list_point_temp.push_back(temp_point);
         }
-        i = 0;
-        for (std::list<PointPtr>::iterator u = list_point_temp.begin();
-            u != list_point_temp.end(); ++u) {
-          if (i == 0) {
-            size_y = (*u)->y;
-          }
-          if (i == 1) {
-            size_x = (*u)->x;
-            size_y = (*u)->y - size_y;
-          }
-          if (i == 2) {
-            size_x = (*u)->x - size_x;
-          }
-          i++;
-          if (i == 4) {
-            std::cout << size_x << " " << size_y << std::endl;
-            center = PointPtr(
-                new Point((*u)->x - size_x / 2, (*u)->y + size_y / 2));
-          }
-        }
 
         if (!this->boundary) {
+        	 i = 0;
+     	     for (std::list<PointPtr>::iterator u = list_point_temp.begin();
+        	      u != list_point_temp.end(); ++u) {
+        	      if (i == 0) {
+        	    	  size_y = (*u)->y;
+        	          }
+        	          if (i == 1) {
+        	            size_x = (*u)->x;
+        	            size_y = (*u)->y - size_y;
+        	          }
+        	          if (i == 2) {
+        	            size_x = (*u)->x - size_x;
+        	          }
+        	          i++;
+        	          if (i == 4) {
+        	            std::cout << size_x << " " << size_y << std::endl;
+        	            center = PointPtr(
+        	                new Point((*u)->x - size_x / 2, (*u)->y + size_y / 2));
+        	          }
+        	       }
+
           this->boundary = RectanglePtr(new Rectangle(center, size_x, size_y));
         } else {
-          this->obstacles.push_back(
-              RectanglePtr(new Rectangle(center, size_x, size_y)));
+          this->extendedmap_obstacle.push_back(PolygonPtr(new Polygon(list_point_temp)));
         }
         list_point_temp.clear();
       }
@@ -84,6 +83,10 @@ void ExtendedMap::build() {
     }
     read_file.close();
   }
+}
+
+std::list<PolygonPtr> ExtendedMap::get_extendedmap_obstacles(){
+	return extendedmap_obstacle;
 }
 
 int ExtendedMap::comma_position(std::string str) {
