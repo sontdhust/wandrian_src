@@ -72,6 +72,7 @@ public:
   void disconnect_server();
   std::string create_status_message_to_send_to_server(std::string);
   std::string create_old_cells_message_to_send_to_server(std::string);
+  std::string create_my_new_old_cells_message_to_send_to_server(IdentifiableCellPtr);
   int send_save_message_to_server(std::string);
   int get_status_message_from_server();
   int get_old_cells_message_from_server();

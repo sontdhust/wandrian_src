@@ -178,24 +178,24 @@ int main(int argc, char* argv[]) {
               switch (check_action) {
               case 1:
                 std::cout << "Status in server" << status << "\n";
-                if (status.find(tmp_str) != std::string::npos) {
-                  // Found
+                // if (status.find(tmp_str) != std::string::npos) {
+                //   // Found
                   status = tmp_str;
-                } else {
-                  // Not found
-                  status += tmp_str;
-                }
+                // } else {
+                //   // Not found
+                //   status += tmp_str;
+                // }
                 strcpy(message, "OK");
                 break;
               case 2:
                 std::cout << "OLD CELLS in server" << old_cells << "\n";
-                if (tmp_str.find(old_cells) != std::string::npos) {
-                  // Found
-                  old_cells = tmp_str;
-                } else {
-                  // Not found
+                // if (tmp_str.find(old_cells) != std::string::npos) {
+                //   // Found
+                //   old_cells = tmp_str;
+                // } else {
+                //   // Not found
                   old_cells += tmp_str;
-                }
+                // }
                 strcpy(message, "OK");
                 break;
               case 3:

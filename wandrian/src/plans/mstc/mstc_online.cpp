@@ -58,7 +58,9 @@ void MstcOnline::cover() {
   communicator->write_old_cells_message_to_rosbag(message);
   if (communicator->get_ip_server() != "no_need") {
     communicator->send_save_message_to_server(
-        communicator->create_old_cells_message_to_send_to_server(message));
+        communicator->create_old_cells_message_to_send_to_server(
+            communicator->create_my_new_old_cells_message_to_send_to_server(
+                starting_cell)));
   }
   //  communicator->set_current_cell(starting_cell);
   // FIXME
@@ -211,7 +213,8 @@ void MstcOnline::scan(CellPtr current) {
           if (communicator->get_ip_server() != "no_need") {
             communicator->send_save_message_to_server(
                 communicator->create_old_cells_message_to_send_to_server(
-                    message));
+                    communicator->create_my_new_old_cells_message_to_send_to_server(
+                        neighbor)));
           }
           communicator->set_current_cell(current);
           old_cells_for_backtrack.insert(old_cells_for_backtrack.end(),
@@ -245,7 +248,9 @@ void MstcOnline::scan(CellPtr current) {
       communicator->write_old_cells_message_to_rosbag(message);
       if (communicator->get_ip_server() != "no_need") {
         communicator->send_save_message_to_server(
-            communicator->create_old_cells_message_to_send_to_server(message));
+            communicator->create_old_cells_message_to_send_to_server(
+                communicator->create_my_new_old_cells_message_to_send_to_server(
+                    neighbor)));
       }
       communicator->set_current_cell(current);
       old_cells_for_backtrack.insert(old_cells_for_backtrack.end(), neighbor);

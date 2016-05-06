@@ -540,6 +540,16 @@ std::string MstcCommunicator::create_status_message_to_send_to_server(
   return output_message;
 }
 
+std::string MstcCommunicator::create_my_new_old_cells_message_to_send_to_server(
+    IdentifiableCellPtr new_cell) {
+  std::string return_mess;
+  std::stringstream messsage;
+  messsage << (new_cell)->get_center()->x << "," << (new_cell)->get_center()->y
+      << "," << (new_cell)->get_robot_name() << ";";
+  return_mess.append(messsage.str());
+  return return_mess;
+}
+
 std::string MstcCommunicator::create_old_cells_message_to_send_to_server(
     std::string origin_message) {
   std::string output_message = "[SAVE_OLD_CELLS]|" + origin_message;
@@ -662,7 +672,7 @@ int MstcCommunicator::get_old_cells_message_from_server() {
       if (new_old_cells == "no thing") {
         write_old_cells_message_to_rosbag("");
       } else {
-        write_old_cells_message_to_rosbag (new_old_cells);
+        write_old_cells_message_to_rosbag(new_old_cells);
       }
     }
   }
