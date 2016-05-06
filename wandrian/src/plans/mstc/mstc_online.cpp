@@ -49,12 +49,13 @@ void MstcOnline::initialize(PointPtr starting_point, double tool_size,
 
 void MstcOnline::cover() {
   if (communicator->get_ip_server() != "no_need") {
+    std::cout << "I am in cover";
     communicator->get_old_cells_message_from_server();
   }
-  communicator->read_message_then_update_old_cells();
+  communicator->read_message_from_rosbag_then_update_old_cells();
   communicator->insert_old_cell(starting_cell);
   std::string message = communicator->create_old_cells_message();
-  communicator->write_old_cells_message(message);
+  communicator->write_old_cells_message_to_rosbag(message);
   if (communicator->get_ip_server() != "no_need") {
     communicator->send_save_message_to_server(
         communicator->create_old_cells_message_to_send_to_server(message));
@@ -62,7 +63,7 @@ void MstcOnline::cover() {
   //  communicator->set_current_cell(starting_cell);
   // FIXME
   std::string status = communicator->create_status_message(starting_cell);
-  communicator->write_status_message(status);
+  communicator->write_status_message_to_rosbag(status);
   if (communicator->get_ip_server() != "no_need") {
     communicator->send_save_message_to_server(
         communicator->create_status_message_to_send_to_server(status));
@@ -111,13 +112,13 @@ void MstcOnline::scan(CellPtr current) {
   // FIXME
   status = communicator->create_status_message(
       boost::static_pointer_cast<IdentifiableCell>(current));
-  communicator->write_status_message(status);
+  communicator->write_status_message_to_rosbag(status);
   if (communicator->get_ip_server() != "no_need") {
     communicator->send_save_message_to_server(
         communicator->create_status_message_to_send_to_server(status));
     communicator->get_old_cells_message_from_server();
   }
-  communicator->read_message_then_update_old_cells();
+  communicator->read_message_from_rosbag_then_update_old_cells();
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;32mBEGIN:\033[0m "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
   VectorPtr direction = (current->get_parent()->get_center()
@@ -182,7 +183,7 @@ void MstcOnline::scan(CellPtr current) {
     if (communicator->get_ip_server() != "no_need") {
       communicator->get_old_cells_message_from_server();
     }
-    communicator->read_message_then_update_old_cells();
+    communicator->read_message_from_rosbag_then_update_old_cells();
     if (state_of(neighbor) == OLD) { // Check neighbor with current old cells
       // Go to next sub-cell
       if (communicator->ask_other_robot_still_alive(
@@ -203,10 +204,10 @@ void MstcOnline::scan(CellPtr current) {
           if (communicator->get_ip_server() != "no_need") {
             communicator->get_old_cells_message_from_server();
           }
-          communicator->read_message_then_update_old_cells();
+          communicator->read_message_from_rosbag_then_update_old_cells();
           communicator->insert_old_cell(neighbor);
           std::string message = communicator->create_old_cells_message();
-          communicator->write_old_cells_message(message);
+          communicator->write_old_cells_message_to_rosbag(message);
           if (communicator->get_ip_server() != "no_need") {
             communicator->send_save_message_to_server(
                 communicator->create_old_cells_message_to_send_to_server(
@@ -224,10 +225,10 @@ void MstcOnline::scan(CellPtr current) {
     if (see_obstacle(direction, tool_size / 2)) { // Obstacle
       // Go to next sub-cell
 
-      communicator->read_obstacle_message();
+      communicator->read_obstacle_message_from_rosbag();
       communicator->obstacle_cells.insert(neighbor);
       std::string message = communicator->create_message_from_obstacle_cells();
-      communicator->write_obstacle_message(message);
+      communicator->write_obstacle_message_to_rosbag(message);
 
       communicator->set_current_cell(current);
       go_with(++direction, tool_size);
@@ -238,10 +239,10 @@ void MstcOnline::scan(CellPtr current) {
       if (communicator->get_ip_server() != "no_need") {
         communicator->get_old_cells_message_from_server();
       }
-      communicator->read_message_then_update_old_cells();
+      communicator->read_message_from_rosbag_then_update_old_cells();
       communicator->insert_old_cell(neighbor);
       std::string message = communicator->create_old_cells_message();
-      communicator->write_old_cells_message(message);
+      communicator->write_old_cells_message_to_rosbag(message);
       if (communicator->get_ip_server() != "no_need") {
         communicator->send_save_message_to_server(
             communicator->create_old_cells_message_to_send_to_server(message));

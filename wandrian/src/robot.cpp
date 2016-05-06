@@ -361,17 +361,18 @@ void Robot::process_keyboard_input(char c) {
     break;
   case 'c':
     if (plan_name == "mstc_online") {
-      boost::static_pointer_cast<MstcCommunicator>(communicator)->write_old_cells_message(
+      boost::static_pointer_cast<MstcCommunicator>(communicator)->write_old_cells_message_to_rosbag(
           "");
-      boost::static_pointer_cast<MstcCommunicator>(communicator)->write_status_message(
+      boost::static_pointer_cast<MstcCommunicator>(communicator)->write_status_message_to_rosbag(
           "");
-      boost::static_pointer_cast<MstcCommunicator>(communicator)->write_obstacle_message(
+      boost::static_pointer_cast<MstcCommunicator>(communicator)->write_obstacle_message_to_rosbag(
           "");
     }
     break;
   case 'q':
     if (boost::static_pointer_cast<MstcCommunicator>(communicator)->get_ip_server()
         != "no_need") {
+      boost::static_pointer_cast<MstcCommunicator>(communicator)->send_save_message_to_server("q");
       boost::static_pointer_cast<MstcCommunicator>(communicator)->disconnect_server();
     }
     is_quitting = true;
@@ -399,7 +400,7 @@ void Robot::start_thread_status() {
           communicator)->create_status_message(
           boost::static_pointer_cast<IdentifiableCell>(
               communicator->get_current_cell()));
-      boost::static_pointer_cast<MstcCommunicator>(communicator)->write_status_message(
+      boost::static_pointer_cast<MstcCommunicator>(communicator)->write_status_message_to_rosbag(
           status);
       boost::static_pointer_cast<MstcCommunicator>(communicator)->send_save_message_to_server(
           boost::static_pointer_cast<MstcCommunicator>(communicator)->create_status_message_to_send_to_server(

@@ -200,17 +200,26 @@ int main(int argc, char* argv[]) {
                 break;
               case 3:
                 std::cout << "Status in server" << status << "\n";
-                strcpy(message, status.c_str());
+                if (status == ""){
+                  strcpy(message, "no thing");
+                }else{
+                  strcpy(message, status.c_str());
+                }
                 break;
               case 4:
                 std::cout << "OLD CELLS in server" << old_cells << "\n";
-                strcpy(message, old_cells.c_str());
+                if (old_cells == ""){
+                  strcpy(message, "no thing");
+                }else{
+                  strcpy(message, old_cells.c_str());
+                }
                 break;
               }
             }
             i++;
           }
           countSendData = send(fd, message, strlen(message), 0);
+          // std::cout << "Sent data";
           // message=malloc(MAX_SIZE);
           message = (char*) malloc(MAX_SIZE);
           strcpy(message, "");

@@ -33,7 +33,7 @@ MstcCommunicator::MstcCommunicator() {
 MstcCommunicator::~MstcCommunicator() {
 }
 
-void MstcCommunicator::write_old_cells_message(std::string message) {
+void MstcCommunicator::write_old_cells_message_to_rosbag(std::string message) {
   // Write old cells
   ROS_INFO("[Writing]My old cells: %s", message.data());
   rosbag::Bag bag;
@@ -44,7 +44,7 @@ void MstcCommunicator::write_old_cells_message(std::string message) {
   bag.close();
 }
 
-void MstcCommunicator::write_status_message(std::string status) {
+void MstcCommunicator::write_status_message_to_rosbag(std::string status) {
   // Write status
   rosbag::Bag status_bag;
   ROS_INFO("[Writing status]Status: %s", status.data());
@@ -102,8 +102,8 @@ std::string MstcCommunicator::create_status_message(
   return all_robots_new_status;
 }
 
-void MstcCommunicator::read_message_then_update_old_cells() {
-  update_old_cells_from_message(read_old_cells_message());
+void MstcCommunicator::read_message_from_rosbag_then_update_old_cells() {
+  update_old_cells_from_message(read_old_cells_message_from_rosbag());
 }
 
 bool MstcCommunicator::ask_other_robot_still_alive(
@@ -265,13 +265,13 @@ void MstcCommunicator::insert_old_cell(IdentifiableCellPtr cell) {
               this->get_robot_name())));
 }
 
-std::string MstcCommunicator::read_old_cells_message() {
+std::string MstcCommunicator::read_old_cells_message_from_rosbag() {
   rosbag::Bag bag;
   std::string msg;
   try {
     bag.open("message.bag", rosbag::bagmode::Read);
   } catch (rosbag::BagIOException &e) {
-    write_old_cells_message("");
+    write_old_cells_message_to_rosbag("");
     bag.open("message.bag", rosbag::bagmode::Read);
   }
   std::vector<std::string> topics;
@@ -325,7 +325,7 @@ std::string MstcCommunicator::read_status_message() {
   try {
     status_bag.open("status.bag", rosbag::bagmode::Read);
   } catch (rosbag::BagIOException &e) {
-    write_status_message("");
+    write_status_message_to_rosbag("");
     status_bag.open("status.bag", rosbag::bagmode::Read);
   }
   std::vector<std::string> topics;
@@ -353,7 +353,7 @@ void MstcCommunicator::clear_robots_dead_old_cells(std::string dead_robot_name,
   boost::char_separator<char> split_point(",");
 
   // Read old cells data from ros bag
-  std::string old_old_cells = read_old_cells_message();
+  std::string old_old_cells = read_old_cells_message_from_rosbag();
   std::string new_old_cells;
   // Clear dead robot's old cells
   boost::char_separator<char> split_old_cell(";");
@@ -407,8 +407,8 @@ void MstcCommunicator::clear_robots_dead_old_cells(std::string dead_robot_name,
   old_cells.push_back(old_cell);
 
 // Write new old cells to ros bag and update status all robots
-  write_old_cells_message(new_old_cells);
-  write_status_message(last_status);
+  write_old_cells_message_to_rosbag(new_old_cells);
+  write_status_message_to_rosbag(last_status);
 }
 
 bool MstcCommunicator::get_is_backtracking() const {
@@ -421,7 +421,7 @@ void MstcCommunicator::set_is_backtracking(bool isBacktracking) {
 
 // Start handle obstacle
 
-void MstcCommunicator::write_obstacle_message(std::string message) {
+void MstcCommunicator::write_obstacle_message_to_rosbag(std::string message) {
   ROS_INFO("[Writing]My obstacle cells: %s", message.data());
   rosbag::Bag obstacle_bag;
   obstacle_bag.open("obstacle.bag", rosbag::bagmode::Write);
@@ -431,14 +431,14 @@ void MstcCommunicator::write_obstacle_message(std::string message) {
   obstacle_bag.close();
 }
 
-void MstcCommunicator::read_obstacle_message() {
+void MstcCommunicator::read_obstacle_message_from_rosbag() {
   ROS_INFO("I am Here");
   rosbag::Bag obstacle_bag;
   std::string msg;
   try {
     obstacle_bag.open("obstacle.bag", rosbag::bagmode::Read);
   } catch (rosbag::BagIOException &e) {
-    write_obstacle_message("");
+    write_obstacle_message_to_rosbag("");
     obstacle_bag.open("obstacle.bag", rosbag::bagmode::Read);
   }
   std::vector<std::string> topics;
@@ -576,7 +576,7 @@ int MstcCommunicator::get_status_message_from_server() {
   char *sendMes = (char *) malloc(MAX_SIZE);
   char *recvMes = (char *) malloc(MAX_SIZE);
   std::string new_status;
-
+  std::cout << "I am here, old cells";
   strcpy(sendMes, "[GIVE_ME_STATUS]|_");
   strcpy(recvMes, "");
   countSendData = send(sockfd, sendMes, strlen(sendMes), 0);
@@ -590,6 +590,7 @@ int MstcCommunicator::get_status_message_from_server() {
       printf("Receive data failed!\n");
       return 1;
     } else {
+      printf("Received data!\n");
       countTotalRecvData = countTotalRecvData + countRecvData;
       // printf("Server reply: %s\n", recvMes);
       new_status.assign(recvMes, countRecvData);
@@ -609,7 +610,11 @@ int MstcCommunicator::get_status_message_from_server() {
       //     i++;
       //   }
       // }
-      write_status_message(new_status);
+      if (new_status == "no thing") {
+        write_status_message_to_rosbag("");
+      } else {
+        write_status_message_to_rosbag(new_status);
+      }
     }
   }
   return 0;
@@ -619,7 +624,7 @@ int MstcCommunicator::get_old_cells_message_from_server() {
   char *sendMes = (char *) malloc(MAX_SIZE);
   char *recvMes = (char *) malloc(MAX_SIZE);
   std::string new_old_cells;
-
+  std::cout << "I am here, old cells";
   strcpy(sendMes, "[GIVE_ME_OLD_CELLS]|_");
   strcpy(recvMes, "");
   countSendData = send(sockfd, sendMes, strlen(sendMes), 0);
@@ -633,6 +638,7 @@ int MstcCommunicator::get_old_cells_message_from_server() {
       printf("Receive data failed!\n");
       return 1;
     } else {
+      printf("Received data!\n");
       countTotalRecvData = countTotalRecvData + countRecvData;
       // printf("Server reply: %s\n", recvMes);
       new_old_cells.assign(recvMes, countRecvData);
@@ -653,7 +659,11 @@ int MstcCommunicator::get_old_cells_message_from_server() {
       //     i++;
       //   }
       // }
-      write_old_cells_message(new_old_cells);
+      if (new_old_cells == "no thing") {
+        write_old_cells_message_to_rosbag("");
+      } else {
+        write_old_cells_message_to_rosbag (new_old_cells);
+      }
     }
   }
   return 0;

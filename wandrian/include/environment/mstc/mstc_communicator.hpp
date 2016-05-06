@@ -42,18 +42,18 @@ public:
   MstcCommunicator();
   ~MstcCommunicator();
 
-  void write_old_cells_message(std::string); // Write old cells
-  void write_status_message(std::string);
+  void write_old_cells_message_to_rosbag(std::string); // Write old cells
+  void write_status_message_to_rosbag(std::string);
   std::string create_old_cells_message();
   std::string create_status_message(IdentifiableCellPtr); // robot_name, last x, last y, last time update, status
-  void read_message_then_update_old_cells(); // Read old cells data, update to local old cells
+  void read_message_from_rosbag_then_update_old_cells(); // Read old cells data, update to local old cells
 
   bool ask_other_robot_still_alive(std::string);
   std::string find_robot_name(IdentifiableCellPtr);
   bool find_old_cell(IdentifiableCellPtr);
   void insert_old_cell(IdentifiableCellPtr);
 
-  std::string read_old_cells_message(); // Read old cells data, no update to local old cells
+  std::string read_old_cells_message_from_rosbag(); // Read old cells data, no update to local old cells
   void update_old_cells_from_message(std::string);
   std::string read_status_message(); // Read status data from ros bag
   void clear_robots_dead_old_cells(std::string, std::string, std::string);
@@ -61,8 +61,8 @@ public:
   bool get_is_backtracking() const; // Check backtracking in function scan() of mstc_online.cpp
   void set_is_backtracking(bool = false);
 
-  void write_obstacle_message(std::string);
-  void read_obstacle_message();
+  void write_obstacle_message_to_rosbag(std::string);
+  void read_obstacle_message_from_rosbag();
   std::string create_message_from_obstacle_cells();
   void update_obstacle_cells_from_message(std::string);
 
