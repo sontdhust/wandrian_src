@@ -31,23 +31,33 @@ public:
   static bool compare_positions_y(boost::shared_ptr<Vertices>,
       boost::shared_ptr<Vertices>);
 
-  PointPtr get_position();
-  PolygonPtr get_polygon();
   void set_positions(PointPtr);
-  void set_polygon(RectanglePtr);
+  void set_upper_point(PointPtr );
+  void set_below_point(PointPtr );
 
+  PointPtr get_position();
   PointPtr get_below_point();
-  void set_below_point(PointPtr below_point);
   PointPtr get_upper_point();
-  void set_upper_point(PointPtr uppper_point);
+
   int type_vertice;
   bool is_of_obstacles;
   bool is_obstacles_upper;
   bool is_obstacles_below;
   void set_is_obstacles_upper(PolygonPtr , double);
   void set_is_obstacles_below(PolygonPtr , double);
-  void set_type_vertices();
+  static void update_list_vertices(std::list< boost::shared_ptr<Vertices> >,
+		  	  	  	  	   PointPtr, PointPtr, PointPtr);
+  static void update_list_segment(std::list<SegmentPtr>,SegmentPtr, PointPtr);
+  static void print_info_list_vertices(std::list< boost::shared_ptr<Vertices> >);
+  static SegmentPtr get_segment_contain_nearest_intersect_point
+  (std::list<SegmentPtr>,PointPtr,double);
+  static PointPtr get_point_x_litte(SegmentPtr);
+  static PointPtr get_point_x_large(SegmentPtr);
+
 private:
+  void set_near_point(PointPtr, PointPtr);
+  void set_type_vertices();
+  int number_intersect(PolygonPtr , double);
   PointPtr position;
   PointPtr upper_point;
   PointPtr below_point;

@@ -43,7 +43,6 @@ bool Boustrophedon::go_to(PointPtr position, bool flexibility) {
 }
 
 bool Boustrophedon::go_into(SpacePtr space) {
-//TODO: Run with space is trapezoid
   double x,y;
   double d_upper, d_below, d_y;
   PointPtr starting_point;
@@ -132,37 +131,181 @@ void Boustrophedon::dfs(SpacePtr space) {
 
 std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
     std::list<VerticesPtr> list_vertices) {
-  std::list<VerticesPtr> listvertices_temp;
   std::list<VerticesPtr>::iterator inspectLV;
-  std::list<VerticesPtr>::iterator inspectLVT;
+  std::list<SegmentPtr> list_segment;
+  std::list<SegmentPtr>::iterator u;
   std::list<SpacePtr> list_space;
   std::list<SpacePtr>::iterator inspectLS;
   std::list<SpacePtr>::iterator inspectLS_temp;
-  PointPtr center_temp;
+  std::list<PointPtr> list_point_of_space;
+
+  SegmentPtr segment_upper, segment_below, segment_temp, segment_intersect;
   int i = 1, j = 1;
-  double size_x = 0, size_y = 0;
   VerticesPtr vertices_previous;
+  PointPtr temp_point;
   std::list<PointPtr> list_point;
   std::list<PointPtr>::iterator inspectLP;
 
-  // Create list space!
+
+  for (inspectLV=list_vertices.begin(), j =1;inspectLV!=list_vertices.end() ; ++inspectLV) {
+	  std::cout<<"Current Vertices "<< j++<< " :("<<(*inspectLV)->get_position()->x <<" ,"
+			  	  	  	  	  	  	   <<(*inspectLV)->get_position()->y<<" )\n";
+	  //Print current segment
+//	  std::cout<<"List current segment :\n";
+//      for(u = list_segment.begin(), i=1; u!= list_segment.end(); ++u){
+//    	  std::cout<<"Segment "<<i++<<":\n"<<" Point 1:("<<(*u)->p1->x<<" ,"<<(*u)->p1->y<<" )\n"
+//    			  	  	  	  	  	  	   <<" Point 2:("<<(*u)->p2->x<<" ,"<<(*u)->p2->y<<" )\n";
+//      }
+	  if((list_segment.size() == 0)&&(inspectLV == list_vertices.begin())){
+		  list_segment.push_back(SegmentPtr(new Segment((*inspectLV)->get_position(),(*inspectLV)->get_upper_point())));
+		  ++inspectLV;
+		  list_segment.push_back(SegmentPtr(new Segment((*inspectLV)->get_position(),(*inspectLV)->get_below_point())));
+		  continue;
+	  }
+	  if(list_segment.size() ==0) break;
+	  //Create list space! Important!
+	  //1 Create list point of space
+	  //2 Update list segment
+	  //3 Update list vertices
+	  list_point_of_space.clear();
+	  segment_temp = SegmentPtr(new Segment((*inspectLV)->get_position()->x, (*inspectLV)->get_position()->y -
+					 environment->get_height(),(*inspectLV)->get_position()->x,
+			 		 (*inspectLV)->get_position()->y + 2*environment->get_height()));
+	  if(!(*inspectLV)->is_obstacles_upper){
+		segment_upper = Vertices::get_segment_contain_nearest_intersect_point(list_segment,
+			 			(*inspectLV)->get_position(),environment->get_height());
+	  }
+	  if(!(*inspectLV)->is_obstacles_below){
+		segment_below = Vertices::get_segment_contain_nearest_intersect_point(list_segment,
+		 			  (*inspectLV)->get_position(),-environment->get_height());
+	  }
+	  switch((*inspectLV)->type_vertice){
+	  case 1:
+		  std::cout<<"Type Vertices :"<<(*inspectLV)->type_vertice<<"\n";
+		  if(!(*inspectLV)->is_obstacles_upper){
+			list_point_of_space.push_back((*inspectLV)->get_upper_point());
+			list_point_of_space.push_back(Vertices::get_point_x_litte(segment_upper));
+			list_point_of_space.push_back(segment_upper%segment_temp);
+			list_point_of_space.push_back((*inspectLV)->get_position());
+			list_space.push_back(SpacePtr(new Space(list_point_of_space)));
+			list_point_of_space.clear();
+			Vertices::update_list_vertices(list_vertices, Vertices::get_point_x_large(segment_upper),
+					  Vertices::get_point_x_litte(segment_upper), segment_temp%segment_upper);
+			Vertices::update_list_segment(list_segment,segment_upper, segment_upper%segment_temp);
+			list_point_of_space.push_back(Vertices::get_point_x_litte(segment_below));
+			list_point_of_space.push_back((*inspectLV)->get_below_point());
+			list_point_of_space.push_back((*inspectLV)->get_position());
+			list_point_of_space.push_back(segment_below%segment_temp);
+			Vertices::update_list_vertices(list_vertices, Vertices::get_point_x_large(segment_below),
+					  Vertices::get_point_x_litte(segment_below), segment_temp%segment_below);
+			Vertices::update_list_segment(list_segment,segment_below, segment_below%segment_temp);
+			}else{
+				list_point_of_space.push_back((*inspectLV)->get_below_point());
+				list_point_of_space.push_back((*inspectLV)->get_upper_point());
+				list_point_of_space.push_back((*inspectLV)->get_position());
+			}
+		  list_segment.remove(SegmentPtr(new Segment((*inspectLV)->get_below_point(),(*inspectLV)->get_position())));
+		  list_segment.remove(SegmentPtr(new Segment((*inspectLV)->get_upper_point(),(*inspectLV)->get_position())));
+		  break;
+	  case 2:
+		  std::cout<<"Type Vertices :"<<(*inspectLV)->type_vertice<<"\n";
+		  if(!(*inspectLV)->is_obstacles_upper){
+			  segment_intersect = segment_upper;
+			  list_point_of_space.push_back((*inspectLV)->get_below_point());
+			  list_point_of_space.push_back(Vertices::get_point_x_litte(segment_upper));
+			  list_point_of_space.push_back(segment_upper%segment_temp);
+			  list_point_of_space.push_back((*inspectLV)->get_position());
+		  }else{
+			  segment_intersect = segment_below;
+			  list_point_of_space.push_back(Vertices::get_point_x_litte(segment_below));
+			  list_point_of_space.push_back((*inspectLV)->get_below_point());
+			  list_point_of_space.push_back((*inspectLV)->get_position());
+			  list_point_of_space.push_back(segment_below%segment_temp);
+		  }
+		  Vertices::update_list_vertices(list_vertices, Vertices::get_point_x_large(segment_intersect),
+				  	  	  	 Vertices::get_point_x_litte(segment_intersect), segment_temp%segment_intersect);
+		  Vertices::update_list_segment(list_segment,segment_intersect, segment_intersect%segment_temp);
+		  list_segment.remove(SegmentPtr(new Segment((*inspectLV)->get_below_point(),(*inspectLV)->get_position())));
+		  list_segment.push_back(SegmentPtr(new Segment((*inspectLV)->get_upper_point(),(*inspectLV)->get_position())));
+		  break;
+	  case 3:
+		  std::cout<<"Type Vertices :"<<(*inspectLV)->type_vertice<<"\n";
+		  if(!(*inspectLV)->is_obstacles_upper){
+			segment_intersect = segment_upper;
+			list_point_of_space.push_back((*inspectLV)->get_upper_point());
+			list_point_of_space.push_back(Vertices::get_point_x_litte(segment_upper));
+			list_point_of_space.push_back(segment_upper%segment_temp);
+			list_point_of_space.push_back((*inspectLV)->get_position());
+		  }else{
+			segment_intersect = segment_below;
+			list_point_of_space.push_back(Vertices::get_point_x_litte(segment_below));
+			list_point_of_space.push_back((*inspectLV)->get_upper_point());
+			list_point_of_space.push_back((*inspectLV)->get_position());
+			list_point_of_space.push_back(segment_below%segment_temp);
+		  }
+		  Vertices::update_list_vertices(list_vertices, Vertices::get_point_x_large(segment_intersect),
+				  	  	  	 Vertices::get_point_x_litte(segment_intersect), segment_temp%segment_intersect);
+		  Vertices::update_list_segment(list_segment,segment_intersect, segment_intersect%segment_temp);
+		  list_segment.remove(SegmentPtr(new Segment((*inspectLV)->get_upper_point(),(*inspectLV)->get_position())));
+		  list_segment.push_back(SegmentPtr(new Segment((*inspectLV)->get_below_point(),(*inspectLV)->get_position())));
+		  break;
+	  case 4:
+		  std::cout<<"Type Vertices :"<<(*inspectLV)->type_vertice<<"\n";
+		  if(!(*inspectLV)->is_obstacles_upper){
+		 	list_point_of_space.push_back(Vertices::get_point_x_litte(segment_below));
+		 	list_point_of_space.push_back(Vertices::get_point_x_litte(segment_upper));
+		 	list_point_of_space.push_back(segment_upper%segment_temp);
+		 	list_point_of_space.push_back(segment_below%segment_temp);
+			Vertices::update_list_vertices(list_vertices, Vertices::get_point_x_large(segment_upper),
+					  Vertices::get_point_x_litte(segment_upper), segment_temp%segment_upper);
+			Vertices::update_list_segment(list_segment,segment_upper, segment_upper%segment_temp);
+			Vertices::update_list_vertices(list_vertices, Vertices::get_point_x_large(segment_below),
+					  Vertices::get_point_x_litte(segment_below), segment_temp%segment_below);
+			Vertices::update_list_segment(list_segment,segment_below, segment_below%segment_temp);
+		 	}
+		  	list_segment.push_back(SegmentPtr(new Segment((*inspectLV)->get_below_point(),(*inspectLV)->get_position())));
+		  	list_segment.push_back(SegmentPtr(new Segment((*inspectLV)->get_upper_point(),(*inspectLV)->get_position())));
+		  break;
+	  case 5:
+		  std::cout<<"Type Vertices :"<<(*inspectLV)->type_vertice<<"\n";
+		  if((*inspectLV)->is_obstacles_upper||(!(*inspectLV)->is_of_obstacles)){
+			  temp_point = (*inspectLV)->get_upper_point();
+			  ++inspectLV;
+			  list_point_of_space.push_back((*inspectLV)->get_below_point());
+			  list_point_of_space.push_back(temp_point);
+			  list_point_of_space.push_back((*inspectLV)->get_upper_point());
+			  list_point_of_space.push_back((*inspectLV)->get_position());
+		  }
+		  break;
+	  case 6:
+		  std::cout<<"\nType Vertices :"<<(*inspectLV)->type_vertice<<"\n";
+		  break;
+	  default:
+		  std::cout<<"\nType Vertices :"<<(*inspectLV)->type_vertice<<"\n";
+		  break;
+	  }
+	  if(Space::list_point_fit(list_point_of_space)){
+		  list_space.push_back(SpacePtr(new Space(list_point_of_space)));
+	  }
+  }
   std::cout << "Starting add parent!" << "\n";
   list_space.sort(Space::compare_positions_x);
+  Space::print_list_space(list_space);
   std::cout << list_space.size() << "\n";
-  for (inspectLS = --list_space.end(), i = 1; inspectLS != list_space.end();
-      --inspectLS) {
-    for (inspectLS_temp = list_space.begin(), i = 1;
-        inspectLS_temp != list_space.end(); ++inspectLS_temp) {
-      if (Space::is_parent(*inspectLS_temp, *inspectLS)) {
-        (*inspectLS_temp)->children.push_back(*inspectLS);
-        (*inspectLS)->set_parent(*inspectLS_temp);
-        (*inspectLS)->set_point_backtrack(*inspectLS_temp, *inspectLS,
-            robot_size);
-        break;
-      }
-      std::cout << "Find \n";
-    }
-  }
+//  for (inspectLS = --list_space.end(), i = 1; inspectLS != list_space.end();
+//      --inspectLS) {
+//    for (inspectLS_temp = list_space.begin(), i = 1;
+//        inspectLS_temp != list_space.end(); ++inspectLS_temp) {
+//      if (Space::is_parent(*inspectLS_temp, *inspectLS)) {
+//        (*inspectLS_temp)->children.push_back(*inspectLS);
+//        (*inspectLS)->set_parent(*inspectLS_temp);
+//        (*inspectLS)->set_point_backtrack(*inspectLS_temp, *inspectLS,
+//            robot_size);
+//        break;
+//      }
+//      std::cout << "Find \n";
+//    }
+//  }
   return list_space;
 }
 
@@ -177,7 +320,6 @@ std::list<VerticesPtr> Boustrophedon::create_list_vertices(
   VerticesPtr temp;
   bool is_of_obstacle;
   int i = 1, j = 1;
-  std::cout<<"Create Vertices \n";
   list_obstacle.push_front(environment);
   for (inspectLO = list_obstacle.begin(), i = 1; inspectLO != list_obstacle.end();
       ++inspectLO) {
@@ -200,11 +342,9 @@ std::list<VerticesPtr> Boustrophedon::create_list_vertices(
         }
     	temp = VerticesPtr(new Vertices(position, near_point, *inspectLP, is_of_obstacle));
     	if(is_of_obstacle){
-    		std::cout<<"\nSet obstacles :("<<position->x<<" ,"<<position->y<<" )\n";
     		temp->set_is_obstacles_upper(*inspectLO, environment->get_height());
     		temp->set_is_obstacles_below(*inspectLO, environment->get_height());
     	}
-    	//list_vertices.push_back(VerticesPtr(new Vertices(position, near_point, *inspectLP, is_of_obstacle)));
     	list_vertices.push_back(temp);
     	near_point = position;
     	position = PointPtr(new Point((*inspectLP)->x, (*inspectLP)->y));
@@ -219,57 +359,18 @@ void Boustrophedon::boustrophedon_cd() {
   std::list<VerticesPtr> list_vertices;
   std::list<SpacePtr> list_space;
   std::list<SpacePtr>::iterator inspectLS;
-  std::list<PolygonPtr> list_object;
-  std::list<PolygonPtr>::iterator inspectLO;
-  std::list<PointPtr> list_point;
-  std::list<PointPtr>::iterator inspectLP;
-  std::list<VerticesPtr>::iterator u;
   SegmentPtr s1,s2;
   int i, j;
   PointPtr point_temp;
-  SpacePtr test_func_into;
 
    //Create vertices
   list_vertices = create_list_vertices(map->get_boundary(),
       map->get_extendedmap_obstacles());
-  for(u = list_vertices.begin(), i=1; u!= list_vertices.end();++u){
-	  std::cout<<"Vertices "<< i++<<" : ("<<(*u)->get_position()->x<<" , "
-			  	  	  	  	  	  	  	 <<(*u)->get_position()->y<<" )\n";
-	  std::cout<<"Upper "<<" : ("<<(*u)->get_upper_point()->x<<" , "
-	  			  	  	   	  	<<(*u)->get_upper_point()->y<<" )\n";
-	  std::cout<<"Below "<<" : ("<<(*u)->get_below_point()->x<<" , "
-	 	  			  	  	   	 <<(*u)->get_below_point()->y<<" )\n";
-	  std::cout<<"Type Vertices :"<<(*u)->type_vertice<<"\n";
-	  std::cout<<"Upper:\n";
-	  if((*u)->is_of_obstacles){
-		  std::cout<<" Vertices is obstacles!\n";
-	  }
-	  std::cout<<"\n";
-  }
+
   //Create Space
-  	 s1 = SegmentPtr(new Segment(PointPtr(new Point(0,-1)), PointPtr(new Point(0,0))));
-  	 s2 = SegmentPtr(new Segment(PointPtr(new Point(0.5,-0.5)), PointPtr(new Point(-0.5,1.5))));
-//  	 s1 = SegmentPtr(new Segment(0,-1, 0, 2));
-//  	 s2 = SegmentPtr(new Segment(0.5,-0.5,-0.5,1.5));
-  	 point_temp = s1%s2;
-  	 if(point_temp){
-  		 std::cout<<"This : ("<<point_temp->x<<" ,"<<point_temp->y<<" )\n";
-  	 }else{
-  		 std::cout<<"Eo giao!"<<"\n";
-  	 }
-// list_space = create_list_space(map->get_boundary(), list_vertices);
+  list_space = create_list_space(map->get_boundary(), list_vertices);
 
-  list_object = map->get_extendedmap_obstacles();
 
-  for(inspectLO = list_object.begin(), i =1; inspectLO != list_object.end();
-	  ++inspectLO){
-	  std::cout<<"O"<<i++<<" :\n";
-	  list_point = (*inspectLO)->get_boundary();
-	  for(inspectLP = list_point.begin(), j=1;inspectLP != list_point.end();
-		 ++inspectLP){
-		  std::cout<<"P"<<j++<<" ("<<(*inspectLP)->x <<","<< (*inspectLP)->y<<" )"<<" \n";
-	  }
-  }
 
  //  map->number_space_need_visit = list_space.size();
 //  for (inspectLS = list_space.begin(), i = 1; inspectLS != list_space.end();

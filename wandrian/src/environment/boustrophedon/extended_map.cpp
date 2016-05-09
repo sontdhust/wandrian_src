@@ -49,7 +49,6 @@ void ExtendedMap::build() {
               line.substr(flag_start + 1, flag_end - flag_start - 1));
           list_point_temp.push_back(temp_point);
         }
-
         if (!this->boundary) {
         	 i = 0;
      	     for (std::list<PointPtr>::iterator u = list_point_temp.begin();
@@ -66,12 +65,10 @@ void ExtendedMap::build() {
         	          }
         	          i++;
         	          if (i == 4) {
-        	            std::cout << size_x << " " << size_y << std::endl;
         	            center = PointPtr(
         	                new Point((*u)->x - size_x / 2, (*u)->y + size_y / 2));
         	          }
         	       }
-
           this->boundary = RectanglePtr(new Rectangle(center, size_x, size_y));
         } else {
           this->extendedmap_obstacle.push_back(PolygonPtr(new Polygon(list_point_temp)));

@@ -14,7 +14,7 @@
 #include <boost/next_prior.hpp>
 #include <sstream>
 #include <fstream>
-#include "../include/environment/map.hpp"
+#include "../include/environment/boustrophedon/extended_map.hpp"
 #include "../include/plans/boustrophedon/boustrophedon.hpp"
 
 #define R_SIZE 0.5 // robot size
@@ -26,7 +26,7 @@ using namespace wandrian::plans::boustrophedon;
 
 double e_size = 0;
 double r_size = 0;
-MapPtr map;
+ExtendedMapPtr map;
 PointPtr starting_point;
 std::list<PointPtr> actual_path;
 /**
@@ -92,10 +92,10 @@ void display() {
   // Environment
   glColor3ub(255, 0, 0);
   draw(map->get_boundary()->get_boundary(), GL_LINE_STRIP);
-  std::list<RectanglePtr> obstacles = map->get_obstacles();
-  for (std::list<RectanglePtr>::iterator obstacle = obstacles.begin();
+  std::list<PolygonPtr> obstacles = map->get_extendedmap_obstacles();
+  for (std::list<PolygonPtr>::iterator obstacle = obstacles.begin();
       obstacle != obstacles.end(); obstacle++) {
-    draw((*obstacle)->get_boundary(), GL_POLYGON);
+    draw((*obstacle)->get_points(), GL_LINE_STRIP);
   }
 
   // Starting point
@@ -176,7 +176,6 @@ int main(int argc, char **argv) {
   } else {
     e_size = E_SIZE;
   }
-  std::cout<<"E size :"<< E_SIZE<<"e size"<<e_size <<std::cout;
   if (argc >= 3) {
     std::istringstream iss(argv[2]);
     if (!(iss >> r_size)) {

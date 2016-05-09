@@ -73,7 +73,9 @@ inline PointPtr operator%(SegmentPtr s1, SegmentPtr s2) {
       return PointPtr();
   }
 }
-
+inline bool operator==(SegmentPtr s1, SegmentPtr s2) {
+  return (((s1->p1 == s2->p1)&&(s1->p2 == s2->p2))||((s1->p1 == s2->p2)&&(s1->p2 == s2->p1)));
+}
 inline bool operator<(SegmentConstPtr s1, SegmentConstPtr s2) {
   return s1->p1 != s2->p1 ? s1->p1 < s2->p1 : s1->p2 < s2->p2;
 }
