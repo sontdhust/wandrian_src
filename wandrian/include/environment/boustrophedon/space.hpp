@@ -22,10 +22,12 @@ public:
   Space(std::list<PointPtr>);
   std::list<boost::shared_ptr<Space> > children;
   bool status_visited;
-  PointPtr point_backtrack;
-
+  PointPtr backtrack_point;
+  PointPtr starting_point;
   VerticesPtr get_vertices_upper();
   VerticesPtr get_vertices_below();
+  SegmentPtr segment_below, segment_upper;
+  void set_stating_point(double,double);
   void set_vertices_upper(VerticesPtr);
   void set_vertices_below(VerticesPtr);
   void set_parent(boost::shared_ptr<Space>);

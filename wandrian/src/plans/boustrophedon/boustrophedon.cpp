@@ -42,90 +42,83 @@ bool Boustrophedon::go_to(PointPtr position, bool flexibility) {
   return BasePlan::go_to(position, flexibility);
 }
 
-bool Boustrophedon::go_into(SpacePtr space) {
+bool Boustrophedon::go_into(SpacePtr space, double size_y) {
   double x,y;
   double d_upper, d_below, d_y;
-  PointPtr starting_point;
-  PointPtr last_position;
-  PointPtr new_position;
-  VerticesPtr below_vertices, upper_vertices;
+  PointPtr starting_point, last_position,new_position;
+  PointPtr intersect_upper, intersect_below;
+  SegmentPtr segment_cut;
+  VerticesPtr below_vertices;
   double flag;
-  below_vertices = space->get_vertices_below();
-  upper_vertices = space->get_vertices_upper();
-  d_upper = robot_size *(upper_vertices->get_upper_point()->y - upper_vertices->get_position()->y)/
-		  (upper_vertices->get_upper_point()->x - upper_vertices->get_position()->x);
-  d_below = -robot_size *(below_vertices->get_below_point()->y - below_vertices->get_position()->y)/
-		  (below_vertices->get_below_point()->x - below_vertices->get_position()->x);
-  std::cout <<"D_upper : "<< d_upper<<"\n";
-  std::cout <<"D_below : "<< d_below<<"\n";
-  //Starting point
-  x = below_vertices->get_position()->x + robot_size/2;
-  y = below_vertices->get_position()->y + d_below/2;
-  std::cout <<"Starting Point: ("<< x <<","<< y <<") \n";
-  starting_point = PointPtr(new Point(x, y));
-  go_to(starting_point, STRICTLY);
-  std::cout << "\033[1;34mLast_position-\033[0m\033[1;31m\033[0m: "
-      << starting_point->x << "," << starting_point->y << "\n";
-  //2 two segment //
 
+  below_vertices = space->get_vertices_below();
+  go_to(space->starting_point, STRICTLY);
+  std::cout << "\033[1;34mStarting Point-\033[0m\033[1;31m\033[0m: "
+      << space->starting_point->x << "," << space->starting_point->y << "\n";
   flag = robot_size;
-  d_y = below_vertices->get_upper_point()->y-below_vertices->get_position()->y;
   for (int i = 0; i < int((below_vertices->get_below_point()->x-below_vertices->get_position()->x)
-  / robot_size + EPSILON); ++i) {
+		  / robot_size + EPSILON); ++i) {
+      segment_cut = SegmentPtr(new Segment(below_vertices->get_position()->x + (i*2+1)*robot_size/2,
+    		  	  	  	  	  	  	  	   below_vertices->get_position()->y - size_y,
+    		  	  	  	  	  	  	  	   below_vertices->get_position()->x + (i*2+1)*robot_size/2,
+    		  	  	  	  	  	  	  	   below_vertices->get_position()->y + 2*size_y));
+      intersect_below = segment_cut%space->segment_below;
+      intersect_upper = segment_cut%space->segment_upper;
+      d_y = intersect_upper->y - intersect_below->y - robot_size;
     if (i != 0) {
       last_position = path.back();
-      new_position = PointPtr(
-          new Point(last_position->x + robot_size, last_position->y));
-      go_to(new_position, STRICTLY);
+      if(flag > 0){
+    	 new_position = PointPtr(
+    			 	 	 new Point(intersect_below->x , intersect_below->y + robot_size/2));
+    	 go_to(new_position, STRICTLY);
+      }else{
+    	  new_position = PointPtr(
+    			  	  	 new Point(intersect_upper->x , intersect_upper->y - robot_size/2));
+    	  go_to(new_position, STRICTLY);
+      }
     }
-    std::cout << "\033[1;34mNumber_line-\033[0m\033[1;31m\033[0m: " << i
-        << "\n";
-    if(flag > 0){
-    	d_y = d_y + d_upper;
+    last_position = path.back();
+    if(flag>0){
+      new_position = PointPtr(new Point(last_position->x, intersect_upper->y - flag/2));
     }else{
-    	d_y = d_y + d_below;
+      new_position = PointPtr(new Point(last_position->x, intersect_below->y - flag/2));
     }
-    for (int j = 0; j < int(d_y / robot_size + EPSILON); ++j) {
-      last_position = path.back();
-      new_position = PointPtr(
-          new Point(last_position->x, last_position->y + flag));
-      go_to(new_position, STRICTLY);
-    }
+    go_to(new_position, STRICTLY);
     flag = -flag;
   }
   return true;
 }
 
-void Boustrophedon::dfs(SpacePtr space) {
+void Boustrophedon::dfs(SpacePtr space, double size_y) {
   std::list<SpacePtr>::iterator inspectLC;
   space->status_visited = true;
   double x, y;
-  go_into(space);
+  go_into(space, size_y);
   map->number_space_need_visit--;
   for (inspectLC = space->children.begin(); inspectLC != space->children.end();
       ++inspectLC) {
     if ((*inspectLC)->status_visited == false) {
-      go_to((*inspectLC)->point_backtrack, STRICTLY);
+      go_to((*inspectLC)->backtrack_point, STRICTLY);
       go_to(
           PointPtr(
-              new Point((*inspectLC)->point_backtrack->x + robot_size,
-                  (*inspectLC)->point_backtrack->y)), STRICTLY);
-      dfs(*inspectLC);
+              new Point((*inspectLC)->backtrack_point->x + robot_size,
+                  (*inspectLC)->backtrack_point->y)), STRICTLY);
+      dfs(*inspectLC, size_y);
       if(map->number_space_need_visit > 1){
     	  go_to(
     	        PointPtr(
-    	        new Point((*inspectLC)->point_backtrack->x + robot_size,
-    	                  (*inspectLC)->point_backtrack->y)), STRICTLY);
-    	  go_to((*inspectLC)->point_backtrack, STRICTLY);
+    	        new Point((*inspectLC)->backtrack_point->x + robot_size,
+    	                  (*inspectLC)->backtrack_point->y)), STRICTLY);
+    	  go_to((*inspectLC)->backtrack_point, STRICTLY);
       }
     }
   }
-  if ((space->point_backtrack)&&(map->number_space_need_visit > 1)) {
-//    go_to(
-//        PointPtr(
-//            new Point(
-//                space->get_center()->x + space->get_size_x() / 2
-//                    - robot_size / 2, space->point_backtrack->y)), STRICTLY);
+  if ((space->backtrack_point)&&(map->number_space_need_visit > 1)) {
+    go_to(
+        PointPtr(
+            new Point(
+                space->get_vertices_below()->get_below_point()->x
+                    - robot_size / 2, space->backtrack_point->y)), STRICTLY);
   }
 }
 
@@ -150,12 +143,6 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
   for (inspectLV=list_vertices.begin(), j =1;inspectLV!=list_vertices.end() ; ++inspectLV) {
 	  std::cout<<"Current Vertices "<< j++<< " :("<<(*inspectLV)->get_position()->x <<" ,"
 			  	  	  	  	  	  	   <<(*inspectLV)->get_position()->y<<" )\n";
-	  //Print current segment
-//	  std::cout<<"List current segment :\n";
-//      for(u = list_segment.begin(), i=1; u!= list_segment.end(); ++u){
-//    	  std::cout<<"Segment "<<i++<<":\n"<<" Point 1:("<<(*u)->p1->x<<" ,"<<(*u)->p1->y<<" )\n"
-//    			  	  	  	  	  	  	   <<" Point 2:("<<(*u)->p2->x<<" ,"<<(*u)->p2->y<<" )\n";
-//      }
 	  if((list_segment.size() == 0)&&(inspectLV == list_vertices.begin())){
 		  list_segment.push_back(SegmentPtr(new Segment((*inspectLV)->get_position(),(*inspectLV)->get_upper_point())));
 		  ++inspectLV;
@@ -292,20 +279,20 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
   list_space.sort(Space::compare_positions_x);
   Space::print_list_space(list_space);
   std::cout << list_space.size() << "\n";
-//  for (inspectLS = --list_space.end(), i = 1; inspectLS != list_space.end();
-//      --inspectLS) {
-//    for (inspectLS_temp = list_space.begin(), i = 1;
-//        inspectLS_temp != list_space.end(); ++inspectLS_temp) {
-//      if (Space::is_parent(*inspectLS_temp, *inspectLS)) {
-//        (*inspectLS_temp)->children.push_back(*inspectLS);
-//        (*inspectLS)->set_parent(*inspectLS_temp);
-//        (*inspectLS)->set_point_backtrack(*inspectLS_temp, *inspectLS,
-//            robot_size);
-//        break;
-//      }
-//      std::cout << "Find \n";
-//    }
-//  }
+  for (inspectLS = --list_space.end(), i = 1; inspectLS != list_space.end();
+      --inspectLS) {
+	  (*inspectLS)->set_stating_point(environment->get_height(), robot_size);
+    for (inspectLS_temp = list_space.begin(), i = 1;
+        inspectLS_temp != list_space.end(); ++inspectLS_temp) {
+      if (Space::is_parent(*inspectLS_temp, *inspectLS)) {
+        (*inspectLS_temp)->children.push_back(*inspectLS);
+        (*inspectLS)->set_parent(*inspectLS_temp);
+        (*inspectLS)->set_point_backtrack(*inspectLS_temp, *inspectLS,  robot_size);
+        break;
+      }
+    }
+  }
+  Space::print_list_space(list_space);
   return list_space;
 }
 
@@ -370,17 +357,15 @@ void Boustrophedon::boustrophedon_cd() {
   //Create Space
   list_space = create_list_space(map->get_boundary(), list_vertices);
 
-
-
- //  map->number_space_need_visit = list_space.size();
-//  for (inspectLS = list_space.begin(), i = 1; inspectLS != list_space.end();
-//      ++inspectLS) {
-//    std::cout << "Space:" << ": " << std::endl;
-//    if ((*inspectLS)->status_visited == false) {
-//      dfs(*inspectLS);
-//    }
-//  }
-
+   map->number_space_need_visit = list_space.size();
+  for (inspectLS = list_space.begin(), i = 1; inspectLS != list_space.end();
+      ++inspectLS) {
+	  i++;
+    std::cout << "Space:" << ": " << std::endl;
+    if ((*inspectLS)->status_visited == false){
+      dfs(*inspectLS, map->get_boundary()->get_height());
+    }
+  }
 }
 }
 }

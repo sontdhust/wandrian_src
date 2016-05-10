@@ -34,7 +34,7 @@ public:
   ~Boustrophedon();
   void initialize(PointPtr, double, std::string);
   void cover();
-  void dfs(SpacePtr);
+  void dfs(SpacePtr, double);
   ExtendedMapPtr get_map();
   std::list<SpacePtr> create_list_space(RectanglePtr, std::list<VerticesPtr>);
   std::list<VerticesPtr> create_list_vertices(RectanglePtr,
@@ -43,7 +43,7 @@ public:
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
 protected:
   bool go_to(PointPtr, bool);
-  bool go_into(SpacePtr);
+  bool go_into(SpacePtr, double);
 
 private:
   CellPtr starting_cell;
