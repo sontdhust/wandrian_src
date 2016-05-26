@@ -90,8 +90,8 @@ void BoustrophedonOnline::boustrophedon_move(CellPtr neighbor, CellPtr current,
     VectorPtr direction) {
   std::cout << "\n";
   neighbor->set_parent(current);
+  go_to(neighbor->get_center(), STRICTLY);
   old_cells.insert(neighbor);
-  go_with(direction, tool_size);
   bplist.erase(neighbor);
   scan(neighbor);
 }
@@ -183,6 +183,27 @@ void BoustrophedonOnline::scan(CellPtr current) {
 
 
   // A* search
+  CellPtr neighbor_EN = CellPtr(
+      new Cell(
+          PointPtr(
+              new Point(current->get_center()->x + tool_size,
+                  current->get_center()->y + tool_size)), tool_size));
+  CellPtr neighbor_WN = CellPtr(
+      new Cell(
+          PointPtr(
+              new Point(current->get_center()->x - tool_size,
+                  current->get_center()->y + tool_size)), tool_size));
+  CellPtr neighbor_ES = CellPtr(
+      new Cell(
+          PointPtr(
+              new Point(current->get_center()->x + tool_size,
+                  current->get_center()->y - tool_size)), tool_size));
+  CellPtr neighbor_WS = CellPtr(
+      new Cell(
+          PointPtr(
+              new Point(current->get_center()->x - tool_size,
+                  current->get_center()->y - tool_size)), tool_size));
+  
   int vertex_current = check_vertex(current);
   if (vertex_current != -1) {
     if (check_insert == 0) {
@@ -197,11 +218,24 @@ void BoustrophedonOnline::scan(CellPtr current) {
     }
   }
   check_insert = 0;
-  insert_cell_to_graph(current, neighbor_S, vertex_current);
-  insert_cell_to_graph(current, neighbor_W, vertex_current);
-  insert_cell_to_graph(current, neighbor_E, vertex_current);
-  insert_cell_to_graph(current, neighbor_N, vertex_current);
- 
+  insert_cell_to_graph(current, neighbor_S, vertex_current, 10);
+  insert_cell_to_graph(current, neighbor_W, vertex_current, 10);
+  insert_cell_to_graph(current, neighbor_E, vertex_current, 10);
+  insert_cell_to_graph(current, neighbor_N, vertex_current, 10);
+  if (state_of(neighbor_E) == OLD && state_of(neighbor_N) == OLD){
+    insert_cell_to_graph(current, neighbor_EN, vertex_current, 14);
+  }
+  if (state_of(neighbor_W) == OLD && state_of(neighbor_N) == OLD){
+    insert_cell_to_graph(current, neighbor_WN, vertex_current, 14);
+  }
+  if (state_of(neighbor_E) == OLD && state_of(neighbor_S) == OLD){
+    insert_cell_to_graph(current, neighbor_ES, vertex_current, 14);
+  }
+  if (state_of(neighbor_W) == OLD && state_of(neighbor_S) == OLD){
+    insert_cell_to_graph(current, neighbor_WS, vertex_current, 14);
+  }
+  // end A*
+
   if (state_of(neighbor_N) != OLD && see_obstacle(direction, tool_size / 2) == false) {
     boustrophedon_move(neighbor_N, current, direction);
   }
@@ -218,11 +252,16 @@ void BoustrophedonOnline::scan(CellPtr current) {
   old_cells.insert(old_cells.end(), current);
   std::cout << "\n\033[1;34mcurrent-\033[0m\033[1;31mEND\033[0m: "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
-  if (bplist.size() > 0) {
+  if (bplist.size()) {
     refine_bplist();
     std::cout << "Backtrack list: " << bplist.size() << "\n";
+    for (std::set<CellPtr>::iterator i = bplist.begin(); i != bplist.end(); i++) {
+    CellPtr tmp = CellPtr(*i);
+    std::cout << tmp->get_center()->x<<", " <<tmp->get_center()->y<<"\n";
+  }
     find_bpcell(current);
-    bpmove(current);
+    if (bplist.size()) {
+    bpmove(current);}
   }
 
 }
@@ -231,7 +270,7 @@ void BoustrophedonOnline::find_bpcell(CellPtr current) {
   std::cout << current->get_center()->x << ", " << current->get_center()->y
       << std::endl;
   start = check_vertex(current);
-  int time = 100;
+  int time = 1000;
   for (std::set<CellPtr>::iterator i = bplist.begin(); i != bplist.end(); i++) {
     CellPtr tmp = CellPtr(*i);
     CellPtr neighbor_W = CellPtr(
@@ -248,10 +287,14 @@ void BoustrophedonOnline::find_bpcell(CellPtr current) {
             PointPtr(
                 new Point(tmp->get_center()->x + tool_size,
                     tmp->get_center()->y)), tool_size));
-    if (state_of(neighbor_E) == OLD
-        && check_distance(current, neighbor_E)
-            < check_distance(current, neighbor_W)) {
-      goal = check_vertex(neighbor_E);
+    if (state_of(neighbor_E) == OLD) {
+      if(state_of(neighbor_W)==OLD){
+        if(check_distance(current, neighbor_E) < check_distance(current, neighbor_W))
+          goal = check_vertex(neighbor_E);
+      }
+      else{
+        goal = check_vertex(neighbor_E);
+      }
     }
 
     CellPtr neighbor_N = CellPtr(
@@ -265,7 +308,7 @@ void BoustrophedonOnline::find_bpcell(CellPtr current) {
               < check_distance(current, neighbor_E)) {
         goal = check_vertex(neighbor_N);
       }
-      if (state_of(neighbor_W) == OLD
+      else if (state_of(neighbor_W) == OLD
           && check_distance(current, neighbor_N)
               < check_distance(current, neighbor_W)) {
         goal = check_vertex(neighbor_N);
@@ -354,7 +397,7 @@ void BoustrophedonOnline::refine_bplist() {
   }
 }
 void BoustrophedonOnline::insert_edge(CellPtr current, CellPtr neighbor,
-    int insert) {
+    int insert, double weightedge) {
   edge_descriptor e;
   bool inserted;
   if (insert == 2) {
@@ -371,7 +414,7 @@ void BoustrophedonOnline::insert_edge(CellPtr current, CellPtr neighbor,
     std::cout << "Check insert: "
         << boost::edge(number_cell, number_neighbor_cell, g).first << std::endl;
   }
-  weightmap[e] = 1;
+  weightmap[e] = weightedge;
   check_insert = check_insert + 1;
   if (insert == 1) {
     locations[number_neighbor_cell].x = neighbor->get_center()->x;
@@ -388,20 +431,20 @@ void BoustrophedonOnline::insert_edge(CellPtr current, CellPtr neighbor,
 }
 
 void BoustrophedonOnline::insert_cell_to_graph(CellPtr current,
-    CellPtr neighbor, int vertex_current) {
+    CellPtr neighbor, int vertex_current, double weightedge) {
   int vertex_neighbor = check_vertex(neighbor);
   if (state_of(neighbor) == OLD) {
     if (vertex_current == -1) {
       if (vertex_neighbor == -1) {
         number_neighbor_cell = number_neighbor_cell + 1;
-        insert_edge(current, neighbor, 3);
+        insert_edge(current, neighbor, 3,weightedge);
       } else if (vertex_neighbor != -1) {
-        insert_edge(current, neighbor, 2);
+        insert_edge(current, neighbor, 2, weightedge);
       }
     } else if (vertex_current != -1) {
       if (vertex_neighbor == -1) {
         number_neighbor_cell = number_neighbor_cell + 1;
-        insert_edge(current, neighbor, 1);
+        insert_edge(current, neighbor, 1,weightedge);
       }
     }
   }

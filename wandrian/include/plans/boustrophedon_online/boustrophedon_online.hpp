@@ -72,8 +72,8 @@ private:
   void refine_bplist();
   int check_vertex(CellPtr);
   double check_distance(CellPtr, CellPtr);
-  void insert_edge(CellPtr, CellPtr, int);
-  void insert_cell_to_graph(CellPtr, CellPtr, int);
+  void insert_edge(CellPtr, CellPtr, int, double);
+  void insert_cell_to_graph(CellPtr, CellPtr, int, double);
   State state_of(CellPtr);
 };
 
