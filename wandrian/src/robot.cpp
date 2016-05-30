@@ -256,6 +256,8 @@ void Robot::set_laser_range(double laser_range) {
 }
 
 void Robot::run() {
+  ecl::MilliSleep milliSleep;
+  milliSleep(15000);
   if (behavior_run)
     behavior_run();
 }
