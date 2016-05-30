@@ -171,19 +171,19 @@ bool FullSpiralStc::go_from(CellPtr current, bool need_to_pass, CellPtr next) {
     if (!see_obstacle(direction, tool_size / 2)) {
       if (need_to_pass == DONT_PASS)
         return true;
-      bool successful = visit(next, quadrant == q1 ? q4 : q3, STRICTLY);
+      bool successful = visit(next, quadrant == q1 ? q4 : q3);
       std::cout << "\n";
       return successful;
     } else {
       n->set_quadrants_state(q1 ? q4 : q3, OBSTACLE);
       if (!see_obstacle(quadrant == q1 ? ++direction : --direction,
           tool_size / 2)) {
-        visit(current, quadrant == q1 ? q2 : q1, STRICTLY);
+        visit(current, quadrant == q1 ? q2 : q1);
         if (!see_obstacle(quadrant == q1 ? --direction : ++direction,
             tool_size / 2)) {
           if (need_to_pass == DONT_PASS)
             return true;
-          bool successful = visit(next, quadrant == q1 ? q3 : q4, STRICTLY);
+          bool successful = visit(next, quadrant == q1 ? q3 : q4);
           std::cout << "\n";
           return successful;
         } else {
@@ -197,16 +197,16 @@ bool FullSpiralStc::go_from(CellPtr current, bool need_to_pass, CellPtr next) {
     }
   } else if (quadrant == q4 || quadrant == q3) {
     if (!see_obstacle(direction, tool_size / 2)) {
-      visit(c, quadrant == q4 ? q1 : q2, STRICTLY);
+      visit(c, quadrant == q4 ? q1 : q2);
       return go_from(c, need_to_pass, next);
     } else {
       c->set_quadrants_state(quadrant == q4 ? q1 : q2, OBSTACLE);
       if (!see_obstacle(quadrant == q4 ? ++direction : --direction,
           tool_size / 2)) {
-        visit(c, quadrant == q4 ? q3 : q4, STRICTLY);
+        visit(c, quadrant == q4 ? q3 : q4);
         if (!see_obstacle(quadrant == q4 ? --direction : ++direction,
             tool_size / 2)) {
-          visit(c, quadrant == q4 ? q2 : q1, STRICTLY);
+          visit(c, quadrant == q4 ? q2 : q1);
           return go_from(c, need_to_pass, next);
         } else {
           c->set_quadrants_state(quadrant == q4 ? q2 : q1, OBSTACLE);

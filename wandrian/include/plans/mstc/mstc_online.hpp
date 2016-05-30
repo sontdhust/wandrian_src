@@ -35,7 +35,7 @@ protected:
   double tool_size; // = 'cell size' / 2
   CommunicatorPtr communicator;
 
-  bool go_to(PointPtr, bool);
+  bool go_to(PointPtr, bool = STRICTLY);
   bool see_obstacle(VectorPtr, double);
   virtual State state_of(CellPtr);
   virtual void scan(CellPtr);

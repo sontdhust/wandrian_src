@@ -173,7 +173,7 @@ bool MstcOnline::go_with(VectorPtr direction, double distance) {
 //            communicator->get_robot_name()));
 //  communicator->set_current_cell(new_cell);
 
-  bool succeed = go_to(new_position, STRICTLY);
+  bool succeed = go_to(new_position);
   std::cout << "\n";
   return succeed;
 }

@@ -37,6 +37,10 @@ std::string Map::get_map_path() {
   return map_path;
 }
 
+std::list<PointPtr> Map::get_path() {
+  return path;
+}
+
 void Map::build() {
   // Read center point of obstacles from input file
   std::vector<PointPtr> obstacle_centers;
@@ -86,13 +90,17 @@ void Map::build() {
     center_point_x = boost::lexical_cast<double>(line.substr(0, d_pos1));
     center_point_y = boost::lexical_cast<double>(
         line.substr(d_pos1 + 1,
-            (!global_obstacle_size ? d_pos2 : line.length()) - d_pos1 - 1));
-    obstacle_centers.push_back(
-        PointPtr(new Point(center_point_x, center_point_y)));
+            (!global_obstacle_size || d_pos2 != std::string::npos ?
+                d_pos2 : line.length()) - d_pos1 - 1));
+    PointPtr center_point = PointPtr(new Point(center_point_x, center_point_y));
+    obstacle_centers.push_back(center_point);
     if (!global_obstacle_size) {
       obstacle_sizes.push_back(
           boost::lexical_cast<double>(
               line.substr(d_pos2 + 1, line.length() - d_pos2 - 1)));
+    }
+    if (line.substr(line.length() - 1) == "_") {
+      path.insert(path.end(), center_point);
     }
   }
 

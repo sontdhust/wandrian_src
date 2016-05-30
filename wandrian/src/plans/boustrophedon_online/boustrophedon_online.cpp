@@ -67,14 +67,14 @@ bool BoustrophedonOnline::go_with(VectorPtr direction, double distance) {
   PointPtr last_position = *(--path.end());
   PointPtr new_position = PointPtr(
       new Point(last_position + direction * distance));
-  return go_to(new_position, STRICTLY);
+  return go_to(new_position);
 }
 
 bool BoustrophedonOnline::go_with_bpcell(PointPtr last_position,
     VectorPtr direction, double distance) {
   PointPtr new_position = PointPtr(
       new Point(last_position + direction * distance));
-  return go_to(new_position, STRICTLY);
+  return go_to(new_position);
 }
 
 void BoustrophedonOnline::go_straight(CellPtr neighbor, CellPtr current,

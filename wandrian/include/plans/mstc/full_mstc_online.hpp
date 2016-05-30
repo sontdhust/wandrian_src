@@ -31,7 +31,7 @@ private:
   PartiallyOccupiableIdentifiableCellPtr starting_cell;
 
   bool go_from(CellPtr, bool, CellPtr);
-  bool visit(CellPtr, Quadrant, bool);
+  bool visit(CellPtr, Quadrant, bool = STRICTLY);
   bool state_of_subcells_of(CellPtr, Orientation);
 };
 

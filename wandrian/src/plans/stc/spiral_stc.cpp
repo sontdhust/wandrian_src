@@ -113,7 +113,7 @@ State SpiralStc::state_of(CellPtr cell) {
 bool SpiralStc::go_with(VectorPtr direction, double distance) {
   PointPtr last_position = path.back();
   PointPtr new_position = last_position + direction * distance;
-  bool successful = go_to(new_position, STRICTLY);
+  bool successful = go_to(new_position);
   std::cout << "\n";
   return successful;
 }

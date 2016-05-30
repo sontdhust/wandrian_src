@@ -24,12 +24,12 @@ Robot::Robot() :
         0), proportion_ranges_sum(0), augmentation_factor_range(0), epsilon_rotational_direction(
         0), epsilon_motional_direction(0), epsilon_position(0), deviation_linear_position(
         0), deviation_angular_position(0), threshold_linear_step_count(0), threshold_angular_step_count(
-        0), current_position(new Point()), current_direction(new Vector()), obstacle_movement(
-        STOPPING), linear_velocity_step(0), linear_velocity_max(0), angular_velocity_step(
-        0), angular_velocity_max(0), velocity(new geometry_msgs::Twist()), laser_range(
-        0), is_quitting(false), is_powered(false), is_zero_vel(true), is_logging(
-        false), file_descriptor(0), last_position(new Point()), last_direction(
-        new Vector()), laser_ray(0) {
+        0), delay(0), current_position(new Point()), current_direction(
+        new Vector()), obstacle_movement(STOPPING), linear_velocity_step(0), linear_velocity_max(
+        0), angular_velocity_step(0), angular_velocity_max(0), velocity(
+        new geometry_msgs::Twist()), laser_range(0), is_quitting(false), is_powered(
+        false), is_zero_vel(true), is_logging(false), file_descriptor(0), last_position(
+        new Point()), last_direction(new Vector()), laser_ray(0) {
   tcgetattr(file_descriptor, &terminal); // get terminal properties
 }
 
@@ -63,6 +63,7 @@ bool Robot::initialize() {
   nh.getParam("deviation_angular_position", deviation_angular_position);
   nh.getParam("threshold_linear_step_count", threshold_linear_step_count);
   nh.getParam("threshold_angular_step_count", threshold_angular_step_count);
+  nh.getParam("delay", delay);
 
   nh.getParam("linear_velocity_step", linear_velocity_step);
   nh.getParam("linear_velocity_max", linear_velocity_max);
@@ -284,7 +285,7 @@ void Robot::set_laser_range(double laser_range) {
 
 void Robot::run() {
   ecl::MilliSleep milliSleep;
-  milliSleep(15000);
+  milliSleep(delay);
   if (behavior_run)
     behavior_run();
 }

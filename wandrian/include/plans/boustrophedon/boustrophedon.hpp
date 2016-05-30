@@ -41,7 +41,7 @@ public:
 
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
 protected:
-  bool go_to(PointPtr, bool);
+  bool go_to(PointPtr, bool = STRICTLY);
   bool go_into(SpacePtr);
 
 private:

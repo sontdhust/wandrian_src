@@ -90,6 +90,7 @@ private:
   double deviation_angular_position; // arg
   int threshold_linear_step_count; // arg
   int threshold_angular_step_count; // arg
+  int delay; // arg
 
   PointPtr current_position; // odometry subscriber
   VectorPtr current_direction; // odometry subscriber

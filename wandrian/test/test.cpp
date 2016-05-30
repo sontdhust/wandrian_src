@@ -118,8 +118,8 @@ void display() {
   // Covering path
   glColor3ub(0, 255, 0);
   draw(path, GL_LINE_STRIP);
-  glColor3ub(0, 255, 255);
-  draw(actual_path, GL_LINE_STRIP);
+  // glColor3ub(0, 255, 255);
+  // draw(actual_path, GL_LINE_STRIP);
 
   glutSwapBuffers();
 }
@@ -141,7 +141,7 @@ void print_space() {
 int run(int argc, char **argv) {
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
-  glutInitWindowSize(600, 600);
+  glutInitWindowSize(400, 400);
   glutCreateWindow("Environment");
   glutDisplayFunc(display);
   glutCloseFunc(print_space);

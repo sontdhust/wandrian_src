@@ -40,6 +40,10 @@ bool Wandrian::initialize() {
 }
 
 void Wandrian::spin() {
+  if (robot->get_map_name() != "") { // Offline map
+    map = MapPtr(new Map(find_map_path()));
+    map->build();
+  }
   robot->set_behavior_run(boost::bind(&Wandrian::wandrian_run, this));
   robot->spin();
 }
@@ -47,6 +51,7 @@ void Wandrian::spin() {
 void Wandrian::wandrian_run() {
   PointPtr starting_point = PointPtr(
       new Point(robot->get_starting_point_x(), robot->get_starting_point_y()));
+  path.insert(path.end(), starting_point);
   actual_path.insert(actual_path.end(), starting_point);
   if (robot->get_plan_name() == "ss") {
     plan = SpiralStcPtr(new SpiralStc());
@@ -97,6 +102,12 @@ void Wandrian::wandrian_run() {
     boustrophedon->set_behavior_go_to(
         boost::bind(&Wandrian::boustrophedon_go_to, this, _1, _2));
     boustrophedon->cover();
+  } else {
+    std::list<PointPtr> path = map->get_path();
+    for (std::list<PointPtr>::iterator p = path.begin(); p != path.end(); p++) {
+      std::cout << " _ (" << (*p)->x << "," << (*p)->y << ")\n";
+      go_to((*p));
+    }
   }
   robot->stop();
 }
@@ -108,10 +119,8 @@ bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibility) {
 bool Wandrian::spiral_stc_see_obstacle(VectorPtr direction, double distance) {
   RectanglePtr boundary;
   std::list<RectanglePtr> obstacles;
-  PointPtr new_position = plan->get_path().back() + direction * distance;
+  PointPtr new_position = path.back() + direction * distance;
   if (robot->get_map_name() != "") { // Offline map
-    MapPtr map = MapPtr(new Map(find_map_path()));
-    map->build();
     boundary = map->get_boundary();
     obstacles = map->get_obstacles();
   } else {
@@ -195,7 +204,7 @@ bool Wandrian::boustrophedon_go_to(PointPtr position, bool flexibility) {
 bool Wandrian::go_to(PointPtr position, bool flexibility) {
   double deviation_linear_position = robot->get_deviation_linear_position();
   double deviation_angular_position = robot->get_deviation_angular_position();
-  PointPtr last_position = plan->get_path().back();
+  PointPtr last_position = path.back();
   VectorPtr direction = (position - last_position) / (position % last_position);
   PointPtr actual_position = actual_path.back() + (position - last_position)
       + direction * deviation_linear_position * deviation_linear_count
@@ -236,6 +245,7 @@ bool Wandrian::go_to(PointPtr position, bool flexibility) {
       break;
     }
   }
+  path.insert(path.end(), position);
   actual_path.insert(actual_path.end(), actual_position);
   std::cout << " [" << robot->get_current_position()->x << ","
       << robot->get_current_position()->y << "]\n";

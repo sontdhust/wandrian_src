@@ -9,9 +9,11 @@
 #define WANDRIAN_INCLUDE_WANDRIAN_HPP_
 
 #include "plans/base_plan.hpp"
+#include "environment/map.hpp"
 #include "robot.hpp"
 
 using namespace wandrian::plans;
+using namespace wandrian::environment;
 
 namespace wandrian {
 
@@ -29,7 +31,9 @@ private:
   int step_count;
   int deviation_linear_count;
   int deviation_angular_count;
+  std::list<PointPtr> path;
   std::list<PointPtr> actual_path;
+  MapPtr map;
 
   // Behaviors
   void wandrian_run();
@@ -45,7 +49,7 @@ private:
   bool boustrophedon_go_to(PointPtr, bool);
 
   // Helpers
-  bool go_to(PointPtr, bool);
+  bool go_to(PointPtr, bool = STRICTLY);
   bool see_obstacle(Orientation, double);
   bool rotate_to(PointPtr, bool);
   bool rotate_to(VectorPtr, bool);

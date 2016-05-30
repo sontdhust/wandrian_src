@@ -5,7 +5,7 @@
   <arg name="tool_size"/>
   <arg name="starting_point_x"/>
   <arg name="starting_point_y"/>
-  <arg name="plan_name"/>
+  <arg name="plan_name" default=""/>
   <arg name="robot_name" value="mobile_base"/>
 
   <!-- Spawns Kobuki inside a Gazebo simulation -->
