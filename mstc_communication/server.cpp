@@ -145,10 +145,10 @@ int main(int argc, char* argv[]) {
                 printf("Input failed!\n");
             } while (choose != 1 && choose != 2);
             if (choose == 1) {
-              printf("Server is working!\n");
+              printf("WORKING!\n");
               continue;
             } else if (choose == 2) {
-              printf("Server is closed!\n");
+              printf("CLOSED!\n");
               shutdown(sockfd, 2);
               return 0;
             }

@@ -108,7 +108,7 @@ void MstcCommunicator::read_message_from_rosbag_then_update_old_cells() {
 
 bool MstcCommunicator::ask_other_robot_still_alive(
     std::string robot_name_want_ask) {
-  bool result = true;
+  bool result = false;
   std::string cell_string;
   int i;
   std::string status_string; // When robot is dead, change robot's status to [DEAD] and store to this variable
@@ -141,7 +141,8 @@ bool MstcCommunicator::ask_other_robot_still_alive(
             cell_string.append(",");
           } else if (i == 4) {
             status_string.append(information);
-
+            // FIXME
+            status_string.append(",");
             int old_time = atoi(information.c_str());
             int current;
             std::stringstream ss;
@@ -176,31 +177,32 @@ bool MstcCommunicator::ask_other_robot_still_alive(
                   status_string);
             }
           } else if (i == 5) {
-            if (information == "[DEAD];") {
+            // FIXME
+            if (information == "[DEAD]") {
               status_string.append(information);
               // Robot was dead
               result = false;
 //              cell_string.append(get_robot_name());
-              cell_string.append("DEAD_ROBOT");
-              cell_string.append(";");
-
-              // Update all status
-              boost::char_separator<char> split(";");
-              boost::tokenizer<boost::char_separator<char> > tokens(
-                  read_status_message(), split);
-              foreach (const std::string& dead_robot_status, tokens) {
-                if (dead_robot_status.find(robot_name_want_ask)
-                    != std::string::npos) {
-                  // Found
-                  continue;
-                } else {
-                  // Not found
-                  status_string.append(dead_robot_status);
-                  status_string.append(";");
-                }
-              }
-              clear_robots_dead_old_cells(robot_name_want_ask, cell_string,
-                  status_string);
+//              cell_string.append("DEAD_ROBOT");
+//              cell_string.append(";");
+//
+//              // Update all status
+//              boost::char_separator<char> split(";");
+//              boost::tokenizer<boost::char_separator<char> > tokens(
+//                  read_status_message(), split);
+//              foreach (const std::string& dead_robot_status, tokens) {
+//                if (dead_robot_status.find(robot_name_want_ask)
+//                    != std::string::npos) {
+//                  // Found
+//                  continue;
+//                } else {
+//                  // Not found
+//                  status_string.append(dead_robot_status);
+//                  status_string.append(";");
+//                }
+//              }
+//              clear_robots_dead_old_cells(robot_name_want_ask, cell_string,
+//                  status_string);
             }
           }
           i++;
@@ -602,24 +604,7 @@ int MstcCommunicator::get_status_message_from_server() {
     } else {
       printf("Received data!\n");
       countTotalRecvData = countTotalRecvData + countRecvData;
-      // printf("Server reply: %s\n", recvMes);
       new_status.assign(recvMes, countRecvData);
-      // recvMes = (char *) malloc(MAX_SIZE);
-      // strcpy(recvMes, "");
-      // boost::char_separator<char> split_str("|");
-      // int i = 1;
-      // boost::tokenizer<boost::char_separator<char> > tokens(new_status,
-      //     split_str);
-      // BOOST_FOREACH (const std::string& mess, tokens) {
-      //   {
-      //     if (i == 1) {
-      //       // Do nothing
-      //     } else if (i == 2) {
-      //       write_status_message(mess);
-      //     }
-      //     i++;
-      //   }
-      // }
       if (new_status == "no thing") {
         write_status_message_to_rosbag("");
       } else {

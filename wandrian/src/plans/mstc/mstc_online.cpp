@@ -49,8 +49,10 @@ void MstcOnline::initialize(PointPtr starting_point, double tool_size,
 
 void MstcOnline::cover() {
   if (communicator->get_ip_server() != "no_need") {
-    std::cout << "I am in cover";
     communicator->get_old_cells_message_from_server();
+  }
+  if (communicator->get_ip_server() != "no_need") {
+    communicator->get_status_message_from_server();
   }
   communicator->read_message_from_rosbag_then_update_old_cells();
   communicator->insert_old_cell(starting_cell);
@@ -112,6 +114,9 @@ void MstcOnline::scan(CellPtr current) {
   communicator->set_current_cell(current);
 //  communicator->read_obstacle_message();
   // FIXME
+  if (communicator->get_ip_server() != "no_need") {
+    communicator->get_status_message_from_server();
+  }
   status = communicator->create_status_message(
       boost::static_pointer_cast<IdentifiableCell>(current));
   communicator->write_status_message_to_rosbag(status);
