@@ -27,7 +27,6 @@ public:
 
 private:
   RobotPtr robot;
-  BasePlanPtr plan;
   int step_count;
   int deviation_linear_count;
   int deviation_angular_count;

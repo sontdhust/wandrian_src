@@ -21,10 +21,6 @@ void BasePlan::cover() {
   // Override this method
 }
 
-std::list<PointPtr> BasePlan::get_path() {
-  return path;
-}
-
 void BasePlan::set_behavior_go_to(
     boost::function<bool(PointPtr, bool)> behavior_go_to) {
   this->behavior_go_to = behavior_go_to;

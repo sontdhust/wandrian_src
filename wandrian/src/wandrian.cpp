@@ -54,8 +54,7 @@ void Wandrian::wandrian_run() {
   path.insert(path.end(), starting_point);
   actual_path.insert(actual_path.end(), starting_point);
   if (robot->get_plan_name() == "ss") {
-    plan = SpiralStcPtr(new SpiralStc());
-    SpiralStcPtr spiral_stc = boost::static_pointer_cast<SpiralStc>(plan);
+    SpiralStcPtr spiral_stc = SpiralStcPtr(new SpiralStc());
     spiral_stc->initialize(starting_point, robot->get_tool_size());
     spiral_stc->set_behavior_go_to(
         boost::bind(&Wandrian::spiral_stc_go_to, this, _1, _2));
@@ -63,9 +62,7 @@ void Wandrian::wandrian_run() {
         boost::bind(&Wandrian::spiral_stc_see_obstacle, this, _1, _2));
     spiral_stc->cover();
   } else if (robot->get_plan_name() == "fss") {
-    plan = FullSpiralStcPtr(new FullSpiralStc());
-    FullSpiralStcPtr full_spiral_stc =
-        boost::static_pointer_cast<FullSpiralStc>(plan);
+    FullSpiralStcPtr full_spiral_stc = FullSpiralStcPtr(new FullSpiralStc());
     full_spiral_stc->initialize(starting_point, robot->get_tool_size());
     full_spiral_stc->set_behavior_go_to(
         boost::bind(&Wandrian::full_spiral_stc_go_to, this, _1, _2));
@@ -73,8 +70,7 @@ void Wandrian::wandrian_run() {
         boost::bind(&Wandrian::full_spiral_stc_see_obstacle, this, _1, _2));
     full_spiral_stc->cover();
   } else if (robot->get_plan_name() == "mo") {
-    plan = MstcOnlinePtr(new MstcOnline());
-    MstcOnlinePtr mstc_online = boost::static_pointer_cast<MstcOnline>(plan);
+    MstcOnlinePtr mstc_online = MstcOnlinePtr(new MstcOnline());
     mstc_online->initialize(starting_point, robot->get_tool_size(),
         robot->get_communicator());
     mstc_online->set_behavior_go_to(
@@ -83,9 +79,8 @@ void Wandrian::wandrian_run() {
         boost::bind(&Wandrian::mstc_online_see_obstacle, this, _1, _2));
     mstc_online->cover();
   } else if (robot->get_plan_name() == "bo") {
-    plan = BoustrophedonOnlinePtr(new BoustrophedonOnline());
-    BoustrophedonOnlinePtr boustrophedon_online = boost::static_pointer_cast<
-        BoustrophedonOnline>(plan);
+    BoustrophedonOnlinePtr boustrophedon_online = BoustrophedonOnlinePtr(
+        new BoustrophedonOnline());
     boustrophedon_online->initialize(starting_point, robot->get_tool_size());
     boustrophedon_online->set_behavior_go_to(
         boost::bind(&Wandrian::boustrophedon_online_go_to, this, _1, _2));
@@ -94,9 +89,7 @@ void Wandrian::wandrian_run() {
             _2));
     boustrophedon_online->cover();
   } else if (robot->get_plan_name() == "b") {
-    plan = BoustrophedonPtr(new Boustrophedon());
-    BoustrophedonPtr boustrophedon = boost::static_pointer_cast<Boustrophedon>(
-        plan);
+    BoustrophedonPtr boustrophedon = BoustrophedonPtr(new Boustrophedon());
     boustrophedon->initialize(starting_point, robot->get_tool_size(),
         find_map_path());
     boustrophedon->set_behavior_go_to(
