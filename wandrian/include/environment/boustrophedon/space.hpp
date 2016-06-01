@@ -17,11 +17,11 @@ namespace environment {
 namespace boustrophedon {
 
 class Space: public Polygon {
-
 public:
-  Space(std::list<PointPtr>);
+  Space(std::list<PointPtr>, double);
   std::list<boost::shared_ptr<Space> > children;
   bool status_visited;
+  double vary_upper, vary_below;
   PointPtr backtrack_point;
   PointPtr starting_point;
   VerticesPtr get_vertices_upper();
@@ -31,8 +31,10 @@ public:
   void set_vertices_upper(VerticesPtr);
   void set_vertices_below(VerticesPtr);
   void set_parent(boost::shared_ptr<Space>);
-  void set_point_backtrack(boost::shared_ptr<Space>, boost::shared_ptr<Space>,
-      double robot_size);
+  void set_vary(double);
+  void set_point_backtrack(boost::shared_ptr<Space>,
+		  double robot_size, double enviroment);
+
   static bool list_point_fit(std::list<PointPtr>);
   static bool compare_positions_x(boost::shared_ptr<Space>,
       boost::shared_ptr<Space>);

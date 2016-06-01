@@ -20,9 +20,8 @@ namespace boustrophedon {
 class Vertices {
 
 public:
-  Vertices(PointPtr, PointPtr, PointPtr, bool);
-  bool left_compared_center();
-  bool upon_compared_center();
+
+  Vertices(PointPtr ,PointPtr ,PointPtr , bool);
   void set_is_of_obstacles(bool);
   static bool compare_vertices(boost::shared_ptr<Vertices>,
       boost::shared_ptr<Vertices>);

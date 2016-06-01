@@ -151,12 +151,10 @@ int main(int argc, char **argv) {
   } else {
     r_size = R_SIZE;
   }
-
   BoustrophedonPtr boustrophedon = BoustrophedonPtr(new Boustrophedon());
   boustrophedon->initialize(starting_point, r_size,
       "../../worlds/prefered_b.map");
   map = boustrophedon->get_map();
-
   CellPtr space = CellPtr(new Cell(PointPtr(new Point(0, 0)), e_size));
   std::srand(std::time(0));
   starting_point = PointPtr(
@@ -166,7 +164,6 @@ int main(int argc, char **argv) {
           (map->get_boundary()->get_center()->y * 2
               - map->get_boundary()->get_height() + r_size) / 2));
   int r = std::rand() % (int) (e_size * e_size / 16) + e_size * e_size / 8;
-
   std::ifstream world_in("../../worlds/empty.world");
   std::ofstream world_out("../../worlds/tmp.world");
   std::string line;
@@ -244,7 +241,6 @@ int main(int argc, char **argv) {
         world_out << "    </model>\n";
         n++;
       }
-
       n = 1;
 //      double o_size = 4 * r_size;
       // Obstacles
@@ -314,12 +310,9 @@ int main(int argc, char **argv) {
   }
   world_in.close();
   world_out.close();
-
   actual_path.insert(actual_path.end(), starting_point);
   boustrophedon->set_behavior_go_to(boost::bind(&test_go_to, _1, _2));
-
   boustrophedon->cover();
-
   run(argc, argv);
   return 0;
 }
