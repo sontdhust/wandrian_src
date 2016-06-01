@@ -27,18 +27,18 @@ public:
   VerticesPtr get_vertices_upper();
   VerticesPtr get_vertices_below();
   SegmentPtr segment_below, segment_upper;
-  void set_stating_point(double,double);
+  void set_stating_point(double, double);
   void set_vertices_upper(VerticesPtr);
   void set_vertices_below(VerticesPtr);
   void set_parent(boost::shared_ptr<Space>);
   void set_point_backtrack(boost::shared_ptr<Space>, boost::shared_ptr<Space>,
-		  double robot_size);
+      double robot_size);
   static bool list_point_fit(std::list<PointPtr>);
   static bool compare_positions_x(boost::shared_ptr<Space>,
       boost::shared_ptr<Space>);
   static bool is_parent(boost::shared_ptr<Space>, boost::shared_ptr<Space>);
   boost::shared_ptr<Space> get_parent();
-  static void print_list_space(std::list< boost::shared_ptr<Space> >);
+  static void print_list_space(std::list<boost::shared_ptr<Space> >);
 private:
   VerticesPtr vertices_below, vertices_upper;
   boost::shared_ptr<Space> parent;

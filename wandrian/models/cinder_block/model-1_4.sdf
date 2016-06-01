@@ -17,11 +17,12 @@
         <geometry>
           <mesh>
             <uri>model://cinder_block/meshes/cinder_block.dae</uri>
+            <scale>0.4 1 1</scale>
           </mesh>
         </geometry>
       </visual>
 
-      <collision name="left">
+      <!--collision name="left">
         <pose>0 -0.08465 0.1016 0 0 0</pose>
         <geometry>
           <box>
@@ -134,7 +135,7 @@
             </ode>
           </friction>
         </surface>
-      </collision>
+      </collision-->
 
     </link>
   </model>
