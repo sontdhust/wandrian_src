@@ -7,7 +7,7 @@
   <arg name="ts"/>
   <arg name="sp_x"/>
   <arg name="sp_y"/>
-  <arg name="pn"/>
+  <arg name="pn" default=""/>
   <arg name="lv"/>
   <arg name="pav"/>
   <arg name="nav"/>
@@ -21,6 +21,7 @@
   <arg name="d_ap" default="0"/>
   <arg name="t_lsc" default="0"/>
   <arg name="t_asc" default="0"/>
+  <arg name="d" default="0"/>
 
   <node pkg="wandrian" type="run" name="run" output="screen">
     <remap from="run/power" to="mobile_base/commands/motor_power"/>
@@ -50,6 +51,7 @@
     <param name="deviation_angular_position" value="$(arg d_ap)" type="double"/>
     <param name="threshold_linear_step_count" value="$(arg t_lsc)" type="double"/>
     <param name="threshold_angular_step_count" value="$(arg t_asc)" type="double"/>
+    <param name="delay" value="$(arg d)" type="double"/>
 
     <param name="linear_velocity_step" value="0.15" type="double"/>
     <param name="linear_velocity_max" value="1.5" type="double"/>
