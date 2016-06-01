@@ -15,6 +15,8 @@
 #include "../../environment/mstc/identifiable_cell.hpp"
 #include "../base_plan.hpp"
 
+#define INTERVAL 10  // Loop after 10 seconds
+
 using namespace wandrian::common;
 using namespace wandrian::environment;
 using namespace wandrian::environment::mstc;
@@ -42,6 +44,8 @@ protected:
   bool see_obstacle(VectorPtr, double);
   virtual State state_of(CellPtr);
   virtual void scan(CellPtr);
+  std::list<PointPtr> path_backtrack;
+//  void start_thread_check_other_robot();
 
 private:
   IdentifiableCellPtr starting_cell;

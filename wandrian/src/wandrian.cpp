@@ -73,6 +73,7 @@ void Wandrian::wandrian_run() {
   } else if (robot->get_plan_name() == "mstc_online") {
     plan = MstcOnlinePtr(new MstcOnline());
     MstcOnlinePtr mstc_online = boost::static_pointer_cast<MstcOnline>(plan);
+//    VectorPtr init = robot->get_current_direction();
     mstc_online->initialize(
         PointPtr(
             new Point(robot->get_starting_point_x(),

@@ -37,8 +37,7 @@ Change to catkin root directory then run:
 
 ####Running mstc_online:
 
-######2 robots (2 PCs):
-    Run server in 1 PC
+######2 robots (add one by one robot):
     $ roslaunch wandrian environment.launch world_file:=prefered_mstc_online_for_show
     $ roslaunch wandrian add_1_robot.launch starting_point_x_robot:=-1.25 starting_point_y_robot:=-1.75 robot_name:=robot1
     $ roslaunch wandrian add_1_robot.launch starting_point_x_robot:=1.75 starting_point_y_robot:=0.25 robot_name:=robot2

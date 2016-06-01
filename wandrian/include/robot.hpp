@@ -92,7 +92,7 @@ private:
   double linear_velocity_max; // param
   double angular_velocity_step; // param
   double angular_velocity_max; // param
-  BaseCommunicatorPtr communicator;
+  MstcCommunicatorPtr communicator;
 
   boost::function<void()> behavior_run;
   geometry_msgs::TwistPtr velocity;

@@ -45,7 +45,7 @@ public:
   void write_old_cells_message_to_rosbag(std::string); // Write old cells
   void write_status_message_to_rosbag(std::string);
   std::string create_old_cells_message();
-  std::string create_status_message(IdentifiableCellPtr); // robot_name, last x, last y, last time update, status
+  std::string create_status_message(IdentifiableCellPtr); // Structure: robot_name, last x, last y, last time update, status
   void read_message_from_rosbag_then_update_old_cells(); // Read old cells data, update to local old cells
 
   bool ask_other_robot_still_alive(std::string);
@@ -58,9 +58,6 @@ public:
   std::string read_status_message(); // Read status data from ros bag
   void clear_robots_dead_old_cells(std::string, std::string, std::string);
 
-  bool get_is_backtracking() const; // Check backtracking in function scan() of mstc_online.cpp
-  void set_is_backtracking(bool = false);
-
   void write_obstacle_message_to_rosbag(std::string);
   void read_obstacle_message_from_rosbag();
   std::string create_message_from_obstacle_cells();
@@ -72,17 +69,37 @@ public:
   void disconnect_server();
   std::string create_status_message_to_send_to_server(std::string);
   std::string create_old_cells_message_to_send_to_server(std::string);
-  std::string create_my_new_old_cells_message_to_send_to_server(IdentifiableCellPtr);
+  std::string create_my_new_old_cells_message_to_send_to_server(
+      IdentifiableCellPtr);
   int send_save_message_to_server(std::string);
   int get_status_message_from_server();
   int get_old_cells_message_from_server();
+  void broadcast_task(std::string);
+  bool check_other_robot_had_connect_still_alive();
 
   const std::string& get_ip_server() const;
   void set_ip_server(const std::string&);
+  const std::string& get_robot_dead_name() const;
+  void set_robot_dead_name(const std::string&);
+  const std::string& get_first_connection() const;
+  void set_first_connection(const std::string&);
+  void append_first_connection(const std::string&);
+  bool find_backtrack_cell(std::string);
+  IdentifiableCellPtr get_backtrack_cell();
+  void set_backtrack_cell(const IdentifiableCellPtr);
+  bool get_is_backtracking() const; // Check backtracking in function scan() of mstc_online.cpp
+  void set_is_backtracking(bool = false);
+
+  const std::string& get_message_string() const;
+  void set_message_string(const std::string&);
+  const std::string& get_obstacle_string() const;
+  void set_obstacle_string(const std::string&);
+  const std::string& get_status_string() const;
+  void set_status_string(const std::string&);
 
 private:
   std::list<IdentifiableCellPtr> old_cells; // Old cells with list
-  std::set<IdentifiableCellPtr, CellComp> backtrack_cells;
+//  std::set<IdentifiableCellPtr, CellComp> backtrack_cells;
   bool is_backtracking;
   struct sockaddr_in server;
   int sockfd;
@@ -91,6 +108,12 @@ private:
   int countRecvData;
   int countSendData;
   std::string ip_server;
+  std::string robot_dead_name;
+  std::string first_connection; // Structure: robot_name,first x, first y
+  IdentifiableCellPtr backtrack_cell;
+  std::string message_string;
+  std::string status_string;
+  std::string obstacle_string;
 };
 
 typedef boost::shared_ptr<MstcCommunicator> MstcCommunicatorPtr;

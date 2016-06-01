@@ -36,23 +36,25 @@ MstcCommunicator::~MstcCommunicator() {
 void MstcCommunicator::write_old_cells_message_to_rosbag(std::string message) {
   // Write old cells
   ROS_INFO("[Writing]My old cells: %s", message.data());
-  rosbag::Bag bag;
-  bag.open("message.bag", rosbag::bagmode::Write);
-  std_msgs::String str;
-  str.data = message.data();
-  bag.write("publisher_communication", ros::Time::now(), str);
-  bag.close();
+//  rosbag::Bag bag;
+//  bag.open("message.bag", rosbag::bagmode::Write);
+//  std_msgs::String str;
+//  str.data = message.data();
+//  bag.write("publisher_communication", ros::Time::now(), str);
+//  bag.close();
+  this->set_message_string(message);
 }
 
 void MstcCommunicator::write_status_message_to_rosbag(std::string status) {
   // Write status
-  rosbag::Bag status_bag;
   ROS_INFO("[Writing status]Status: %s", status.data());
-  status_bag.open("status.bag", rosbag::bagmode::Write);
-  std_msgs::String str_status;
-  str_status.data = status.data();
-  status_bag.write("status_publisher", ros::Time::now(), str_status);
-  status_bag.close();
+//  rosbag::Bag status_bag;
+//  status_bag.open("status.bag", rosbag::bagmode::Write);
+//  std_msgs::String str_status;
+//  str_status.data = status.data();
+//  status_bag.write("status_publisher", ros::Time::now(), str_status);
+//  status_bag.close();
+  this->set_status_string(status);
 }
 
 std::string MstcCommunicator::create_old_cells_message() {
@@ -110,6 +112,7 @@ bool MstcCommunicator::ask_other_robot_still_alive(
     std::string robot_name_want_ask) {
   bool result = false;
   std::string cell_string;
+  std::string current_status_message = read_status_message();
   int i;
   std::string status_string; // When robot is dead, change robot's status to [DEAD] and store to this variable
   if (robot_name_want_ask == this->get_robot_name()) {
@@ -117,8 +120,8 @@ bool MstcCommunicator::ask_other_robot_still_alive(
   } else {
     boost::char_separator<char> split_status(";");
     boost::char_separator<char> split_information(",");
-    boost::tokenizer<boost::char_separator<char> > tokens(read_status_message(),
-        split_status);
+    boost::tokenizer<boost::char_separator<char> > tokens(
+        current_status_message, split_status);
     foreach (const std::string& status, tokens) {
       if (status.find(robot_name_want_ask) != std::string::npos) {
         // Found
@@ -161,7 +164,7 @@ bool MstcCommunicator::ask_other_robot_still_alive(
               // Update all status
               boost::char_separator<char> split(";");
               boost::tokenizer<boost::char_separator<char> > tokens(
-                  read_status_message(), split);
+                  current_status_message, split);
               foreach (const std::string& dead_robot_status, tokens) {
                 if (dead_robot_status.find(robot_name_want_ask)
                     != std::string::npos) {
@@ -175,6 +178,18 @@ bool MstcCommunicator::ask_other_robot_still_alive(
               }
               clear_robots_dead_old_cells(robot_name_want_ask, cell_string,
                   status_string);
+            } else {
+              // Robot still alive
+              if (get_first_connection().find(robot_name_want_ask)
+                  != std::string::npos) {
+              } else {
+                // Not found
+                std::stringstream tmp_connection;
+                tmp_connection << robot_name_want_ask << ","
+                    << get_current_cell()->get_center()->x << ","
+                    << get_current_cell()->get_center()->y << ";";
+                append_first_connection(tmp_connection.str());
+              }
             }
           } else if (i == 5) {
             // FIXME
@@ -182,27 +197,6 @@ bool MstcCommunicator::ask_other_robot_still_alive(
               status_string.append(information);
               // Robot was dead
               result = false;
-//              cell_string.append(get_robot_name());
-//              cell_string.append("DEAD_ROBOT");
-//              cell_string.append(";");
-//
-//              // Update all status
-//              boost::char_separator<char> split(";");
-//              boost::tokenizer<boost::char_separator<char> > tokens(
-//                  read_status_message(), split);
-//              foreach (const std::string& dead_robot_status, tokens) {
-//                if (dead_robot_status.find(robot_name_want_ask)
-//                    != std::string::npos) {
-//                  // Found
-//                  continue;
-//                } else {
-//                  // Not found
-//                  status_string.append(dead_robot_status);
-//                  status_string.append(";");
-//                }
-//              }
-//              clear_robots_dead_old_cells(robot_name_want_ask, cell_string,
-//                  status_string);
             }
           }
           i++;
@@ -257,6 +251,12 @@ bool MstcCommunicator::find_old_cell(IdentifiableCellPtr cell) {
       break;
     }
   }
+  // FIXME
+//  IdentifiableCellPtr tmp_item = *old_cells.end();
+//  if (((tmp_item)->get_center()->x == cell->get_center()->x)
+//      && ((tmp_item)->get_center()->y == cell->get_center()->y)) {
+//    value = true;
+//  }
   return value;
 }
 
@@ -268,26 +268,27 @@ void MstcCommunicator::insert_old_cell(IdentifiableCellPtr cell) {
 }
 
 std::string MstcCommunicator::read_old_cells_message_from_rosbag() {
-  rosbag::Bag bag;
-  std::string msg;
-  try {
-    bag.open("message.bag", rosbag::bagmode::Read);
-  } catch (rosbag::BagIOException &e) {
-    write_old_cells_message_to_rosbag("");
-    bag.open("message.bag", rosbag::bagmode::Read);
-  }
-  std::vector<std::string> topics;
-  topics.push_back(std::string("publisher_communication"));
-
-  rosbag::View view(bag, rosbag::TopicQuery(topics));
-  foreach(rosbag::MessageInstance const m, view) {
-    std_msgs::String::ConstPtr s = m.instantiate<std_msgs::String>();
-    if (s != NULL) {
-      msg.append(s->data.c_str());
-    }
-  }
-  bag.close();
-  ROS_INFO("[Reading]Ros bag old cells: %s", msg.data());
+//  rosbag::Bag bag;
+//  std::string msg;
+//  try {
+//    bag.open("message.bag", rosbag::bagmode::Read);
+//  } catch (rosbag::BagIOException &e) {
+//    write_old_cells_message_to_rosbag("");
+//    bag.open("message.bag", rosbag::bagmode::Read);
+//  }
+//  std::vector<std::string> topics;
+//  topics.push_back(std::string("publisher_communication"));
+//
+//  rosbag::View view(bag, rosbag::TopicQuery(topics));
+//  foreach(rosbag::MessageInstance const m, view) {
+//    std_msgs::String::ConstPtr s = m.instantiate<std_msgs::String>();
+//    if (s != NULL) {
+//      msg.append(s->data.c_str());
+//    }
+//  }
+//  bag.close();
+//  ROS_INFO("[Reading]Ros bag old cells: %s", msg.data());
+  std::string msg = this->get_message_string();
   return msg;
 }
 
@@ -322,25 +323,26 @@ void MstcCommunicator::update_old_cells_from_message(std::string msg) {
 }
 
 std::string MstcCommunicator::read_status_message() {
-  rosbag::Bag status_bag;
-  std::string msg;
-  try {
-    status_bag.open("status.bag", rosbag::bagmode::Read);
-  } catch (rosbag::BagIOException &e) {
-    write_status_message_to_rosbag("");
-    status_bag.open("status.bag", rosbag::bagmode::Read);
-  }
-  std::vector<std::string> topics;
-  topics.push_back(std::string("status_publisher"));
-
-  rosbag::View view(status_bag, rosbag::TopicQuery(topics));
-  foreach(rosbag::MessageInstance const m, view) {
-    std_msgs::String::ConstPtr s = m.instantiate<std_msgs::String>();
-    if (s != NULL) {
-      msg.append(s->data.c_str());
-    }
-  }
-  status_bag.close();
+//  rosbag::Bag status_bag;
+//  std::string msg;
+//  try {
+//    status_bag.open("status.bag", rosbag::bagmode::Read);
+//  } catch (rosbag::BagIOException &e) {
+//    write_status_message_to_rosbag("");
+//    status_bag.open("status.bag", rosbag::bagmode::Read);
+//  }
+//  std::vector<std::string> topics;
+//  topics.push_back(std::string("status_publisher"));
+//
+//  rosbag::View view(status_bag, rosbag::TopicQuery(topics));
+//  foreach(rosbag::MessageInstance const m, view) {
+//    std_msgs::String::ConstPtr s = m.instantiate<std_msgs::String>();
+//    if (s != NULL) {
+//      msg.append(s->data.c_str());
+//    }
+//  }
+//  status_bag.close();
+  std::string msg = this->get_status_string();
   return msg;
 }
 
@@ -425,36 +427,37 @@ void MstcCommunicator::set_is_backtracking(bool isBacktracking) {
 
 void MstcCommunicator::write_obstacle_message_to_rosbag(std::string message) {
   ROS_INFO("[Writing]My obstacle cells: %s", message.data());
-  rosbag::Bag obstacle_bag;
-  obstacle_bag.open("obstacle.bag", rosbag::bagmode::Write);
-  std_msgs::String str_obstacle;
-  str_obstacle.data = message.data();
-  obstacle_bag.write("obstacle_publisher", ros::Time::now(), str_obstacle);
-  obstacle_bag.close();
+//  rosbag::Bag obstacle_bag;
+//  obstacle_bag.open("obstacle.bag", rosbag::bagmode::Write);
+//  std_msgs::String str_obstacle;
+//  str_obstacle.data = message.data();
+//  obstacle_bag.write("obstacle_publisher", ros::Time::now(), str_obstacle);
+//  obstacle_bag.close();
+  this->set_obstacle_string(message);
 }
 
 void MstcCommunicator::read_obstacle_message_from_rosbag() {
-  ROS_INFO("I am Here");
-  rosbag::Bag obstacle_bag;
-  std::string msg;
-  try {
-    obstacle_bag.open("obstacle.bag", rosbag::bagmode::Read);
-  } catch (rosbag::BagIOException &e) {
-    write_obstacle_message_to_rosbag("");
-    obstacle_bag.open("obstacle.bag", rosbag::bagmode::Read);
-  }
-  std::vector<std::string> topics;
-  topics.push_back(std::string("obstacle_publisher"));
-
-  rosbag::View view(obstacle_bag, rosbag::TopicQuery(topics));
-  foreach(rosbag::MessageInstance const m, view) {
-    std_msgs::String::ConstPtr s = m.instantiate<std_msgs::String>();
-    if (s != NULL) {
-      msg.append(s->data.c_str());
-    }
-  }
-
-  obstacle_bag.close();
+//  rosbag::Bag obstacle_bag;
+//  std::string msg;
+//  try {
+//    obstacle_bag.open("obstacle.bag", rosbag::bagmode::Read);
+//  } catch (rosbag::BagIOException &e) {
+//    write_obstacle_message_to_rosbag("");
+//    obstacle_bag.open("obstacle.bag", rosbag::bagmode::Read);
+//  }
+//  std::vector<std::string> topics;
+//  topics.push_back(std::string("obstacle_publisher"));
+//
+//  rosbag::View view(obstacle_bag, rosbag::TopicQuery(topics));
+//  foreach(rosbag::MessageInstance const m, view) {
+//    std_msgs::String::ConstPtr s = m.instantiate<std_msgs::String>();
+//    if (s != NULL) {
+//      msg.append(s->data.c_str());
+//    }
+//  }
+//
+//  obstacle_bag.close();
+  std::string msg = this->get_obstacle_string();
   ROS_INFO("[Reading]Ros bag obstacle cells: %s", msg.data());
   update_obstacle_cells_from_message(msg);
 }
@@ -588,7 +591,6 @@ int MstcCommunicator::get_status_message_from_server() {
   char *sendMes = (char *) malloc(MAX_SIZE);
   char *recvMes = (char *) malloc(MAX_SIZE);
   std::string new_status;
-  std::cout << "I am here, old cells";
   strcpy(sendMes, "[GIVE_ME_STATUS]|_");
   strcpy(recvMes, "");
   countSendData = send(sockfd, sendMes, strlen(sendMes), 0);
@@ -619,7 +621,6 @@ int MstcCommunicator::get_old_cells_message_from_server() {
   char *sendMes = (char *) malloc(MAX_SIZE);
   char *recvMes = (char *) malloc(MAX_SIZE);
   std::string new_old_cells;
-  std::cout << "I am here, old cells";
   strcpy(sendMes, "[GIVE_ME_OLD_CELLS]|_");
   strcpy(recvMes, "");
   countSendData = send(sockfd, sendMes, strlen(sendMes), 0);
@@ -635,25 +636,7 @@ int MstcCommunicator::get_old_cells_message_from_server() {
     } else {
       printf("Received data!\n");
       countTotalRecvData = countTotalRecvData + countRecvData;
-      // printf("Server reply: %s\n", recvMes);
       new_old_cells.assign(recvMes, countRecvData);
-      // recvMes = (char *) malloc(MAX_SIZE);
-      // strcpy(recvMes, "");
-
-      // boost::char_separator<char> split_str("|");
-      // int i = 1;
-      // boost::tokenizer<boost::char_separator<char> > tokens(new_old_cells,
-      //     split_str);
-      // BOOST_FOREACH (const std::string& mess, tokens) {
-      //   {
-      //     if (i == 1) {
-      //       // Do nothing
-      //     } else if (i == 2) {
-      //       write_old_cells_message(mess);
-      //     }
-      //     i++;
-      //   }
-      // }
       if (new_old_cells == "no thing") {
         write_old_cells_message_to_rosbag("");
       } else {
@@ -664,12 +647,243 @@ int MstcCommunicator::get_old_cells_message_from_server() {
   return 0;
 }
 
+void MstcCommunicator::broadcast_task(std::string status_task) {
+  std::string status_string;
+  std::string cell_string;
+  if (this->get_ip_server() != "no_need") {
+    this->get_status_message_from_server();
+  }
+  std::string current_status_message = read_status_message();
+  int i;
+  boost::char_separator<char> split_status(";");
+  boost::char_separator<char> split_information(",");
+  boost::tokenizer<boost::char_separator<char> > tokens(current_status_message,
+      split_status);
+  foreach (const std::string& status, tokens) {
+    if (status.find(this->get_robot_name()) != std::string::npos) {
+      // Found
+      boost::tokenizer<boost::char_separator<char> > tokens(status,
+          split_information);
+      i = 1;
+      foreach (const std::string& information, tokens) {
+        if (i == 1) {
+          status_string.append(information);
+          status_string.append(",");
+        } else if (i == 2) {
+          status_string.append(information);
+          status_string.append(",");
+          cell_string.append(information);
+          cell_string.append(",");
+        } else if (i == 3) {
+          status_string.append(information);
+          status_string.append(",");
+          cell_string.append(information);
+          cell_string.append(",");
+        } else if (i == 4) {
+          status_string.append(information);
+          status_string.append(",");
+        } else if (i == 5) {
+          status_string.append(status_task);
+          status_string.append(";");
+        }
+      }
+      i++;
+    } else {
+      status_string.append(status);
+    }
+  }
+  this->send_save_message_to_server(
+      this->create_status_message_to_send_to_server(status_string));
+}
+
+bool MstcCommunicator::check_other_robot_had_connect_still_alive() {
+//  bool result = true;
+  if (this->get_ip_server() != "no_need") {
+    this->get_status_message_from_server();
+  }
+  std::string current_status_message = read_status_message();
+  std::string status_string;
+  std::string temp_robot_name;
+  std::string cell_string;
+  int i;
+  boost::char_separator<char> split_status(";");
+  boost::char_separator<char> split_information(",");
+  boost::tokenizer<boost::char_separator<char> > tokens(current_status_message,
+      split_status);
+  foreach (const std::string& status, tokens) {
+    boost::tokenizer<boost::char_separator<char> > tokens(status,
+        split_information);
+    i = 1;
+    status_string = "";
+    cell_string = "";
+    temp_robot_name = "";
+    foreach (const std::string& information, tokens) {
+      if (i == 1) {
+        status_string.append(information);
+        status_string.append(",");
+        temp_robot_name.append(information);
+      } else if (i == 2) {
+        status_string.append(information);
+        status_string.append(",");
+        cell_string.append(information);
+        cell_string.append(",");
+      } else if (i == 3) {
+        status_string.append(information);
+        status_string.append(",");
+        cell_string.append(information);
+        cell_string.append(",");
+      } else if (i == 4) {
+        status_string.append(information);
+        // FIXME
+        status_string.append(",");
+        int old_time = atoi(information.c_str());
+        int current;
+        std::stringstream ss;
+        ss << ros::Time::now();
+        current = atoi(ss.str().c_str());
+
+        std::cout << "DHBKHNHEDSPIK56 <<" << current - old_time << ">>";
+        if (current - old_time > 10) {
+          // Robot was dead
+          status_string.append("[DEAD];");
+          //              cell_string.append(get_robot_name());
+          cell_string.append("DEAD_ROBOT");
+          cell_string.append(";");
+
+          // Update all status
+          boost::char_separator<char> split(";");
+          boost::tokenizer<boost::char_separator<char> > tokens(
+              current_status_message, split);
+          foreach (const std::string& dead_robot_status, tokens) {
+            if (dead_robot_status.find(temp_robot_name) != std::string::npos) {
+              // Found
+              continue;
+            } else {
+              // Not found
+              status_string.append(dead_robot_status);
+              status_string.append(";");
+            }
+          }
+        }
+      } else if (i == 5) {
+        // FIXME
+        if (information == "[DEAD]") {
+          status_string.append(information);
+          // Robot was dead
+        } else if (information == "[ALIVE]") {
+          if (this->find_backtrack_cell(temp_robot_name)) {
+            this->set_robot_dead_name(temp_robot_name);
+            clear_robots_dead_old_cells(temp_robot_name, cell_string,
+                status_string);
+            return false;
+          }
+        }
+      }
+      i++;
+    }
+  }
+  return true;
+}
+
+bool MstcCommunicator::find_backtrack_cell(std::string robot_dead_name) {
+  IdentifiableCellPtr return_cell;
+  bool result = false;
+  double x = 0.0;
+  double y = 0.0;
+  int i;
+  std::string first_connection = get_first_connection();
+  boost::char_separator<char> split_robot(";");
+  boost::char_separator<char> split_infor(",");
+  boost::tokenizer<boost::char_separator<char> > tokens(first_connection,
+      split_robot);
+  foreach (const std::string& connection, tokens) {
+    if (connection.find(robot_dead_name) != std::string::npos) {
+      // Found
+      result = true;
+      boost::tokenizer<boost::char_separator<char> > tokens(connection,
+          split_infor);
+      i = 1;
+      foreach (const std::string& information, tokens) {
+        if (i == 1) {
+
+        } else if (i == 2) {
+          x = atof(information.c_str());
+        } else if (i == 3) {
+          y = atof(information.c_str());
+        }
+        i++;
+      }
+      return_cell = IdentifiableCellPtr(
+          new IdentifiableCell(PointPtr(new Point(x, y)),
+              2 * this->get_tool_size(), this->get_robot_name()));
+      this->set_backtrack_cell(return_cell);
+      break;
+    }
+  }
+  return result;
+}
+
+const std::string& MstcCommunicator::get_robot_dead_name() const {
+  return robot_dead_name;
+}
+
+void MstcCommunicator::set_robot_dead_name(
+    const std::string& tmp_robot_dead_name) {
+  robot_dead_name = tmp_robot_dead_name;
+}
+
 const std::string& MstcCommunicator::get_ip_server() const {
   return ip_server;
 }
 
 void MstcCommunicator::set_ip_server(const std::string& ipServer) {
   ip_server = ipServer;
+}
+
+const std::string& MstcCommunicator::get_first_connection() const {
+  return first_connection;
+}
+
+void MstcCommunicator::set_first_connection(
+    const std::string& new_first_connection) {
+  first_connection = new_first_connection;
+}
+
+void MstcCommunicator::append_first_connection(
+    const std::string& tmp_first_connection) {
+  first_connection.append(tmp_first_connection);
+}
+
+IdentifiableCellPtr MstcCommunicator::get_backtrack_cell() {
+  return backtrack_cell;
+}
+
+void MstcCommunicator::set_backtrack_cell(IdentifiableCellPtr backtrackCell) {
+  backtrack_cell = backtrackCell;
+}
+
+const std::string& MstcCommunicator::get_message_string() const {
+  return message_string;
+}
+
+void MstcCommunicator::set_message_string(const std::string& messageString) {
+  message_string = messageString;
+}
+
+const std::string& MstcCommunicator::get_obstacle_string() const {
+  return obstacle_string;
+}
+
+void MstcCommunicator::set_obstacle_string(const std::string& obstacleString) {
+  obstacle_string = obstacleString;
+}
+
+const std::string& MstcCommunicator::get_status_string() const {
+  return status_string;
+}
+
+void MstcCommunicator::set_status_string(const std::string& statusString) {
+  status_string = statusString;
 }
 
 }

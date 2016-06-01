@@ -26,6 +26,7 @@ void MstcOnline::initialize(PointPtr starting_point, double tool_size,
   number_neighbor_cell = 0;
   check_insert = 0;
 
+  communicator->set_is_backtracking(false);
   communicator->set_tool_size(tool_size);
   this->tool_size = tool_size;
   this->communicator = communicator;
@@ -271,101 +272,73 @@ void MstcOnline::scan(CellPtr current) {
   }
   std::cout << "\033[1;34mcurrent-\033[0m\033[1;31mEND:\033[0m "
       << current->get_center()->x << "," << current->get_center()->y << "\n";
-  // Start backtrack
-  // if (bplist.size() > 0) {
-  //     refine_bplist();
-  //     std::cout << "Backtrack list: " << bplist.size() << "\n";
-  //     find_bpcell(current);
-  //     bpmove(current);
-  //   }
-  // End backtrack
+  // Broadcast finish my task
+  communicator->broadcast_task("[DONE]");
+//  if (communicator->get_is_backtracking() == false) {
+//    // Start detect dead robot
+//    double time_counter = 0;
+//    clock_t this_time = clock();
+//    clock_t last_time = this_time;
+//    while (true) {
+//      this_time = clock();
+//      time_counter += (double) (this_time - last_time);
+//      last_time = this_time;
+//      if (time_counter > (double) (INTERVAL * CLOCKS_PER_SEC)) {
+//        time_counter -= (double) (INTERVAL * CLOCKS_PER_SEC);
+//        // TODO
+//        if (!communicator->check_other_robot_had_connect_still_alive()) {
+//          // Nothing happen
+//        } else {
+//          // Detect one robot die when working
+//          communicator->broadcast_task("[ALIVE]");
+//          communicator->set_is_backtracking(true);
+//          path_backtrack = get_path();
+//          PointPtr tmp_current_point;
+//          do {
+//            tmp_current_point = *path_backtrack.begin();
+//            go_to(tmp_current_point, STRICTLY);
+//            path_backtrack.pop_front();
+//          } while ((std::abs(
+//              tmp_current_point->x
+//                  - communicator->get_backtrack_cell()->get_center()->x)
+//              == communicator->get_tool_size() / 2)
+//              && (std::abs(
+//                  tmp_current_point->y
+//                      - communicator->get_backtrack_cell()->get_center()->y)
+//                  == communicator->get_tool_size() / 2));
+//          PointPtr new_starting_point = PointPtr(
+//              new Point(
+//                  communicator->get_backtrack_cell()->get_center()->x
+//                      + communicator->get_tool_size() / 2,
+//                  communicator->get_backtrack_cell()->get_center()->y
+//                      - communicator->get_tool_size() / 2));
+//          go_to(new_starting_point, STRICTLY);
+//          // Initialize new starting_cell
+//          starting_cell = IdentifiableCellPtr(
+//              new IdentifiableCell(
+//                  PointPtr(
+//                      new Point(new_starting_point->x - tool_size / 2,
+//                          new_starting_point->y + tool_size / 2)), 2 * tool_size,
+//                  communicator->get_robot_name()));
+//          starting_cell->set_parent(
+//              IdentifiableCellPtr(
+//                  new IdentifiableCell(
+//                      PointPtr(
+//                          new Point(starting_cell->get_center()->x,
+//                              starting_cell->get_center()->y - 2 * tool_size)),
+//                      2 * tool_size, communicator->get_robot_name())));
+//          path.insert(path.end(), new_starting_point);
+//          this->cover();
+//        }
+//      }
+//    }
+//  }
+  // End detect dead robot
 }
 
-// void MstcOnline::find_bpcell(CellPtr current) {
-//   std::cout << current->get_center()->x << ", " << current->get_center()->y
-//       << std::endl;
-//   start = check_vertex(current);
-//   int time = 100;
-//   for (std::set<CellPtr>::iterator i = bplist.begin(); i != bplist.end(); i++) {
-//     CellPtr tmp = CellPtr(*i);
-//     CellPtr neighbor_E = CellPtr(
-//         new Cell(
-//             PointPtr(
-//                 new Point(tmp->get_center()->x - tool_size,
-//                     tmp->get_center()->y)), tool_size));
-//     if (state_of(neighbor_E) == OLD) {
-//       goal = check_vertex(neighbor_E);
-//     }
-
-//     CellPtr neighbor_W = CellPtr(
-//         new Cell(
-//             PointPtr(
-//                 new Point(tmp->get_center()->x + tool_size,
-//                     tmp->get_center()->y)), tool_size));
-//     if (state_of(neighbor_W) == OLD
-//         && check_distance(current, neighbor_W)
-//             < check_distance(current, neighbor_E)) {
-//       goal = check_vertex(neighbor_W);
-//     }
-
-//     CellPtr neighbor_N = CellPtr(
-//         new Cell(
-//             PointPtr(
-//                 new Point(tmp->get_center()->x,
-//                     tmp->get_center()->y + tool_size)), tool_size));
-//     if (state_of(neighbor_N) == OLD) {
-//       if (state_of(neighbor_E) == OLD
-//           && check_distance(current, neighbor_N)
-//               < check_distance(current, neighbor_E)) {
-//         goal = check_vertex(neighbor_N);
-//       }
-//       if (state_of(neighbor_W) == OLD
-//           && check_distance(current, neighbor_N)
-//               < check_distance(current, neighbor_W)) {
-//         goal = check_vertex(neighbor_N);
-//       }
-//     }
-
-//     CellPtr neighbor_S = CellPtr(
-//         new Cell(
-//             PointPtr(
-//                 new Point(tmp->get_center()->x,
-//                     tmp->get_center()->y - tool_size)), tool_size));
-//     if (state_of(neighbor_S) == OLD) {
-//       goal = check_vertex(neighbor_S);
-//     }
-//     std::vector<mygraph_t::vertex_descriptor> p(num_vertices(g));
-//     std::vector<cost> d(num_vertices(g));
-//     try {
-//       // Call astar named parameter interface
-//       boost::astar_search(g, start,
-//           distance_heuristic<mygraph_t, cost, location*>(locations, goal),
-//           boost::predecessor_map(&p[0]).distance_map(&d[0]).visitor(
-//               astar_goal_visitor<vertex>(goal)));
-//     } catch (found_goal &fg) { // Found a path to the goal
-//       std::list<vertex> shortest_path;
-//       for (vertex v = goal;; v = p[v]) {
-//         shortest_path.push_front(v);
-//         if (p[v] == v)
-//           break;
-//       }
-//       if (d[goal] < time) {
-//         backtrack_path = shortest_path;
-//         starting_cell = tmp;
-//         time = d[goal];
-//       }
-//     }
-//   }
-
-//   std::cout << std::endl << "Total travel time: " << time << std::endl;
-//   std::cout << "\033[1;32mNew Starting Cell:\033[0m" << " "
-//       << starting_cell->get_center()->x << ", "
-//       << starting_cell->get_center()->y << std::endl;
-//   std::list<vertex>::iterator spi = backtrack_path.begin();
-//   for (++spi; spi != backtrack_path.end(); ++spi)
-//     std::cout << "->" << locations[*spi].x << ", " << locations[*spi].y
-//         << std::endl;
-// }
+//void MstcOnline::start_thread_check_other_robot() {
+//
+//}
 
 bool MstcOnline::go_with(VectorPtr direction, double distance) {
   PointPtr last_position = *(--path.end());
@@ -445,51 +418,51 @@ int MstcOnline::check_vertex(CellPtr current) {
   }
   return -1;
 }
+//
+//void MstcOnline::bpmove(CellPtr current) {
+//  std::list<vertex>::iterator spi = backtrack_path.begin();
+//  for (++spi; spi != backtrack_path.end(); ++spi) {
+//    CellPtr next_cell = CellPtr(
+//        new Cell(PointPtr(new Point(locations[*spi].x, locations[*spi].y)),
+//            tool_size));
+//    VectorPtr direction = VectorPtr(
+//        new Vector(
+//            (next_cell->get_center() - current->get_center()) / tool_size));
+//    go_with_bpcell(current->get_center(), direction, tool_size);
+//    current = next_cell;
+//  }
+//  VectorPtr direction = VectorPtr(
+//      new Vector(
+//          (starting_cell->get_center() - current->get_center()) / tool_size));
+//  go_with_bpcell(current->get_center(), direction, tool_size);
+//  path.insert(path.end(), starting_cell->get_center());
+//  old_cells_for_backtrack.insert(old_cells_for_backtrack.end(), starting_cell);
+//  starting_cell->set_parent(
+//      CellPtr(
+//          new Cell(
+//              PointPtr(
+//                  new Point(starting_cell->get_center()->x,
+//                      starting_cell->get_center()->y - tool_size)),
+//              tool_size)));
+////  bplist.erase(starting_cell);
+////  check_rotate = -1;
+////  straight = 1;
+//  scan(starting_cell);
+//}
 
-void MstcOnline::bpmove(CellPtr current) {
-  std::list<vertex>::iterator spi = backtrack_path.begin();
-  for (++spi; spi != backtrack_path.end(); ++spi) {
-    CellPtr next_cell = CellPtr(
-        new Cell(PointPtr(new Point(locations[*spi].x, locations[*spi].y)),
-            tool_size));
-    VectorPtr direction = VectorPtr(
-        new Vector(
-            (next_cell->get_center() - current->get_center()) / tool_size));
-    go_with_bpcell(current->get_center(), direction, tool_size);
-    current = next_cell;
-  }
-  VectorPtr direction = VectorPtr(
-      new Vector(
-          (starting_cell->get_center() - current->get_center()) / tool_size));
-  go_with_bpcell(current->get_center(), direction, tool_size);
-  path.insert(path.end(), starting_cell->get_center());
-  old_cells_for_backtrack.insert(old_cells_for_backtrack.end(), starting_cell);
-  starting_cell->set_parent(
-      CellPtr(
-          new Cell(
-              PointPtr(
-                  new Point(starting_cell->get_center()->x,
-                      starting_cell->get_center()->y - tool_size)),
-              tool_size)));
-//  bplist.erase(starting_cell);
-//  check_rotate = -1;
-//  straight = 1;
-  scan(starting_cell);
-}
+//bool MstcOnline::go_with_bpcell(PointPtr last_position, VectorPtr direction,
+//    double distance) {
+//  PointPtr new_position = PointPtr(
+//      new Point(last_position + direction * distance));
+//  return go_to_bpcell(new_position, STRICTLY);
+//}
 
-bool MstcOnline::go_with_bpcell(PointPtr last_position, VectorPtr direction,
-    double distance) {
-  PointPtr new_position = PointPtr(
-      new Point(last_position + direction * distance));
-  return go_to_bpcell(new_position, STRICTLY);
-}
-
-bool MstcOnline::go_to_bpcell(PointPtr position, bool flexibly) {
-  std::cout << "    pos: " << position->x << "," << position->y << "\n";
-  if (behavior_go_to)
-    return behavior_go_to(position, flexibly);
-  return true;
-}
+//bool MstcOnline::go_to_bpcell(PointPtr position, bool flexibly) {
+//  std::cout << "    pos: " << position->x << "," << position->y << "\n";
+//  if (behavior_go_to)
+//    return behavior_go_to(position, flexibly);
+//  return true;
+//}
 
 }
 }
