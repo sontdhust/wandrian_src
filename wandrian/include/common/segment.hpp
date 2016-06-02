@@ -63,19 +63,21 @@ inline PointPtr operator%(SegmentPtr s1, SegmentPtr s2) {
       xi = (bc - ac) / (am - bm);
       yi = am * xi + ac; // = bm * xi + bc
     }
-    if (s1->p1->x <= xi && xi <= s1->p2->x && s2->p1->x <= xi && xi <= s2->p2->x
-        && ((s1->p1->y <= yi && yi <= s1->p2->y)
-            || (s1->p2->y <= yi && yi <= s1->p1->y))
-        && ((s2->p1->y <= yi && yi <= s2->p2->y)
-            || (s2->p2->y <= yi && yi <= s2->p1->y)))
+    if ((s1->p1->x - xi) * (s1->p2->x - xi) <= EPSILON
+        && (s2->p1->x - xi) * (s2->p2->x - xi) <= EPSILON
+        && (s1->p1->y - yi) * (s1->p2->y - yi) <= EPSILON
+        && (s2->p1->y - yi) * (s2->p2->y - yi) <= EPSILON)
       return PointPtr(new Point(xi, yi));
     else
       return PointPtr();
   }
 }
+
 inline bool operator==(SegmentPtr s1, SegmentPtr s2) {
-  return (((s1->p1 == s2->p1)&&(s1->p2 == s2->p2))||((s1->p1 == s2->p2)&&(s1->p2 == s2->p1)));
+  return (((s1->p1 == s2->p1) && (s1->p2 == s2->p2))
+      || ((s1->p1 == s2->p2) && (s1->p2 == s2->p1)));
 }
+
 inline bool operator<(SegmentConstPtr s1, SegmentConstPtr s2) {
   return s1->p1 != s2->p1 ? s1->p1 < s2->p1 : s1->p2 < s2->p2;
 }
