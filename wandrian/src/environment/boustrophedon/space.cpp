@@ -97,9 +97,15 @@ void Space::set_vary(double robot_size){
 	temp_x = this->get_vertices_below()->get_below_point()->x - this->get_vertices_below()->get_position()->x;
 	temp_y = this->get_vertices_below()->get_below_point()->y - this->get_vertices_below()->get_position()->y;
     this->vary_below =(robot_size* std::sqrt(std::pow(temp_x,2)+std::pow(temp_y,2)))/(2*temp_x);
+    if(std::abs(this->vary_below-robot_size/2)>EPSILON){
+    	this->vary_below = this->vary_below + robot_size/5;
+    }
     temp_x = this->get_vertices_upper()->get_upper_point()->x - this->get_vertices_upper()->get_position()->x;
     temp_y = this->get_vertices_upper()->get_upper_point()->y - this->get_vertices_upper()->get_position()->y;
     this->vary_upper =(robot_size* std::sqrt(std::pow(temp_x,2)+std::pow(temp_y,2)))/(2*temp_x);
+    if(std::abs(this->vary_upper-robot_size/2)>EPSILON){
+       	this->vary_upper = this->vary_upper + robot_size/5;
+    }
 }
 void Space::set_stating_point(double size_y, double robot_size){
 	SegmentPtr segment_cut;

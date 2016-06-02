@@ -41,7 +41,28 @@ bool Boustrophedon::go_to(PointPtr position, bool flexibility) {
   std::cout << "    pos: " << position->x << "," << position->y << "\n";
   return BasePlan::go_to(position, flexibility);
 }
-
+bool Boustrophedon::go_with(PointPtr position, bool flexibility){
+	PointPtr last_position, new_position;
+	int flag;
+	last_position = path.back();
+	if(!last_position){
+		return go_to(position, flexibility);
+	}
+	if((position->x -last_position->x)>EPSILON){
+		return go_to(position, flexibility);
+	}
+	if((last_position->y - position->y)>EPSILON){
+		flag = -1;
+	}else{
+		flag = 1;
+	}
+	for( int i = 1; i*robot_size/2 < std::abs(position->y - last_position->y);i++){
+		new_position = PointPtr(new Point(position->x, last_position->y + i*robot_size*flag/2));
+		go_to(new_position, flexibility);
+	}
+	std::cout << "Last position: " << last_position->x << "," << last_position->y << "\n";
+	return go_to(position, flexibility);
+}
 bool Boustrophedon::go_into(SpacePtr space, double size_y) {
   double x,y;
   double d_upper, d_below;
@@ -52,7 +73,7 @@ bool Boustrophedon::go_into(SpacePtr space, double size_y) {
   double flag;
 
   below_vertices = space->get_vertices_below();
-  go_to(space->starting_point, STRICTLY);
+  go_with(space->starting_point, STRICTLY);
   std::cout << "\033[1;34mStarting Point-\033[0m\033[1;31m\033[0m: "
       << space->starting_point->x << "," << space->starting_point->y << "\n";
   flag = 1;
@@ -69,11 +90,11 @@ bool Boustrophedon::go_into(SpacePtr space, double size_y) {
       if(flag > 0){
     	 new_position = PointPtr(
     			 	 	 new Point(intersect_below->x , intersect_below->y + space->vary_below));
-    	 go_to(new_position, STRICTLY);
+    	 go_with(new_position, STRICTLY);
       }else{
     	  new_position = PointPtr(
     			  	  	 new Point(intersect_upper->x , intersect_upper->y - space->vary_upper));
-    	  go_to(new_position, STRICTLY);
+    	  go_with(new_position, STRICTLY);
       }
     }
     last_position = path.back();
@@ -82,7 +103,7 @@ bool Boustrophedon::go_into(SpacePtr space, double size_y) {
     }else{
       new_position = PointPtr(new Point(last_position->x, intersect_below->y + space->vary_below));
     }
-    go_to(new_position, STRICTLY);
+    go_with(new_position, STRICTLY);
     flag = -flag;
   }
   return true;
@@ -97,25 +118,25 @@ void Boustrophedon::dfs(SpacePtr space, double size_y) {
   for (inspectLC = space->children.begin(); inspectLC != space->children.end();
       ++inspectLC) {
     if ((*inspectLC)->status_visited == false) {
-      go_to((*inspectLC)->backtrack_point, STRICTLY);
-      go_to(
+      go_with((*inspectLC)->backtrack_point, STRICTLY);
+      go_with(
           PointPtr(
               new Point((*inspectLC)->backtrack_point->x + robot_size,
                   (*inspectLC)->backtrack_point->y)), STRICTLY);
       dfs(*inspectLC, size_y);
       if(map->number_space_need_visit >= 1){
-    	  go_to(
+    	  go_with(
     	        PointPtr(
     	        new Point((*inspectLC)->backtrack_point->x + robot_size,
     	                  (*inspectLC)->backtrack_point->y)), STRICTLY);
-    	  go_to((*inspectLC)->backtrack_point, STRICTLY);
+    	  go_with((*inspectLC)->backtrack_point, STRICTLY);
       }
     }
   }
   if ((space->backtrack_point)&&(map->number_space_need_visit >= 1)) {
 	  std::cout<<space->get_vertices_below()->get_below_point()->x
               - robot_size / 2<<" ,"<<space->backtrack_point->y<<"\n";
-    go_to(
+    go_with(
         PointPtr(
             new Point(
                 space->get_vertices_below()->get_below_point()->x

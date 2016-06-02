@@ -44,7 +44,7 @@ public:
 protected:
   bool go_to(PointPtr, bool);
   bool go_into(SpacePtr, double);
-
+  bool go_with(PointPtr , bool );
 private:
   CellPtr starting_cell;
   double robot_size; // = 'cell size' / 2
