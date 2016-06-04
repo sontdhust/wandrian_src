@@ -7,6 +7,7 @@
 
 #include <ros/package.h>
 #include "../include/plans/stc/full_spiral_stc.hpp"
+#include "../include/plans/stc/full_scan_stc.hpp"
 #include "../include/plans/mstc/mstc_online.hpp"
 #include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
 #include "../include/plans/boustrophedon/boustrophedon.hpp"
@@ -57,144 +58,62 @@ void Wandrian::wandrian_run() {
     SpiralStcPtr spiral_stc = SpiralStcPtr(new SpiralStc());
     spiral_stc->initialize(starting_point, robot->get_tool_size());
     spiral_stc->set_behavior_go_to(
-        boost::bind(&Wandrian::spiral_stc_go_to, this, _1, _2));
+        boost::bind(&Wandrian::wandrian_go_to, this, _1, _2));
     spiral_stc->set_behavior_see_obstacle(
-        boost::bind(&Wandrian::spiral_stc_see_obstacle, this, _1, _2));
+        boost::bind(&Wandrian::wandrian_see_obstacle, this, _1, _2));
     spiral_stc->cover();
   } else if (robot->get_plan_name() == "fss") {
     FullSpiralStcPtr full_spiral_stc = FullSpiralStcPtr(new FullSpiralStc());
     full_spiral_stc->initialize(starting_point, robot->get_tool_size());
     full_spiral_stc->set_behavior_go_to(
-        boost::bind(&Wandrian::full_spiral_stc_go_to, this, _1, _2));
+        boost::bind(&Wandrian::wandrian_go_to, this, _1, _2));
     full_spiral_stc->set_behavior_see_obstacle(
-        boost::bind(&Wandrian::full_spiral_stc_see_obstacle, this, _1, _2));
+        boost::bind(&Wandrian::wandrian_see_obstacle, this, _1, _2));
     full_spiral_stc->cover();
+  } else if (robot->get_plan_name() == "fss2") {
+    FullScanStcPtr full_scan_stc = FullScanStcPtr(new FullScanStc());
+    full_scan_stc->initialize(starting_point, robot->get_tool_size());
+    full_scan_stc->set_behavior_go_to(
+        boost::bind(&Wandrian::wandrian_go_to, this, _1, _2));
+    full_scan_stc->set_behavior_see_obstacle(
+        boost::bind(&Wandrian::wandrian_see_obstacle, this, _1, _2));
+    full_scan_stc->cover();
   } else if (robot->get_plan_name() == "mo") {
     MstcOnlinePtr mstc_online = MstcOnlinePtr(new MstcOnline());
     mstc_online->initialize(starting_point, robot->get_tool_size(),
         robot->get_communicator());
     mstc_online->set_behavior_go_to(
-        boost::bind(&Wandrian::mstc_online_go_to, this, _1, _2));
+        boost::bind(&Wandrian::wandrian_go_to, this, _1, _2));
     mstc_online->set_behavior_see_obstacle(
-        boost::bind(&Wandrian::mstc_online_see_obstacle, this, _1, _2));
+        boost::bind(&Wandrian::wandrian_see_obstacle, this, _1, _2));
     mstc_online->cover();
   } else if (robot->get_plan_name() == "bo") {
     BoustrophedonOnlinePtr boustrophedon_online = BoustrophedonOnlinePtr(
         new BoustrophedonOnline());
     boustrophedon_online->initialize(starting_point, robot->get_tool_size());
     boustrophedon_online->set_behavior_go_to(
-        boost::bind(&Wandrian::boustrophedon_online_go_to, this, _1, _2));
+        boost::bind(&Wandrian::wandrian_go_to, this, _1, _2));
     boustrophedon_online->set_behavior_see_obstacle(
-        boost::bind(&Wandrian::boustrophedon_online_see_obstacle, this, _1,
-            _2));
+        boost::bind(&Wandrian::wandrian_see_obstacle, this, _1, _2));
     boustrophedon_online->cover();
   } else if (robot->get_plan_name() == "b") {
     BoustrophedonPtr boustrophedon = BoustrophedonPtr(new Boustrophedon());
     boustrophedon->initialize(starting_point, robot->get_tool_size(),
         find_map_path());
     boustrophedon->set_behavior_go_to(
-        boost::bind(&Wandrian::boustrophedon_go_to, this, _1, _2));
+        boost::bind(&Wandrian::wandrian_go_to, this, _1, _2));
     boustrophedon->cover();
   } else {
     std::list<PointPtr> path = map->get_path();
     for (std::list<PointPtr>::iterator p = path.begin(); p != path.end(); p++) {
       std::cout << " _ (" << (*p)->x << "," << (*p)->y << ")\n";
-      go_to((*p));
+      wandrian_go_to((*p));
     }
   }
   robot->stop();
 }
 
-bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibility) {
-  return go_to(position, flexibility);
-}
-
-bool Wandrian::spiral_stc_see_obstacle(VectorPtr direction, double distance) {
-  RectanglePtr boundary;
-  std::list<RectanglePtr> obstacles;
-  PointPtr new_position = path.back() + direction * distance;
-  if (robot->get_map_name() != "") { // Offline map
-    boundary = map->get_boundary();
-    obstacles = map->get_obstacles();
-  } else {
-    boundary = robot->get_map_boundary();
-  }
-  if (boundary)
-    if (new_position->x
-        >= boundary->get_center()->x + boundary->get_width() / 2 - EPSILON
-        || new_position->x
-            <= boundary->get_center()->x - boundary->get_width() / 2 + EPSILON
-        || new_position->y
-            >= boundary->get_center()->y + boundary->get_height() / 2 - EPSILON
-        || new_position->y
-            <= boundary->get_center()->y - boundary->get_height() / 2
-                + EPSILON) {
-      return true;
-    }
-  if (obstacles.size() > 0) { // Offline
-    for (std::list<RectanglePtr>::iterator o = obstacles.begin();
-        o != obstacles.end(); o++) {
-      CellPtr obstacle = boost::static_pointer_cast<Cell>(*o);
-      if (new_position->x
-          >= obstacle->get_center()->x - obstacle->get_size() / 2 - EPSILON
-          && new_position->x
-              <= obstacle->get_center()->x + obstacle->get_size() / 2 + EPSILON
-          && new_position->y
-              >= obstacle->get_center()->y - obstacle->get_size() / 2 - EPSILON
-          && new_position->y
-              <= obstacle->get_center()->y + obstacle->get_size() / 2
-                  + EPSILON) {
-        return true;
-      }
-    }
-    return false;
-  } else { // Online
-    double angle = direction ^ robot->get_current_direction();
-    if (std::abs(angle) <= 3 * M_PI_4)
-      return
-          (std::abs(angle) <= M_PI_4) ?
-              see_obstacle(IN_FRONT, distance) :
-              ((angle > M_PI_4) ?
-                  see_obstacle(AT_LEFT_SIDE, distance) :
-                  see_obstacle(AT_RIGHT_SIDE, distance));
-    else {
-      rotate_to(direction, STRICTLY);
-      return see_obstacle(IN_FRONT, distance);
-    }
-  }
-}
-
-bool Wandrian::full_spiral_stc_go_to(PointPtr position, bool flexibility) {
-  return spiral_stc_go_to(position, flexibility);
-}
-
-bool Wandrian::full_spiral_stc_see_obstacle(VectorPtr direction,
-    double distance) {
-  return spiral_stc_see_obstacle(direction, distance);
-}
-
-bool Wandrian::mstc_online_go_to(PointPtr position, bool flexibility) {
-  return spiral_stc_go_to(position, flexibility);
-}
-
-bool Wandrian::mstc_online_see_obstacle(VectorPtr direction, double distance) {
-  return spiral_stc_see_obstacle(direction, distance);
-}
-
-bool Wandrian::boustrophedon_online_go_to(PointPtr position, bool flexibility) {
-  return spiral_stc_go_to(position, flexibility);
-}
-
-bool Wandrian::boustrophedon_online_see_obstacle(VectorPtr direction,
-    double distance) {
-  return spiral_stc_see_obstacle(direction, distance);
-}
-
-bool Wandrian::boustrophedon_go_to(PointPtr position, bool flexibility) {
-  return spiral_stc_go_to(position, flexibility);
-}
-
-bool Wandrian::go_to(PointPtr position, bool flexibility) {
+bool Wandrian::wandrian_go_to(PointPtr position, bool flexibility) {
   double deviation_linear_position = robot->get_deviation_linear_position();
   double deviation_angular_position = robot->get_deviation_angular_position();
   PointPtr last_position = path.back();
@@ -243,6 +162,63 @@ bool Wandrian::go_to(PointPtr position, bool flexibility) {
   std::cout << " [" << robot->get_current_position()->x << ","
       << robot->get_current_position()->y << "]\n";
   return true;
+}
+
+bool Wandrian::wandrian_see_obstacle(VectorPtr direction, double distance) {
+  RectanglePtr boundary;
+  std::list<RectanglePtr> obstacles;
+  PointPtr new_position = path.back() + direction * distance;
+  if (robot->get_map_name() != "") { // Offline map
+    boundary = map->get_boundary();
+    obstacles = map->get_obstacles();
+  } else {
+    boundary = robot->get_map_boundary();
+  }
+  if (boundary && boundary->get_width() > 0 && boundary->get_height() > 0)
+    if (new_position->x
+        >= boundary->get_center()->x + boundary->get_width() / 2 - EPSILON
+        || new_position->x
+            <= boundary->get_center()->x - boundary->get_width() / 2 + EPSILON
+        || new_position->y
+            >= boundary->get_center()->y + boundary->get_height() / 2 - EPSILON
+        || new_position->y
+            <= boundary->get_center()->y - boundary->get_height() / 2
+                + EPSILON) {
+      return true;
+    }
+  if (obstacles.size() > 0) { // Offline
+    for (std::list<RectanglePtr>::iterator o = obstacles.begin();
+        o != obstacles.end(); o++) {
+      CellPtr obstacle = boost::static_pointer_cast<Cell>(*o);
+      if (new_position->x
+          >= obstacle->get_center()->x - obstacle->get_size() / 2 - EPSILON
+          && new_position->x
+              <= obstacle->get_center()->x + obstacle->get_size() / 2 + EPSILON
+          && new_position->y
+              >= obstacle->get_center()->y - obstacle->get_size() / 2 - EPSILON
+          && new_position->y
+              <= obstacle->get_center()->y + obstacle->get_size() / 2
+                  + EPSILON) {
+        return true;
+      }
+    }
+    return false;
+  } else { // Online
+    double angle = direction ^ robot->get_current_direction();
+    if (std::abs(angle) <= 3 * M_PI_4)
+      return
+          (std::abs(angle) <= M_PI_4) ?
+              see_obstacle(IN_FRONT, distance) :
+              ((angle > M_PI_4) ?
+                  see_obstacle(AT_LEFT_SIDE, distance) :
+                  see_obstacle(AT_RIGHT_SIDE, distance));
+    else {
+      // rotate_to(direction, STRICTLY);
+      // return see_obstacle(IN_FRONT, distance);
+      // XXX: Debugging
+      return false;
+    }
+  }
 }
 
 bool Wandrian::see_obstacle(Orientation orientation, double distance) {

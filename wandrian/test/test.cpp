@@ -32,6 +32,7 @@ using namespace wandrian::plans::stc;
 using namespace wandrian::plans::boustrophedon_online;
 
 double b_size = 0;
+double o_size = 0;
 double t_size;
 double d_position = 0;
 
@@ -67,8 +68,8 @@ void display() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  glScalef((b_size <= B_SIZE ? 5.0 : 10.0) / b_size,
-      (b_size <= B_SIZE ? 5.0 : 10.0) / b_size, 0);
+  glScalef((b_size <= B_SIZE ? 7.5 : 10.0) / b_size,
+      (b_size <= B_SIZE ? 7.5 : 10.0) / b_size, 0);
 
   // Center point
   glPointSize(4);
@@ -127,8 +128,8 @@ void display() {
 void print_space() {
   RectanglePtr boundary = map->get_boundary();
   std::cout << boundary->get_center()->x << " " << boundary->get_center()->y
-      << " " << boundary->get_width() << " " << boundary->get_height()
-      << "\n\n";
+      << " " << boundary->get_width() << " " << boundary->get_height() << " "
+      << o_size << "\n\n";
   std::list<RectanglePtr> obstacles = map->get_obstacles();
   for (std::list<RectanglePtr>::iterator o = obstacles.begin();
       o != obstacles.end(); o++) {
@@ -141,7 +142,7 @@ void print_space() {
 int run(int argc, char **argv) {
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
-  glutInitWindowSize(400, 400);
+  glutInitWindowSize(280, 280);
   glutCreateWindow("Environment");
   glutDisplayFunc(display);
   glutCloseFunc(print_space);
@@ -216,7 +217,6 @@ int main(int argc, char **argv) {
   }
 
   // Obstacle size
-  double o_size;
   int number_of_obstacles;
   const double r = 0.2;
   if (!map_input) {
