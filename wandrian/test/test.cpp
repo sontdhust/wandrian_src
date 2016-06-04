@@ -217,13 +217,13 @@ int main(int argc, char **argv) {
   }
 
   // Obstacle size
-  int number_of_obstacles;
-  const double r = 0.2;
+  int obstacles_count;
+  const double r = 0.15;
   if (!map_input) {
     std::istringstream iss2(argv[2]);
     iss2 >> o_size;
     double n = 0.75 * r * (b_size * b_size) / (o_size * o_size);
-    number_of_obstacles = n
+    obstacles_count = n
         + ((int) (0.25 * n) != 0 ? std::rand() % (int) (0.25 * n) : 0);
   }
 
@@ -241,7 +241,7 @@ int main(int argc, char **argv) {
     obstacles = map->get_obstacles();
   } else {
     // Generate obstacles
-    for (int i = 0; i <= (number_of_obstacles); i++) {
+    for (int i = 0; i <= (obstacles_count); i++) {
       PointPtr center = PointPtr(
           new Point(
               ((std::rand()

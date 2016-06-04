@@ -11,7 +11,7 @@
 #include "../include/robot.hpp"
 
 // FIXME: Choose relevant values
-#define LASER_COUNT_RATE 0.2
+#define LASER_COUNT_RATE 0.4
 #define LASER_AUGMENTATION_FACTOR 1.0
 #define LASER_SCANNING_ANGLE (1.0 / 3.0 * M_PI)
 
@@ -189,7 +189,8 @@ bool Robot::see_obstacle(double angle, double distance) {
     range_max =
         range_max <= laser->ranges.size() ? range_max : laser->ranges.size();
     for (int i = range_min; i <= range_max - 1; i++) {
-      if (laser->ranges[i] <= laser_augmentation_factor * distance)
+      if (laser->ranges[i] >= laser_augmentation_factor * distance / 2.25
+          && laser->ranges[i] <= laser_augmentation_factor * distance)
         count++;
     }
     return (count >= (range_max - range_min) * laser_count_rate);

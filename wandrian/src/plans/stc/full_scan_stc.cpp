@@ -31,14 +31,24 @@ bool FullScanStc::should_go_to(CellPtr neighbor, VectorPtr direction) {
       PointPtr vertical_position = diagonal_position + d * tool_size;
       // See central point of obstacles, not boundary
       PointPtr current_position = path.back();
-      return see_obstacle(position - current_position,
-          position % current_position)
-          || see_obstacle(neighbor_position - current_position,
-              neighbor_position % current_position)
-          || see_obstacle(vertical_position - current_position,
-              vertical_position % current_position)
-          || see_obstacle(diagonal_position - current_position,
-              diagonal_position % current_position);
+      bool cp = (position != current_position
+          && see_obstacle(position - current_position,
+              position % current_position));
+      bool np = see_obstacle(neighbor_position - current_position,
+          neighbor_position % current_position);
+      bool vp = see_obstacle(vertical_position - current_position,
+          vertical_position % current_position);
+      bool dp = see_obstacle(diagonal_position - current_position,
+          diagonal_position % current_position);
+      if (cp)
+        std::cout << "cp ";
+      if (np)
+        std::cout << "np ";
+      if (vp)
+        std::cout << "vp ";
+      if (dp)
+        std::cout << "dp ";
+      return cp || np || vp || dp;
     } else
       // 'neighbor' is old cell
       return (state_of_subcells_of(neighbor, ~direction) == DIAGONALLY_OPPOSITE);
