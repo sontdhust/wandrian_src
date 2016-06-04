@@ -82,7 +82,7 @@ void SpiralStc::scan(CellPtr current) {
       go_with(++direction, tool_size);
       continue;
     }
-    if (see_obstacle(direction, tool_size / 2)) { // Obstacle
+    if (see_obstacle(direction, tool_size)) { // Obstacle
       // Go to next subcell
       go_with(++direction, tool_size);
     } else { // New free neighbor

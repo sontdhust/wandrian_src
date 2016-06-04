@@ -11,9 +11,8 @@
   <arg name="lv"/>
   <arg name="pav"/>
   <arg name="nav"/>
-  <arg name="pr_c"/>
-  <arg name="pr_s"/>
-  <arg name="af_r"/>
+  <arg name="l_cr"/>
+  <arg name="l_af"/>
   <arg name="e_rd"/>
   <arg name="e_md"/>
   <arg name="e_p"/>
@@ -41,9 +40,8 @@
     <param name="linear_velocity" value="$(arg lv)" type="double"/>
     <param name="positive_angular_velocity" value="$(arg pav)" type="double"/>
     <param name="negative_angular_velocity" value="$(arg nav)" type="double"/>
-    <param name="proportion_ranges_count" value="$(arg pr_c)" type="double"/>
-    <param name="proportion_ranges_sum" value="$(arg pr_s)" type="double"/>
-    <param name="augmentation_factor_range" value="$(arg af_r)" type="double"/>
+    <param name="laser_count_rate" value="$(arg l_cr)" type="double"/>
+    <param name="laser_augmentation_factor" value="$(arg l_af)" type="double"/>
     <param name="epsilon_rotational_direction" value="$(arg e_rd)" type="double"/>
     <param name="epsilon_motional_direction" value="$(arg e_md)" type="double"/>
     <param name="epsilon_position" value="$(arg e_p)" type="double"/>

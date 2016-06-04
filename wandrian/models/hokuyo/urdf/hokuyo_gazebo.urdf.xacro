@@ -9,7 +9,7 @@
         <ray>
           <scan>
             <horizontal>
-              <samples>27</samples>
+              <samples>54</samples>
               <resolution>1</resolution>
               <min_angle>${-M_PI*2/3}</min_angle>
               <max_angle>${M_PI*2/3}</max_angle>
@@ -17,7 +17,7 @@
           </scan>
           <range>
             <min>0.1</min>
-            <max>0.55</max> <!-- bigger than robot size -->
+            <max>1.2</max>
             <resolution>0.01</resolution>
           </range>
         </ray>

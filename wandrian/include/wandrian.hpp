@@ -40,12 +40,10 @@ private:
   bool wandrian_see_obstacle(VectorPtr, double);
 
   // Helpers
-  bool see_obstacle(Orientation, double);
   bool rotate_to(PointPtr, bool);
   bool rotate_to(VectorPtr, bool);
   void go(bool);
   void rotate(bool);
-  void dodge();
   std::string find_map_path();
 };
 

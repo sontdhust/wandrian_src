@@ -106,7 +106,6 @@ void Wandrian::wandrian_run() {
   } else {
     std::list<PointPtr> path = map->get_path();
     for (std::list<PointPtr>::iterator p = path.begin(); p != path.end(); p++) {
-      std::cout << " _ (" << (*p)->x << "," << (*p)->y << ")\n";
       wandrian_go_to((*p));
     }
   }
@@ -205,25 +204,8 @@ bool Wandrian::wandrian_see_obstacle(VectorPtr direction, double distance) {
     return false;
   } else { // Online
     double angle = direction ^ robot->get_current_direction();
-    if (std::abs(angle) <= 3 * M_PI_4)
-      return
-          (std::abs(angle) <= M_PI_4) ?
-              see_obstacle(IN_FRONT, distance) :
-              ((angle > M_PI_4) ?
-                  see_obstacle(AT_LEFT_SIDE, distance) :
-                  see_obstacle(AT_RIGHT_SIDE, distance));
-    else {
-      // rotate_to(direction, STRICTLY);
-      // return see_obstacle(IN_FRONT, distance);
-      // XXX: Debugging
-      return false;
-    }
+    return robot->see_obstacle(angle, distance);
   }
-}
-
-bool Wandrian::see_obstacle(Orientation orientation, double distance) {
-  robot->set_laser_range(distance);
-  return robot->get_obstacles()[orientation];
 }
 
 bool Wandrian::rotate_to(PointPtr position, bool flexibility) {
@@ -282,12 +264,6 @@ void Wandrian::rotate(bool rotation_is_clockwise) {
       rotation_is_clockwise ?
           -robot->get_negative_angular_velocity() :
           robot->get_positive_angular_velocity());
-}
-
-void Wandrian::dodge() {
-  while (robot->get_obstacle_movement() == COMING) {
-    robot->stop();
-  }
 }
 
 std::string Wandrian::find_map_path() {

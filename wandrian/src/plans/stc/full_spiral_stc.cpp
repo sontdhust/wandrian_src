@@ -64,9 +64,9 @@ void FullSpiralStc::scan(CellPtr current) {
   else if (q == IV)
     orientation = IN_FRONT;
   c->set_quadrants_state(+q,
-      see_obstacle(~orientation, tool_size / 2) ? OBSTACLE : NEW);
+      see_obstacle(~orientation, tool_size) ? OBSTACLE : NEW);
   c->set_quadrants_state(-q,
-      see_obstacle(~++orientation, tool_size / 2) ? OBSTACLE : NEW);
+      see_obstacle(~++orientation, tool_size) ? OBSTACLE : NEW);
   // While current cell has a new obstacle-free neighboring cell
   bool is_starting_cell = current == starting_cell;
   do {
@@ -168,7 +168,7 @@ bool FullSpiralStc::go_from(CellPtr current, bool need_to_pass, CellPtr next) {
   q3 = ++q;
   q4 = ++q;
   if (quadrant == q1 || quadrant == q2) {
-    if (!see_obstacle(direction, tool_size / 2)) {
+    if (!see_obstacle(direction, tool_size)) {
       if (need_to_pass == DONT_PASS)
         return true;
       bool successful = visit(next, quadrant == q1 ? q4 : q3);
@@ -177,10 +177,10 @@ bool FullSpiralStc::go_from(CellPtr current, bool need_to_pass, CellPtr next) {
     } else {
       n->set_quadrants_state(q1 ? q4 : q3, OBSTACLE);
       if (!see_obstacle(quadrant == q1 ? ++direction : --direction,
-          tool_size / 2)) {
+          tool_size)) {
         visit(current, quadrant == q1 ? q2 : q1);
         if (!see_obstacle(quadrant == q1 ? --direction : ++direction,
-            tool_size / 2)) {
+            tool_size)) {
           if (need_to_pass == DONT_PASS)
             return true;
           bool successful = visit(next, quadrant == q1 ? q3 : q4);
@@ -196,16 +196,16 @@ bool FullSpiralStc::go_from(CellPtr current, bool need_to_pass, CellPtr next) {
       }
     }
   } else if (quadrant == q4 || quadrant == q3) {
-    if (!see_obstacle(direction, tool_size / 2)) {
+    if (!see_obstacle(direction, tool_size)) {
       visit(c, quadrant == q4 ? q1 : q2);
       return go_from(c, need_to_pass, next);
     } else {
       c->set_quadrants_state(quadrant == q4 ? q1 : q2, OBSTACLE);
       if (!see_obstacle(quadrant == q4 ? ++direction : --direction,
-          tool_size / 2)) {
+          tool_size)) {
         visit(c, quadrant == q4 ? q3 : q4);
         if (!see_obstacle(quadrant == q4 ? --direction : ++direction,
-            tool_size / 2)) {
+            tool_size)) {
           visit(c, quadrant == q4 ? q2 : q1);
           return go_from(c, need_to_pass, next);
         } else {
