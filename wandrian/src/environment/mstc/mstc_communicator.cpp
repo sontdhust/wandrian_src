@@ -74,12 +74,12 @@ std::string MstcCommunicator::create_status_message(
   bool check_added = false;
   std::string my_status;
   std::string all_robots_new_status = "";
-  std::stringstream status;
+  std::stringstream stream_status;
   std::string status_from_ros_bag = read_status_message();
-  status << this->get_robot_name() << "," << last_cell->get_center()->x << ","
-      << last_cell->get_center()->y << "," << ros::Time::now() << ","
+  stream_status << this->get_robot_name() << "," << last_cell->get_center()->x
+      << "," << last_cell->get_center()->y << "," << ros::Time::now() << ","
       << "[ALIVE];";
-  my_status.append(status.str());
+  my_status.append(stream_status.str());
   if (status_from_ros_bag == "") {
     all_robots_new_status = my_status;
   } else {
@@ -89,6 +89,15 @@ std::string MstcCommunicator::create_status_message(
     foreach (const std::string& status, tokens) {
       if (status.find(get_robot_name()) != std::string::npos) {
         // Found
+        if (status.find("[DONE]") != std::string::npos) {
+          stream_status.str(std::string());
+//          stream_status.str("");
+          stream_status << this->get_robot_name() << ","
+              << last_cell->get_center()->x << "," << last_cell->get_center()->y
+              << "," << ros::Time::now() << "," << "[DONE];";
+          my_status = "";
+          my_status.append(stream_status.str());
+        }
         all_robots_new_status.append(my_status);
         check_added = true;
       } else {
@@ -648,7 +657,6 @@ int MstcCommunicator::get_old_cells_message_from_server() {
 }
 
 void MstcCommunicator::broadcast_task(std::string status_task) {
-  std::cout << "Broadcasting...";
   std::string status_string;
   if (this->get_ip_server() != "no_need") {
     this->get_status_message_from_server();
@@ -680,12 +688,13 @@ void MstcCommunicator::broadcast_task(std::string status_task) {
           status_string.append(",");
         } else if (i == 5) {
           if (status_task == "[DONE]") {
-            status_string.append("[DONE]");
+            status_string.append("[DONE];");
+          } else if (status_task == "[ALIVE]") {
+            status_string.append("[ALIVE];");
           }
-          status_string.append(";");
         }
+        i++;
       }
-      i++;
     } else {
       // Not found
       status_string.append(status);
@@ -748,27 +757,6 @@ bool MstcCommunicator::check_other_robot_had_connect_still_alive() {
         std::cout << "DHBKHNHEDSPIK56 <<" << current - old_time << ">>";
         if (current - old_time > 10) {
           check_dead = true;
-          // Robot was dead
-          // FIXME
-//          status_string.append("[DEAD];");
-//          //              cell_string.append(get_robot_name());
-//          cell_string.append("DEAD_ROBOT");
-//          cell_string.append(";");
-//
-//          // Update all status
-//          boost::char_separator<char> split(";");
-//          boost::tokenizer<boost::char_separator<char> > tokens(
-//              current_status_message, split);
-//          foreach (const std::string& dead_robot_status, tokens) {
-//            if (dead_robot_status.find(temp_robot_name) != std::string::npos) {
-//              // Found
-//              continue;
-//            } else {
-//              // Not found
-//              status_string.append(dead_robot_status);
-//              status_string.append(";");
-//            }
-//          }
         }
       } else if (i == 5) {
         // FIXME
@@ -782,6 +770,9 @@ bool MstcCommunicator::check_other_robot_had_connect_still_alive() {
               //              cell_string.append(get_robot_name());
               cell_string.append("DEAD_ROBOT");
               cell_string.append(";");
+              this->write_status_message_to_rosbag(status_string);
+              this->send_save_message_to_server(
+                  this->create_status_message_to_send_to_server(status_string));
 
               // Update all status
               boost::char_separator<char> split(";");

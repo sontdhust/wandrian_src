@@ -277,7 +277,7 @@ void MstcOnline::scan(CellPtr current) {
 
 void MstcOnline::backtrack() {
   // Broadcast finish my task
-  //    communicator->broadcast_task("[DONE]");
+  communicator->broadcast_task("[DONE]");
   if (communicator->get_is_backtracking() == false) {
     // Start detect dead robot
     double time_counter = 0;
@@ -296,7 +296,7 @@ void MstcOnline::backtrack() {
         } else {
           // Detect one robot die when working
           std::cout << "Other robot dead\n";
-          //            communicator->broadcast_task("[ALIVE]");
+          communicator->broadcast_task("[ALIVE]");
           communicator->set_is_backtracking(true);
           path_backtrack = get_path();
           PointPtr tmp_current_point;
@@ -322,22 +322,6 @@ void MstcOnline::backtrack() {
                       - communicator->get_tool_size() / 2));
           go_to(new_starting_point, STRICTLY);
           break;
-          // Initialize new starting_cell
-//          starting_cell = IdentifiableCellPtr(
-//              new IdentifiableCell(
-//                  PointPtr(
-//                      new Point(new_starting_point->x - tool_size / 2,
-//                          new_starting_point->y + tool_size / 2)),
-//                  2 * tool_size, communicator->get_robot_name()));
-//          starting_cell->set_parent(
-//              IdentifiableCellPtr(
-//                  new IdentifiableCell(
-//                      PointPtr(
-//                          new Point(starting_cell->get_center()->x,
-//                              starting_cell->get_center()->y - 2 * tool_size)),
-//                      2 * tool_size, communicator->get_robot_name())));
-//          path.insert(path.end(), new_starting_point);
-//          this->cover();
         }
       }
     }
