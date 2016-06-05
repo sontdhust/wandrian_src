@@ -204,7 +204,7 @@ bool Wandrian::go_to(PointPtr position, bool flexibility) {
       + direction * deviation_linear_position * deviation_linear_count
       + (deviation_angular_position > 0 ? +direction : -direction)
           * std::abs(deviation_angular_position) * deviation_angular_count;
-  std::cout << " (" << actual_position->x << "," << actual_position->y << ")";
+
   bool forward;
   forward = rotate_to(actual_position, flexibility);
   // Assume there is no obstacles, robot go straight
@@ -240,8 +240,7 @@ bool Wandrian::go_to(PointPtr position, bool flexibility) {
     }
   }
   actual_path.insert(actual_path.end(), actual_position);
-  std::cout << " [" << robot->get_current_position()->x << ","
-      << robot->get_current_position()->y << "]\n";
+
   return true;
 }
 

@@ -38,7 +38,7 @@ void Boustrophedon::cover() {
 }
 
 bool Boustrophedon::go_to(PointPtr position, bool flexibility) {
-  std::cout << "    pos: " << position->x << "," << position->y << "\n";
+ // std::cout << "    pos: " << position->x << "," << position->y << "\n";
   return BasePlan::go_to(position, flexibility);
 }
 bool Boustrophedon::go_with(PointPtr position, bool flexibility){
@@ -60,7 +60,6 @@ bool Boustrophedon::go_with(PointPtr position, bool flexibility){
 		new_position = PointPtr(new Point(position->x, last_position->y + i*robot_size*flag/2));
 		go_to(new_position, flexibility);
 	}
-	std::cout << "Last position: " << last_position->x << "," << last_position->y << "\n";
 	return go_to(position, flexibility);
 }
 bool Boustrophedon::go_into(SpacePtr space, double size_y) {
@@ -125,6 +124,7 @@ void Boustrophedon::dfs(SpacePtr space, double size_y) {
                   (*inspectLC)->backtrack_point->y)), STRICTLY);
       dfs(*inspectLC, size_y);
       if(map->number_space_need_visit >= 1){
+      	  //go_with((*inspectLC)->starting_point, STRICTLY);
     	  go_with(
     	        PointPtr(
     	        new Point((*inspectLC)->backtrack_point->x + robot_size,
@@ -133,15 +133,14 @@ void Boustrophedon::dfs(SpacePtr space, double size_y) {
       }
     }
   }
-  if ((space->backtrack_point)&&(map->number_space_need_visit >= 1)) {
-	  std::cout<<space->get_vertices_below()->get_below_point()->x
-              - robot_size / 2<<" ,"<<space->backtrack_point->y<<"\n";
-    go_with(
-        PointPtr(
-            new Point(
-                space->get_vertices_below()->get_below_point()->x
-                    - robot_size / 2, space->backtrack_point->y)), STRICTLY);
-  }
+  // if ((space->backtrack_point)&&(map->number_space_need_visit >= 1)) {
+  // 	go_with((space)->starting_point, STRICTLY);
+  //   // go_with(
+  //   //     PointPtr(
+  //   //         new Point(
+  //   //             space->get_vertices_below()->get_below_point()->x
+  //   //                 - robot_size / 2, space->backtrack_point->y)), STRICTLY);
+  // }
 }
 
 std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
@@ -155,7 +154,7 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
   std::list<SpacePtr>::iterator inspectLS_temp;
   std::list<PointPtr> list_point_of_space;
 
-  SegmentPtr segment_upper, segment_below, segment_temp, segment_intersect;
+  SegmentPtr segment_upper, segment_below, segment_cut, segment_intersect;
   int i = 1, j = 1;
   VerticesPtr vertices_previous;
   PointPtr temp_point;
@@ -178,7 +177,7 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
 	  //2 Update list segment
 	  //3 Update list vertices
 	  list_point_of_space.clear();
-	  segment_temp = SegmentPtr(new Segment((*inspectLV)->get_position()->x, (*inspectLV)->get_position()->y -
+	  segment_cut = SegmentPtr(new Segment((*inspectLV)->get_position()->x, (*inspectLV)->get_position()->y -
 					 environment->get_height(),(*inspectLV)->get_position()->x,
 			 		 (*inspectLV)->get_position()->y + 2*environment->get_height()));
 	  if(!(*inspectLV)->is_obstacles_upper){
@@ -195,20 +194,20 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
 		  if(!(*inspectLV)->is_obstacles_upper){
 			list_point_of_space.push_back((*inspectLV)->get_upper_point());
 			list_point_of_space.push_back(Vertices::get_point_x_litte(segment_upper));
-			list_point_of_space.push_back(segment_upper%segment_temp);
+			list_point_of_space.push_back(segment_upper%segment_cut);
 			list_point_of_space.push_back((*inspectLV)->get_position());
 			list_space.push_back(SpacePtr(new Space(list_point_of_space, robot_size)));
 			list_point_of_space.clear();
 			Vertices::update_list_vertices(list_vertices, Vertices::get_point_x_large(segment_upper),
-					  Vertices::get_point_x_litte(segment_upper), segment_temp%segment_upper);
-			Vertices::update_list_segment(list_segment,segment_upper, segment_upper%segment_temp);
+					  Vertices::get_point_x_litte(segment_upper), segment_cut%segment_upper);
+			Vertices::update_list_segment(list_segment,segment_upper, segment_upper%segment_cut);
 			list_point_of_space.push_back(Vertices::get_point_x_litte(segment_below));
 			list_point_of_space.push_back((*inspectLV)->get_below_point());
 			list_point_of_space.push_back((*inspectLV)->get_position());
-			list_point_of_space.push_back(segment_below%segment_temp);
+			list_point_of_space.push_back(segment_below%segment_cut);
 			Vertices::update_list_vertices(list_vertices, Vertices::get_point_x_large(segment_below),
-					  Vertices::get_point_x_litte(segment_below), segment_temp%segment_below);
-			Vertices::update_list_segment(list_segment,segment_below, segment_below%segment_temp);
+					  Vertices::get_point_x_litte(segment_below), segment_cut%segment_below);
+			Vertices::update_list_segment(list_segment,segment_below, segment_below%segment_cut);
 			}else{
 				list_point_of_space.push_back((*inspectLV)->get_below_point());
 				list_point_of_space.push_back((*inspectLV)->get_upper_point());
@@ -223,18 +222,18 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
 			  segment_intersect = segment_upper;
 			  list_point_of_space.push_back((*inspectLV)->get_below_point());
 			  list_point_of_space.push_back(Vertices::get_point_x_litte(segment_upper));
-			  list_point_of_space.push_back(segment_upper%segment_temp);
+			  list_point_of_space.push_back(segment_upper%segment_cut);
 			  list_point_of_space.push_back((*inspectLV)->get_position());
 		  }else{
 			  segment_intersect = segment_below;
 			  list_point_of_space.push_back(Vertices::get_point_x_litte(segment_below));
 			  list_point_of_space.push_back((*inspectLV)->get_below_point());
 			  list_point_of_space.push_back((*inspectLV)->get_position());
-			  list_point_of_space.push_back(segment_below%segment_temp);
+			  list_point_of_space.push_back(segment_below%segment_cut);
 		  }
 		  Vertices::update_list_vertices(list_vertices, Vertices::get_point_x_large(segment_intersect),
-				  	  	  	 Vertices::get_point_x_litte(segment_intersect), segment_temp%segment_intersect);
-		  Vertices::update_list_segment(list_segment,segment_intersect, segment_intersect%segment_temp);
+				  	  	  	 Vertices::get_point_x_litte(segment_intersect), segment_cut%segment_intersect);
+		  Vertices::update_list_segment(list_segment,segment_intersect, segment_intersect%segment_cut);
 		  list_segment.remove(SegmentPtr(new Segment((*inspectLV)->get_below_point(),(*inspectLV)->get_position())));
 		  list_segment.push_back(SegmentPtr(new Segment((*inspectLV)->get_upper_point(),(*inspectLV)->get_position())));
 		  break;
@@ -244,18 +243,18 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
 			segment_intersect = segment_upper;
 			list_point_of_space.push_back((*inspectLV)->get_upper_point());
 			list_point_of_space.push_back(Vertices::get_point_x_litte(segment_upper));
-			list_point_of_space.push_back(segment_upper%segment_temp);
+			list_point_of_space.push_back(segment_upper%segment_cut);
 			list_point_of_space.push_back((*inspectLV)->get_position());
 		  }else{
 			segment_intersect = segment_below;
 			list_point_of_space.push_back(Vertices::get_point_x_litte(segment_below));
 			list_point_of_space.push_back((*inspectLV)->get_upper_point());
 			list_point_of_space.push_back((*inspectLV)->get_position());
-			list_point_of_space.push_back(segment_below%segment_temp);
+			list_point_of_space.push_back(segment_below%segment_cut);
 		  }
 		  Vertices::update_list_vertices(list_vertices,  Vertices::get_point_x_large(segment_intersect),
-				  	  	  	 Vertices::get_point_x_litte(segment_intersect), segment_temp%segment_intersect);
-		  Vertices::update_list_segment(list_segment,segment_intersect, segment_intersect%segment_temp);
+				  	  	  	 Vertices::get_point_x_litte(segment_intersect), segment_cut%segment_intersect);
+		  Vertices::update_list_segment(list_segment,segment_intersect, segment_intersect%segment_cut);
 		  list_segment.remove(SegmentPtr(new Segment((*inspectLV)->get_upper_point(),(*inspectLV)->get_position())));
 		  list_segment.push_back(SegmentPtr(new Segment((*inspectLV)->get_below_point(),(*inspectLV)->get_position())));
 		  break;
@@ -264,14 +263,14 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
 		  if(!(*inspectLV)->is_obstacles_upper){
 		 	list_point_of_space.push_back(Vertices::get_point_x_litte(segment_below));
 		 	list_point_of_space.push_back(Vertices::get_point_x_litte(segment_upper));
-		 	list_point_of_space.push_back(segment_upper%segment_temp);
-		 	list_point_of_space.push_back(segment_below%segment_temp);
+		 	list_point_of_space.push_back(segment_upper%segment_cut);
+		 	list_point_of_space.push_back(segment_below%segment_cut);
 			Vertices::update_list_vertices(list_vertices, Vertices::get_point_x_large(segment_upper),
-					  Vertices::get_point_x_litte(segment_upper), segment_temp%segment_upper);
-			Vertices::update_list_segment(list_segment,segment_upper, segment_upper%segment_temp);
+					  Vertices::get_point_x_litte(segment_upper), segment_cut%segment_upper);
+			Vertices::update_list_segment(list_segment,segment_upper, segment_upper%segment_cut);
 			Vertices::update_list_vertices(list_vertices, Vertices::get_point_x_large(segment_below),
-					  Vertices::get_point_x_litte(segment_below), segment_temp%segment_below);
-			Vertices::update_list_segment(list_segment,segment_below, segment_below%segment_temp);
+					  Vertices::get_point_x_litte(segment_below), segment_cut%segment_below);
+			Vertices::update_list_segment(list_segment,segment_below, segment_below%segment_cut);
 		 	}
 		  	list_segment.push_back(SegmentPtr(new Segment((*inspectLV)->get_below_point(),(*inspectLV)->get_position())));
 		  	list_segment.push_back(SegmentPtr(new Segment((*inspectLV)->get_upper_point(),(*inspectLV)->get_position())));
@@ -292,7 +291,7 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
 			 list_point_of_space.push_back(Vertices::get_point_x_litte(segment_below));
 			 list_point_of_space.push_back((*inspectLV)->get_below_point());
 			 list_point_of_space.push_back((*inspectLV)->get_position());
-			 list_point_of_space.push_back(segment_below%segment_temp);
+			 list_point_of_space.push_back(segment_below%segment_cut);
 			 list_segment.remove(SegmentPtr(new Segment((*inspectLV)->get_below_point(),(*inspectLV)->get_position())));
 		 }
 		 else{
@@ -300,15 +299,14 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
 			 segment_intersect = segment_upper;
 			 list_point_of_space.push_back((*inspectLV)->get_upper_point());
 			 list_point_of_space.push_back(Vertices::get_point_x_litte(segment_upper));
-			 list_point_of_space.push_back(segment_upper%segment_temp);
+			 list_point_of_space.push_back(segment_upper%segment_cut);
 			 list_point_of_space.push_back((*inspectLV)->get_position());
 			 list_segment.remove(SegmentPtr(new Segment((*inspectLV)->get_upper_point(),(*inspectLV)->get_position())));
 			}else{
 			 temp_vertices = VerticesPtr(new Vertices((*inspectLV)->get_position(),(*inspectLV)->get_below_point(),
 					 	 	 	 	 	 	 	 	  (*inspectLV)->get_upper_point(),true));
 			 ++inspectLV;
-			 std::cout<<"Temp pre: ("<< temp_vertices->get_position()->x<<" ,"<<temp_vertices->get_position()->y<<" )\n";
-			 std::cout<<"Temp pre: ("<< (*inspectLV)->get_position()->x<<" ,"<<(*inspectLV)->get_position()->y<<" )\n";
+
 			 if((*inspectLV)->is_obstacles_below){
 				 list_point_of_space.push_back((*inspectLV)->get_below_point());
 				 list_point_of_space.push_back(temp_vertices->get_upper_point());
@@ -316,7 +314,6 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
 				 list_point_of_space.push_back((*inspectLV)->get_position());
 				 list_segment.remove(SegmentPtr(new Segment((*inspectLV)->get_upper_point(),(*inspectLV)->get_position())));
 				 list_segment.remove(SegmentPtr(new Segment((*inspectLV)->get_below_point(),(*inspectLV)->get_position())));
-				 std::cout<<"break khong?\n";
 				 break;
 			 }else{
 				 segment_intersect = Vertices::get_segment_contain_nearest_intersect_point(list_segment,
@@ -324,17 +321,75 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
 				 list_point_of_space.push_back(Vertices::get_point_x_litte(segment_intersect));
 				 list_point_of_space.push_back((temp_vertices)->get_upper_point());
 				 list_point_of_space.push_back((temp_vertices)->get_position());
-				 list_point_of_space.push_back(segment_intersect%segment_temp);
+				 list_point_of_space.push_back(segment_intersect%segment_cut);
 			 }
 			}
 		 }
 		 Vertices::update_list_vertices(list_vertices,  Vertices::get_point_x_large(segment_intersect),
-						  	  	  	 Vertices::get_point_x_litte(segment_intersect), segment_temp%segment_intersect);
-		 Vertices::update_list_segment(list_segment,segment_intersect, segment_intersect%segment_temp);
+						  	  	  	 Vertices::get_point_x_litte(segment_intersect), segment_cut%segment_intersect);
+		 Vertices::update_list_segment(list_segment,segment_intersect, segment_intersect%segment_cut);
 		 break;
 	  case 6:
 		  std::cout<<"\nType Vertices :"<<(*inspectLV)->type_vertice<<"\n";
-
+		  temp_vertices = VerticesPtr(new Vertices((*inspectLV)->get_position(),(*inspectLV)->get_below_point(),
+					 	 	 	 	 	 	 	 	  (*inspectLV)->get_upper_point(),true));
+		  ++inspectLV;
+		  if((*inspectLV)->type_vertice == 6){
+			  if(!temp_vertices->is_obstacles_upper){
+				segment_below = Vertices::get_segment_contain_nearest_intersect_point(list_segment,
+									(*inspectLV)->get_position(), -environment->get_height());
+				segment_upper = Vertices::get_segment_contain_nearest_intersect_point(list_segment,
+									(temp_vertices)->get_position(),environment->get_height());
+				list_point_of_space.push_back(Vertices::get_point_x_litte(segment_below));
+				list_point_of_space.push_back(Vertices::get_point_x_litte(segment_upper));
+				list_point_of_space.push_back(segment_upper%segment_cut);
+				list_point_of_space.push_back(segment_below%segment_cut);
+				Vertices::update_list_vertices(list_vertices,  Vertices::get_point_x_large(segment_below),
+								  	  	  	 Vertices::get_point_x_litte(segment_below), segment_cut%segment_below);
+				Vertices::update_list_segment(list_segment,segment_below, segment_below%segment_cut);
+				Vertices::update_list_vertices(list_vertices,  Vertices::get_point_x_large(segment_upper),
+								  	  	  	 Vertices::get_point_x_litte(segment_upper), segment_cut%segment_upper);
+				Vertices::update_list_segment(list_segment,segment_upper, segment_upper%segment_cut);
+			  }
+			  if(((*inspectLV)->get_below_point()->x-(*inspectLV)->get_position()->x)>EPSILON){
+				  temp_point = (*inspectLV)->get_below_point();
+			  }else{
+				  temp_point = (*inspectLV)->get_upper_point();
+			  }
+			  list_segment.push_back(SegmentPtr(new Segment((*inspectLV)->get_position(),temp_point)));
+		  }
+		  if((*inspectLV)->type_vertice == 5){
+			  if(((*inspectLV)->get_position()->x-(*inspectLV)->get_below_point()->x)>EPSILON){
+				 temp_point = (*inspectLV)->get_below_point();
+				}else{
+				 temp_point = (*inspectLV)->get_upper_point();
+				}
+			  list_segment.remove(SegmentPtr(new Segment(temp_point,(*inspectLV)->get_position())));
+			  if(temp_vertices->is_obstacles_upper){
+				segment_intersect = Vertices::get_segment_contain_nearest_intersect_point(list_segment,
+									(*inspectLV)->get_position(), -environment->get_height());
+				list_point_of_space.push_back(Vertices::get_point_x_litte(segment_intersect));
+				list_point_of_space.push_back(temp_point);
+				list_point_of_space.push_back((*inspectLV)->get_position());
+				list_point_of_space.push_back(segment_intersect%segment_cut);
+			  }else{
+				  segment_intersect = Vertices::get_segment_contain_nearest_intersect_point(list_segment,
+				  								(temp_vertices)->get_position(), environment->get_height());
+				  list_point_of_space.push_back(temp_point);
+				  list_point_of_space.push_back(Vertices::get_point_x_litte(segment_intersect));
+				  list_point_of_space.push_back(segment_intersect%segment_cut);
+				  list_point_of_space.push_back((*inspectLV)->get_position());
+			  }
+		  Vertices::update_list_vertices(list_vertices,  Vertices::get_point_x_large(segment_intersect),
+				  	  	  	 Vertices::get_point_x_litte(segment_intersect), segment_cut%segment_intersect);
+		  Vertices::update_list_segment(list_segment,segment_intersect, segment_intersect%segment_cut);
+		  }
+		  if((temp_vertices->get_below_point()->x-(temp_vertices)->get_position()->x)>EPSILON){
+				temp_point = temp_vertices->get_below_point();
+			 }else{
+				temp_point = temp_vertices->get_upper_point();
+			}
+			list_segment.push_back(SegmentPtr(new Segment(temp_vertices->get_position(),temp_point)));
 		  break;
 	  default:
 		  std::cout<<"\nType Vertices :"<<(*inspectLV)->type_vertice<<"\n";
@@ -347,10 +402,7 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
 		  std::cout<<"Can't crate space!!!!\n";
 	  }
   }
-  std::cout << "Starting add parent!" << "\n";
   list_space.sort(Space::compare_positions_x);
-  Space::print_list_space(list_space);
-  std::cout << list_space.size() << "\n";
   for (inspectLS = --list_space.end(), i = 1; inspectLS != list_space.end();
       --inspectLS) {
     (*inspectLS)->set_stating_point(environment->get_height(), robot_size);
@@ -364,7 +416,7 @@ std::list<SpacePtr> Boustrophedon::create_list_space(RectanglePtr environment,
       }
     }
   }
-  Space::print_list_space(list_space);
+ // Space::print_list_space(list_space);
   return list_space;
 }
 
@@ -426,18 +478,19 @@ void Boustrophedon::boustrophedon_cd() {
   //Create vertices
   list_vertices = create_list_vertices(map->get_boundary(),
       map->get_extended_obstacles());
-
+  Vertices::print_info_list_vertices(list_vertices);
   //Create Space
-  list_space = create_list_space(map->get_boundary(), list_vertices);
-
-  map->number_space_need_visit = list_space.size();
-  for (inspectLS = list_space.begin(), i = 1; inspectLS != list_space.end();
-      ++inspectLS) {
-    i++;
-    std::cout << "Space:" << ": " << std::endl;
-    if ((*inspectLS)->status_visited == false) {
-      dfs(*inspectLS, map->get_boundary()->get_height());
-    }
+//  list_space = create_list_space(map->get_boundary(), list_vertices);
+//
+//  map->number_space_need_visit = list_space.size();
+//  for (inspectLS = list_space.begin(), i = 1; inspectLS != list_space.end();
+//      ++inspectLS) {
+//    i++;
+//	if ( map->number_space_need_visit < 1) break;
+//    std::cout << "Space:" << ": " << std::endl;
+//    if ((*inspectLS)->status_visited == false) {
+//      dfs(*inspectLS, map->get_boundary()->get_height());
+//    }
   }
 }
 

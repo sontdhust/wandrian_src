@@ -76,6 +76,7 @@ void Vertices::set_type_vertices(){
 void Vertices::set_is_obstacles_upper(PolygonPtr obstacles, double size_y){
 	int i;
 	i = number_intersect(obstacles, size_y);
+
 	 if(i%2 == 0){
 		 this->is_obstacles_upper = false;
 	 }else{
@@ -83,6 +84,9 @@ void Vertices::set_is_obstacles_upper(PolygonPtr obstacles, double size_y){
 	 }
 	 if(std::abs(position->x - upper_point->x)<EPSILON){
 		 this->is_obstacles_upper = true;
+	 }
+	 if(std::abs(this->get_position()->y - size_y/2)<EPSILON){
+		 this->is_obstacles_upper = false;
 	 }
  };
 

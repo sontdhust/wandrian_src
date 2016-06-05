@@ -133,35 +133,41 @@ void Space::set_parent(SpacePtr parent) {
 void Space::set_point_backtrack(boost::shared_ptr<Space> space1,
 								double robot_size, double size_y) {
  SegmentPtr segment_cut;
- PointPtr temp_point;
+ PointPtr temp_point, temp_point1;
  if((space1->vertices_below->get_upper_point()->x -
 	 space1->vertices_below->get_below_point()->x) > EPSILON){
 	 temp_point = space1->vertices_below->get_upper_point();
  }else {
 	 temp_point = space1->vertices_below->get_below_point();
-}
+ }
  segment_cut = SegmentPtr(new Segment(temp_point->x - robot_size/2,
 	 	  	  	  	  	  	  	  	  temp_point->y - size_y,
 			  	  	  	  	  	  	  temp_point->x - robot_size/2,
 			  	  	  	  	  	  	  temp_point->y + 2*size_y));
- temp_point = segment_cut%(space1->segment_below);
- if((temp_point->y - this->get_vertices_below()->get_position()->y)> EPSILON){
-   	this->backtrack_point = PointPtr(new Point(
-   			space1->get_vertices_below()->get_below_point()->x -robot_size/2,
-    		temp_point->y + space1->vary_below));
-
+ temp_point1 = segment_cut%(space1->segment_below);
+ temp_point1->y = temp_point1->y + space1->vary_below;
+ 
+ if((((temp_point->y + robot_size/2 - this->get_vertices_below()->get_position()->y)> EPSILON)||
+	 (temp_point1->y - this->get_vertices_below()->get_position()->y)>EPSILON)){
+	if (temp_point->y + robot_size/2 - temp_point1->y > EPSILON){
+		this->backtrack_point = PointPtr(new Point(temp_point->x -robot_size/2, temp_point->y +robot_size/2));
+	}else{
+		this->backtrack_point = PointPtr(new Point(temp_point->x -robot_size/2, temp_point1->y ));
+	}
  }else{
-	if((this->starting_point->y-this->get_vertices_below()->get_position()->y- this->vary_below)>
+	 std::cout<<"BELow: "<<temp_point->x <<", "<<this->get_vertices_below()->get_position()->y<" )\n";
+	if((this->starting_point->y-this->get_vertices_below()->get_position()->y-this->vary_below)>
 		EPSILON){
 	   	this->backtrack_point = PointPtr(new Point(
 	   			space1->get_vertices_below()->get_below_point()->x -robot_size/2,
 	   		    this->starting_point->y));
 	}else{
 	   	this->backtrack_point = PointPtr(new Point(
-		   			space1->get_vertices_below()->get_below_point()->x -robot_size/2,
-		   			this->get_vertices_below()->get_position()->y + this->vary_below ));
+		space1->get_vertices_below()->get_below_point()->x -robot_size/2,
+		this->get_vertices_below()->get_position()->y + robot_size/2 ));
 	}
  }
+ std::cout<<"POINT Backtrack: "<<this->backtrack_point->x <<", "<<this->backtrack_point->y<<" )\n";
 }
 void Space::print_list_space(std::list< boost::shared_ptr<Space> > list_space){
 	std::list<boost::shared_ptr<Space> >::iterator inspectLS;
