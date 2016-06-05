@@ -37,12 +37,16 @@ Change to catkin root directory then run:
 
 ####Running mstc_online:
 
-######2 robots (add one by one robot):
+######Add one by one robot:
     $ roslaunch wandrian environment.launch world_file:=prefered_mstc_online_for_show
     $ roslaunch wandrian add_1_robot.launch starting_point_x_robot:=-1.25 starting_point_y_robot:=-1.75 robot_name:=robot1
     $ roslaunch wandrian add_1_robot.launch starting_point_x_robot:=1.75 starting_point_y_robot:=0.25 robot_name:=robot2
-    $ roslaunch wandrian algorithm_simulator.launch plan_name:=mstc_online robot_name:=robot1 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=-1.75 map_boundary_width:=4.0 map_boundary_height:=4.0 ip_server:=x.x.x.x
-    $ roslaunch wandrian algorithm_simulator.launch plan_name:=mstc_online robot_name:=robot2 tool_size:=0.5 starting_point_x:=1.75 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0 ip_server:=x.x.x.x
+    $ roslaunch wandrian add_1_robot.launch starting_point_x_robot:=-1.25 starting_point_y_robot:=0.25 robot_name:=robot3
+    $ roslaunch wandrian add_1_robot.launch starting_point_x_robot:=-1.25 starting_point_y_robot:=1.25 robot_name:=robot4
+    $ roslaunch wandrian algorithm_simulator.launch plan_name:=mstc_online robot_name:=robot1 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=-1.75 map_boundary_width:=4.0 map_boundary_height:=4.0 ip_server:=127.0.0.1
+    $ roslaunch wandrian algorithm_simulator.launch plan_name:=mstc_online robot_name:=robot2 tool_size:=0.5 starting_point_x:=1.75 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0 ip_server:=127.0.0.1
+    $ roslaunch wandrian algorithm_simulator.launch plan_name:=mstc_online robot_name:=robot3 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0 ip_server:=127.0.0.1
+    $ roslaunch wandrian algorithm_simulator.launch plan_name:=mstc_online robot_name:=robot4 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=1.25 map_boundary_width:=4.0 map_boundary_height:=4.0 ip_server:=127.0.0.1
 
 ######2 robots:
     $ roslaunch wandrian environment.launch world_file:=prefered_mstc_online_for_show
