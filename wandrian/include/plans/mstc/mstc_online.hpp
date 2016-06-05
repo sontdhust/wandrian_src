@@ -35,6 +35,7 @@ public:
   virtual void cover();
 
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
+  void help_dead_robot();
 
 protected:
   double tool_size; // = 'cell size' / 2
@@ -44,6 +45,7 @@ protected:
   bool see_obstacle(VectorPtr, double);
   virtual State state_of(CellPtr);
   virtual void scan(CellPtr);
+  void backtrack();
   std::list<PointPtr> path_backtrack;
 //  void start_thread_check_other_robot();
 

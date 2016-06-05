@@ -85,6 +85,9 @@ void Wandrian::wandrian_run() {
     mstc_online->set_behavior_see_obstacle(
         boost::bind(&Wandrian::mstc_online_see_obstacle, this, _1, _2));
     mstc_online->cover();
+    robot->stop();
+    mstc_online->help_dead_robot();
+    robot->stop();
 //  } else if (robot->get_plan_name() == "full_mstc_online") {
 //    plan = FullMstcOnlinePtr(new FullMstcOnline());
 //    FullMstcOnlinePtr full_mstc_online = boost::static_pointer_cast<FullMstcOnline>(plan);

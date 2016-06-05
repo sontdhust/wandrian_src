@@ -269,82 +269,109 @@ void MstcOnline::scan(CellPtr current) {
   if (!is_starting_cell) {
     communicator->set_current_cell(current);
     go_with(direction, tool_size);
-  } else {
-    std::cout << "\033[1;34mcurrent-\033[0m\033[1;31mEND:\033[0m "
-        << current->get_center()->x << "," << current->get_center()->y << "\n";
-    // Broadcast finish my task
-//    communicator->broadcast_task("[DONE]");
-    if (communicator->get_is_backtracking() == false) {
-      // Start detect dead robot
-      double time_counter = 0;
-      clock_t this_time = clock();
-      clock_t last_time = this_time;
-      while (true) {
-        this_time = clock();
-        time_counter += (double) (this_time - last_time);
-        last_time = this_time;
-        if (time_counter > (double) (INTERVAL * CLOCKS_PER_SEC)) {
-          time_counter -= (double) (INTERVAL * CLOCKS_PER_SEC);
-          // TODO
-          if (communicator->check_other_robot_had_connect_still_alive()
-              == true) {
-            std::cout << "Other robot still alive\n";
-            // Nothing happen
-          } else {
-            // Detect one robot die when working
-            std::cout << "Other robot dead\n";
-//            communicator->broadcast_task("[ALIVE]");
-            communicator->set_is_backtracking(true);
-            path_backtrack = get_path();
-            PointPtr tmp_current_point;
-            do {
-              tmp_current_point = *path_backtrack.begin();
-              go_to(tmp_current_point, STRICTLY);
-              path_backtrack.pop_front();
-            } while ((std::abs(
-                tmp_current_point->x
-                    - communicator->get_backtrack_cell()->get_center()->x)
-                == communicator->get_tool_size() / 2)
-                && (std::abs(
-                    tmp_current_point->y
-                        - communicator->get_backtrack_cell()->get_center()->y)
-                    == communicator->get_tool_size() / 2));
-            PointPtr new_starting_point = PointPtr(
-                new Point(
-                    communicator->get_backtrack_cell()->get_center()->x
-                        + communicator->get_tool_size() / 2,
-                    communicator->get_backtrack_cell()->get_center()->y
-                        - communicator->get_tool_size() / 2));
-            go_to(new_starting_point, STRICTLY);
-            // Initialize new starting_cell
-            starting_cell = IdentifiableCellPtr(
-                new IdentifiableCell(
-                    PointPtr(
-                        new Point(new_starting_point->x - tool_size / 2,
-                            new_starting_point->y + tool_size / 2)),
-                    2 * tool_size, communicator->get_robot_name()));
-            starting_cell->set_parent(
-                IdentifiableCellPtr(
-                    new IdentifiableCell(
-                        PointPtr(
-                            new Point(starting_cell->get_center()->x,
-                                starting_cell->get_center()->y
-                                    - 2 * tool_size)), 2 * tool_size,
-                        communicator->get_robot_name())));
-            path.insert(path.end(), new_starting_point);
-            this->cover();
-          }
-        }
-      }
-    }
-
   }
+  std::cout << "\033[1;34mcurrent-\033[0m\033[1;31mEND:\033[0m "
+      << current->get_center()->x << "," << current->get_center()->y << "\n";
   // End detect dead robot
 }
 
-//void MstcOnline::start_thread_check_other_robot() {
-//
-//}
+void MstcOnline::backtrack() {
+  // Broadcast finish my task
+  //    communicator->broadcast_task("[DONE]");
+  if (communicator->get_is_backtracking() == false) {
+    // Start detect dead robot
+    double time_counter = 0;
+    clock_t this_time = clock();
+    clock_t last_time = this_time;
+    while (true) {
+      this_time = clock();
+      time_counter += (double) (this_time - last_time);
+      last_time = this_time;
+      if (time_counter > (double) (INTERVAL * CLOCKS_PER_SEC)) {
+        time_counter -= (double) (INTERVAL * CLOCKS_PER_SEC);
+        // TODO
+        if (communicator->check_other_robot_had_connect_still_alive() == true) {
+          std::cout << "Other robot still alive\n";
+          // Nothing happen
+        } else {
+          // Detect one robot die when working
+          std::cout << "Other robot dead\n";
+          //            communicator->broadcast_task("[ALIVE]");
+          communicator->set_is_backtracking(true);
+          path_backtrack = get_path();
+          PointPtr tmp_current_point;
+          do {
+            tmp_current_point = *path_backtrack.begin();
+            std::cout << "BACKTRACKING Path:" << tmp_current_point->x << ","
+                << tmp_current_point->y << ";";
+            go_to(tmp_current_point, STRICTLY);
+            path_backtrack.pop_front();
+          } while ((std::abs(
+              tmp_current_point->x
+                  - communicator->get_backtrack_cell()->get_center()->x)
+              != communicator->get_tool_size() / 2)
+              || (std::abs(
+                  tmp_current_point->y
+                      - communicator->get_backtrack_cell()->get_center()->y)
+                  != communicator->get_tool_size() / 2));
+          PointPtr new_starting_point = PointPtr(
+              new Point(
+                  communicator->get_backtrack_cell()->get_center()->x
+                      + communicator->get_tool_size() / 2,
+                  communicator->get_backtrack_cell()->get_center()->y
+                      - communicator->get_tool_size() / 2));
+          go_to(new_starting_point, STRICTLY);
+          break;
+          // Initialize new starting_cell
+//          starting_cell = IdentifiableCellPtr(
+//              new IdentifiableCell(
+//                  PointPtr(
+//                      new Point(new_starting_point->x - tool_size / 2,
+//                          new_starting_point->y + tool_size / 2)),
+//                  2 * tool_size, communicator->get_robot_name()));
+//          starting_cell->set_parent(
+//              IdentifiableCellPtr(
+//                  new IdentifiableCell(
+//                      PointPtr(
+//                          new Point(starting_cell->get_center()->x,
+//                              starting_cell->get_center()->y - 2 * tool_size)),
+//                      2 * tool_size, communicator->get_robot_name())));
+//          path.insert(path.end(), new_starting_point);
+//          this->cover();
+        }
+      }
+    }
+  }
+}
+
+void MstcOnline::help_dead_robot() {
+  while (true) {
+    backtrack();
+    // Initialize new starting_cell
+    PointPtr new_starting_point = PointPtr(
+        new Point(
+            communicator->get_backtrack_cell()->get_center()->x
+                + communicator->get_tool_size() / 2,
+            communicator->get_backtrack_cell()->get_center()->y
+                - communicator->get_tool_size() / 2));
+    starting_cell = IdentifiableCellPtr(
+        new IdentifiableCell(
+            PointPtr(
+                new Point(new_starting_point->x - tool_size / 2,
+                    new_starting_point->y + tool_size / 2)), 2 * tool_size,
+            communicator->get_robot_name()));
+    starting_cell->set_parent(
+        IdentifiableCellPtr(
+            new IdentifiableCell(
+                PointPtr(
+                    new Point(starting_cell->get_center()->x,
+                        starting_cell->get_center()->y - 2 * tool_size)),
+                2 * tool_size, communicator->get_robot_name())));
+    path.insert(path.end(), new_starting_point);
+    scan(starting_cell);
+    break;
+  }
+}
 
 bool MstcOnline::go_with(VectorPtr direction, double distance) {
   PointPtr last_position = *(--path.end());
