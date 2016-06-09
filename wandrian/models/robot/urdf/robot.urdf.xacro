@@ -12,6 +12,6 @@
   <model_kobuki/>
     
   <!-- Model Hokuyo -->
-  <xacro:include filename="$(find wandrian)/models/hokuyo/urdf/hokuyo.urdf.xacro"/>
-  <model_hokuyo parent="base_link"/>
+  <!--xacro:include filename="$(find wandrian)/models/hokuyo/urdf/hokuyo.urdf.xacro"/>
+  <model_hokuyo parent="base_link"/-->
 </robot>

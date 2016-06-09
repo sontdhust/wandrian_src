@@ -14,6 +14,7 @@
 #include <geometry_msgs/Twist.h> // For velocity commands
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/LaserScan.h>
+#include <kobuki_msgs/BumperEvent.h>
 #include <time.h>
 #include "common/point.hpp"
 #include "common/rectangle.hpp"
@@ -44,8 +45,6 @@ public:
   double get_starting_point_x();
   double get_starting_point_y();
   std::string get_plan_name();
-  PointPtr get_current_position();
-  VectorPtr get_current_direction();
   double get_linear_velocity();
   double get_positive_angular_velocity();
   double get_negative_angular_velocity();
@@ -56,6 +55,9 @@ public:
   double get_deviation_angular_position();
   int get_threshold_linear_step_count();
   int get_threshold_angular_step_count();
+  PointPtr get_current_position();
+  VectorPtr get_current_direction();
+  bool get_is_bumper_pressed();
   CommunicatorPtr get_communicator();
   void set_behavior_run(boost::function<void()>);
   void set_linear_velocity(double);
@@ -90,6 +92,7 @@ private:
   PointPtr current_position; // odometry subscriber
   VectorPtr current_direction; // odometry subscriber
   sensor_msgs::LaserScanConstPtr laser; // laser subscriber
+  bool is_bumper_pressed; // bumper subscriber
   double linear_velocity_step; // param
   double linear_velocity_max; // param
   double angular_velocity_step; // param
@@ -113,7 +116,7 @@ private:
   ros::Publisher publisher_power;
   ros::Publisher publisher_velocity;
   ros::Subscriber subscriber_odometry;
-  ros::Subscriber subscriber_laser;
+  ros::Subscriber subscriber_bumper;
 
   void run();
 
@@ -128,6 +131,7 @@ private:
   void disable_power();
   void subscribe_odometry(const nav_msgs::OdometryConstPtr&);
   void subscribe_laser(const sensor_msgs::LaserScanConstPtr&);
+  void subscribe_bumper(const kobuki_msgs::BumperEventConstPtr&);
 };
 
 typedef boost::shared_ptr<Robot> RobotPtr;

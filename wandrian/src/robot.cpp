@@ -25,10 +25,10 @@ Robot::Robot() :
         0), epsilon_motional_direction(0), epsilon_position(0), deviation_linear_position(
         0), deviation_angular_position(0), threshold_linear_step_count(0), threshold_angular_step_count(
         0), delay(0), current_position(new Point()), current_direction(
-        new Vector()), linear_velocity_step(0), linear_velocity_max(0), angular_velocity_step(
-        0), angular_velocity_max(0), velocity(new geometry_msgs::Twist()), is_quitting(
-        false), is_powered(false), is_zero_vel(true), is_logging(false), file_descriptor(
-        0) {
+        new Vector()), is_bumper_pressed(false), linear_velocity_step(0), linear_velocity_max(
+        0), angular_velocity_step(0), angular_velocity_max(0), velocity(
+        new geometry_msgs::Twist()), is_quitting(false), is_powered(false), is_zero_vel(
+        true), is_logging(false), file_descriptor(0) {
   tcgetattr(file_descriptor, &terminal); // get terminal properties
 }
 
@@ -90,8 +90,10 @@ bool Robot::initialize() {
   publisher_velocity = nh.advertise<geometry_msgs::Twist>("velocity", 1);
   subscriber_odometry = nh.subscribe<nav_msgs::Odometry>("odometry", 1,
       &Robot::subscribe_odometry, this);
-  subscriber_laser = nh.subscribe<sensor_msgs::LaserScan>("laser", 1,
-      &Robot::subscribe_laser, this);
+  nh.subscribe<sensor_msgs::LaserScan>("laser", 1, &Robot::subscribe_laser,
+      this);
+  subscriber_bumper = nh.subscribe<kobuki_msgs::BumperEvent>("bumper", 1,
+      &Robot::subscribe_bumper, this);
 
   velocity->linear.x = 0.0;
   velocity->linear.y = 0.0;
@@ -224,14 +226,6 @@ std::string Robot::get_plan_name() {
   return plan_name;
 }
 
-PointPtr Robot::get_current_position() {
-  return current_position;
-}
-
-VectorPtr Robot::get_current_direction() {
-  return current_direction;
-}
-
 double Robot::get_linear_velocity() {
   return linear_velocity;
 }
@@ -270,6 +264,18 @@ int Robot::get_threshold_linear_step_count() {
 
 int Robot::get_threshold_angular_step_count() {
   return threshold_angular_step_count;
+}
+
+PointPtr Robot::get_current_position() {
+  return current_position;
+}
+
+VectorPtr Robot::get_current_direction() {
+  return current_direction;
+}
+
+bool Robot::get_is_bumper_pressed() {
+  return is_bumper_pressed;
 }
 
 CommunicatorPtr Robot::get_communicator() {
@@ -446,6 +452,33 @@ void Robot::subscribe_odometry(const nav_msgs::OdometryConstPtr& odometry) {
 
 void Robot::subscribe_laser(const sensor_msgs::LaserScanConstPtr& laser) {
   this->laser = laser;
+}
+
+void Robot::subscribe_bumper(const kobuki_msgs::BumperEventConstPtr& bumper) {
+  std::string state;
+  switch (bumper->state) {
+  case kobuki_msgs::BumperEvent::PRESSED:
+    is_bumper_pressed = true;
+    if (is_logging) {
+      state = "Pressed";
+    }
+    break;
+  case kobuki_msgs::BumperEvent::RELEASED:
+    is_bumper_pressed = false;
+    if (is_logging) {
+      state = "Released";
+    }
+    break;
+  default:
+    is_bumper_pressed = false;
+    if (is_logging) {
+      state = "Unknown";
+    }
+    break;
+  }
+  if (is_logging) {
+    ROS_WARN_STREAM("[Bumper]: state(" << state << ")");
+  }
 }
 
 }

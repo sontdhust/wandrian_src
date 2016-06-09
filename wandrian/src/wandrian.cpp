@@ -11,6 +11,7 @@
 #include "../include/plans/mstc/mstc_online.hpp"
 #include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
 #include "../include/plans/boustrophedon/boustrophedon.hpp"
+#include "../include/plans/random_walk.hpp"
 #include "../include/wandrian.hpp"
 
 #define CLOCKWISE true
@@ -103,6 +104,13 @@ void Wandrian::wandrian_run() {
     boustrophedon->set_behavior_go_to(
         boost::bind(&Wandrian::wandrian_go_to, this, _1, _2));
     boustrophedon->cover();
+  } else if (robot->get_plan_name() == "rw") {
+    RandomWalkPtr random_walk = RandomWalkPtr(new RandomWalk());
+    random_walk->set_behavior_rotate(
+        boost::bind(&Wandrian::wandrian_rotate, this, _1));
+    random_walk->set_behavior_go_straight(
+        boost::bind(&Wandrian::wandrian_go_straight, this));
+    random_walk->cover();
   } else {
     std::list<PointPtr> path = map->get_path();
     for (std::list<PointPtr>::iterator p = path.begin(); p != path.end(); p++) {
@@ -206,6 +214,20 @@ bool Wandrian::wandrian_see_obstacle(VectorPtr direction, double distance) {
     double angle = direction ^ robot->get_current_direction();
     return robot->see_obstacle(angle, distance);
   }
+}
+
+void Wandrian::wandrian_rotate(double angle) {
+  std::cout << "rotate: " << angle << "\n";
+  rotate_to(VectorPtr(new Vector(angle)), STRICTLY);
+}
+
+void Wandrian::wandrian_go_straight() {
+  std::cout << "go straight \n";
+  robot->set_linear_velocity(robot->get_linear_velocity());
+  while (true)
+    if (robot->get_is_bumper_pressed())
+      break;
+  robot->stop();
 }
 
 bool Wandrian::rotate_to(PointPtr position, bool flexibility) {

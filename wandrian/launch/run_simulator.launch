@@ -2,7 +2,7 @@
   <arg name="map_name" default=""/>
   <arg name="map_boundary_width" default="0"/>
   <arg name="map_boundary_height" default="0"/>
-  <arg name="tool_size"/>
+  <arg name="tool_size" default="0.5"/>
   <arg name="starting_point_x"/>
   <arg name="starting_point_y"/>
   <arg name="plan_name" default=""/>
@@ -21,6 +21,7 @@
     <remap from="run/power" to="mobile_base/commands/motor_power"/>
     <remap from="run/velocity" to="mobile_base/commands/velocity"/>
     <remap from="run/odometry" to="odom"/>
+    <remap from="run/bumper" to="mobile_base/events/bumper"/>
     <remap from="run/laser" to="scan"/>
 
     <param name="map_name" value="$(arg map_name)" type="string"/>

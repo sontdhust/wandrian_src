@@ -289,7 +289,7 @@ int main(int argc, char **argv) {
         world_out << "      <pose>" << i << " "
             << (boundary->get_center()->y + boundary->get_height() / 2
                 + t_size / 4) << " 0 0 0 0</pose>\n";
-        world_out << "      <static>1</static>\n";
+        world_out << "      <static>0</static>\n";
         world_out << "    </model>\n";
         n++;
       }
@@ -306,7 +306,7 @@ int main(int argc, char **argv) {
         world_out << "      <pose>"
             << (boundary->get_center()->x + boundary->get_width() / 2
                 + t_size / 4) << " " << i << " 0 0 0 " << M_PI_2 << "</pose>\n";
-        world_out << "      <static>1</static>\n";
+        world_out << "      <static>0</static>\n";
         world_out << "    </model>\n";
         n++;
       }
@@ -323,7 +323,7 @@ int main(int argc, char **argv) {
         world_out << "      <pose>" << i << " "
             << (boundary->get_center()->y - boundary->get_height() / 2
                 - t_size / 4) << " 0 0 0 0</pose>\n";
-        world_out << "      <static>1</static>\n";
+        world_out << "      <static>0</static>\n";
         world_out << "    </model>\n";
         n++;
       }
@@ -340,7 +340,7 @@ int main(int argc, char **argv) {
         world_out << "      <pose>"
             << (boundary->get_center()->x - boundary->get_width() / 2
                 - t_size / 4) << " " << i << " 0 0 0 " << M_PI_2 << "</pose>\n";
-        world_out << "      <static>1</static>\n";
+        world_out << "      <static>0</static>\n";
         world_out << "    </model>\n";
         n++;
       }
@@ -363,7 +363,7 @@ int main(int argc, char **argv) {
             world_out << "        <uri>model://cinder_block</uri>\n";
             world_out << "      </include>\n";
             world_out << "      <pose>" << x << " " << y << " 0 0 0 0</pose>\n";
-            world_out << "      <static>1</static>\n";
+            world_out << "      <static>0</static>\n";
             world_out << "    </model>\n";
             j++;
           }
