@@ -23,13 +23,13 @@ void RandomWalk::cover() {
   std::srand(std::time(0));
   while (true) {
     go_straight();
-    rotate(-M_PI + (double) rand() / RAND_MAX * 2 * M_PI);
+    rotate_randomly();
   }
 }
 
-void RandomWalk::set_behavior_rotate(
-    boost::function<void(double)> behavior_rotate) {
-  this->behavior_rotate = behavior_rotate;
+void RandomWalk::set_behavior_rotate_randomly(
+    boost::function<void()> behavior_rotate_randomly) {
+  this->behavior_rotate_randomly = behavior_rotate_randomly;
 }
 
 void RandomWalk::set_behavior_go_straight(
@@ -37,9 +37,9 @@ void RandomWalk::set_behavior_go_straight(
   this->behavior_go_straight = behavior_go_straight;
 }
 
-void RandomWalk::rotate(double angle) {
-  if (behavior_rotate) {
-    behavior_rotate(angle);
+void RandomWalk::rotate_randomly() {
+  if (behavior_rotate_randomly) {
+    behavior_rotate_randomly();
   }
 }
 

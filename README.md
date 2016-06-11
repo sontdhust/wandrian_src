@@ -56,7 +56,5 @@ Change to catkin root directory then run:
     $ roslaunch wandrian algorithm.launch plan_name:=mo robot_name:=robot4 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=1.25 map_boundary_width:=4.0 map_boundary_height:=4.0
 
 ####Prefered command:
-    roslaunch kobuki_node minimal.launch --screen
-    sudo chmod a+rw /dev/ttyACM0
-    rosrun hokuyo_node hokuyo_node
-    roslaunch wandrian run_practically.launch mn:=prefered ts:=0.5 sp_x:=0.25 sp_y:=-0.25 pn:=fss lv:=0.22 pav:=1.2 nav:=1 l_cr:=0.4 l_af:=2.5 e_rd:=0.12 e_md:=0.48 e_p:=0.04 d_lp:=-0.007 d_ap:=0.0003 t_lsc:=0 t_asc:=2
+    roslaunch wandrian environment.launch world_file:=tmp
+    roslaunch wandrian run_simulator.launch starting_point_x:=0.75 starting_point_y:=-0.75 plan_name:=rw

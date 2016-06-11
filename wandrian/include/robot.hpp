@@ -57,11 +57,13 @@ public:
   int get_threshold_angular_step_count();
   PointPtr get_current_position();
   VectorPtr get_current_direction();
-  bool get_is_bumper_pressed();
+  bool get_bumper_state();
   CommunicatorPtr get_communicator();
   void set_behavior_run(boost::function<void()>);
   void set_linear_velocity(double);
   void set_angular_velocity(double);
+  void set_bumper_state(kobuki_msgs::BumperEvent::_state_type);
+  void set_bumper_state_automatic(bool);
 
 private:
   std::string map_name; // arg
@@ -92,7 +94,7 @@ private:
   PointPtr current_position; // odometry subscriber
   VectorPtr current_direction; // odometry subscriber
   sensor_msgs::LaserScanConstPtr laser; // laser subscriber
-  bool is_bumper_pressed; // bumper subscriber
+  kobuki_msgs::BumperEvent::_state_type bumper_state; // bumper subscriber
   double linear_velocity_step; // param
   double linear_velocity_max; // param
   double angular_velocity_step; // param
@@ -107,6 +109,7 @@ private:
   bool is_zero_vel; // Avoid zero-vel messages from the beginning
   bool is_logging;
   int file_descriptor;
+  bool bumper_state_automatic;
 
   struct termios terminal;
   ecl::Thread thread_keyboard;

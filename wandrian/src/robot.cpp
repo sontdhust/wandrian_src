@@ -25,10 +25,11 @@ Robot::Robot() :
         0), epsilon_motional_direction(0), epsilon_position(0), deviation_linear_position(
         0), deviation_angular_position(0), threshold_linear_step_count(0), threshold_angular_step_count(
         0), delay(0), current_position(new Point()), current_direction(
-        new Vector()), is_bumper_pressed(false), linear_velocity_step(0), linear_velocity_max(
-        0), angular_velocity_step(0), angular_velocity_max(0), velocity(
-        new geometry_msgs::Twist()), is_quitting(false), is_powered(false), is_zero_vel(
-        true), is_logging(false), file_descriptor(0) {
+        new Vector()), bumper_state(kobuki_msgs::BumperEvent::RELEASED), linear_velocity_step(
+        0), linear_velocity_max(0), angular_velocity_step(0), angular_velocity_max(
+        0), velocity(new geometry_msgs::Twist()), is_quitting(false), is_powered(
+        false), is_zero_vel(true), is_logging(false), file_descriptor(0), bumper_state_automatic(
+        true) {
   tcgetattr(file_descriptor, &terminal); // get terminal properties
 }
 
@@ -274,8 +275,8 @@ VectorPtr Robot::get_current_direction() {
   return current_direction;
 }
 
-bool Robot::get_is_bumper_pressed() {
-  return is_bumper_pressed;
+bool Robot::get_bumper_state() {
+  return bumper_state;
 }
 
 CommunicatorPtr Robot::get_communicator() {
@@ -292,6 +293,15 @@ void Robot::set_linear_velocity(double linear_velocity) {
 
 void Robot::set_angular_velocity(double angular_velocity) {
   velocity->angular.z = angular_velocity;
+}
+
+void Robot::set_bumper_state(
+    kobuki_msgs::BumperEvent::_state_type bumper_state) {
+  this->bumper_state = bumper_state;
+}
+
+void Robot::set_bumper_state_automatic(bool bumper_state_automatic) {
+  this->bumper_state_automatic = bumper_state_automatic;
 }
 
 void Robot::run() {
@@ -369,7 +379,8 @@ void Robot::process_keyboard_input(char c) {
     std::ostringstream info;
     info << "[Odom]: Pos(" << current_position->x << "," << current_position->y
         << "); " << "Ori(" << current_direction->x << ","
-        << current_direction->y << ")";
+        << current_direction->y << "). " << "[Bumper]: "
+        << (bumper_state ? "pressed" : "released");
     // TODO: Print obstacle detection
     ROS_INFO_STREAM(info.str());
     break;
@@ -458,19 +469,20 @@ void Robot::subscribe_bumper(const kobuki_msgs::BumperEventConstPtr& bumper) {
   std::string state;
   switch (bumper->state) {
   case kobuki_msgs::BumperEvent::PRESSED:
-    is_bumper_pressed = true;
+    bumper_state = kobuki_msgs::BumperEvent::PRESSED;
     if (is_logging) {
       state = "Pressed";
     }
     break;
   case kobuki_msgs::BumperEvent::RELEASED:
-    is_bumper_pressed = false;
+    if (bumper_state_automatic) {
+      bumper_state = bumper->state;
+    }
     if (is_logging) {
       state = "Released";
     }
     break;
   default:
-    is_bumper_pressed = false;
     if (is_logging) {
       state = "Unknown";
     }

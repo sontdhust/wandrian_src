@@ -106,8 +106,8 @@ void Wandrian::wandrian_run() {
     boustrophedon->cover();
   } else if (robot->get_plan_name() == "rw") {
     RandomWalkPtr random_walk = RandomWalkPtr(new RandomWalk());
-    random_walk->set_behavior_rotate(
-        boost::bind(&Wandrian::wandrian_rotate, this, _1));
+    random_walk->set_behavior_rotate_randomly(
+        boost::bind(&Wandrian::wandrian_rotate_randomly, this));
     random_walk->set_behavior_go_straight(
         boost::bind(&Wandrian::wandrian_go_straight, this));
     random_walk->cover();
@@ -216,18 +216,23 @@ bool Wandrian::wandrian_see_obstacle(VectorPtr direction, double distance) {
   }
 }
 
-void Wandrian::wandrian_rotate(double angle) {
-  std::cout << "rotate: " << angle << "\n";
-  rotate_to(VectorPtr(new Vector(angle)), STRICTLY);
+void Wandrian::wandrian_rotate_randomly() {
+  robot->set_bumper_state_automatic(true);
+  double angle = M_PI_2 + (double) rand() / RAND_MAX * M_PI;
+  double new_angle = robot->get_current_direction()->get_angle() + angle;
+  std::cout << "rotate randomly: " << angle << ", " << new_angle << "\n";
+  rotate_to(VectorPtr(new Vector(new_angle)), STRICTLY);
 }
 
 void Wandrian::wandrian_go_straight() {
+  robot->set_bumper_state_automatic(false);
   std::cout << "go straight \n";
   robot->set_linear_velocity(robot->get_linear_velocity());
   while (true)
-    if (robot->get_is_bumper_pressed())
+    if (robot->get_bumper_state() == kobuki_msgs::BumperEvent::PRESSED)
       break;
   robot->stop();
+  robot->set_bumper_state(kobuki_msgs::BumperEvent::RELEASED);
 }
 
 bool Wandrian::rotate_to(PointPtr position, bool flexibility) {

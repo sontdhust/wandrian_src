@@ -20,14 +20,14 @@ public:
   ~RandomWalk();
   void cover();
 
-  void set_behavior_rotate(boost::function<void(double)>);
+  void set_behavior_rotate_randomly(boost::function<void()>);
   void set_behavior_go_straight(boost::function<void()>);
 
-protected:
-  boost::function<void(double)> behavior_rotate;
+private:
+  boost::function<void()> behavior_rotate_randomly;
   boost::function<void()> behavior_go_straight;
 
-  void rotate(double);
+  void rotate_randomly();
   void go_straight();
 };
 

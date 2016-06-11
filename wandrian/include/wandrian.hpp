@@ -38,7 +38,7 @@ private:
   void wandrian_run();
   bool wandrian_go_to(PointPtr, bool = STRICTLY);
   bool wandrian_see_obstacle(VectorPtr, double);
-  void wandrian_rotate(double);
+  void wandrian_rotate_randomly();
   void wandrian_go_straight();
 
   // Helpers
