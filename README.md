@@ -56,5 +56,10 @@ Change to catkin root directory then run:
     $ roslaunch wandrian algorithm.launch plan_name:=mo robot_name:=robot4 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=1.25 map_boundary_width:=4.0 map_boundary_height:=4.0
 
 ####Prefered command:
-    roslaunch wandrian environment.launch world_file:=tmp
-    roslaunch wandrian run_simulator.launch starting_point_x:=0.75 starting_point_y:=-0.75 plan_name:=rw
+    $ roslaunch wandrian environment.launch world_file:=prefered_random_walker_for_show
+
+    For 1 robot    
+    $ roslaunch wandrian run_simulator.launch starting_point_x:=0.75 starting_point_y:=-0.75 plan_name:=rw
+
+    For multi-robot
+    

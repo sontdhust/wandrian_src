@@ -21,6 +21,7 @@
 #define EPSILON_ROTATIONAL_DIRECTION 0.06
 #define EPSILON_MOTIONAL_DIRECTION 0.24
 #define EPSILON_POSITION 0.06
+#define TIME 0.5  // Loop after 0.5 seconds
 
 using namespace wandrian::plans::stc;
 using namespace wandrian::plans::mstc;
@@ -218,10 +219,9 @@ bool Wandrian::wandrian_see_obstacle(VectorPtr direction, double distance) {
 
 void Wandrian::wandrian_rotate_randomly() {
   robot->set_bumper_state_automatic(true);
-  double angle = M_PI_2 + (double) rand() / RAND_MAX * M_PI;
-  double new_angle = robot->get_current_direction()->get_angle() + angle;
-  std::cout << "rotate randomly: " << angle << ", " << new_angle << "\n";
-  rotate_to(VectorPtr(new Vector(new_angle)), STRICTLY);
+  double angle = (double) rand() / RAND_MAX * 2 * M_PI;
+  std::cout << "rotate randomly: " << angle << "\n";
+  rotate_to(VectorPtr(new Vector(angle)), STRICTLY);
 }
 
 void Wandrian::wandrian_go_straight() {
@@ -229,8 +229,24 @@ void Wandrian::wandrian_go_straight() {
   std::cout << "go straight \n";
   robot->set_linear_velocity(robot->get_linear_velocity());
   while (true)
-    if (robot->get_bumper_state() == kobuki_msgs::BumperEvent::PRESSED)
+    if (robot->get_bumper_state() == kobuki_msgs::BumperEvent::PRESSED) {
+      robot->set_linear_velocity(-robot->get_linear_velocity());
+      int count = 1;
+      int old_count = 0;
+      double time_counter = 0;
+      clock_t this_time = clock();
+      clock_t last_time = this_time;
+      while (true) {
+        this_time = clock();
+        time_counter += (double) (this_time - last_time);
+        last_time = this_time;
+        if (time_counter > (double) (TIME * CLOCKS_PER_SEC)) {
+          time_counter -= (double) (TIME * CLOCKS_PER_SEC);
+          break;
+        }
+      }
       break;
+    }
   robot->stop();
   robot->set_bumper_state(kobuki_msgs::BumperEvent::RELEASED);
 }
