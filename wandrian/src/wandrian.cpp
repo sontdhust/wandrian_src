@@ -218,35 +218,44 @@ bool Wandrian::wandrian_see_obstacle(VectorPtr direction, double distance) {
 }
 
 void Wandrian::wandrian_rotate_randomly() {
-  robot->set_bumper_state_automatic(true);
+  this->robot->set_bumper_state_automatic(true);
   double angle = (double) rand() / RAND_MAX * 2 * M_PI;
   std::cout << "rotate randomly: " << angle << "\n";
   rotate_to(VectorPtr(new Vector(angle)), STRICTLY);
 }
 
 void Wandrian::wandrian_go_straight() {
+  // this->robot->set_bumper_state_automatic(false);
+  // std::cout << "go straight \n";
+  // this->robot->set_linear_velocity(this->robot->get_linear_velocity());
+  // while (true){
+  //   if (this->robot->get_bumper_state() == kobuki_msgs::BumperEvent::PRESSED) {
+  //     this->robot->set_linear_velocity(-this->robot->get_linear_velocity());
+  //     int count = 1;
+  //     int old_count = 0;
+  //     double time_counter = 0;
+  //     clock_t this_time = clock();
+  //     clock_t last_time = this_time;
+  //     while (true) {
+  //       this_time = clock();
+  //       time_counter += (double) (this_time - last_time);
+  //       last_time = this_time;
+  //       if (time_counter > (double) (TIME * CLOCKS_PER_SEC)) {
+  //         time_counter -= (double) (TIME * CLOCKS_PER_SEC);
+  //         break;
+  //       }
+  //     }
+  //     break;
+  //   }
+  // }
+  // this->robot->stop();
+  // this->robot->set_bumper_state(kobuki_msgs::BumperEvent::RELEASED);
   robot->set_bumper_state_automatic(false);
   std::cout << "go straight \n";
   robot->set_linear_velocity(robot->get_linear_velocity());
   while (true)
-    if (robot->get_bumper_state() == kobuki_msgs::BumperEvent::PRESSED) {
-      robot->set_linear_velocity(-robot->get_linear_velocity());
-      int count = 1;
-      int old_count = 0;
-      double time_counter = 0;
-      clock_t this_time = clock();
-      clock_t last_time = this_time;
-      while (true) {
-        this_time = clock();
-        time_counter += (double) (this_time - last_time);
-        last_time = this_time;
-        if (time_counter > (double) (TIME * CLOCKS_PER_SEC)) {
-          time_counter -= (double) (TIME * CLOCKS_PER_SEC);
-          break;
-        }
-      }
+    if (robot->get_bumper_state() == kobuki_msgs::BumperEvent::PRESSED)
       break;
-    }
   robot->stop();
   robot->set_bumper_state(kobuki_msgs::BumperEvent::RELEASED);
 }

@@ -62,4 +62,7 @@ Change to catkin root directory then run:
     $ roslaunch wandrian run_simulator.launch starting_point_x:=0.75 starting_point_y:=-0.75 plan_name:=rw
 
     For multi-robot
-    
+    $ roslaunch wandrian add_1_robot.launch starting_point_x_robot:=-1.25 starting_point_y_robot:=-1.75 robot_name:=robot1
+    $ roslaunch wandrian add_1_robot.launch starting_point_x_robot:=1.75 starting_point_y_robot:=0.25 robot_name:=robot2
+    $ roslaunch wandrian run_random_walk.launch plan_name:=rw robot_name:=robot1 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=-1.75 map_boundary_width:=4.0 map_boundary_height:=4.0
+    $ roslaunch wandrian run_random_walk.launch plan_name:=rw robot_name:=robot2 tool_size:=0.5 starting_point_x:=1.75 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
