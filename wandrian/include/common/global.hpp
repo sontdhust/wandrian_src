@@ -9,6 +9,7 @@
 #define WANDRIAN_INCLUDE_COMMON_GLOBAL_HPP_
 
 #include <limits>
+#include <iostream>
 
 // FIXME: Choose relevant values
 const double EPSILON = 20 * std::numeric_limits<double>::epsilon();

@@ -9,7 +9,7 @@
         <ray>
           <scan>
             <horizontal>
-              <samples>27</samples>
+              <samples>60</samples>
               <resolution>1</resolution>
               <min_angle>${-M_PI*2/3}</min_angle>
               <max_angle>${M_PI*2/3}</max_angle>
@@ -17,14 +17,14 @@
           </scan>
           <range>
             <min>0.1</min>
-            <max>0.55</max> <!-- bigger than robot size -->
+            <max>2.0</max> <!-- bigger than robot size -->
             <resolution>0.01</resolution>
           </range>
         </ray>
 
         <plugin name="laser" filename="libgazebo_ros_laser.so">
           <topicName>scan</topicName>
-          <frameName>hokuyo_link</frameName>
+          <frameName>laser_sensor_link</frameName>
         </plugin>
         <always_on>1</always_on>
         <update_rate>30</update_rate>

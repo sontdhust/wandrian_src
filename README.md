@@ -1,70 +1,42 @@
-####Project Properties:
+### Prerequisites:
+- Install `Docker` on [Ubuntu Xenial 16.04][1]
 
+- Build image and run container:
+  <pre>
+  $ cd docker
+  $ ./build.sh <i>IMAGE_NAME</i>      # Build image
+  $ mkdir .ros && mkdir .gazebo
+  $ ./run.sh <i>IMAGE_NAME</i>        # Run container
+  </pre>
 
-_Go to_: 
+-  Setup (inside container environment):
+  ```
+  $ rm -rf build/
+  $ catkin_make --force-cmake
+  $ . devel/setup.bash
+  $ . src/wandrian/setup.sh
+  ```
 
-__C/C++ General__ > __Paths and Symbols__ > __Include__ > __GNU C++__
+### Build for testing:
+<pre>
+$ cd src/wandrian/test/
+$ ./test.sh <i>boundary_size</i> <i>obstacle_size</i> <i>tool_size</i> <i>plan_name</i>
+</pre>
 
-_Add_:
+### Run simulator:
+<pre>
+$ roslaunch wandrian environment.launch world_file:=<i>file</i>
+$ roslaunch wandrian run_simulator.launch map_boundary_width:=<i>width</i> map_boundary_height:=<i>height</i> tool_size:=<i>size</i> starting_point_x:=<i>x</i> starting_point_y:=<i>y</i> plan_name:=<i>name</i>
+$ rosrun gmapping slam_gmapping scan:=scan
+$ rosrun rviz rviz
+</pre>
 
- `/opt/ros/indigo/include`
- 
-####Setup:
+### Run practically:
+<pre>
+$ roslaunch kobuki_node minimal.launch --screen
+$ sudo chmod a+rw /dev/ttyACM0
+$ rosrun hokuyo_node hokuyo_node
+$ roslaunch wandrian run_practically.launch mb_w:=<i>width</i> mb_h:=<i>height</i> ts:=<i>size</i> sp_x:=<i>x</i> sp_y:=<i>y</i> pn:=<i>name</i> lv:=<i>velocity</i> av:=<i>velocity</i> pr_c:=<i>proportion</i> pr_s:=<i>proportion</i> af_r:=<i>augmentation</i> e_rd:=<i>epsilon</i> e_md:=<i>epsilon</i> e_p:=<i>epsilon</i>
+</pre>
 
-Change to catkin root directory then run:
-
-    $ rm -rf build/
-    $ catkin_make --force-cmake
-    $ . devel/setup.bash
-    $ . src/wandrian/setup.sh
-
-####Build for testing:
-
-    $ cd src/wandrian/test/
-    $ ./test.sh 4 0.4 0.4 full_spiral_stc
-
-####Run simulator:
-
-    $ roslaunch wandrian environment.launch world_file:=prefered_full_spiral_stc
-    $ roslaunch wandrian run_simulator.launch map_boundary_width:=4 map_boundary_height:=4 tool_size:=0.5 starting_point_x:=0.75 starting_point_y:=0.25 plan_name:=full_spiral_stc
-
-####Run practically:
-
-    $ roslaunch kobuki_node minimal.launch --screen
-    $ sudo chmod a+rw /dev/ttyACM0
-    $ rosrun hokuyo_node hokuyo_node
-    $ roslaunch wandrian run_practically.launch mb_w:=4.8 mb_h:=3.2 ts:=0.4 sp_x:=0.6 sp_y:=-0.6 pn:=full_spiral_stc lv:=0.15 av:=0.75 pr_c:=0.5 pr_s:=0.2 af_r:=2.0 e_rd:=0.06 e_md:=0.24 e_p:=0.06
-
-####Running mstc_online:
-
-######2 robots:
-    $ roslaunch wandrian environment.launch world_file:=prefered_mstc_online_for_show
-    $ roslaunch wandrian add_2_robots.launch starting_point_x_robot1:=-1.25 starting_point_y_robot1:=-1.75 starting_point_x_robot2:=1.75 starting_point_y_robot2:=0.25
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot1 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=-1.75 map_boundary_width:=4.0 map_boundary_height:=4.0
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot2 tool_size:=0.5 starting_point_x:=1.75 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
-
-######3 robots:
-    $ roslaunch wandrian environment.launch world_file:=prefered_mstc_online_for_show
-    $ roslaunch wandrian add_3_robots.launch starting_point_x_robot1:=-1.25 starting_point_y_robot1:=-1.75 starting_point_x_robot2:=1.75 starting_point_y_robot2:=0.25 starting_point_x_robot3:=-1.25 starting_point_y_robot3:=0.25
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot1 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=-1.75 map_boundary_width:=4.0 map_boundary_height:=4.0
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot2 tool_size:=0.5 starting_point_x:=1.75 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot3 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
-
-######4 robots:
-    $ roslaunch wandrian environment.launch world_file:=prefered_mstc_online_for_show
-    $ roslaunch wandrian add_4_robots.launch starting_point_x_robot1:=-1.25 starting_point_y_robot1:=-1.75 starting_point_x_robot2:=1.75 starting_point_y_robot2:=0.25 starting_point_x_robot3:=-1.25 starting_point_y_robot3:=0.25 starting_point_x_robot4:=-1.25 starting_point_y_robot4:=1.25
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot1 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=-1.75 map_boundary_width:=4.0 map_boundary_height:=4.0
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot2 tool_size:=0.5 starting_point_x:=1.75 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot3 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot4 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=1.25 map_boundary_width:=4.0 map_boundary_height:=4.0
-
-####Prefered arguments:
-
-lv:=0.18
-av:=0.9
-pr_c:=0.4
-pr_s:=0.2
-af_r:=3.0
-e_rd:=0.2
-e_md:=0.36
-e_p:=0.04
+[1]: https://docs.docker.com/engine/installation/linux/ubuntulinux/
