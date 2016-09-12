@@ -5,7 +5,7 @@
   <arg name="tool_size"/>
   <arg name="starting_point_x"/>
   <arg name="starting_point_y"/>
-  <arg name="plan_name"/>
+  <arg name="plan_name" default=""/>
   <arg name="robot_name" value="mobile_base"/>
 
   <!-- Spawns Kobuki inside a Gazebo simulation -->
@@ -32,7 +32,8 @@
     <param name="plan_name" value="$(arg plan_name)" type="string"/>
 
     <param name="linear_velocity" value="0.2" type="double"/>
-    <param name="angular_velocity" value="0.4" type="double"/>
+    <param name="positive_angular_velocity" value="0.4" type="double"/>
+    <param name="negative_angular_velocity" value="0.4" type="double"/>
     <param name="linear_velocity_step" value="0.2" type="double"/>
     <param name="linear_velocity_max" value="2" type="double"/>
     <param name="angular_velocity_step" value="0.4" type="double"/>

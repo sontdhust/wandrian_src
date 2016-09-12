@@ -37,7 +37,7 @@ plans/boustrophedon/boustrophedon.o \
 cd ..
 clear
 clear
-./wandrian $1
+./wandrian $1 $2
 
 cd ..
 rm -rf tmp

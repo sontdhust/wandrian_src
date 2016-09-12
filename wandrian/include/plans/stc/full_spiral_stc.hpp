@@ -38,7 +38,7 @@ private:
   PartiallyOccupiableCellPtr starting_cell;
 
   bool go_from(CellPtr, bool, CellPtr);
-  bool visit(CellPtr, Quadrant, bool);
+  bool visit(CellPtr, Quadrant, bool = STRICTLY);
 };
 
 typedef boost::shared_ptr<FullSpiralStc> FullSpiralStcPtr;

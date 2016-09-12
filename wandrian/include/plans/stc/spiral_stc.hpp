@@ -33,7 +33,7 @@ protected:
   std::set<CellPtr, CellComp> old_cells;
   double tool_size; // = 'cell size' / 2
 
-  bool go_to(PointPtr, bool);
+  bool go_to(PointPtr, bool = STRICTLY);
   bool see_obstacle(VectorPtr, double);
   virtual void scan(CellPtr);
   virtual State state_of(CellPtr);

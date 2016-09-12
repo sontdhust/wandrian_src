@@ -58,12 +58,9 @@ void MstcOnline::set_behavior_see_obstacle(
   this->behavior_see_obstacle = behavior_see_obstacle;
 }
 
-bool MstcOnline::go_to(PointPtr position, bool flexibly) {
+bool MstcOnline::go_to(PointPtr position, bool flexibility) {
   std::cout << "    pos: " << position->x << "," << position->y;
-  path.insert(path.end(), position);
-  if (behavior_go_to)
-    return behavior_go_to(position, flexibly);
-  return true;
+  return BasePlan::go_to(position, flexibility);
 }
 
 bool MstcOnline::see_obstacle(VectorPtr direction, double distance) {
@@ -154,7 +151,7 @@ void MstcOnline::scan(CellPtr current) {
       scan(neighbor);
     }
   } while (direction % initial_direction
-      != (is_starting_cell ? AT_RIGHT_SIDE : IN_BACK));
+      != (is_starting_cell ? AT_LEFT_SIDE : IN_FRONT));
   // Back to sub-cell of parent
   if (!is_starting_cell) {
     communicator->set_current_cell(current);
@@ -176,7 +173,7 @@ bool MstcOnline::go_with(VectorPtr direction, double distance) {
 //            communicator->get_robot_name()));
 //  communicator->set_current_cell(new_cell);
 
-  bool succeed = go_to(new_position, STRICTLY);
+  bool succeed = go_to(new_position);
   std::cout << "\n";
   return succeed;
 }

@@ -11,7 +11,7 @@ namespace wandrian {
 namespace common {
 
 Vector::Vector() :
-    x(0), y(-1) {
+    x(0), y(1) {
 }
 
 Vector::Vector(double a) :

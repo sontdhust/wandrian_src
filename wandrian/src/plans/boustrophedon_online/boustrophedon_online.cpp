@@ -52,20 +52,9 @@ void BoustrophedonOnline::set_behavior_see_obstacle(
   this->behavior_see_obstacle = behavior_see_obstacle;
 }
 
-bool BoustrophedonOnline::go_to(PointPtr position, bool flexibly) {
+bool BoustrophedonOnline::go_to(PointPtr position, bool flexibility) {
   std::cout << "    pos: " << position->x << "," << position->y << "\n";
-  path.insert(path.end(), position);
-
-  if (behavior_go_to)
-    return behavior_go_to(position, flexibly);
-  return true;
-}
-
-bool BoustrophedonOnline::go_to_bpcell(PointPtr position, bool flexibly) {
-  std::cout << "    pos: " << position->x << "," << position->y << "\n";
-  if (behavior_go_to)
-    return behavior_go_to(position, flexibly);
-  return true;
+  return BasePlan::go_to(position, flexibility);
 }
 
 bool BoustrophedonOnline::see_obstacle(VectorPtr direction, double distance) {
@@ -78,14 +67,14 @@ bool BoustrophedonOnline::go_with(VectorPtr direction, double distance) {
   PointPtr last_position = *(--path.end());
   PointPtr new_position = PointPtr(
       new Point(last_position + direction * distance));
-  return go_to(new_position, STRICTLY);
+  return go_to(new_position);
 }
 
 bool BoustrophedonOnline::go_with_bpcell(PointPtr last_position,
     VectorPtr direction, double distance) {
   PointPtr new_position = PointPtr(
       new Point(last_position + direction * distance));
-  return go_to_bpcell(new_position, STRICTLY);
+  return go_to(new_position);
 }
 
 void BoustrophedonOnline::go_straight(CellPtr neighbor, CellPtr current,

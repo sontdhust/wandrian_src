@@ -48,10 +48,7 @@ void SpiralStc::set_behavior_see_obstacle(
 
 bool SpiralStc::go_to(PointPtr position, bool flexibility) {
   std::cout << "    pos: " << position->x << "," << position->y;
-  path.insert(path.end(), position);
-  if (behavior_go_to)
-    return behavior_go_to(position, flexibility);
-  return true;
+  return BasePlan::go_to(position, flexibility);
 }
 
 bool SpiralStc::see_obstacle(VectorPtr direction, double distance) {
@@ -61,7 +58,7 @@ bool SpiralStc::see_obstacle(VectorPtr direction, double distance) {
   else
     get_obstacle = false;
   if (get_obstacle)
-    std::cout << " \033[1;46m(OBSTACLE)\033[0m\n";
+    std::cout << "      \033[1;46m(OBSTACLE)\033[0m\n";
   return get_obstacle;
 }
 
@@ -85,7 +82,7 @@ void SpiralStc::scan(CellPtr current) {
       go_with(++direction, tool_size);
       continue;
     }
-    if (see_obstacle(direction, tool_size / 2)) { // Obstacle
+    if (see_obstacle(direction, tool_size)) { // Obstacle
       // Go to next subcell
       go_with(++direction, tool_size);
     } else { // New free neighbor
@@ -97,7 +94,7 @@ void SpiralStc::scan(CellPtr current) {
       scan(neighbor);
     }
   } while (direction % initial_direction
-      != (is_starting_cell ? AT_RIGHT_SIDE : IN_BACK));
+      != (is_starting_cell ? AT_LEFT_SIDE : IN_FRONT));
   // Back to subcell of parent
   if (!is_starting_cell) {
     go_with(direction, tool_size);
@@ -116,9 +113,9 @@ State SpiralStc::state_of(CellPtr cell) {
 bool SpiralStc::go_with(VectorPtr direction, double distance) {
   PointPtr last_position = path.back();
   PointPtr new_position = last_position + direction * distance;
-  bool succeed = go_to(new_position, STRICTLY);
+  bool successful = go_to(new_position);
   std::cout << "\n";
-  return succeed;
+  return successful;
 }
 
 }

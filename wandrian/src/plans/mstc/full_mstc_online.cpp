@@ -113,7 +113,7 @@ void FullMstcOnline::scan(CellPtr current) {
       }
     }
   } while (orientation++ % initial_orientation
-      != (is_starting_cell ? IN_BACK : AT_LEFT_SIDE));
+      != (is_starting_cell ? IN_FRONT : AT_RIGHT_SIDE));
   // Back to sub-cell of parent (need to check sub-cell of parent is occupied or not)
   if (!is_starting_cell) {
     go_from(current, PASS, current->get_parent());
@@ -151,19 +151,19 @@ bool FullMstcOnline::go_from(CellPtr current, bool pass, CellPtr next) {
     if (!see_obstacle(orientation, tool_size / 2)) {
       if (pass == DONT_PASS)
         return true;
-      bool succeed = visit(next, quadrant == q1 ? q4 : q3, STRICTLY);
+      bool succeed = visit(next, quadrant == q1 ? q4 : q3);
       std::cout << "\n";
       return succeed;
     } else {
       n->set_quadrants_state(q1 ? q4 : q3, OBSTACLE);
       if (!see_obstacle(quadrant == q1 ? ++orientation : --orientation,
           tool_size / 2)) {
-        visit(current, quadrant == q1 ? q2 : q1, STRICTLY);
+        visit(current, quadrant == q1 ? q2 : q1);
         if (!see_obstacle(quadrant == q1 ? --orientation : ++orientation,
             tool_size / 2)) {
           if (pass == DONT_PASS)
             return true;
-          bool succeed = visit(next, quadrant == q1 ? q3 : q4, STRICTLY);
+          bool succeed = visit(next, quadrant == q1 ? q3 : q4);
           std::cout << "\n";
           return succeed;
         } else {
@@ -177,16 +177,16 @@ bool FullMstcOnline::go_from(CellPtr current, bool pass, CellPtr next) {
     }
   } else if (quadrant == q4 || quadrant == q3) {
     if (!see_obstacle(orientation, tool_size / 2)) {
-      visit(c, quadrant == q4 ? q1 : q2, STRICTLY);
+      visit(c, quadrant == q4 ? q1 : q2);
       return go_from(c, pass, next);
     } else {
       c->set_quadrants_state(quadrant == q4 ? q1 : q2, OBSTACLE);
       if (!see_obstacle(quadrant == q4 ? ++orientation : --orientation,
           tool_size / 2)) {
-        visit(c, quadrant == q4 ? q3 : q4, STRICTLY);
+        visit(c, quadrant == q4 ? q3 : q4);
         if (!see_obstacle(quadrant == q4 ? --orientation : ++orientation,
             tool_size / 2)) {
-          visit(c, quadrant == q4 ? q2 : q1, STRICTLY);
+          visit(c, quadrant == q4 ? q2 : q1);
           return go_from(c, pass, next);
         } else {
           c->set_quadrants_state(quadrant == q4 ? q2 : q1, OBSTACLE);

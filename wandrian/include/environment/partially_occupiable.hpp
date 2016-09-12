@@ -70,13 +70,13 @@ inline Quadrant operator--(Quadrant &q) {
 inline Quadrant operator&(Orientation o) {
   switch (o) {
   case AT_RIGHT_SIDE:
-    return I;
-  case IN_FRONT:
-    return II;
-  case AT_LEFT_SIDE:
-    return III;
-  case IN_BACK:
     return IV;
+  case IN_FRONT:
+    return I;
+  case AT_LEFT_SIDE:
+    return II;
+  case IN_BACK:
+    return III;
   }
   return I;
 }
