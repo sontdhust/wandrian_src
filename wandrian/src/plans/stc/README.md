@@ -15,7 +15,7 @@ __STC1__(_w_, _x_):
       - Construct a spanning-tree edge from _x_ to _y_.
       - Move to a subcell of _y_ by following the right-side of the spanning tree edges.
       - Execute __STC1__(_x_, _y_).
-      
+     
       __End of while loop__.
 
 

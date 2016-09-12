@@ -16,7 +16,7 @@
     <param name="publish_frequency" type="double" value="30.0" />
   </node>
   <node pkg="nodelet" type="nodelet" name="$(arg robot_name)_nodelet_manager" args="manager"/>
-  
+ 
   <node pkg="wandrian" type="run" name="run" output="screen">
     <remap from="run/power" to="mobile_base/commands/motor_power"/>
     <remap from="run/velocity" to="mobile_base/commands/velocity"/>

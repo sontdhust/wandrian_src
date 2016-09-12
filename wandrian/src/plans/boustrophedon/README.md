@@ -1,13 +1,13 @@
 ####Project Properties:
 
-_Go to_: 
+_Go to_:
 
 __C/C++ General__ > __Paths and Symbols__ > __Include__ > __GNU C++__
 
 _Add_:
 
  `/opt/ros/indigo/include`
- 
+
 ####Setup:
 
 Change to catkin root directory then run:

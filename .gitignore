@@ -2,10 +2,12 @@
 /docker/.ros
 /docker/.gazebo
 
-# Eclipse project files
+# IDE configuration files
 .cproject
 .project
 .settings
+.vscode
+.clang-format
 
 # Temp files
 tmp/
