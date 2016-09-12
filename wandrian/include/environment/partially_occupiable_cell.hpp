@@ -14,7 +14,7 @@
 namespace wandrian {
 namespace environment {
 
-class PartiallyOccupiableCell: public Cell, public PartiallyOccupiable {
+class PartiallyOccupiableCell : public Cell, public PartiallyOccupiable {
 
 public:
   PartiallyOccupiableCell(PointPtr, double);
@@ -25,7 +25,6 @@ public:
 };
 
 typedef boost::shared_ptr<PartiallyOccupiableCell> PartiallyOccupiableCellPtr;
-
 }
 }
 

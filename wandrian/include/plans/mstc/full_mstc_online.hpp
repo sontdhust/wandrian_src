@@ -15,7 +15,7 @@ namespace wandrian {
 namespace plans {
 namespace mstc {
 
-class FullMstcOnline: public MstcOnline {
+class FullMstcOnline : public MstcOnline {
 
 public:
   FullMstcOnline();
@@ -36,7 +36,6 @@ private:
 };
 
 typedef boost::shared_ptr<FullMstcOnline> FullMstcOnlinePtr;
-
 }
 }
 }

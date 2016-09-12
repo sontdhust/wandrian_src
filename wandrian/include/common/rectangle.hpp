@@ -13,7 +13,7 @@
 namespace wandrian {
 namespace common {
 
-class Rectangle: public Polygon {
+class Rectangle : public Polygon {
 
 public:
   Rectangle(PointPtr, double, double);
@@ -33,7 +33,6 @@ private:
 
 typedef boost::shared_ptr<Rectangle> RectanglePtr;
 typedef boost::shared_ptr<Rectangle const> RectangleConstPtr;
-
 }
 }
 

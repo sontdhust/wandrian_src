@@ -3,15 +3,15 @@
   <xacro:include filename="$(find wandrian)/models/kobuki/urdf/kobuki_gazebo.urdf.xacro"/>
 
   <!-- Kobuki -->
-  <xacro:macro name="model_kobuki">  
+  <xacro:macro name="model_kobuki">
     <link name="base_footprint"/>
     <!--
        Base link is set at the bottom of the base mould.
        This is done to be compatible with the way base link
        was configured for turtlebot 1. Refer to
-      
+
        https://github.com/turtlebot/turtlebot/issues/40
-      
+
        To put the base link at the more oft used wheel
        axis, set the z-distance from the base_footprint
        to 0.352.
@@ -51,7 +51,7 @@
                  izz="0.03675"/>
       </inertial>
     </link>
-   
+
     <joint name="wheel_left_joint" type="continuous">
       <parent link="base_link"/>
       <child link="wheel_left_link"/>
@@ -79,7 +79,7 @@
                  izz="0.001"/>
       </inertial>
     </link>
-   
+
     <joint name="wheel_right_joint" type="continuous">
       <parent link="base_link"/>
       <child link="wheel_right_link"/>
@@ -107,7 +107,7 @@
                  izz="0.001"/>
       </inertial>
     </link>
-   
+
     <joint name="caster_front_joint" type="fixed">
       <parent link="base_link"/>
       <child link="caster_front_link"/>
@@ -119,7 +119,7 @@
           <cylinder length="0.0176" radius="0.017"/>
         </geometry>
         <origin rpy="0 0 0" xyz="0 0 0"/>
-      </collision>     
+      </collision>
       <inertial>
         <mass value="0.01"/>
         <origin xyz="0 0 0"/>
@@ -128,7 +128,7 @@
                  izz="0.001"/>
       </inertial>
     </link>
-   
+
     <joint name="caster_back_joint" type="fixed">
       <parent link="base_link"/>
       <child link="caster_back_link"/>
@@ -140,7 +140,7 @@
           <cylinder length="0.0176" radius="0.017"/>
         </geometry>
         <origin rpy="0 0 0" xyz="0 0 0"/>
-      </collision>     
+      </collision>
       <inertial>
         <mass value="0.01"/>
         <origin xyz="0 0 0"/>
@@ -149,7 +149,7 @@
                  izz="0.001"/>
       </inertial>
     </link>
-   
+
     <!-- Kobuki's sensors -->
     <joint name="gyro_joint" type="fixed">
       <axis xyz="0 1 0"/>
@@ -196,7 +196,7 @@
                  izz="0.0001"/>
       </inertial>
     </link>
-   
+
     <joint name="cliff_sensor_front_joint" type="fixed">
       <origin xyz="0.156 0.00 0.0214" rpy="0 ${M_PI/2} 0"/>
       <parent link="base_link"/>
@@ -211,7 +211,7 @@
                  izz="0.0001"/>
       </inertial>
     </link>
-   
+
     <!-- Set up Kobuki Gazebo simulation details -->
     <gazebo_kobuki/>
   </xacro:macro>

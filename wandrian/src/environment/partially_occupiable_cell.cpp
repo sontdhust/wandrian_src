@@ -10,20 +10,12 @@
 namespace wandrian {
 namespace environment {
 
-PartiallyOccupiableCell::PartiallyOccupiableCell(PointPtr center, double size) :
-    Cell(center, size) {
-}
+PartiallyOccupiableCell::PartiallyOccupiableCell(PointPtr center, double size) : Cell(center, size) {}
 
-PartiallyOccupiableCell::~PartiallyOccupiableCell() {
-}
+PartiallyOccupiableCell::~PartiallyOccupiableCell() {}
 
-PointPtr PartiallyOccupiableCell::_center() {
-  return get_center();
-}
+PointPtr PartiallyOccupiableCell::_center() { return get_center(); }
 
-double PartiallyOccupiableCell::_size() {
-  return get_size();
-}
-
+double PartiallyOccupiableCell::_size() { return get_size(); }
 }
 }

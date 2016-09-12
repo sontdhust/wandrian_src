@@ -15,8 +15,7 @@ namespace wandrian {
 namespace environment {
 namespace mstc {
 
-class PartiallyOccupiableIdentifiableCell: public IdentifiableCell,
-    public PartiallyOccupiable {
+class PartiallyOccupiableIdentifiableCell : public IdentifiableCell, public PartiallyOccupiable {
 
 public:
   PartiallyOccupiableIdentifiableCell(PointPtr, double, std::string);
@@ -28,7 +27,6 @@ public:
 
 typedef boost::shared_ptr<PartiallyOccupiableIdentifiableCell> PartiallyOccupiableIdentifiableCellPtr;
 typedef boost::shared_ptr<PartiallyOccupiableIdentifiableCell const> PartiallyOccupiableIdentifiableCellConstPtr;
-
 }
 }
 }

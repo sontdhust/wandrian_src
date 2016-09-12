@@ -20,7 +20,7 @@ namespace wandrian {
 namespace environment {
 namespace boustrophedon {
 
-class ExtendedMap: public Map {
+class ExtendedMap : public Map {
 
 public:
   ExtendedMap(RectanglePtr, std::list<RectanglePtr>);
@@ -31,11 +31,9 @@ public:
 private:
   int static comma_position(std::string);
   PointPtr create_point_to_string(std::string);
-
 };
 
 typedef boost::shared_ptr<ExtendedMap> ExtendedMapPtr;
-
 }
 }
 }

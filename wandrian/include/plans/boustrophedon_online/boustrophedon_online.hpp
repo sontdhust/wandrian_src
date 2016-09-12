@@ -22,7 +22,7 @@ namespace wandrian {
 namespace plans {
 namespace boustrophedon_online {
 
-class BoustrophedonOnline: public BasePlan {
+class BoustrophedonOnline : public BasePlan {
 
 public:
   BoustrophedonOnline();
@@ -49,8 +49,9 @@ private:
   int check_insert;
 
   // A* search;
-  typedef boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS,
-      boost::no_property, boost::property<boost::edge_weight_t, cost> > mygraph_t;
+  typedef boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS, boost::no_property,
+                                boost::property<boost::edge_weight_t, cost> >
+      mygraph_t;
   typedef boost::property_map<mygraph_t, boost::edge_weight_t>::type WeightMap;
   typedef mygraph_t::vertex_descriptor vertex;
   typedef mygraph_t::edge_descriptor edge_descriptor;
@@ -82,7 +83,6 @@ private:
 };
 
 typedef boost::shared_ptr<BoustrophedonOnline> BoustrophedonOnlinePtr;
-
 }
 }
 }

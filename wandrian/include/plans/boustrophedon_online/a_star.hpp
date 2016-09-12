@@ -29,14 +29,12 @@ struct location {
 typedef float cost;
 
 // euclidean distance heuristic
-template<class Graph, class CostType, class LocMap>
-class distance_heuristic: public boost::astar_heuristic<Graph, CostType> {
+template <class Graph, class CostType, class LocMap>
+class distance_heuristic : public boost::astar_heuristic<Graph, CostType> {
 
 public:
   typedef typename boost::graph_traits<Graph>::vertex_descriptor Vertex;
-  distance_heuristic(LocMap l, Vertex goal) :
-      m_location(l), m_goal(goal) {
-  }
+  distance_heuristic(LocMap l, Vertex goal) : m_location(l), m_goal(goal) {}
   CostType operator()(Vertex u) {
     CostType dx = m_location[m_goal].x - m_location[u].x;
     CostType dy = m_location[m_goal].y - m_location[u].y;
@@ -48,20 +46,15 @@ private:
   Vertex m_goal;
 };
 
-struct found_goal {
-};
+struct found_goal {};
 // exception for termination
 
 // visitor that terminates when we find the goal
-template<class Vertex>
-class astar_goal_visitor: public boost::default_astar_visitor {
+template <class Vertex> class astar_goal_visitor : public boost::default_astar_visitor {
 
 public:
-  astar_goal_visitor(Vertex goal) :
-      m_goal(goal) {
-  }
-  template<class Graph>
-  void examine_vertex(Vertex u, Graph& g) {
+  astar_goal_visitor(Vertex goal) : m_goal(goal) {}
+  template <class Graph> void examine_vertex(Vertex u, Graph &g) {
     if (u == m_goal)
       throw found_goal();
   }
@@ -69,7 +62,6 @@ public:
 private:
   Vertex m_goal;
 };
-
 }
 }
 }

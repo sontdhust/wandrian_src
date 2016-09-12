@@ -26,7 +26,7 @@ namespace wandrian {
 namespace plans {
 namespace boustrophedon {
 
-class Boustrophedon: public BasePlan {
+class Boustrophedon : public BasePlan {
 
 public:
   Boustrophedon();
@@ -36,10 +36,10 @@ public:
   void dfs(SpacePtr);
   ExtendedMapPtr get_map();
   std::list<SpacePtr> create_list_space(RectanglePtr, std::list<VerticesPtr>);
-  std::list<VerticesPtr> create_list_vertices(RectanglePtr,
-      std::list<RectanglePtr>);
+  std::list<VerticesPtr> create_list_vertices(RectanglePtr, std::list<RectanglePtr>);
 
   void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
+
 protected:
   bool go_to(PointPtr, bool = STRICTLY);
   bool go_into(SpacePtr);
@@ -56,7 +56,6 @@ private:
 };
 
 typedef boost::shared_ptr<Boustrophedon> BoustrophedonPtr;
-
 }
 }
 }

@@ -20,7 +20,7 @@
 #include "common/vector.hpp"
 #include "environment/mstc/communicator.hpp"
 
-#define NUM_SECONDS 5  // Loop after 5 seconds
+#define NUM_SECONDS 5 // Loop after 5 seconds
 
 using namespace wandrian::common;
 using namespace wandrian::environment::mstc;
@@ -62,38 +62,38 @@ public:
   void set_angular_velocity(double);
 
 private:
-  std::string map_name; // arg
-  double map_center_x; // arg
-  double map_center_y; // arg
-  double map_boundary_width; // arg
-  double map_boundary_height; // arg
-  double tool_size; // arg
-  double starting_point_x; // arg
-  double starting_point_y; // arg
-  std::string plan_name; // arg
-  std::string robot_name; // arg
-  double linear_velocity; // arg
-  double positive_angular_velocity; // arg
-  double negative_angular_velocity; // arg
-  double laser_count_rate; // arg
-  double laser_augmentation_factor; // arg
-  double laser_scanning_angle; // arg
+  std::string map_name;                // arg
+  double map_center_x;                 // arg
+  double map_center_y;                 // arg
+  double map_boundary_width;           // arg
+  double map_boundary_height;          // arg
+  double tool_size;                    // arg
+  double starting_point_x;             // arg
+  double starting_point_y;             // arg
+  std::string plan_name;               // arg
+  std::string robot_name;              // arg
+  double linear_velocity;              // arg
+  double positive_angular_velocity;    // arg
+  double negative_angular_velocity;    // arg
+  double laser_count_rate;             // arg
+  double laser_augmentation_factor;    // arg
+  double laser_scanning_angle;         // arg
   double epsilon_rotational_direction; // arg
-  double epsilon_motional_direction; // arg
-  double epsilon_position; // arg
-  double deviation_linear_position; // arg
-  double deviation_angular_position; // arg
-  int threshold_linear_step_count; // arg
-  int threshold_angular_step_count; // arg
-  int delay; // arg
+  double epsilon_motional_direction;   // arg
+  double epsilon_position;             // arg
+  double deviation_linear_position;    // arg
+  double deviation_angular_position;   // arg
+  int threshold_linear_step_count;     // arg
+  int threshold_angular_step_count;    // arg
+  int delay;                           // arg
 
-  PointPtr current_position; // odometry subscriber
-  VectorPtr current_direction; // odometry subscriber
+  PointPtr current_position;            // odometry subscriber
+  VectorPtr current_direction;          // odometry subscriber
   sensor_msgs::LaserScanConstPtr laser; // laser subscriber
-  double linear_velocity_step; // param
-  double linear_velocity_max; // param
-  double angular_velocity_step; // param
-  double angular_velocity_max; // param
+  double linear_velocity_step;          // param
+  double linear_velocity_max;           // param
+  double angular_velocity_step;         // param
+  double angular_velocity_max;          // param
   CommunicatorPtr communicator;
   geometry_msgs::TwistPtr velocity;
 
@@ -126,12 +126,11 @@ private:
   // Helpers
   void enable_power();
   void disable_power();
-  void subscribe_odometry(const nav_msgs::OdometryConstPtr&);
-  void subscribe_laser(const sensor_msgs::LaserScanConstPtr&);
+  void subscribe_odometry(const nav_msgs::OdometryConstPtr &);
+  void subscribe_laser(const sensor_msgs::LaserScanConstPtr &);
 };
 
 typedef boost::shared_ptr<Robot> RobotPtr;
-
 }
 
 #endif /* WANDRIAN_INCLUDE_ROBOT_HPP_ */

@@ -25,7 +25,6 @@ public:
 private:
   std::string robot_name;
 };
-
 }
 }
 }

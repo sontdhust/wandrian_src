@@ -35,13 +35,12 @@ private:
 
   PointPtr get_leftmost();
   PointPtr get_rightmost();
-  std::list<PointPtr> get_upper_boundary(); // List of points
-  std::list<PointPtr> get_lower_boundary(); // List of points
+  std::list<PointPtr> get_upper_boundary();       // List of points
+  std::list<PointPtr> get_lower_boundary();       // List of points
   std::list<PointPtr> get_partial_boundary(bool); // List of points
 };
 
 typedef boost::shared_ptr<Polygon> PolygonPtr;
-
 }
 }
 

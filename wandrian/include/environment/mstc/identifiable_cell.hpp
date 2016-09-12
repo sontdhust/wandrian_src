@@ -15,7 +15,7 @@ namespace wandrian {
 namespace environment {
 namespace mstc {
 
-class IdentifiableCell: public Cell, public Identifiable {
+class IdentifiableCell : public Cell, public Identifiable {
 
 public:
   IdentifiableCell(PointPtr, double, std::string);
@@ -24,7 +24,6 @@ public:
 
 typedef boost::shared_ptr<IdentifiableCell> IdentifiableCellPtr;
 typedef boost::shared_ptr<IdentifiableCell const> IdentifiableCellConstPtr;
-
 }
 }
 }

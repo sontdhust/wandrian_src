@@ -8,7 +8,7 @@
   <arg name="starting_point_x_robot4"/>
   <arg name="starting_point_y_robot4"/>
 
- 
+
        Access with slash at the beginning -->
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find wandrian)/models/robot/urdf/robot.urdf.xacro'"/>
 

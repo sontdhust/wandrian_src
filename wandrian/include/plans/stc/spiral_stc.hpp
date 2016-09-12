@@ -19,7 +19,7 @@ namespace wandrian {
 namespace plans {
 namespace stc {
 
-class SpiralStc: public BasePlan {
+class SpiralStc : public BasePlan {
 
 public:
   SpiralStc();
@@ -46,7 +46,6 @@ private:
 };
 
 typedef boost::shared_ptr<SpiralStc> SpiralStcPtr;
-
 }
 }
 }

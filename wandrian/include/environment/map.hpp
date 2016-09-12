@@ -36,7 +36,6 @@ protected:
 };
 
 typedef boost::shared_ptr<Map> MapPtr;
-
 }
 }
 

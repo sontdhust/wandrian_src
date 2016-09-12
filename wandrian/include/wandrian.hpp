@@ -48,7 +48,6 @@ private:
 };
 
 typedef boost::shared_ptr<Wandrian> WandrianPtr;
-
 }
 
 #endif /* WANDRIAN_INCLUDE_WANDRIAN_HPP_ */

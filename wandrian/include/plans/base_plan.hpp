@@ -37,7 +37,6 @@ protected:
 };
 
 typedef boost::shared_ptr<BasePlan> BasePlanPtr;
-
 }
 }
 
