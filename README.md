@@ -36,7 +36,9 @@ $ rosrun rviz rviz
 $ roslaunch kobuki_node minimal.launch --screen
 $ sudo chmod a+rw /dev/ttyACM0
 $ rosrun hokuyo_node hokuyo_node
-$ roslaunch wandrian run_practically.launch mb_w:=<i>width</i> mb_h:=<i>height</i> ts:=<i>size</i> sp_x:=<i>x</i> sp_y:=<i>y</i> pn:=<i>name</i> lv:=<i>velocity</i> av:=<i>velocity</i> pr_c:=<i>proportion</i> pr_s:=<i>proportion</i> af_r:=<i>augmentation</i> e_rd:=<i>epsilon</i> e_md:=<i>epsilon</i> e_p:=<i>epsilon</i>
+$ roslaunch wandrian run_practically.launch mn:=<i>name</i> ts:=<i>size</i> sp_x:=<i>x</i> sp_y:=<i>y</i> pn:=<i>name</i> lv:=<i>velocity</i> pav:=<i>velocity</i> nav:=<i>velocity</i> l_cr:=<i>rate</i> l_af:=<i>factor</i> e_rd:=<i>epsilon</i> e_md:=<i>epsilon</i> e_p:=<i>epsilon</i> d_lp:=<i>deviation</i> d_ap:=<i>deviation</i> t_lsc:=<i>threshold</i> t_asc:=<i>threshold</i>
+$ rosrun gmapping slam_gmapping
+$ rosrun map_server map_saver
 </pre>
 
 [1]: https://docs.docker.com/engine/installation/linux/ubuntulinux/

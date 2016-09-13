@@ -141,22 +141,9 @@ bool Wandrian::wandrian_go_to(PointPtr position, bool flexibility) {
 
 bool Wandrian::wandrian_see_obstacle(VectorPtr direction, double distance) {
   RectanglePtr boundary;
-  std::list<RectanglePtr> obstacles;
   PointPtr new_position = path.back() + direction * distance;
   if (robot->get_map_name() != "") { // Offline map
-    boundary = map->get_boundary();
-    obstacles = map->get_obstacles();
-  } else {
-    boundary = robot->get_map_boundary();
-  }
-  if (boundary && boundary->get_width() > 0 && boundary->get_height() > 0)
-    if (new_position->x >= boundary->get_center()->x + boundary->get_width() / 2 - EPSILON ||
-        new_position->x <= boundary->get_center()->x - boundary->get_width() / 2 + EPSILON ||
-        new_position->y >= boundary->get_center()->y + boundary->get_height() / 2 - EPSILON ||
-        new_position->y <= boundary->get_center()->y - boundary->get_height() / 2 + EPSILON) {
-      return true;
-    }
-  if (obstacles.size() > 0) { // Offline
+    std::list<RectanglePtr> obstacles = map->get_obstacles();
     for (std::list<RectanglePtr>::iterator o = obstacles.begin(); o != obstacles.end(); o++) {
       CellPtr obstacle = boost::static_pointer_cast<Cell>(*o);
       if (new_position->x >= obstacle->get_center()->x - obstacle->get_size() / 2 - EPSILON &&
@@ -166,11 +153,21 @@ bool Wandrian::wandrian_see_obstacle(VectorPtr direction, double distance) {
         return true;
       }
     }
-    return false;
-  } else { // Online
+    boundary = map->get_boundary();
+  } else {
     double angle = direction ^ robot->get_current_direction();
-    return robot->see_obstacle(angle, distance);
+    if (robot->see_obstacle(angle, distance))
+      return true;
+    boundary = robot->get_map_boundary();
   }
+  if (boundary && boundary->get_width() > 0 && boundary->get_height() > 0 &&
+      (new_position->x >= boundary->get_center()->x + boundary->get_width() / 2 - EPSILON ||
+       new_position->x <= boundary->get_center()->x - boundary->get_width() / 2 + EPSILON ||
+       new_position->y >= boundary->get_center()->y + boundary->get_height() / 2 - EPSILON ||
+       new_position->y <= boundary->get_center()->y - boundary->get_height() / 2 + EPSILON)) {
+    return true;
+  }
+  return false;
 }
 
 bool Wandrian::rotate_to(PointPtr position, bool flexibility) {
