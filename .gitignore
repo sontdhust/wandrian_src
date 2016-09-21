@@ -1,6 +1,4 @@
 /CMakeLists.txt
-/docker/.ros
-/docker/.gazebo
 
 # IDE configuration files
 .cproject
