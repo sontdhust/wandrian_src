@@ -1,70 +1,126 @@
-####Project Properties:
+### I. Preparation
+- Clone this [repo][1]:
+  <pre>
+  $ mkdir <i>catkin_workspace</i> && cd $_                    # Example: mkdir wandrian && cd $_
+  $ git clone https://github.com/sontdhust/wandrian_src src   # Clone repository and rename to `src`
+  </pre>
 
+- Install **build-essential** if not done so already:
+  ```
+  $ sudo apt-get install build-essential
+  ```
 
-_Go to_: 
+### II. Installation
+Platform: [Ubuntu Trusty 14.04][2]
+- Setup `sources.list` and keys:
+  ```
+  $ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+  $ sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net --recv-key 0xB01FA116
+  $ sudo apt-get update
+  ```
 
-__C/C++ General__ > __Paths and Symbols__ > __Include__ > __GNU C++__
+- Install **ROS Indigo Desktop-Full** and **Kobuki** + **Kobuki Gazebo** (_Recommended_):
+  ```
+  $ sudo apt-get install ros-indigo-desktop-full
+  $ sudo apt-get install ros-indigo-kobuki ros-indigo-kobuki-gazebo
+  ```
+  Or install only **ROS Base** and **Kobuki** (Bare bone):
+  ```
+  $ sudo apt-get install ros-indigo-ros-base
+  $ sudo apt-get install ros-indigo-kobuki
+  ```
 
-_Add_:
+- Install **Hokuyo**:
+  ```
+  $ sudo apt-get install ros-indigo-hokuyo-node
+  ```
 
- `/opt/ros/indigo/include`
- 
-####Setup:
+- Install **gmapping**:
+  ```
+  $ sudo apt-get install ros-indigo-gmapping
+  ```
 
-Change to catkin root directory then run:
+### III. Building
+- Build _catkin\_workspace_:
+  ```
+  $ rm -rf build/
+  $ . /opt/ros/indigo/setup.bash
+  $ catkin_make --force-cmake           # Do this to re-build when the code has changed
+  ```
 
-    $ rm -rf build/
-    $ catkin_make --force-cmake
-    $ . devel/setup.bash
-    $ . src/wandrian/setup.sh
+- Add _catkin\_workspace_ environment variables to bash session every time a new shell is launched:
+  ```
+  $ echo "" >> ~/.bashrc
+  $ echo "source $(pwd)/devel/setup.bash" >> ~/.bashrc
+  $ echo "source $(pwd)/src/wandrian/setup.sh" >> ~/.bashrc
+  $ . ~/.bashrc
+  ```
 
-####Build for testing:
+### IV. Testing
+- Install **OpenGL/GLUT**:
+  ```
+  $ sudo apt-get install freeglut3-dev
+  ```
 
-    $ cd src/wandrian/test/
-    $ ./test.sh 4 0.4 0.4 full_spiral_stc
+- Test:
+  <pre>
+  $ cd src/wandrian/test/
+  $ ./test.sh <i>boundary_size</i> <i>obstacle_size</i> <i>tool_size</i> <i>plan_name</i>
+  </pre>
 
-####Run simulator:
+### V. Run on simulator
+<pre>
+$ roslaunch wandrian environment.launch world_file:=<i>file</i>
+$ roslaunch wandrian run_simulator.launch tool_size:=<i>size</i> starting_point_x:=<i>x</i> starting_point_y:=<i>y</i> plan_name:=<i>name</i>
+$ rosrun gmapping slam_gmapping scan:=scan
+$ rosrun rviz rviz
+</pre>
 
-    $ roslaunch wandrian environment.launch world_file:=prefered_full_spiral_stc
-    $ roslaunch wandrian run_simulator.launch map_boundary_width:=4 map_boundary_height:=4 tool_size:=0.5 starting_point_x:=0.75 starting_point_y:=0.25 plan_name:=full_spiral_stc
+### VI. Run practically
+Enable the device to appear on `/dev/kobuki` for the first time:
+```
+$ rosrun kobuki_ftdi create_udev_rules
+```
 
-####Run practically:
+#### 1. Single machine
+- Run:
+  <pre>
+  $ roslaunch kobuki_node minimal.launch --screen
+  $ sudo chmod a+rw /dev/ttyACM0
+  $ rosrun hokuyo_node hokuyo_node
+  $ roslaunch wandrian run_practically.launch mn:=<i>name</i> ts:=<i>size</i> sp_x:=<i>x</i> sp_y:=<i>y</i> pn:=<i>name</i> lv:=<i>velocity</i> pav:=<i>velocity</i> nav:=<i>velocity</i> l_cr:=<i>rate</i> l_af:=<i>factor</i> e_rd:=<i>epsilon</i> e_md:=<i>epsilon</i> e_p:=<i>epsilon</i> d_lp:=<i>deviation</i> d_ap:=<i>deviation</i> t_lsc:=<i>threshold</i> t_asc:=<i>threshold</i>
+  $ rosrun gmapping slam_gmapping
+  $ rosrun map_server map_saver         # Save map to disk when finished
+  </pre>
 
+#### 2. Multiple machines
+- Configuration:
+  + Kobuki setup:
+    ```
+    $ echo "export ROS_MASTER_URI=http://localhost:11311" >> ~/.bashrc
+    $ echo "export ROS_HOSTNAME=$(hostname)" >> ~/.bashrc
+    ```
+
+  + Remote PC setup:
+    <pre>
+    $ echo "export ROS_MASTER_URI=http://$(gethostip -d <i>KOBUKI_HOSTNAME</i>):11311" >> ~/.bashrc
+    $ echo "export ROS_HOSTNAME=$(hostname)" >> ~/.bashrc
+    </pre>
+
+- Run:
+  + On Kobuki:
+    ```
     $ roslaunch kobuki_node minimal.launch --screen
     $ sudo chmod a+rw /dev/ttyACM0
     $ rosrun hokuyo_node hokuyo_node
-    $ roslaunch wandrian run_practically.launch mb_w:=4.8 mb_h:=3.2 ts:=0.4 sp_x:=0.6 sp_y:=-0.6 pn:=full_spiral_stc lv:=0.15 av:=0.75 pr_c:=0.5 pr_s:=0.2 af_r:=2.0 e_rd:=0.06 e_md:=0.24 e_p:=0.06
+    ```
 
-####Running mstc_online:
+  + On remote PC:
+    <pre>
+    $ roslaunch wandrian run_practically.launch mn:=<i>name</i> ts:=<i>size</i> sp_x:=<i>x</i> sp_y:=<i>y</i> pn:=<i>name</i> lv:=<i>velocity</i> pav:=<i>velocity</i> nav:=<i>velocity</i> l_cr:=<i>rate</i> l_af:=<i>factor</i> e_rd:=<i>epsilon</i> e_md:=<i>epsilon</i> e_p:=<i>epsilon</i> d_lp:=<i>deviation</i> d_ap:=<i>deviation</i> t_lsc:=<i>threshold</i> t_asc:=<i>threshold</i>
+    $ rosrun gmapping slam_gmapping
+    $ rosrun rviz rviz
+    </pre>
 
-######2 robots:
-    $ roslaunch wandrian environment.launch world_file:=prefered_mstc_online_for_show
-    $ roslaunch wandrian add_2_robots.launch starting_point_x_robot1:=-1.25 starting_point_y_robot1:=-1.75 starting_point_x_robot2:=1.75 starting_point_y_robot2:=0.25
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot1 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=-1.75 map_boundary_width:=4.0 map_boundary_height:=4.0
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot2 tool_size:=0.5 starting_point_x:=1.75 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
-
-######3 robots:
-    $ roslaunch wandrian environment.launch world_file:=prefered_mstc_online_for_show
-    $ roslaunch wandrian add_3_robots.launch starting_point_x_robot1:=-1.25 starting_point_y_robot1:=-1.75 starting_point_x_robot2:=1.75 starting_point_y_robot2:=0.25 starting_point_x_robot3:=-1.25 starting_point_y_robot3:=0.25
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot1 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=-1.75 map_boundary_width:=4.0 map_boundary_height:=4.0
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot2 tool_size:=0.5 starting_point_x:=1.75 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot3 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
-
-######4 robots:
-    $ roslaunch wandrian environment.launch world_file:=prefered_mstc_online_for_show
-    $ roslaunch wandrian add_4_robots.launch starting_point_x_robot1:=-1.25 starting_point_y_robot1:=-1.75 starting_point_x_robot2:=1.75 starting_point_y_robot2:=0.25 starting_point_x_robot3:=-1.25 starting_point_y_robot3:=0.25 starting_point_x_robot4:=-1.25 starting_point_y_robot4:=1.25
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot1 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=-1.75 map_boundary_width:=4.0 map_boundary_height:=4.0
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot2 tool_size:=0.5 starting_point_x:=1.75 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot3 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=0.25 map_boundary_width:=4.0 map_boundary_height:=4.0
-    $ roslaunch wandrian algorithm.launch plan_name:=mstc_online robot_name:=robot4 tool_size:=0.5 starting_point_x:=-1.25 starting_point_y:=1.25 map_boundary_width:=4.0 map_boundary_height:=4.0
-
-####Prefered arguments:
-
-lv:=0.18
-av:=0.9
-pr_c:=0.4
-pr_s:=0.2
-af_r:=3.0
-e_rd:=0.2
-e_md:=0.36
-e_p:=0.04
+[1]: https://github.com/sontdhust/wandrian_src
+[2]: http://wiki.ros.org/indigo/Installation/Ubuntu

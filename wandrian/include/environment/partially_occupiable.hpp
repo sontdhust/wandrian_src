@@ -70,13 +70,13 @@ inline Quadrant operator--(Quadrant &q) {
 inline Quadrant operator&(Orientation o) {
   switch (o) {
   case AT_RIGHT_SIDE:
-    return I;
-  case IN_FRONT:
-    return II;
-  case AT_LEFT_SIDE:
-    return III;
-  case IN_BACK:
     return IV;
+  case IN_FRONT:
+    return I;
+  case AT_LEFT_SIDE:
+    return II;
+  case IN_BACK:
+    return III;
   }
   return I;
 }
@@ -90,7 +90,7 @@ public:
 
   PointPtr get_current_position();
   Quadrant get_current_quadrant();
-  State* get_quadrants();
+  State *get_quadrants();
   void set_current_quadrant(Quadrant);
   void set_quadrants_state(Quadrant, State);
 
@@ -102,7 +102,6 @@ private:
   Quadrant current_quadrant;
   State quadrants[4];
 };
-
 }
 }
 

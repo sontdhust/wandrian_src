@@ -16,7 +16,7 @@ namespace wandrian {
 namespace plans {
 namespace stc {
 
-class FullScanStc: public FullSpiralStc {
+class FullScanStc : public FullSpiralStc {
 
 public:
   FullScanStc();
@@ -27,7 +27,6 @@ protected:
 };
 
 typedef boost::shared_ptr<FullScanStc> FullScanStcPtr;
-
 }
 }
 }

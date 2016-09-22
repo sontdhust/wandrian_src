@@ -37,7 +37,7 @@
         </geometry>
       </collision>
     </link>
-    
+
     <!-- Set up Hokuyo Gazebo simulation details -->
     <gazebo_hokuyo/>
   </xacro:macro>

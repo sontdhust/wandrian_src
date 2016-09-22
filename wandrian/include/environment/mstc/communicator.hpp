@@ -30,7 +30,7 @@ public:
   void write_status_message(std::string);
   std::string create_old_cells_message();
   std::string create_status_message(IdentifiableCellPtr); // robot_name, last x, last y, last time update, status
-  void read_message_then_update_old_cells(); // Read old cells data, update to local old cells
+  void read_message_then_update_old_cells();              // Read old cells data, update to local old cells
 
   bool ask_other_robot_still_alive(std::string);
   std::string find_robot_name(IdentifiableCellPtr);
@@ -38,11 +38,11 @@ public:
   void insert_old_cell(IdentifiableCellPtr);
 
   std::string get_robot_name() const;
-  void set_robot_name(const std::string&);
+  void set_robot_name(const std::string &);
   void set_tool_size(double);
 
-  CellPtr& get_current_cell();
-  void set_current_cell(const CellPtr&);
+  CellPtr &get_current_cell();
+  void set_current_cell(const CellPtr &);
 
 private:
   std::string robot_name;
@@ -57,7 +57,6 @@ private:
 };
 
 typedef boost::shared_ptr<Communicator> CommunicatorPtr;
-
 }
 }
 }

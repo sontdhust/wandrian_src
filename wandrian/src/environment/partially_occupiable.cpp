@@ -10,14 +10,12 @@
 namespace wandrian {
 namespace environment {
 
-PartiallyOccupiable::PartiallyOccupiable() :
-    current_quadrant(IV) {
+PartiallyOccupiable::PartiallyOccupiable() : current_quadrant(IV) {
   for (int i = I; i <= IV; i++)
     quadrants[i] = NEW;
 }
 
-PartiallyOccupiable::~PartiallyOccupiable() {
-}
+PartiallyOccupiable::~PartiallyOccupiable() {}
 
 PointPtr PartiallyOccupiable::find_position(Quadrant quadrant) {
   PointPtr center = _center();
@@ -36,26 +34,17 @@ PointPtr PartiallyOccupiable::find_position(Quadrant quadrant) {
   }
 }
 
-PointPtr PartiallyOccupiable::get_current_position() {
-  return find_position(current_quadrant);
-}
+PointPtr PartiallyOccupiable::get_current_position() { return find_position(current_quadrant); }
 
-Quadrant PartiallyOccupiable::get_current_quadrant() {
-  return current_quadrant;
-}
+Quadrant PartiallyOccupiable::get_current_quadrant() { return current_quadrant; }
 
-State* PartiallyOccupiable::get_quadrants() {
-  return quadrants;
-}
+State *PartiallyOccupiable::get_quadrants() { return quadrants; }
 
 void PartiallyOccupiable::set_current_quadrant(Quadrant quadrant) {
   current_quadrant = quadrant;
   set_quadrants_state(quadrant, OLD);
 }
 
-void PartiallyOccupiable::set_quadrants_state(Quadrant quadrant, State state) {
-  quadrants[quadrant] = state;
-}
-
+void PartiallyOccupiable::set_quadrants_state(Quadrant quadrant, State state) { quadrants[quadrant] = state; }
 }
 }

@@ -42,7 +42,7 @@
 
   <!-- Kobuki -->
   <run_depend>kobuki_msgs</run_depend>
-  
+
   <!-- Yujin ocs -->
   <run_depend>yocs_cmd_vel_mux</run_depend>
   <run_depend>yocs_velocity_smoother</run_depend>

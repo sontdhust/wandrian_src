@@ -5,7 +5,7 @@
   <arg name="tool_size"/>
   <arg name="starting_point_x"/>
   <arg name="starting_point_y"/>
-  <arg name="plan_name"/>
+  <arg name="plan_name" default=""/>
   <arg name="robot_name" value="mobile_base"/>
 
   <!-- Spawns Kobuki inside a Gazebo simulation -->
@@ -16,7 +16,7 @@
     <param name="publish_frequency" type="double" value="30.0" />
   </node>
   <node pkg="nodelet" type="nodelet" name="$(arg robot_name)_nodelet_manager" args="manager"/>
-  
+
   <node pkg="wandrian" type="run" name="run" output="screen">
     <remap from="run/power" to="mobile_base/commands/motor_power"/>
     <remap from="run/velocity" to="mobile_base/commands/velocity"/>
@@ -32,7 +32,8 @@
     <param name="plan_name" value="$(arg plan_name)" type="string"/>
 
     <param name="linear_velocity" value="0.2" type="double"/>
-    <param name="angular_velocity" value="0.4" type="double"/>
+    <param name="positive_angular_velocity" value="0.4" type="double"/>
+    <param name="negative_angular_velocity" value="0.4" type="double"/>
     <param name="linear_velocity_step" value="0.2" type="double"/>
     <param name="linear_velocity_max" value="2" type="double"/>
     <param name="angular_velocity_step" value="0.4" type="double"/>

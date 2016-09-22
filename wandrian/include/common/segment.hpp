@@ -53,21 +53,19 @@ inline PointPtr operator%(SegmentPtr s1, SegmentPtr s2) {
   else {
     double xi;
     double yi;
-    if (am == INF) { // Line a is parallel to vertical axis, but not b
+    if (am == INF) {  // Line a is parallel to vertical axis, but not b
       xi = s1->p1->x; // = a.p2->x
       yi = bm * xi + bc;
     } else if (bm == INF) { // Line b is parallel to vertical axis, but not a
-      xi = s2->p1->x; // = b.p2->x
+      xi = s2->p1->x;       // = b.p2->x
       yi = am * xi + ac;
     } else { // Both are not parallel to vertical axis
       xi = (bc - ac) / (am - bm);
       yi = am * xi + ac; // = bm * xi + bc
     }
-    if (s1->p1->x <= xi && xi <= s1->p2->x && s2->p1->x <= xi && xi <= s2->p2->x
-        && ((s1->p1->y <= yi && yi <= s1->p2->y)
-            || (s1->p2->y <= yi && yi <= s1->p1->y))
-        && ((s2->p1->y <= yi && yi <= s2->p2->y)
-            || (s2->p2->y <= yi && yi <= s2->p1->y)))
+    if (s1->p1->x <= xi && xi <= s1->p2->x && s2->p1->x <= xi && xi <= s2->p2->x &&
+        ((s1->p1->y <= yi && yi <= s1->p2->y) || (s1->p2->y <= yi && yi <= s1->p1->y)) &&
+        ((s2->p1->y <= yi && yi <= s2->p2->y) || (s2->p2->y <= yi && yi <= s2->p1->y)))
       return PointPtr(new Point(xi, yi));
     else
       return PointPtr();
@@ -79,11 +77,8 @@ inline bool operator<(SegmentConstPtr s1, SegmentConstPtr s2) {
 }
 
 struct SegmentComp {
-  bool operator()(SegmentConstPtr s1, SegmentConstPtr s2) const {
-    return s1 < s2;
-  }
+  bool operator()(SegmentConstPtr s1, SegmentConstPtr s2) const { return s1 < s2; }
 };
-
 }
 }
 

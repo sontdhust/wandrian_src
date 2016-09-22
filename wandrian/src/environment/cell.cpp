@@ -10,24 +10,14 @@
 namespace wandrian {
 namespace environment {
 
-Cell::Cell(PointPtr center, double size) :
-    Rectangle(center, size, size) {
-}
+Cell::Cell(PointPtr center, double size) : Rectangle(center, size, size) {}
 
-Cell::~Cell() {
-}
+Cell::~Cell() {}
 
-double Cell::get_size() const {
-  return (get_width() + get_height()) / 2;
-}
+double Cell::get_size() const { return (get_width() + get_height()) / 2; }
 
-CellPtr Cell::get_parent() {
-  return parent;
-}
+CellPtr Cell::get_parent() { return parent; }
 
-void Cell::set_parent(CellPtr parent) {
-  this->parent = parent;
-}
-
+void Cell::set_parent(CellPtr parent) { this->parent = parent; }
 }
 }

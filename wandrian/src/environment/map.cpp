@@ -14,28 +14,19 @@
 namespace wandrian {
 namespace environment {
 
-Map::Map(RectanglePtr boundary, std::list<RectanglePtr> obstacles) :
-    boundary(boundary), obstacles(obstacles) {
-}
+Map::Map(RectanglePtr boundary, std::list<RectanglePtr> obstacles) : boundary(boundary), obstacles(obstacles) {}
 
-Map::Map(std::string map_path) {
-  this->map_path = map_path;
-}
+Map::Map(std::string map_path) { this->map_path = map_path; }
 
-Map::~Map() {
-}
+Map::~Map() {}
 
-RectanglePtr Map::get_boundary() {
-  return boundary;
-}
+RectanglePtr Map::get_boundary() { return boundary; }
 
-std::list<RectanglePtr> Map::get_obstacles() {
-  return obstacles;
-}
+std::list<RectanglePtr> Map::get_obstacles() { return obstacles; }
 
-std::string Map::get_map_path() {
-  return map_path;
-}
+std::string Map::get_map_path() { return map_path; }
+
+std::list<PointPtr> Map::get_path() { return path; }
 
 void Map::build() {
   // Read center point of obstacles from input file
@@ -52,29 +43,21 @@ void Map::build() {
   int delim_pos3;
   delim_pos1 = line.find(" ");
   delim_pos2 = line.find(" ", delim_pos1 + 1);
-  double center_x = boost::lexical_cast<double>(
-      boost::lexical_cast<double>(line.substr(0, delim_pos1)));
+  double center_x = boost::lexical_cast<double>(boost::lexical_cast<double>(line.substr(0, delim_pos1)));
   double center_y = boost::lexical_cast<double>(
-      boost::lexical_cast<double>(
-          line.substr(delim_pos1 + 1, delim_pos2 - delim_pos1 - 1)));
+      boost::lexical_cast<double>(line.substr(delim_pos1 + 1, delim_pos2 - delim_pos1 - 1)));
   delim_pos1 = delim_pos2;
   delim_pos2 = line.find(" ", delim_pos1 + 1);
   delim_pos3 = line.find(" ", delim_pos2 + 1);
   global_obstacle_size = (delim_pos3 != std::string::npos);
   double width = boost::lexical_cast<double>(
-      boost::lexical_cast<double>(
-          line.substr(delim_pos1 + 1, delim_pos2 - delim_pos1 - 1)));
-  double height = boost::lexical_cast<double>(
-      boost::lexical_cast<double>(
-          line.substr(delim_pos2 + 1,
-              (global_obstacle_size ? delim_pos3 : line.length()) - delim_pos2
-                  - 1)));
-  boundary = RectanglePtr(
-      new Rectangle(PointPtr(new Point(center_x, center_y)), width, height));
+      boost::lexical_cast<double>(line.substr(delim_pos1 + 1, delim_pos2 - delim_pos1 - 1)));
+  double height = boost::lexical_cast<double>(boost::lexical_cast<double>(
+      line.substr(delim_pos2 + 1, (global_obstacle_size ? delim_pos3 : line.length()) - delim_pos2 - 1)));
+  boundary = RectanglePtr(new Rectangle(PointPtr(new Point(center_x, center_y)), width, height));
   if (global_obstacle_size)
     o_size = boost::lexical_cast<double>(
-        boost::lexical_cast<double>(
-            line.substr(delim_pos3 + 1, line.length() - delim_pos3 - 1)));
+        boost::lexical_cast<double>(line.substr(delim_pos3 + 1, line.length() - delim_pos3 - 1)));
   // Center point of obstacles
   while (std::getline(map, line, '\n')) {
     if (line == "" || line.substr(0, 1) == "#")
@@ -84,36 +67,31 @@ void Map::build() {
     int d_pos1 = line.find(" ");
     int d_pos2 = line.find(" ", d_pos1 + 1);
     center_point_x = boost::lexical_cast<double>(line.substr(0, d_pos1));
-    center_point_y = boost::lexical_cast<double>(
-        line.substr(d_pos1 + 1,
-            (!global_obstacle_size ? d_pos2 : line.length()) - d_pos1 - 1));
-    obstacle_centers.push_back(
-        PointPtr(new Point(center_point_x, center_point_y)));
+    center_point_y = boost::lexical_cast<double>(line.substr(
+        d_pos1 + 1, (!global_obstacle_size || d_pos2 != std::string::npos ? d_pos2 : line.length()) - d_pos1 - 1));
+    PointPtr center_point = PointPtr(new Point(center_point_x, center_point_y));
+    obstacle_centers.push_back(center_point);
     if (!global_obstacle_size) {
-      obstacle_sizes.push_back(
-          boost::lexical_cast<double>(
-              line.substr(d_pos2 + 1, line.length() - d_pos2 - 1)));
+      obstacle_sizes.push_back(boost::lexical_cast<double>(line.substr(d_pos2 + 1, line.length() - d_pos2 - 1)));
+    }
+    if (line.substr(line.length() - 1) == "_") {
+      path.insert(path.end(), center_point);
     }
   }
 
   // Generate obstacles
-  for (int i = 0; i <= ((int) obstacle_centers.size() - 1); i++) {
+  for (int i = 0; i <= ((int)obstacle_centers.size() - 1); i++) {
     PointPtr center = obstacle_centers[i];
     bool valid = true;
-    for (std::list<RectanglePtr>::iterator o = obstacles.begin();
-        o != obstacles.end(); o++)
+    for (std::list<RectanglePtr>::iterator o = obstacles.begin(); o != obstacles.end(); o++)
       if ((boost::static_pointer_cast<Cell>(*o))->get_center() == center) {
         valid = false;
         break;
       };
     if (valid) {
-      obstacles.insert(obstacles.end(),
-          CellPtr(
-              new Cell(center,
-                  global_obstacle_size ? o_size : obstacle_sizes[i])));
+      obstacles.insert(obstacles.end(), CellPtr(new Cell(center, global_obstacle_size ? o_size : obstacle_sizes[i])));
     }
   }
 }
-
 }
 }

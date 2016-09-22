@@ -45,7 +45,7 @@ inline Orientation operator+(Orientation o) {
   return o;
 }
 
-inline Orientation& operator++(Orientation &o) {
+inline Orientation &operator++(Orientation &o) {
   o = +o;
   return o;
 }
@@ -57,7 +57,7 @@ struct Vector {
   Vector();
   Vector(double);
   Vector(double, double);
-  Vector(const Vector&);
+  Vector(const Vector &);
   Vector(const boost::shared_ptr<Vector>);
 
   void rotate_counterclockwise();
@@ -69,21 +69,13 @@ struct Vector {
 
 typedef boost::shared_ptr<Vector> VectorPtr;
 
-inline VectorPtr operator*(VectorPtr v, double k) {
-  return VectorPtr(new Vector(v->x * k, v->y * k));
-}
+inline VectorPtr operator*(VectorPtr v, double k) { return VectorPtr(new Vector(v->x * k, v->y * k)); }
 
-inline VectorPtr operator/(VectorPtr v, double k) {
-  return VectorPtr(new Vector(v->x / k, v->y / k));
-}
+inline VectorPtr operator/(VectorPtr v, double k) { return VectorPtr(new Vector(v->x / k, v->y / k)); }
 
-inline PointPtr operator+(PointPtr p, VectorPtr v) {
-  return PointPtr(new Point(p->x + v->x, p->y + v->y));
-}
+inline PointPtr operator+(PointPtr p, VectorPtr v) { return PointPtr(new Point(p->x + v->x, p->y + v->y)); }
 
-inline VectorPtr operator-(PointPtr p1, PointPtr p2) {
-  return VectorPtr(new Vector(p1->x - p2->x, p1->y - p2->y));
-}
+inline VectorPtr operator-(PointPtr p1, PointPtr p2) { return VectorPtr(new Vector(p1->x - p2->x, p1->y - p2->y)); }
 
 inline double operator^(VectorPtr v1, VectorPtr v2) {
   double a1 = std::atan2(v1->y, v1->x) - std::atan2(v2->y, v2->x);
@@ -94,18 +86,16 @@ inline double operator^(VectorPtr v1, VectorPtr v2) {
 inline Orientation operator%(VectorPtr v1, VectorPtr v2) {
   double angle = v1 ^ v2;
   if (std::abs(angle) >= 3 * M_PI_4)
-    return IN_FRONT;
-  else if (std::abs(angle) <= M_PI_4)
     return IN_BACK;
+  else if (std::abs(angle) <= M_PI_4)
+    return IN_FRONT;
   else if (angle > 0)
-    return AT_RIGHT_SIDE;
-  else
     return AT_LEFT_SIDE;
+  else
+    return AT_RIGHT_SIDE;
 }
 
-inline VectorPtr operator+(VectorPtr v) {
-  return VectorPtr(new Vector(-v->y, v->x));
-}
+inline VectorPtr operator+(VectorPtr v) { return VectorPtr(new Vector(-v->y, v->x)); }
 
 inline VectorPtr operator++(VectorPtr v) {
   v->rotate_counterclockwise();
@@ -118,9 +108,7 @@ inline VectorPtr operator++(VectorPtr v, int) {
   return vector;
 }
 
-inline VectorPtr operator-(VectorPtr v) {
-  return VectorPtr(new Vector(v->y, -v->x));
-}
+inline VectorPtr operator-(VectorPtr v) { return VectorPtr(new Vector(v->y, -v->x)); }
 
 inline VectorPtr operator--(VectorPtr v) {
   v->rotate_clockwise();
@@ -133,9 +121,7 @@ inline VectorPtr operator--(VectorPtr v, int) {
   return vector;
 }
 
-inline Orientation operator~(VectorPtr v) {
-  return v % VectorPtr(new Vector());
-}
+inline Orientation operator~(VectorPtr v) { return v % VectorPtr(new Vector()); }
 
 inline VectorPtr operator~(Orientation o) {
   switch (o) {
@@ -151,7 +137,6 @@ inline VectorPtr operator~(Orientation o) {
     return VectorPtr(new Vector());
   }
 }
-
 }
 }
 

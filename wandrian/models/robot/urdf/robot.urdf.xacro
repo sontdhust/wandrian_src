@@ -6,11 +6,11 @@
        xmlns:xacro="http://ros.org/wiki/xacro">
 
   <xacro:include filename="$(find wandrian)/models/robot/urdf/common_properties.urdf.xacro"/>
-  
+
   <!-- Model Kobuki -->
   <xacro:include filename="$(find wandrian)/models/kobuki/urdf/kobuki.urdf.xacro"/>
   <model_kobuki/>
-    
+
   <!-- Model Hokuyo -->
   <xacro:include filename="$(find wandrian)/models/hokuyo/urdf/hokuyo.urdf.xacro"/>
   <model_hokuyo parent="base_link"/>

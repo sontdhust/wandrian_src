@@ -22,7 +22,7 @@ struct Point {
 
   Point();
   Point(double, double);
-  Point(const Point&);
+  Point(const Point &);
   Point(const boost::shared_ptr<Point>);
 };
 
@@ -34,29 +34,18 @@ inline double operator%(PointPtr p1, PointPtr p2) {
 }
 
 inline bool operator<(PointConstPtr p1, PointConstPtr p2) {
-  return
-      std::abs(p1->x - p2->x) > EPSILON ?
-          p1->x - p2->x < -EPSILON : p1->y - p2->y < -EPSILON;
+  return std::abs(p1->x - p2->x) > EPSILON ? p1->x - p2->x < -EPSILON : p1->y - p2->y < -EPSILON;
 }
 
-inline bool operator!=(PointPtr p1, PointPtr p2) {
-  return p1 < p2 || p2 < p1;
-}
+inline bool operator!=(PointPtr p1, PointPtr p2) { return p1 < p2 || p2 < p1; }
 
-inline bool operator==(PointPtr p1, PointPtr p2) {
-  return !(p1 != p2);
-}
+inline bool operator==(PointPtr p1, PointPtr p2) { return !(p1 != p2); }
 
-inline bool operator>(PointPtr p1, PointPtr p2) {
-  return p1 != p2 && !(p1 < p2);
-}
+inline bool operator>(PointPtr p1, PointPtr p2) { return p1 != p2 && !(p1 < p2); }
 
 struct PointComp {
-  bool operator()(PointConstPtr p1, PointConstPtr p2) const {
-    return p1 < p2;
-  }
+  bool operator()(PointConstPtr p1, PointConstPtr p2) const { return p1 < p2; }
 };
-
 }
 }
 
